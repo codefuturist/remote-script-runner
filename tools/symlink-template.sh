@@ -4,7 +4,7 @@
 # Copy this file and modify the TARGET variable
 
 # TARGET: Set this to the path of the script you want to link to
-TARGET="scripts/bash/system-health-check.sh"
+TARGET="__TARGET_PATH__"
 
 # Auto-detect execution context and run appropriately
 if [ -f "$TARGET" ]; then
