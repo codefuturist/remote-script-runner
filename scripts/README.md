@@ -9,7 +9,9 @@ scripts/
 ├── bash/          # Bash scripts (#!/bin/bash)
 ├── zsh/           # Zsh scripts (#!/usr/bin/env zsh)
 ├── sh/            # POSIX sh scripts (#!/bin/sh)
-└── fish/          # Fish shell scripts (#!/usr/bin/env fish)
+├── fish/          # Fish shell scripts (#!/usr/bin/env fish)
+├── powershell/    # PowerShell wrapper scripts
+└── common/        # Shared functions and utilities
 ```
 
 ## Shell Comparison
