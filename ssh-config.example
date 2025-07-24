@@ -1,0 +1,131 @@
+# SSH Configuration Example - Best Practices
+# Place this in your ~/.ssh/config file
+# This file demonstrates common SSH configurations for secure remote connections
+
+# Global settings - apply to all hosts unless overridden
+Host *
+    # Security settings
+    Protocol 2
+    PasswordAuthentication no
+    PubkeyAuthentication yes
+    PreferredAuthentications publickey,keyboard-interactive
+    
+    # Connection settings
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+    ConnectTimeout 30
+    
+    # Key management
+    IdentitiesOnly yes
+    AddKeysToAgent yes
+    UseKeychain yes  # macOS only
+    
+    # Logging and verification
+    LogLevel INFO
+    StrictHostKeyChecking ask
+    UserKnownHostsFile ~/.ssh/known_hosts
+    
+    # Compression and forwarding
+    Compression yes
+    ForwardAgent no  # Only enable when needed
+    ForwardX11 no    # Only enable when needed
+
+# Example: Production web servers
+Host web-*.production.com
+    User deploy
+    Port 22
+    IdentityFile ~/.ssh/id_ed25519_production
+    StrictHostKeyChecking yes
+    LogLevel ERROR
+
+# Example: Development servers with jump host
+Host dev-*
+    User developer
+    Port 22
+    IdentityFile ~/.ssh/id_ed25519_dev
+    ProxyJump bastion.dev.example.com
+
+# Example: Database servers (high security)
+Host db-*.internal
+    User dbadmin
+    Port 2222
+    IdentityFile ~/.ssh/id_ed25519_db
+    ProxyJump bastion.internal.example.com
+    StrictHostKeyChecking yes
+    PasswordAuthentication no
+    KbdInteractiveAuthentication no
+    ChallengeResponseAuthentication no
+
+# Example: AWS EC2 instances
+Host *.amazonaws.com
+    User ec2-user
+    IdentityFile ~/.ssh/aws-key.pem
+    StrictHostKeyChecking no  # Instances change frequently
+    UserKnownHostsFile /dev/null
+
+# Example: GitHub (for reference)
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_github
+    IdentitiesOnly yes
+
+# Example: GitLab (for reference)
+Host gitlab.com
+    HostName gitlab.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_gitlab
+    IdentitiesOnly yes
+
+# Example: Jump host / Bastion server
+Host bastion bastion.example.com
+    HostName bastion.example.com
+    User admin
+    Port 22
+    IdentityFile ~/.ssh/id_ed25519_bastion
+    ForwardAgent no
+    LocalForward 3306 db.internal:3306  # Example port forwarding
+
+# Example: Docker containers via SSH
+Host docker-*
+    User root
+    Port 22
+    IdentityFile ~/.ssh/id_ed25519_docker
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    LogLevel ERROR
+
+# Example: Local VM or container
+Host local-vm
+    HostName 192.168.1.100
+    User vagrant
+    Port 2222
+    IdentityFile ~/.ssh/vagrant_key
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+
+# Example: Multiple environments shortcut
+Host prod-web1
+    HostName web1.production.example.com
+    User deploy
+    IdentityFile ~/.ssh/id_ed25519_production
+
+Host prod-web2
+    HostName web2.production.example.com
+    User deploy
+    IdentityFile ~/.ssh/id_ed25519_production
+
+Host staging-web
+    HostName web.staging.example.com
+    User deploy
+    IdentityFile ~/.ssh/id_ed25519_staging
+
+# Security Notes:
+# 1. Use Ed25519 keys when possible (ssh-keygen -t ed25519)
+# 2. Use different keys for different environments
+# 3. Keep private keys secure (chmod 600)
+# 4. Use jump hosts for internal networks
+# 5. Disable password authentication in production
+# 6. Use specific users, not root when possible
+# 7. Regular key rotation is recommended
+# 8. Monitor SSH logs for security issues

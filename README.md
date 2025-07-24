@@ -1,21 +1,110 @@
 # Remote Script Runner
 
-A collection of scripts designed to be run remotely via curl with support for multiple arguments and options.
+A robust Bash script for executing commands and scripts on remote servers via SSH with comprehensive security features and best practices.
 
 ## Features
 
-- ✅ Run scripts remotely with a single curl command
-- ✅ Support for multiple command-line arguments and options
-- ✅ Proper error handling and logging
-- ✅ Cross-platform compatibility (macOS and Linux)
-- ✅ Timeout support for long-running operations
-- ✅ Multiple output formats (text, JSON)
-- ✅ Comprehensive system health checking
-- ✅ User-friendly CLI with interactive menu
+- 🔐 **Secure SSH Configuration**: Uses industry-standard SSH security options
+- 🚀 **Parallel Execution**: Execute commands on multiple hosts simultaneously
+- 🔄 **Retry Logic**: Automatic retry with configurable delays
+- 🏃‍♂️ **Jump Host Support**: Connect through bastion/jump hosts
+- 📝 **Comprehensive Logging**: Detailed logging with timestamps and levels
+- 🧪 **Dry Run Mode**: Test commands without execution
+- 🔧 **Flexible Authentication**: Support for SSH keys and various auth methods
+- 📊 **Progress Tracking**: Real-time execution status and progress
 
-## Quick Start
+## Installation
 
-### 🎯 **Recommended Syntax** (see [SYNTAX_GUIDE.md](SYNTAX_GUIDE.md) for full comparison)
+### Quick Install
+
+```bash
+# Download the script
+curl -fsSL https://raw.githubusercontent.com/yourusername/remote-script-runner/main/remote-runner.sh -o remote-runner.sh
+
+# Make it executable
+chmod +x remote-runner.sh
+
+# Optionally, move to PATH
+sudo mv remote-runner.sh /usr/local/bin/remote-runner
+```
+
+## Usage
+
+### Basic Syntax
+
+```bash
+./remote-runner.sh [OPTIONS] -h HOST [-c COMMAND | -f SCRIPT_FILE]
+```
+
+### SSH Remote Execution Examples
+
+```bash
+# Execute a simple command
+./remote-runner.sh -h server.example.com -c "uptime"
+
+# Execute a local script on remote server
+./remote-runner.sh -h server.example.com -f ./deploy.sh
+
+# Use specific SSH key and user
+./remote-runner.sh -h server.example.com -u deploy -i ~/.ssh/deploy_key -c "systemctl status nginx"
+
+# Connect through jump host
+./remote-runner.sh -h internal.server -j bastion.example.com -c "df -h"
+
+# Execute on multiple hosts in parallel
+./remote-runner.sh -h "web1.example.com,web2.example.com,web3.example.com" --parallel -c "systemctl restart nginx"
+
+# Dry run to see what would be executed
+./remote-runner.sh -h server.example.com -n -c "rm -rf /important/data"
+```
+
+### Options
+
+| Option | Description | Default |
+|--------|-------------|----------|
+| `-h, --host` | Target host (required) | - |
+| `-u, --user` | SSH user | Current user |
+| `-p, --port` | SSH port | 22 |
+| `-i, --identity` | SSH identity file (private key) | - |
+| `-c, --command` | Command to execute remotely | - |
+| `-f, --file` | Local script file to execute | - |
+| `-j, --jump-host` | Jump host for SSH ProxyJump | - |
+| `-t, --timeout` | Connection timeout (seconds) | 30 |
+| `-r, --retries` | Number of retry attempts | 3 |
+| `-d, --delay` | Delay between retries (seconds) | 5 |
+| `-v, --verbose` | Enable verbose output | false |
+| `-n, --dry-run` | Show commands without executing | false |
+| `--parallel` | Enable parallel execution | false |
+| `--max-jobs` | Maximum parallel jobs | 5 |
+| `--version` | Show version information | - |
+| `--help` | Display help message | - |
+
+## SSH Configuration
+
+The script uses secure SSH defaults. For enhanced security, configure your `~/.ssh/config`:
+
+```ssh-config
+# Global settings
+Host *
+    Protocol 2
+    PasswordAuthentication no
+    PubkeyAuthentication yes
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+    ConnectTimeout 30
+
+# Production servers
+Host web-*.production.com
+    User deploy
+    IdentityFile ~/.ssh/id_ed25519_production
+    StrictHostKeyChecking yes
+```
+
+See `ssh-config.example` for a comprehensive configuration reference.
+
+## Legacy Scripts
+
+### 🎯 **curl-based Remote Execution** (see [SYNTAX_GUIDE.md](SYNTAX_GUIDE.md) for full comparison)
 
 ```bash
 # Pattern 1: Pipe Form (RECOMMENDED for most cases)
