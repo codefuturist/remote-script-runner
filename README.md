@@ -14,7 +14,15 @@ A collection of scripts designed to be run remotely via curl with support for mu
 
 ## Quick Start
 
-Run the system health check script remotely:
+### 🎯 **Recommended Syntax** (see [SYNTAX_GUIDE.md](SYNTAX_GUIDE.md) for details)
+
+```bash
+/bin/bash -c "$(curl -fsSL https://example.com/script.sh)" -- [ARGUMENTS]
+```
+
+**Always use the `--` separator** to clearly separate bash options from script arguments.
+
+### Examples
 
 ```bash
 # Run all health checks
@@ -147,6 +155,52 @@ Key components:
 2. **`/bin/bash -c "$(...)"`**: Executes the downloaded script
 
 3. **`-- [ARGUMENTS]`**: The `--` separates bash options from script arguments
+
+## Quick Reference
+
+### Common Use Cases
+
+```bash
+# System monitoring in cron
+*/5 * * * * /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -s cpu memory disk >> /var/log/health.log 2>&1
+
+# Server provisioning
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh)" -- -u $(whoami) -p production nginx docker python3
+
+# Quick health check with timeout
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -a -t 30
+
+# Dry run before actual execution
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh)" -- -d -v -u admin -p production nginx
+```
+
+### SSH Remote Execution
+
+```bash
+# Execute on remote server
+ssh user@server '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -a'
+
+# Multiple servers
+for server in web1 web2 db1; do
+    echo "Checking $server..."
+    ssh "user@$server" '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -s cpu memory'
+done
+```
+
+### Production Safety
+
+```bash
+# Pin to specific version
+COMMIT="d943416"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/${COMMIT}/system-health-check.sh)" -- -a
+
+# Download, review, then execute
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh > /tmp/check.sh
+less /tmp/check.sh  # Review first
+chmod +x /tmp/check.sh && /tmp/check.sh -- -a
+```
+
+📖 **See [SYNTAX_GUIDE.md](SYNTAX_GUIDE.md) for comprehensive syntax recommendations and advanced patterns.**
 
 ## Security Considerations
 
