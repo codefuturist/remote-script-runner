@@ -57,6 +57,37 @@ Each script is available in multiple shell-specific versions:
 
 See [`scripts/README.md`](scripts/README.md) for details on shell-specific features.
 
+### User-Friendly CLI Scripts
+
+#### run-script.sh - Interactive CLI
+
+A comprehensive CLI with both command-line and interactive menu interfaces:
+
+```bash
+# Show interactive menu (default when no args)
+./run-script.sh
+
+# Direct command execution
+./run-script.sh health-check -a
+./run-script.sh server-setup -d -u admin -p production nginx
+
+# Show help
+./run-script.sh -h
+```
+
+#### run - Simple CLI
+
+A minimal command runner for quick access:
+
+```bash
+# Quick health check
+./run health -a
+./run health -s cpu -s memory
+
+# Server setup
+./run setup -d -u admin -p production nginx
+```
+
 ### system-health-check.sh
 
 A comprehensive system health monitoring script that can check:
