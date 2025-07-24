@@ -47,7 +47,7 @@ run_test "run script wrapper" "./run health -s uptime"
 run_test "run-script.sh wrapper" "./run-script.sh health-check -s uptime"
 
 # File existence tests
-run_test "symlinks exist" "test -L system-health-check.sh && test -L server-setup.sh"
+run_test "root scripts exist" "test -f system-health-check.sh && test -f server-setup.sh"
 run_test "scripts directory" "test -d scripts && test -f scripts/bash/system-health-check.sh"
 run_test "PowerShell script" "test -f scripts/powershell/Invoke-RemoteScript.ps1"
 
