@@ -11,6 +11,7 @@ A collection of scripts designed to be run remotely via curl with support for mu
 - ✅ Timeout support for long-running operations
 - ✅ Multiple output formats (text, JSON)
 - ✅ Comprehensive system health checking
+- ✅ User-friendly CLI with interactive menu
 
 ## Quick Start
 
