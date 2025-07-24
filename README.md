@@ -44,6 +44,18 @@ curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/m
 
 ## Scripts
 
+### Available Versions
+
+Each script is available in multiple shell-specific versions:
+
+- **Root directory**: Original bash scripts with `#!/bin/bash` shebang
+- **`scripts/bash/`**: Bash-specific versions
+- **`scripts/zsh/`**: Zsh-enhanced versions with advanced features
+- **`scripts/sh/`**: POSIX-compliant versions for maximum portability
+- **`scripts/fish/`**: Fish shell versions with user-friendly syntax
+
+See [`scripts/README.md`](scripts/README.md) for details on shell-specific features.
+
 ### system-health-check.sh
 
 A comprehensive system health monitoring script that can check:
