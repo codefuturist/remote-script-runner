@@ -18,16 +18,16 @@ Run the system health check script remotely:
 
 ```bash
 # Run all health checks
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/yourusername/remote-script-runner/main/system-health-check.sh)" -- -a
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -a
 
 # Run specific checks with verbose output
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/yourusername/remote-script-runner/main/system-health-check.sh)" -- -v -s cpu -s memory -s disk
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -v -s cpu -s memory -s disk
 
-# Run with custom timeout and log to file
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/yourusername/remote-script-runner/main/system-health-check.sh)" -- -t 30 -l /tmp/health-check.log -a
+# Setup a server with nginx and docker
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh)" -- -u admin -p production -i nginx -i docker
 
-# Output in JSON format
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/yourusername/remote-script-runner/main/system-health-check.sh)" -- -f json -a
+# Dry run server setup with verbose output
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh)" -- -d -v -u dev -p development nodejs git vim
 ```
 
 ## Scripts
@@ -79,7 +79,53 @@ A comprehensive system health monitoring script that can check:
 ./system-health-check.sh -l /var/log/health-check.log -f json -a
 
 # Remote execution
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/yourusername/remote-script-runner/main/system-health-check.sh)" -- -v -s cpu memory disk -t 5 >> /var/log/health-check.log 2>/dev/null
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -v -s cpu memory disk -t 5 >> /var/log/health-check.log 2>/dev/null
+```
+
+### server-setup.sh
+
+A server configuration script that simulates setting up a server environment with user configuration, profile application, and package installation.
+
+#### Usage
+
+```bash
+./server-setup.sh [OPTIONS] [PACKAGES...]
+```
+
+#### Options
+
+| Option | Description |
+|--------|-------------|
+| `-h, --help` | Display help message |
+| `-u, --username USERNAME` | Set username for configuration (required) |
+| `-p, --profile PROFILE` | Environment profile: development\|production (default: development) |
+| `-i, --install PACKAGES` | Packages to install (can be used multiple times) |
+| `-d, --dry-run` | Show what would be done without executing |
+| `-v, --verbose` | Enable verbose output |
+
+#### Available Packages
+
+- `nginx` - Web server
+- `docker` - Container platform  
+- `nodejs` - JavaScript runtime
+- `python3` - Python programming language
+- `git` - Version control system
+- `curl` - Command line HTTP client
+- `vim` - Text editor
+- `htop` - Process monitor
+- `fail2ban` - Intrusion prevention
+
+#### Examples
+
+```bash
+# Local execution
+./server-setup.sh -u admin -p production -i nginx -i docker
+./server-setup.sh -u dev -p development nodejs git vim htop
+./server-setup.sh -d -u admin -p production -i nginx -i docker  # Dry run
+
+# Remote execution  
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh)" -- -u admin -p production -i nginx docker
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh)" -- -d -v -u dev nodejs python3 git
 ```
 
 ## How It Works

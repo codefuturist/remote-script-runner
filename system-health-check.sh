@@ -237,18 +237,8 @@ check_uptime() {
 }
 
 # Parse command line arguments
-TEMP=$(getopt -o hvt:l:f:s:a --long help,verbose,timeout:,log:,format:,select:,all \
-              -n "$0" -- "$@" 2>/dev/null || true)
-
-if [[ $? != 0 ]]; then
-    echo "Error parsing arguments. Use -h for help."
-    exit 1
-fi
-
-eval set -- "$TEMP"
-
-while true; do
-    case "$1" in
+while [[ $# -gt 0 ]]; do
+    case $1 in
         -h|--help)
             usage
             exit 0
@@ -277,22 +267,17 @@ while true; do
             CHECKS=("cpu" "memory" "disk" "network" "services" "uptime")
             shift
             ;;
-        --)
-            shift
-            break
+        -*)
+            echo "Unknown option $1"
+            exit 1
             ;;
         *)
-            echo "Internal error!"
-            exit 1
+            CHECKS+=("$1")
+            shift
             ;;
     esac
 done
 
-# Add any remaining arguments as checks
-while [[ $# -gt 0 ]]; do
-    CHECKS+=("$1")
-    shift
-done
 
 # If no checks specified, show usage
 if [[ ${#CHECKS[@]} -eq 0 ]]; then
