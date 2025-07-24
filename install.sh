@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # Configuration
-REPO_BASE_URL="https://raw.githubusercontent.com/codefuturist/remote-script-runner/main"
+REPO_BASE_URL="https://raw.githubusercontent.com/codefuturist/remote-script-runner/a37c9f8"
 INSTALL_DIR="${HOME}/.local/bin"
 SCRIPT_NAME="remote-runner"
 

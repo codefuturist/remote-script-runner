@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # Configuration
-REPO_BASE_URL="https://raw.githubusercontent.com/codefuturist/remote-script-runner/main"
+REPO_BASE_URL="https://raw.githubusercontent.com/codefuturist/remote-script-runner/a37c9f8"
 SCRIPT_VERSION="1.0.0"
 
 # Color codes
