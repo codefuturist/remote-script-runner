@@ -1,125 +1,116 @@
 # Remote Script Execution Syntax Guide
 
-## 🎯 Recommended Syntax
+## 🎯 Three Main Patterns for Remote Script Execution
 
-After analyzing various approaches, here's our recommended syntax for running remote scripts with arguments:
+Based on extensive testing and analysis, here are the three primary patterns for running remote scripts with arguments:
 
-### **Best Practice: Use Double Dash (`--`) Separator**
+| # | Pattern | Example | Best For |
+|---|---------|---------|----------|
+| 1 | **Pipe Form** | `curl -fsSL URL \| bash -s -- <args>` | Most readable, conventional one-liner |
+| 2 | **bash -c with dummy $0** | `bash -c "$(curl URL)" -- <dummy-$0> <args>` | Pipe-free environments |
+| 3 | **Original "quirky" variant** | `/bin/bash -c "$(curl URL)" -s 103 111` | Legacy compatibility |
 
-```bash
-/bin/bash -c "$(curl -fsSL https://example.com/script.sh)" -- [SCRIPT_ARGUMENTS]
-```
+## 📊 Comprehensive Pattern Comparison
 
-**Why this is the best approach:**
-- ✅ Clear separation between bash options and script arguments
-- ✅ Prevents argument confusion
-- ✅ Works consistently across different shells
-- ✅ Industry standard for argument separation
-- ✅ Self-documenting intent
-
-## 📊 Syntax Comparison
-
-### 1. **Double Dash Separator (RECOMMENDED)**
+### Pattern 1: Pipe Form ✨ (RECOMMENDED)
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://example.com/script.sh)" -- -u admin -p production -i nginx
+curl -fsSL https://example.com/script.sh | bash -s -- -u admin -p production
 ```
 
-**Pros:**
-- Explicit and clear
-- Prevents option parsing conflicts
-- Universal convention
-- Works with all argument types
+**👍 Pros:**
+- **Straightforward** – everybody recognizes the classic "curl | bash" one-liner
+- **Simplest quoting**: after `--`, everything is `$1 $2...` in the remote script; no need to think about `$0`
+- **Retains pipeline context** – because the script runs on bash's stdin, it's in the same process group as the caller, so a single tee, redirection or ctrl-c stops the whole thing
+- **Works inside a heredoc**: easy to embed in CI YAMLs or docs
 
-**Cons:**
-- Slightly more verbose
-- Requires typing `--`
+**👎 Cons:**
+- **Requires a pipe** – some locked-down environments (certain sudoers rules, SELinux policies, or SSH ForceCommand) disallow unapproved pipes
+- **No chance to checksum first** unless you split it into two commands or sub-shell it (which starts to defeat the simplicity)
+- **`$0` is "bash"** – the downloaded script sees `$0` as bash, so if it relies on its own filename it has to derive it some other way
 
-### 2. **Direct Arguments (Common but Problematic)**
+### Pattern 2: bash -c with dummy $0
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://example.com/script.sh)" -u admin -p production -i nginx
+bash -c "$(curl -fsSL https://example.com/script.sh)" -- script-name -u admin -p production
 ```
 
-**Pros:**
-- Shorter syntax
-- Looks cleaner
+**👍 Pros:**
+- **Pipe-free** – nothing after the URL needs a pipe, which can sidestep locked-down shells or awkward copy-and-paste situations where the pipe char gets mangled
+- **You control `$0`** – supply a meaningful label (or leave it blank) so logging inside the remote script shows what you want
+- **Can be wrapped in `$( ... )`** inside another command because it's just an argument to bash
 
-**Cons:**
-- ❌ Arguments might be interpreted by bash instead of the script
-- ❌ Can cause unexpected behavior
-- ❌ Not reliable with all shells
+**👎 Cons:**
+- **Quoting discipline** – the embedded script lives inside a double-quoted string, so any embedded `$`, back-ticks or `\` must be escaped properly
+- **Less obvious to casual readers** why the `--` is there and how `$0` ends up being the next word
+- **Long command line in ps/top**: the entire script body ends up in `/proc/<pid>/cmdline`, which can look messy and may exceed ARG_MAX for very large scripts
 
-### 3. **Quoted Arguments**
+### Pattern 3: Original "Quirky" Variant
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://example.com/script.sh) -u admin -p production -i nginx"
+/bin/bash -c "$(curl -fsSL https://example.com/script.sh)" -s 103 111
 ```
 
-**Pros:**
-- All arguments are clearly part of the script command
+**👍 Pros:**
+- **Works today** – if you already deployed it, nothing is wrong with it functionally
+- **Shorter than pattern 2** when you only need positional args (`$1`, `$2`...) and don't care about `$0`
 
-**Cons:**
-- ❌ Complex quoting issues with nested quotes
-- ❌ Difficult to use with variables
-- ❌ Error-prone with special characters
+**👎 Cons:**
+- **Confusing semantics** – the `-s` after the script string is not an option to your remote script but becomes `$0`; real parameters start at `$1`. People reading logs will wonder why `$0` is "-s"
+- **Hard to scale** – add one more flag and suddenly you need to remember where to shift things
+- **Easy to break** if the remote script relies on `$0` being a path or meaningful label
+- **Still has the quoting drawbacks** of pattern 2 but without its clarity around `$0`
 
-### 4. **Environment Variables**
+## 🎯 Quick Decision Guide
 
-```bash
-USERNAME=admin PROFILE=production bash -c "$(curl -fsSL https://example.com/script.sh)"
-```
-
-**Pros:**
-- Clean for simple configurations
-- No argument parsing issues
-
-**Cons:**
-- ❌ Not suitable for multiple values
-- ❌ Requires script modification
-- ❌ Less flexible
-
-### 5. **Stdin Pipe**
-
-```bash
-echo "admin production nginx" | bash -c "$(curl -fsSL https://example.com/script.sh)"
-```
-
-**Pros:**
-- Good for batch processing
-- Can handle large inputs
-
-**Cons:**
-- ❌ Not intuitive
-- ❌ Requires script modification
-- ❌ Poor for interactive use
+| If you... | Pick |
+|-----------|------|
+| Want the most readable, conventional one-liner and the host allows pipes | **Pattern 1** |
+| Need to run under sudo with a NOPASSWD: /bin/bash whitelist that forbids pipes, or in an environment that strips \| | **Pattern 2** |
+| Already shipped the original variant and must stay backward-compatible for a while | Keep **Pattern 3** but schedule time to migrate |
 
 ## 🚀 Real-World Examples
 
-### System Health Check
+### Pattern 1: Pipe Form (Recommended for Most Cases)
 
 ```bash
-# Recommended syntax
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -v -s cpu memory -t 5
+# System health check
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh | bash -s -- -v -s cpu memory -t 5
 
-# With output redirection
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -a -l /var/log/health.log >> /var/log/health-summary.log 2>&1
+# Server setup with dry run
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh | bash -s -- -d -u admin -p production nginx docker
 
-# In a cron job
-*/5 * * * * /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -s cpu memory disk >> /var/log/health-cron.log 2>&1
-```
-
-### Server Setup
-
-```bash
-# Basic usage
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh)" -- -u admin -p production -i nginx -i docker
-
-# Dry run with verbose output
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh)" -- -d -v -u developer -p development nodejs python3 git
+# In a cron job with logging
+*/5 * * * * curl -fsSL https://example.com/health-check.sh | bash -s -- -a >> /var/log/health.log 2>&1
 
 # With error handling
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh)" -- -u admin -p production -i nginx || echo "Setup failed"
+curl -fsSL https://example.com/setup.sh | bash -s -- -u admin || echo "Setup failed"
+```
+
+### Pattern 2: bash -c Form (For Restricted Environments)
+
+```bash
+# When pipes are restricted
+sudo /bin/bash -c "$(curl -fsSL https://example.com/script.sh)" -- health-check -s cpu memory
+
+# With meaningful $0 for logging
+/bin/bash -c "$(curl -fsSL https://example.com/deploy.sh)" -- deploy-prod -e production -v
+
+# Embedded in another command
+watch -n 60 '/bin/bash -c "$(curl -fsSL https://example.com/monitor.sh)" -- monitor -q'
+```
+
+### Pattern 3: Original Form (Legacy Compatibility)
+
+```bash
+# Original ProxmoxVE style
+/bin/bash -c "$(curl -fsSL https://example.com/update-lxcs.sh)" -s 103 111 >> /var/log/update.log 2>/dev/null
+
+# Our scripts with this pattern
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -s uptime
+
+# Note: -s becomes $0, real args start at $1
+/bin/bash -c "$(curl -fsSL https://example.com/script.sh)" dummy-$0 arg1 arg2
 ```
 
 ## 🛡️ Security Considerations
@@ -259,33 +250,45 @@ docker run --rm -v /local/path:/data ubuntu:latest \
     /bin/bash -c "$(curl -fsSL https://example.com/script.sh)" -- -p /data
 ```
 
-## 📌 Summary
+## 📌 Summary & Recommendations
 
-### ✅ **Use This Pattern**
-
-```bash
-/bin/bash -c "$(curl -fsSL https://example.com/script.sh)" -- [ARGUMENTS]
-```
-
-### ❌ **Avoid These Patterns**
+### ✅ **Recommended: Pattern 1 (Pipe Form)**
 
 ```bash
-# Don't: Arguments without separator
-/bin/bash -c "$(curl -fsSL https://example.com/script.sh)" -u admin
-
-# Don't: Complex nested quoting
-/bin/bash -c "$(curl -fsSL https://example.com/script.sh) '-u' 'admin'"
-
-# Don't: Unverified execution
-curl -fsSL https://example.com/script.sh | bash -s -- -u admin
+curl -fsSL https://example.com/script.sh | bash -s -- [ARGUMENTS]
 ```
+
+This is the most readable and conventional approach for most use cases.
+
+### 🔄 **Alternative: Pattern 2 (For Restricted Environments)**
+
+```bash
+/bin/bash -c "$(curl -fsSL https://example.com/script.sh)" -- dummy-$0 [ARGUMENTS]
+```
+
+Use when pipes are restricted or forbidden.
+
+### 💡 **Tip: Hybrid Approach for Security**
+
+Whichever style you choose, you can still add an integrity check:
+
+```bash
+curl -fsSL https://example.com/script.sh -o /tmp/x && \
+  echo "7e9d...  /tmp/x" | sha256sum -c - && \
+  bash /tmp/x --options
+rm /tmp/x
+```
+
+This hybrid gives you the security of an on-disk checksum with the ephemeral behaviour you like, because you delete the file right after execution.
 
 ### 🎯 **Key Takeaways**
 
-1. **Always use `--`** to separate script arguments
-2. **Include examples** in your script's help text
-3. **Document the remote execution pattern** in your README
-4. **Test thoroughly** with various argument combinations
-5. **Consider security** - provide checksum/version pinning options
+1. **Use Pattern 1** (pipe form) for most cases - it's the most recognizable
+2. **Use Pattern 2** when pipes are restricted or in sudo environments
+3. **Avoid Pattern 3** unless maintaining legacy compatibility
+4. **Always use `--`** to separate script arguments (except in Pattern 3)
+5. **Consider security** - add checksums for production use
+6. **Document your chosen pattern** in your README
+7. **Test thoroughly** with various argument combinations
 
-This pattern provides the best balance of clarity, compatibility, and functionality for remote script execution.
+The pipe form (`curl | bash -s --`) provides the best balance of readability, convention, and ease of use for remote script execution.

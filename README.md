@@ -14,9 +14,13 @@ A collection of scripts designed to be run remotely via curl with support for mu
 
 ## Quick Start
 
-### 🎯 **Recommended Syntax** (see [SYNTAX_GUIDE.md](SYNTAX_GUIDE.md) for details)
+### 🎯 **Recommended Syntax** (see [SYNTAX_GUIDE.md](SYNTAX_GUIDE.md) for full comparison)
 
 ```bash
+# Pattern 1: Pipe Form (RECOMMENDED for most cases)
+curl -fsSL https://example.com/script.sh | bash -s -- [ARGUMENTS]
+
+# Pattern 2: bash -c Form (for restricted environments)
 /bin/bash -c "$(curl -fsSL https://example.com/script.sh)" -- [ARGUMENTS]
 ```
 
@@ -25,17 +29,17 @@ A collection of scripts designed to be run remotely via curl with support for mu
 ### Examples
 
 ```bash
-# Run all health checks
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -a
+# Run all health checks (using pipe form)
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh | bash -s -- -a
 
 # Run specific checks with verbose output
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -v -s cpu -s memory -s disk
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh | bash -s -- -v -s cpu -s memory -s disk
 
-# Setup a server with nginx and docker
+# Setup a server with nginx and docker (bash -c form for sudo environments)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh)" -- -u admin -p production -i nginx -i docker
 
 # Dry run server setup with verbose output
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh)" -- -d -v -u dev -p development nodejs git vim
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh | bash -s -- -d -v -u dev -p development nodejs git vim
 ```
 
 ## Scripts
