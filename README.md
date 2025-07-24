@@ -207,6 +207,23 @@ curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/m
 curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh | bash -s -- -d -u admin -p development nodejs
 ```
 
+### PowerShell Examples (Windows/macOS/Linux)
+
+```powershell
+# Basic execution with PowerShell
+Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh' | bash -s -- -v -s cpu memory
+
+# Save and execute
+$script = Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh'
+$script | bash -s -- -d -u admin -p production nginx docker
+
+# One-liner from any shell
+pwsh -Command "Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh' | bash -s -- -a"
+
+# Windows with WSL
+Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh' | wsl bash -s -- -s uptime
+```
+
 ### Production Safety
 
 ```bash

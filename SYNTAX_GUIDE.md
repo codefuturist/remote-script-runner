@@ -256,7 +256,51 @@ curl -fsSL https://example.com/script.sh | "$SHELL" -s -- -u admin
 | **bash** | ✅ `bash -s --` | ✅ `bash -c "$(...)"` | Universal compatibility |
 | **zsh** | ✅ `zsh -s --` | ✅ `zsh -c "$(...)"` | macOS default, identical syntax |
 | **sh** | ✅ `sh -s --` | ✅ `sh -c "$(...)"` | POSIX compliant |
+| **PowerShell** | ✅ See below | ✅ See below | Cross-platform (Windows/macOS/Linux) |
 | **fish** | ⚠️ Different syntax | ⚠️ Different syntax | Requires fish-specific patterns |
+
+### PowerShell (Cross-Platform)
+
+PowerShell requires different syntax but works on Windows, macOS, and Linux:
+
+```powershell
+# Pattern 1: Pipe to bash (Recommended)
+Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh' | bash -s -- -v -s cpu memory
+
+# Pattern 2: Using Invoke-Expression with bash
+$script = Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh'
+bash -c $script -- -s uptime
+
+# Pattern 3: One-liner with subshell
+pwsh -Command "Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh' | bash -s -- -a"
+
+# Cross-platform PowerShell function
+function Invoke-RemoteScript {
+    param(
+        [string]$Uri,
+        [string[]]$Arguments
+    )
+    $script = Invoke-RestMethod -Uri $Uri
+    $script | bash -s -- @Arguments
+}
+
+# Usage
+Invoke-RemoteScript -Uri 'https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh' -Arguments '-v', '-s', 'cpu', 'memory'
+```
+
+### Windows-Specific PowerShell Examples
+
+```powershell
+# On Windows with WSL
+wsl bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -a
+
+# On Windows with Git Bash
+& "C:\Program Files\Git\bin\bash.exe" -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -a
+
+# Using PowerShell's native web cmdlets
+$scriptContent = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh' -UseBasicParsing
+$scriptContent.Content | wsl bash -s -- -v -s cpu memory
+```
 
 ## 🔧 Advanced Patterns
 
