@@ -59,10 +59,9 @@ See [`scripts/README.md`](scripts/README.md) for details on shell-specific featu
 
 ### User-Friendly CLI Scripts
 
-#### run-script.sh - Interactive CLI
+#### For Local Use (after cloning repository)
 
-A comprehensive CLI with both command-line and interactive menu interfaces:
-
+**run-script.sh** - Interactive CLI with menu:
 ```bash
 # Show interactive menu (default when no args)
 ./run-script.sh
@@ -70,15 +69,9 @@ A comprehensive CLI with both command-line and interactive menu interfaces:
 # Direct command execution
 ./run-script.sh health-check -a
 ./run-script.sh server-setup -d -u admin -p production nginx
-
-# Show help
-./run-script.sh -h
 ```
 
-#### run - Simple CLI
-
-A minimal command runner for quick access:
-
+**run** - Simple CLI for quick access:
 ```bash
 # Quick health check
 ./run health -a
@@ -86,6 +79,41 @@ A minimal command runner for quick access:
 
 # Server setup
 ./run setup -d -u admin -p production nginx
+```
+
+#### For Remote Use (without cloning repository)
+
+**🚀 One-liner Installation:**
+```bash
+# Install remote-runner to ~/.local/bin/remote-runner
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/install.sh | bash
+
+# Then use it anywhere:
+remote-runner health -a
+remote-runner setup -d -u admin -p production nginx
+```
+
+**⚡ Direct Execution (no installation):**
+```bash
+# Run health check directly
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/remote-runner.sh | bash -s -- health -a
+
+# Run server setup directly
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/remote-runner.sh | bash -s -- setup -d -u admin -p production nginx
+
+# Show help
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/remote-runner.sh | bash -s -- -h
+```
+
+**📥 Download and Reuse:**
+```bash
+# Download once
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/remote-runner.sh -o remote-runner.sh
+chmod +x remote-runner.sh
+
+# Use multiple times
+./remote-runner.sh health -s cpu memory
+./remote-runner.sh setup -h
 ```
 
 ### system-health-check.sh
