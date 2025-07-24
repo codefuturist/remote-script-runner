@@ -191,6 +191,22 @@ for server in web1 web2 db1; do
 done
 ```
 
+### zsh Examples (macOS Default Shell)
+
+```bash
+# Use zsh explicitly (pipe form)
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh | zsh -s -- -v -s cpu memory
+
+# Use zsh with bash -c form
+zsh -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -s uptime
+
+# Auto-detect current shell
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh | "$SHELL" -s -- -a
+
+# Cross-platform: use bash for consistency
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh | bash -s -- -d -u admin -p development nodejs
+```
+
 ### Production Safety
 
 ```bash

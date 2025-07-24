@@ -216,6 +216,48 @@ if [[ -z "${USERNAME:-}" ]]; then
 fi
 ```
 
+## 🐚 Cross-Shell Compatibility
+
+### zsh (macOS Default Shell)
+
+All patterns work seamlessly with zsh (the default shell on macOS):
+
+```bash
+# Pattern 1: Pipe Form with zsh
+curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh | zsh -s -- -v -s cpu memory
+
+# Pattern 2: zsh -c Form
+zsh -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -- -s uptime
+
+# Pattern 3: Original form works identically
+zsh -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/system-health-check.sh)" -s uptime
+```
+
+### Cross-Shell Examples
+
+```bash
+# Explicitly use bash (works everywhere)
+curl -fsSL https://example.com/script.sh | bash -s -- -u admin
+
+# Use system default shell
+curl -fsSL https://example.com/script.sh | sh -s -- -u admin
+
+# Use zsh explicitly (macOS/Linux with zsh installed)
+curl -fsSL https://example.com/script.sh | zsh -s -- -u admin
+
+# Auto-detect and use appropriate shell
+curl -fsSL https://example.com/script.sh | "$SHELL" -s -- -u admin
+```
+
+### Shell-Specific Considerations
+
+| Shell | Pipe Form | bash -c Form | Notes |
+|-------|-----------|-------------|-------|
+| **bash** | ✅ `bash -s --` | ✅ `bash -c "$(...)"` | Universal compatibility |
+| **zsh** | ✅ `zsh -s --` | ✅ `zsh -c "$(...)"` | macOS default, identical syntax |
+| **sh** | ✅ `sh -s --` | ✅ `sh -c "$(...)"` | POSIX compliant |
+| **fish** | ⚠️ Different syntax | ⚠️ Different syntax | Requires fish-specific patterns |
+
 ## 🔧 Advanced Patterns
 
 ### Using with SSH
