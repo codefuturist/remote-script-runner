@@ -164,17 +164,47 @@ print_header() {
 parse_args() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help) usage ;;
-            -v|--verbose) VERBOSE=true; shift ;;
-            -a|--all) SECTIONS=("ports" "auth" "files" "users" "network" "ssh" "updates" "processes" "kernel"); shift ;;
-            -s|--section) SECTIONS+=("$2"); shift 2 ;;
-            --severity) SEVERITY_FILTER="$2"; shift 2 ;;
-            --quick) QUICK_MODE=true; shift ;;
-            --deep) DEEP_MODE=true; shift ;;
-            -r|--report) REPORT_FILE="$2"; shift 2 ;;
-            --format) REPORT_FORMAT="$2"; shift 2 ;;
-            --cis) CIS_REFS=true; shift ;;
-            -*) echo "Unknown option: $1" >&2; exit $EXIT_INVALID_ARGS ;;
+            -h | --help) usage ;;
+            -v | --verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -a | --all)
+                SECTIONS=("ports" "auth" "files" "users" "network" "ssh" "updates" "processes" "kernel")
+                shift
+                ;;
+            -s | --section)
+                SECTIONS+=("$2")
+                shift 2
+                ;;
+            --severity)
+                SEVERITY_FILTER="$2"
+                shift 2
+                ;;
+            --quick)
+                QUICK_MODE=true
+                shift
+                ;;
+            --deep)
+                DEEP_MODE=true
+                shift
+                ;;
+            -r | --report)
+                REPORT_FILE="$2"
+                shift 2
+                ;;
+            --format)
+                REPORT_FORMAT="$2"
+                shift 2
+                ;;
+            --cis)
+                CIS_REFS=true
+                shift
+                ;;
+            -*)
+                echo "Unknown option: $1" >&2
+                exit $EXIT_INVALID_ARGS
+                ;;
             *) shift ;;
         esac
     done
@@ -194,9 +224,9 @@ audit_ports() {
     local ports_found=false
 
     # Use ss if available, fallback to netstat
-    if command -v ss &>/dev/null; then
+    if command -v ss &> /dev/null; then
         local listening
-        listening=$(ss -tlnp 2>/dev/null || ss -tln 2>/dev/null || true)
+        listening=$(ss -tlnp 2> /dev/null || ss -tln 2> /dev/null || true)
 
         if [[ -n "$listening" ]]; then
             ports_found=true
@@ -223,8 +253,8 @@ audit_ports() {
                 fi
             done
         fi
-    elif command -v netstat &>/dev/null; then
-        netstat -tlnp 2>/dev/null | tail -n +3 || true
+    elif command -v netstat &> /dev/null; then
+        netstat -tlnp 2> /dev/null | tail -n +3 || true
         ports_found=true
     fi
 
@@ -234,7 +264,7 @@ audit_ports() {
 
     # Check for common dangerous ports
     for port in 23 69 111 135 139 445 512 513 514; do
-        if ss -tln 2>/dev/null | grep -qE ":${port}\s" || netstat -tln 2>/dev/null | grep -qE ":${port}\s"; then
+        if ss -tln 2> /dev/null | grep -qE ":${port}\s" || netstat -tln 2> /dev/null | grep -qE ":${port}\s"; then
             finding_high "Potentially dangerous port $port is open"
         fi
     done
@@ -250,9 +280,9 @@ audit_auth() {
     local failed_count=0
 
     if [[ -f /var/log/auth.log ]]; then
-        failed_count=$(grep -c "Failed password" /var/log/auth.log 2>/dev/null || echo "0")
+        failed_count=$(grep -c "Failed password" /var/log/auth.log 2> /dev/null || echo "0")
     elif [[ -f /var/log/secure ]]; then
-        failed_count=$(grep -c "Failed password" /var/log/secure 2>/dev/null || echo "0")
+        failed_count=$(grep -c "Failed password" /var/log/secure 2> /dev/null || echo "0")
     fi
 
     if [[ "$failed_count" -gt 100 ]]; then
@@ -266,7 +296,7 @@ audit_auth() {
     # Check for root login attempts
     if [[ -f /var/log/auth.log ]]; then
         local root_attempts
-        root_attempts=$(grep -c "Failed password for root" /var/log/auth.log 2>/dev/null || echo "0")
+        root_attempts=$(grep -c "Failed password for root" /var/log/auth.log 2> /dev/null || echo "0")
         if [[ "$root_attempts" -gt 10 ]]; then
             finding_high "Root login brute force attempts detected: $root_attempts"
         fi
@@ -274,7 +304,7 @@ audit_auth() {
 
     # Check PAM configuration
     if [[ -f /etc/pam.d/common-auth ]]; then
-        if ! grep -q "pam_faillock\|pam_tally2" /etc/pam.d/common-auth 2>/dev/null; then
+        if ! grep -q "pam_faillock\|pam_tally2" /etc/pam.d/common-auth 2> /dev/null; then
             finding_medium "Account lockout not configured in PAM"
             [[ "$CIS_REFS" == "true" ]] && echo "    CIS: 5.4.2 - Ensure lockout for failed password attempts is configured"
         fi
@@ -283,7 +313,7 @@ audit_auth() {
     # Check for empty passwords
     if [[ $EUID -eq 0 ]]; then
         local empty_pass
-        empty_pass=$(awk -F: '($2 == "" ) { print $1 }' /etc/shadow 2>/dev/null || true)
+        empty_pass=$(awk -F: '($2 == "" ) { print $1 }' /etc/shadow 2> /dev/null || true)
         if [[ -n "$empty_pass" ]]; then
             finding_critical "Users with empty passwords: $empty_pass"
         else
@@ -301,7 +331,7 @@ audit_files() {
 
     if [[ "$QUICK_MODE" != "true" ]]; then
         local ww_files
-        ww_files=$(find /etc /usr /var -xdev -type f -perm -0002 2>/dev/null | head -20 || true)
+        ww_files=$(find /etc /usr /var -xdev -type f -perm -0002 2> /dev/null | head -20 || true)
 
         if [[ -n "$ww_files" ]]; then
             finding_medium "World-writable files found:"
@@ -319,7 +349,7 @@ audit_files() {
     local known_suid="/usr/bin/sudo /usr/bin/su /usr/bin/passwd /usr/bin/chsh /usr/bin/chfn /usr/bin/newgrp /usr/bin/gpasswd /usr/bin/mount /usr/bin/umount /usr/bin/ping /usr/bin/crontab"
 
     local suid_files
-    suid_files=$(find /usr /bin /sbin -xdev -type f \( -perm -4000 -o -perm -2000 \) 2>/dev/null || true)
+    suid_files=$(find /usr /bin /sbin -xdev -type f \( -perm -4000 -o -perm -2000 \) 2> /dev/null || true)
 
     local unusual_suid=()
     while IFS= read -r file; do
@@ -333,8 +363,8 @@ audit_files() {
         finding_medium "Unusual SUID/SGID binaries found:"
         for file in "${unusual_suid[@]}"; do
             local perms owner
-            perms=$(stat -c %a "$file" 2>/dev/null || echo "?")
-            owner=$(stat -c %U "$file" 2>/dev/null || echo "?")
+            perms=$(stat -c %a "$file" 2> /dev/null || echo "?")
+            owner=$(stat -c %U "$file" 2> /dev/null || echo "?")
             echo "    [$perms] $owner: $file"
         done
     else
@@ -343,14 +373,14 @@ audit_files() {
 
     # Check /etc/passwd and /etc/shadow permissions
     local passwd_perms shadow_perms
-    passwd_perms=$(stat -c %a /etc/passwd 2>/dev/null || echo "?")
+    passwd_perms=$(stat -c %a /etc/passwd 2> /dev/null || echo "?")
 
     if [[ "$passwd_perms" != "644" ]]; then
         finding_medium "/etc/passwd has unusual permissions: $passwd_perms (should be 644)"
     fi
 
     if [[ -f /etc/shadow ]]; then
-        shadow_perms=$(stat -c %a /etc/shadow 2>/dev/null || echo "?")
+        shadow_perms=$(stat -c %a /etc/shadow 2> /dev/null || echo "?")
         if [[ "$shadow_perms" != "640" && "$shadow_perms" != "600" && "$shadow_perms" != "000" ]]; then
             finding_high "/etc/shadow has insecure permissions: $shadow_perms"
         fi
@@ -360,7 +390,7 @@ audit_files() {
     if [[ "$DEEP_MODE" == "true" && $EUID -eq 0 ]]; then
         log_info "Scanning for unowned files (deep scan)..."
         local unowned
-        unowned=$(find / -xdev \( -nouser -o -nogroup \) 2>/dev/null | head -10 || true)
+        unowned=$(find / -xdev \( -nouser -o -nogroup \) 2> /dev/null | head -10 || true)
         if [[ -n "$unowned" ]]; then
             finding_low "Unowned files found:"
             echo "$unowned"
@@ -386,7 +416,7 @@ audit_users() {
     # Check for accounts without passwords
     if [[ $EUID -eq 0 ]]; then
         local no_pass
-        no_pass=$(awk -F: '($2 == "" || $2 == "!") && $7 !~ /nologin|false/ { print $1 }' /etc/shadow 2>/dev/null || true)
+        no_pass=$(awk -F: '($2 == "" || $2 == "!") && $7 !~ /nologin|false/ { print $1 }' /etc/shadow 2> /dev/null || true)
         if [[ -n "$no_pass" ]]; then
             finding_high "Accounts without passwords (with shell access): $no_pass"
         fi
@@ -395,7 +425,7 @@ audit_users() {
     # Check sudo group
     log_info "Checking sudo privileges..."
     local sudo_users
-    sudo_users=$(getent group sudo wheel admin 2>/dev/null | cut -d: -f4 | tr ',' '\n' | sort -u | grep -v '^$' || true)
+    sudo_users=$(getent group sudo wheel admin 2> /dev/null | cut -d: -f4 | tr ',' '\n' | sort -u | grep -v '^$' || true)
 
     if [[ -n "$sudo_users" ]]; then
         finding_info "Users with sudo access:"
@@ -424,8 +454,8 @@ audit_network() {
 
     local fw_enabled=false
 
-    if command -v ufw &>/dev/null; then
-        if ufw status 2>/dev/null | grep -q "Status: active"; then
+    if command -v ufw &> /dev/null; then
+        if ufw status 2> /dev/null | grep -q "Status: active"; then
             log_ok "UFW firewall is active"
             fw_enabled=true
         else
@@ -433,8 +463,8 @@ audit_network() {
         fi
     fi
 
-    if command -v firewall-cmd &>/dev/null; then
-        if firewall-cmd --state 2>/dev/null | grep -q "running"; then
+    if command -v firewall-cmd &> /dev/null; then
+        if firewall-cmd --state 2> /dev/null | grep -q "running"; then
             log_ok "firewalld is running"
             fw_enabled=true
         else
@@ -445,7 +475,7 @@ audit_network() {
     if [[ "$fw_enabled" == "false" ]]; then
         # Check iptables directly
         local rules
-        rules=$(iptables -L -n 2>/dev/null | grep -cv "^Chain\|^target\|^$" || echo "0")
+        rules=$(iptables -L -n 2> /dev/null | grep -cv "^Chain\|^target\|^$" || echo "0")
         if [[ "$rules" -gt 3 ]]; then
             log_ok "iptables rules are configured ($rules rules)"
             fw_enabled=true
@@ -457,7 +487,7 @@ audit_network() {
     # Check IP forwarding
     log_info "Checking IP forwarding..."
     local ip_forward
-    ip_forward=$(cat /proc/sys/net/ipv4/ip_forward 2>/dev/null || echo "0")
+    ip_forward=$(cat /proc/sys/net/ipv4/ip_forward 2> /dev/null || echo "0")
 
     if [[ "$ip_forward" == "1" ]]; then
         finding_medium "IP forwarding is enabled - ensure this is intentional"
@@ -466,14 +496,14 @@ audit_network() {
     fi
 
     # Check for promiscuous mode
-    if ip link show 2>/dev/null | grep -q "PROMISC"; then
+    if ip link show 2> /dev/null | grep -q "PROMISC"; then
         finding_high "Network interface in promiscuous mode detected"
     fi
 
     # Check established connections
     if [[ "$VERBOSE" == "true" ]]; then
         log_info "Established connections:"
-        ss -tnp 2>/dev/null | grep ESTAB | head -10 || netstat -tnp 2>/dev/null | grep ESTABLISHED | head -10 || true
+        ss -tnp 2> /dev/null | grep ESTAB | head -10 || netstat -tnp 2> /dev/null | grep ESTABLISHED | head -10 || true
     fi
 }
 
@@ -492,7 +522,7 @@ audit_ssh() {
 
     # Check root login
     local root_login
-    root_login=$(grep -E "^PermitRootLogin" "$sshd_config" 2>/dev/null | awk '{print $2}' || echo "")
+    root_login=$(grep -E "^PermitRootLogin" "$sshd_config" 2> /dev/null | awk '{print $2}' || echo "")
 
     if [[ "$root_login" == "yes" ]]; then
         finding_high "Root login is enabled via SSH"
@@ -507,7 +537,7 @@ audit_ssh() {
 
     # Check password authentication
     local pass_auth
-    pass_auth=$(grep -E "^PasswordAuthentication" "$sshd_config" 2>/dev/null | awk '{print $2}' || echo "")
+    pass_auth=$(grep -E "^PasswordAuthentication" "$sshd_config" 2> /dev/null | awk '{print $2}' || echo "")
 
     if [[ "$pass_auth" == "yes" || -z "$pass_auth" ]]; then
         finding_medium "Password authentication is enabled - consider key-only"
@@ -517,7 +547,7 @@ audit_ssh() {
 
     # Check for weak ciphers
     local ciphers
-    ciphers=$(grep -E "^Ciphers" "$sshd_config" 2>/dev/null || echo "")
+    ciphers=$(grep -E "^Ciphers" "$sshd_config" 2> /dev/null || echo "")
 
     if [[ -n "$ciphers" ]]; then
         if echo "$ciphers" | grep -qiE "3des|arcfour|blowfish|cast128"; then
@@ -529,7 +559,7 @@ audit_ssh() {
 
     # Check protocol version
     local protocol
-    protocol=$(grep -E "^Protocol" "$sshd_config" 2>/dev/null | awk '{print $2}' || echo "")
+    protocol=$(grep -E "^Protocol" "$sshd_config" 2> /dev/null | awk '{print $2}' || echo "")
 
     if [[ "$protocol" == "1" || "$protocol" == "1,2" ]]; then
         finding_critical "SSH Protocol 1 is enabled - highly insecure!"
@@ -537,7 +567,7 @@ audit_ssh() {
 
     # Check for empty passwords
     local empty_pass
-    empty_pass=$(grep -E "^PermitEmptyPasswords" "$sshd_config" 2>/dev/null | awk '{print $2}' || echo "no")
+    empty_pass=$(grep -E "^PermitEmptyPasswords" "$sshd_config" 2> /dev/null | awk '{print $2}' || echo "no")
 
     if [[ "$empty_pass" == "yes" ]]; then
         finding_critical "Empty passwords are permitted via SSH!"
@@ -545,7 +575,7 @@ audit_ssh() {
 
     # Check X11 forwarding
     local x11
-    x11=$(grep -E "^X11Forwarding" "$sshd_config" 2>/dev/null | awk '{print $2}' || echo "")
+    x11=$(grep -E "^X11Forwarding" "$sshd_config" 2> /dev/null | awk '{print $2}' || echo "")
 
     if [[ "$x11" == "yes" ]]; then
         finding_low "X11 forwarding is enabled"
@@ -558,28 +588,28 @@ audit_updates() {
 
     log_info "Checking for pending security updates..."
 
-    if command -v apt-get &>/dev/null; then
-        apt-get update -qq 2>/dev/null || true
+    if command -v apt-get &> /dev/null; then
+        apt-get update -qq 2> /dev/null || true
         local updates
-        updates=$(apt-get upgrade -s 2>/dev/null | grep -ci "security" || echo "0")
+        updates=$(apt-get upgrade -s 2> /dev/null | grep -ci "security" || echo "0")
 
         if [[ "$updates" -gt 0 ]]; then
             finding_high "Security updates available: $updates"
         else
             log_ok "No pending security updates"
         fi
-    elif command -v yum &>/dev/null; then
+    elif command -v yum &> /dev/null; then
         local updates
-        updates=$(yum check-update --security 2>/dev/null | grep -cE "^\S+\s+\S+\s+\S+" || echo "0")
+        updates=$(yum check-update --security 2> /dev/null | grep -cE "^\S+\s+\S+\s+\S+" || echo "0")
 
         if [[ "$updates" -gt 0 ]]; then
             finding_high "Security updates available: $updates"
         else
             log_ok "No pending security updates"
         fi
-    elif command -v dnf &>/dev/null; then
+    elif command -v dnf &> /dev/null; then
         local updates
-        updates=$(dnf updateinfo list --security 2>/dev/null | grep -cE "^\S+" || echo "0")
+        updates=$(dnf updateinfo list --security 2> /dev/null | grep -cE "^\S+" || echo "0")
 
         if [[ "$updates" -gt 0 ]]; then
             finding_high "Security updates available: $updates"
@@ -599,13 +629,13 @@ audit_processes() {
 
     # Check for processes running as root
     local root_procs
-    root_procs=$(ps aux 2>/dev/null | awk '$1 == "root" { print $11 }' | sort -u | wc -l || echo "0")
+    root_procs=$(ps aux 2> /dev/null | awk '$1 == "root" { print $11 }' | sort -u | wc -l || echo "0")
     finding_info "Processes running as root: $root_procs"
 
     # Check for suspicious processes
     local suspicious="nc ncat netcat socat cryptominer xmrig minerd"
     for proc in $suspicious; do
-        if pgrep -x "$proc" &>/dev/null; then
+        if pgrep -x "$proc" &> /dev/null; then
             finding_critical "Suspicious process running: $proc"
         fi
     done
@@ -614,7 +644,7 @@ audit_processes() {
     if [[ "$DEEP_MODE" == "true" && $EUID -eq 0 ]]; then
         log_info "Checking for processes with deleted binaries..."
         local deleted
-        deleted=$(find /proc/*/exe -type l 2>/dev/null | xargs ls -la 2>/dev/null | grep deleted | head -5 || true)
+        deleted=$(find /proc/*/exe -type l 2> /dev/null | xargs ls -la 2> /dev/null | grep deleted | head -5 || true)
         if [[ -n "$deleted" ]]; then
             finding_medium "Processes running from deleted binaries:"
             echo "$deleted"
@@ -624,7 +654,7 @@ audit_processes() {
     # Check for processes listening on network
     if [[ "$VERBOSE" == "true" ]]; then
         log_info "Network-listening processes:"
-        ss -tlnp 2>/dev/null | tail -n +2 || netstat -tlnp 2>/dev/null | tail -n +3 || true
+        ss -tlnp 2> /dev/null | tail -n +2 || netstat -tlnp 2> /dev/null | tail -n +3 || true
     fi
 }
 
@@ -636,7 +666,7 @@ audit_kernel() {
 
     # ASLR
     local aslr
-    aslr=$(cat /proc/sys/kernel/randomize_va_space 2>/dev/null || echo "?")
+    aslr=$(cat /proc/sys/kernel/randomize_va_space 2> /dev/null || echo "?")
     if [[ "$aslr" == "2" ]]; then
         log_ok "ASLR is fully enabled"
     elif [[ "$aslr" == "1" ]]; then
@@ -647,7 +677,7 @@ audit_kernel() {
 
     # Kernel pointers
     local kptr
-    kptr=$(cat /proc/sys/kernel/kptr_restrict 2>/dev/null || echo "?")
+    kptr=$(cat /proc/sys/kernel/kptr_restrict 2> /dev/null || echo "?")
     if [[ "$kptr" == "0" ]]; then
         finding_medium "Kernel pointers are exposed (kptr_restrict=0)"
     else
@@ -656,21 +686,21 @@ audit_kernel() {
 
     # dmesg restrict
     local dmesg
-    dmesg=$(cat /proc/sys/kernel/dmesg_restrict 2>/dev/null || echo "?")
+    dmesg=$(cat /proc/sys/kernel/dmesg_restrict 2> /dev/null || echo "?")
     if [[ "$dmesg" == "0" ]]; then
         finding_low "dmesg is accessible to all users"
     fi
 
     # Core dumps
     local core_pattern
-    core_pattern=$(cat /proc/sys/kernel/core_pattern 2>/dev/null || echo "")
+    core_pattern=$(cat /proc/sys/kernel/core_pattern 2> /dev/null || echo "")
     if [[ -n "$core_pattern" && "$core_pattern" != "|"* && "$core_pattern" != "core" ]]; then
         finding_info "Core dump pattern: $core_pattern"
     fi
 
     # SYN cookies
     local syncookies
-    syncookies=$(cat /proc/sys/net/ipv4/tcp_syncookies 2>/dev/null || echo "?")
+    syncookies=$(cat /proc/sys/net/ipv4/tcp_syncookies 2> /dev/null || echo "?")
     if [[ "$syncookies" == "0" ]]; then
         finding_medium "TCP SYN cookies are disabled (DoS protection)"
     else
@@ -682,7 +712,7 @@ audit_kernel() {
         log_info "Checking loaded kernel modules..."
         local suspicious_modules="rootkit diamorphine reptile"
         for mod in $suspicious_modules; do
-            if lsmod 2>/dev/null | grep -qi "$mod"; then
+            if lsmod 2> /dev/null | grep -qi "$mod"; then
                 finding_critical "Suspicious kernel module loaded: $mod"
             fi
         done
@@ -818,4 +848,3 @@ main() {
 }
 
 main "$@"
-

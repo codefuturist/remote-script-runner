@@ -1,0 +1,57 @@
+#!/bin/bash
+# Mock mysqldump for testing database backup
+# Simulates database dump operations
+
+# Log arguments for verification
+echo "$@" >> "${MOCK_LOG_DIR:-/tmp}/mysqldump.args" 2>/dev/null || true
+
+# Parse arguments
+ALL_DATABASES=false
+DATABASE=""
+for arg in "$@"; do
+    case "$arg" in
+        --all-databases|-A) ALL_DATABASES=true ;;
+        --databases) : ;;
+        -*) : ;;
+        *) DATABASE="$arg" ;;
+    esac
+done
+
+# Generate mock SQL dump
+cat << 'EOF'
+-- MySQL dump mock
+-- Server version	8.0.32
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database structure
+--
+
+CREATE DATABASE IF NOT EXISTS `testdb`;
+USE `testdb`;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` VALUES (1,'Test User','test@example.com');
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+EOF
+
+exit 0
+

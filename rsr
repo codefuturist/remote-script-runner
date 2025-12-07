@@ -16,7 +16,7 @@ set -eu
 # ============================================================================
 
 # Try to read version from VERSION file (local), fallback to hardcoded
-SCRIPT_DIR="$(cd "$(dirname "$0")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+SCRIPT_DIR="$(cd "$(dirname "$0")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/VERSION" ]; then
     SCRIPT_VERSION=$(cat "$SCRIPT_DIR/VERSION" | tr -d '[:space:]')
 else
@@ -91,13 +91,13 @@ detect_shell() {
         echo "$RSR_SHELL"
         return
     fi
-    
+
     # Prefer bash for widest compatibility
-    if command -v bash >/dev/null 2>&1; then
+    if command -v bash > /dev/null 2>&1; then
         echo "bash"
-    elif command -v zsh >/dev/null 2>&1; then
+    elif command -v zsh > /dev/null 2>&1; then
         echo "zsh"
-    elif command -v sh >/dev/null 2>&1; then
+    elif command -v sh > /dev/null 2>&1; then
         echo "sh"
     else
         log_error "No supported shell found (bash, zsh, or sh)"
@@ -108,15 +108,15 @@ detect_shell() {
 get_script_path() {
     script_name="$1"
     shell_type="$2"
-    
+
     case "$script_name" in
         health)
             case "$shell_type" in
                 bash) echo "scripts/bash/system-health-check.sh" ;;
-                zsh)  echo "scripts/zsh/system-health-check.zsh" ;;
-                sh)   echo "scripts/sh/system-health-check.sh" ;;
+                zsh) echo "scripts/zsh/system-health-check.zsh" ;;
+                sh) echo "scripts/sh/system-health-check.sh" ;;
                 fish) echo "scripts/fish/system-health-check.fish" ;;
-                *)    echo "scripts/bash/system-health-check.sh" ;;
+                *) echo "scripts/bash/system-health-check.sh" ;;
             esac
             ;;
         setup)
@@ -169,9 +169,9 @@ is_local() {
 
 download() {
     url="$1"
-    if command -v curl >/dev/null 2>&1; then
+    if command -v curl > /dev/null 2>&1; then
         curl -fsSL "$url"
-    elif command -v wget >/dev/null 2>&1; then
+    elif command -v wget > /dev/null 2>&1; then
         wget -qO- "$url"
     else
         log_error "Neither curl nor wget is available"
@@ -182,34 +182,34 @@ download() {
 run_script() {
     script_name="$1"
     shift
-    
+
     shell_type=$(detect_shell)
     script_path=$(get_script_path "$script_name" "$shell_type")
-    
+
     if [ -z "$script_path" ]; then
         log_error "Unknown script: $script_name"
         echo "Use 'rsr list' to see available scripts"
         exit 1
     fi
-    
+
     log_debug "Shell: $shell_type"
     log_debug "Script path: $script_path"
-    
+
     if is_local; then
         # Run from scripts directory
         if [ -f "./$script_path" ]; then
             log_debug "Running locally: ./$script_path"
             exec "$shell_type" "./$script_path" "$@"
         fi
-        
+
         # Script not found locally - this shouldn't happen in a proper install
         log_warn "Script not found locally, fetching from remote..."
     fi
-    
+
     # Remote execution
     script_url="$REPO_BASE_URL/$script_path"
     log_debug "Fetching: $script_url"
-    
+
     download "$script_url" | "$shell_type" -s -- "$@"
 }
 
@@ -315,25 +315,25 @@ show_version() {
 
 main() {
     setup_colors
-    
+
     # No arguments - show help
     if [ $# -eq 0 ]; then
         show_help
         exit 0
     fi
-    
+
     # Parse global flags
     while [ $# -gt 0 ]; do
         case "$1" in
-            -h|--help|help)
+            -h | --help | help)
                 show_help
                 exit 0
                 ;;
-            -V|--version|version)
+            -V | --version | version)
                 show_version
                 exit 0
                 ;;
-            -v|--verbose)
+            -v | --verbose)
                 RSR_VERBOSE=1
                 shift
                 ;;
@@ -359,54 +359,54 @@ main() {
                 ;;
         esac
     done
-    
+
     # No command after flags
     if [ $# -eq 0 ]; then
         show_help
         exit 0
     fi
-    
+
     COMMAND="$1"
     shift
-    
-case "$COMMAND" in
-        health|health-check|system-health-check)
+
+    case "$COMMAND" in
+        health | health-check | system-health-check)
             run_script "health" "$@"
             ;;
-        setup|server-setup)
+        setup | server-setup)
             run_script "setup" "$@"
             ;;
-        cleanup|disk-cleanup)
+        cleanup | disk-cleanup)
             run_script "cleanup" "$@"
             ;;
-        ssl|ssl-checker|ssl-check)
+        ssl | ssl-checker | ssl-check)
             run_script "ssl" "$@"
             ;;
-        users|user-audit)
+        users | user-audit)
             run_script "users" "$@"
             ;;
-        update|system-update)
+        update | system-update)
             run_script "update" "$@"
             ;;
-        audit|security-audit)
+        audit | security-audit)
             run_script "audit" "$@"
             ;;
-        netdiag|network-diagnostics)
+        netdiag | network-diagnostics)
             run_script "netdiag" "$@"
             ;;
-        ssh-harden|ssh-hardening)
+        ssh-harden | ssh-hardening)
             run_script "ssh-harden" "$@"
             ;;
-        firewall|firewall-setup)
+        firewall | firewall-setup)
             run_script "firewall" "$@"
             ;;
-        backup|config-backup)
+        backup | config-backup)
             run_script "backup" "$@"
             ;;
-        db-backup|database-backup)
+        db-backup | database-backup)
             run_script "db-backup" "$@"
             ;;
-        list|ls)
+        list | ls)
             list_scripts
             ;;
         *)

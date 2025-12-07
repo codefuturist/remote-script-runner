@@ -1,0 +1,43 @@
+#!/bin/bash
+# Mock systemctl for testing service management
+
+# Log arguments
+echo "$@" >> "${MOCK_LOG_DIR:-/tmp}/systemctl.args" 2>/dev/null || true
+
+case "$1" in
+    status)
+        echo "● $2.service - Mock Service"
+        echo "     Loaded: loaded (/lib/systemd/system/$2.service; enabled; vendor preset: enabled)"
+        echo "     Active: active (running) since Mon 2024-01-01 00:00:00 UTC; 1 day ago"
+        echo "   Main PID: 1234 (mock)"
+        ;;
+    start|stop|restart|reload)
+        echo "Mock: $1 $2"
+        ;;
+    enable|disable)
+        echo "Mock: $1 $2"
+        ;;
+    is-active)
+        echo "active"
+        ;;
+    is-enabled)
+        echo "enabled"
+        ;;
+    list-units)
+        cat << 'EOF'
+UNIT                     LOAD   ACTIVE SUB     DESCRIPTION
+ssh.service              loaded active running OpenBSD Secure Shell server
+nginx.service            loaded active running A high performance web server
+mysql.service            loaded active running MySQL Community Server
+EOF
+        ;;
+    daemon-reload)
+        echo "Mock: daemon-reload"
+        ;;
+    *)
+        echo "systemctl mock: unknown command $1"
+        ;;
+esac
+
+exit 0
+

@@ -182,29 +182,95 @@ human_size() {
 parse_args() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help) usage ;;
-            -v|--verbose) VERBOSE=true; shift ;;
-            --mysql) DB_TYPE="mysql"; shift ;;
-            --postgresql|--postgres) DB_TYPE="postgresql"; shift ;;
-            --mongodb|--mongo) DB_TYPE="mongodb"; shift ;;
-            --auto) AUTO_DETECT=true; shift ;;
-            -d|--database) DATABASE="$2"; shift 2 ;;
-            -A|--all-databases) ALL_DATABASES=true; shift ;;
-            --schema-only) SCHEMA_ONLY=true; shift ;;
-            --data-only) DATA_ONLY=true; shift ;;
-            -o|--output) OUTPUT_DIR="$2"; shift 2 ;;
-            --compress) COMPRESS="$2"; shift 2 ;;
-            --encrypt) DO_ENCRYPT=true; shift ;;
-            --gpg-key) GPG_KEY="$2"; shift 2 ;;
-            --parallel) PARALLEL="$2"; shift 2 ;;
-            --upload) UPLOAD_DEST="$2"; shift 2 ;;
-            --retention) RETENTION="$2"; shift 2 ;;
-            --verify) DO_VERIFY=true; shift ;;
-            --pitr) INCLUDE_PITR=true; shift ;;
-            --list) LIST_BACKUPS=true; shift ;;
-            --restore) RESTORE_FILE="$2"; shift 2 ;;
-            --dry-run) DRY_RUN=true; shift ;;
-            -*) log_error "Unknown option: $1"; exit $EXIT_INVALID_ARGS ;;
+            -h | --help) usage ;;
+            -v | --verbose)
+                VERBOSE=true
+                shift
+                ;;
+            --mysql)
+                DB_TYPE="mysql"
+                shift
+                ;;
+            --postgresql | --postgres)
+                DB_TYPE="postgresql"
+                shift
+                ;;
+            --mongodb | --mongo)
+                DB_TYPE="mongodb"
+                shift
+                ;;
+            --auto)
+                AUTO_DETECT=true
+                shift
+                ;;
+            -d | --database)
+                DATABASE="$2"
+                shift 2
+                ;;
+            -A | --all-databases)
+                ALL_DATABASES=true
+                shift
+                ;;
+            --schema-only)
+                SCHEMA_ONLY=true
+                shift
+                ;;
+            --data-only)
+                DATA_ONLY=true
+                shift
+                ;;
+            -o | --output)
+                OUTPUT_DIR="$2"
+                shift 2
+                ;;
+            --compress)
+                COMPRESS="$2"
+                shift 2
+                ;;
+            --encrypt)
+                DO_ENCRYPT=true
+                shift
+                ;;
+            --gpg-key)
+                GPG_KEY="$2"
+                shift 2
+                ;;
+            --parallel)
+                PARALLEL="$2"
+                shift 2
+                ;;
+            --upload)
+                UPLOAD_DEST="$2"
+                shift 2
+                ;;
+            --retention)
+                RETENTION="$2"
+                shift 2
+                ;;
+            --verify)
+                DO_VERIFY=true
+                shift
+                ;;
+            --pitr)
+                INCLUDE_PITR=true
+                shift
+                ;;
+            --list)
+                LIST_BACKUPS=true
+                shift
+                ;;
+            --restore)
+                RESTORE_FILE="$2"
+                shift 2
+                ;;
+            --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            -*)
+                log_error "Unknown option: $1"
+                exit $EXIT_INVALID_ARGS
+                ;;
             *) shift ;;
         esac
     done
@@ -217,26 +283,26 @@ detect_databases() {
     local found=()
 
     # Check MySQL/MariaDB
-    if command -v mysql &>/dev/null; then
-        if mysqladmin ping -h "$MYSQL_HOST" -u "$MYSQL_USER" ${MYSQL_PASSWORD:+-p"$MYSQL_PASSWORD"} &>/dev/null; then
+    if command -v mysql &> /dev/null; then
+        if mysqladmin ping -h "$MYSQL_HOST" -u "$MYSQL_USER" ${MYSQL_PASSWORD:+-p"$MYSQL_PASSWORD"} &> /dev/null; then
             found+=("mysql")
             log_ok "MySQL/MariaDB detected"
         fi
     fi
 
     # Check PostgreSQL
-    if command -v psql &>/dev/null; then
-        if PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -U "$PGUSER" -p "$PGPORT" -c '\q' &>/dev/null; then
+    if command -v psql &> /dev/null; then
+        if PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -U "$PGUSER" -p "$PGPORT" -c '\q' &> /dev/null; then
             found+=("postgresql")
             log_ok "PostgreSQL detected"
         fi
     fi
 
     # Check MongoDB
-    if command -v mongosh &>/dev/null || command -v mongo &>/dev/null; then
+    if command -v mongosh &> /dev/null || command -v mongo &> /dev/null; then
         local mongo_cmd="mongosh"
-        command -v mongosh &>/dev/null || mongo_cmd="mongo"
-        if $mongo_cmd --host "$MONGO_HOST" --port "$MONGO_PORT" --eval "db.version()" &>/dev/null; then
+        command -v mongosh &> /dev/null || mongo_cmd="mongo"
+        if $mongo_cmd --host "$MONGO_HOST" --port "$MONGO_PORT" --eval "db.version()" &> /dev/null; then
             found+=("mongodb")
             log_ok "MongoDB detected"
         fi
@@ -263,7 +329,7 @@ get_backup_filename() {
     local timestamp
     timestamp=$(date +%Y%m%d_%H%M%S)
     local hostname
-    hostname=$(hostname -s 2>/dev/null || echo "server")
+    hostname=$(hostname -s 2> /dev/null || echo "server")
 
     echo "${db_type}-${db_name}-${hostname}-${timestamp}"
 }
@@ -271,14 +337,14 @@ get_backup_filename() {
 # Get MySQL databases
 get_mysql_databases() {
     mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" ${MYSQL_PASSWORD:+-p"$MYSQL_PASSWORD"} \
-        -N -e "SHOW DATABASES" 2>/dev/null | grep -vE "^(information_schema|performance_schema|mysql|sys)$"
+        -N -e "SHOW DATABASES" 2> /dev/null | grep -vE "^(information_schema|performance_schema|mysql|sys)$"
 }
 
 # Backup MySQL database
 backup_mysql() {
     print_header "MySQL/MariaDB Backup"
 
-    if ! command -v mysqldump &>/dev/null; then
+    if ! command -v mysqldump &> /dev/null; then
         log_error "mysqldump not found"
         exit $EXIT_ERROR
     fi
@@ -324,7 +390,7 @@ backup_mysql() {
 
         mysqldump -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" \
             ${MYSQL_PASSWORD:+-p"$MYSQL_PASSWORD"} \
-            $dump_opts "$db" > "$output_file" 2>/dev/null || {
+            $dump_opts "$db" > "$output_file" 2> /dev/null || {
             log_error "Failed to dump database: $db"
             exit $EXIT_DUMP_FAILED
         }
@@ -338,21 +404,21 @@ backup_mysql() {
         log_info "Recording binary log position..."
         mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" \
             ${MYSQL_PASSWORD:+-p"$MYSQL_PASSWORD"} \
-            -e "SHOW MASTER STATUS\G" > "$OUTPUT_DIR/mysql-binlog-position.txt" 2>/dev/null || true
+            -e "SHOW MASTER STATUS\G" > "$OUTPUT_DIR/mysql-binlog-position.txt" 2> /dev/null || true
     fi
 }
 
 # Get PostgreSQL databases
 get_pg_databases() {
     PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -U "$PGUSER" -p "$PGPORT" \
-        -t -c "SELECT datname FROM pg_database WHERE datistemplate = false AND datname != 'postgres'" 2>/dev/null | tr -d ' '
+        -t -c "SELECT datname FROM pg_database WHERE datistemplate = false AND datname != 'postgres'" 2> /dev/null | tr -d ' '
 }
 
 # Backup PostgreSQL database
 backup_postgresql() {
     print_header "PostgreSQL Backup"
 
-    if ! command -v pg_dump &>/dev/null; then
+    if ! command -v pg_dump &> /dev/null; then
         log_error "pg_dump not found"
         exit $EXIT_ERROR
     fi
@@ -381,7 +447,7 @@ backup_postgresql() {
     [[ "$DATA_ONLY" == "true" ]] && dump_opts="$dump_opts --data-only"
 
     # Use parallel dump if requested and available
-    if [[ "$PARALLEL" -gt 1 ]] && command -v pg_dump &>/dev/null; then
+    if [[ "$PARALLEL" -gt 1 ]] && command -v pg_dump &> /dev/null; then
         dump_opts="$dump_opts -j $PARALLEL"
     fi
 
@@ -400,7 +466,7 @@ backup_postgresql() {
         fi
 
         PGPASSWORD="$PGPASSWORD" pg_dump -h "$PGHOST" -U "$PGUSER" -p "$PGPORT" \
-            $dump_opts "$db" > "$output_file" 2>/dev/null || {
+            $dump_opts "$db" > "$output_file" 2> /dev/null || {
             log_error "Failed to dump database: $db"
             exit $EXIT_DUMP_FAILED
         }
@@ -414,7 +480,7 @@ backup_postgresql() {
         log_info "Backing up global objects (roles, tablespaces)..."
         local globals_file="$OUTPUT_DIR/$(get_backup_filename "postgresql" "globals").sql"
         PGPASSWORD="$PGPASSWORD" pg_dumpall -h "$PGHOST" -U "$PGUSER" -p "$PGPORT" \
-            --globals-only > "$globals_file" 2>/dev/null || true
+            --globals-only > "$globals_file" 2> /dev/null || true
         finalize_backup "$globals_file" "globals"
     fi
 
@@ -422,29 +488,29 @@ backup_postgresql() {
     if [[ "$INCLUDE_PITR" == "true" && "$DRY_RUN" != "true" ]]; then
         log_info "Recording WAL position..."
         PGPASSWORD="$PGPASSWORD" psql -h "$PGHOST" -U "$PGUSER" -p "$PGPORT" \
-            -c "SELECT pg_current_wal_lsn();" > "$OUTPUT_DIR/postgresql-wal-position.txt" 2>/dev/null || true
+            -c "SELECT pg_current_wal_lsn();" > "$OUTPUT_DIR/postgresql-wal-position.txt" 2> /dev/null || true
     fi
 }
 
 # Get MongoDB databases
 get_mongo_databases() {
     local mongo_cmd="mongosh"
-    command -v mongosh &>/dev/null || mongo_cmd="mongo"
+    command -v mongosh &> /dev/null || mongo_cmd="mongo"
 
     local auth_opts=""
     [[ -n "$MONGO_USER" ]] && auth_opts="-u $MONGO_USER"
     [[ -n "$MONGO_PASSWORD" ]] && auth_opts="$auth_opts -p $MONGO_PASSWORD"
 
     $mongo_cmd --host "$MONGO_HOST" --port "$MONGO_PORT" $auth_opts \
-        --quiet --eval "db.adminCommand('listDatabases').databases.map(d => d.name).join('\n')" 2>/dev/null | \
-        grep -vE "^(admin|config|local)$"
+        --quiet --eval "db.adminCommand('listDatabases').databases.map(d => d.name).join('\n')" 2> /dev/null \
+        | grep -vE "^(admin|config|local)$"
 }
 
 # Backup MongoDB database
 backup_mongodb() {
     print_header "MongoDB Backup"
 
-    if ! command -v mongodump &>/dev/null; then
+    if ! command -v mongodump &> /dev/null; then
         log_error "mongodump not found"
         exit $EXIT_ERROR
     fi
@@ -466,7 +532,7 @@ backup_mongodb() {
         fi
 
         mongodump --host "$MONGO_HOST" --port "$MONGO_PORT" $auth_opts \
-            --out "$output_path" 2>/dev/null || {
+            --out "$output_path" 2> /dev/null || {
             log_error "Failed to dump MongoDB"
             exit $EXIT_DUMP_FAILED
         }
@@ -479,7 +545,7 @@ backup_mongodb() {
         fi
 
         mongodump --host "$MONGO_HOST" --port "$MONGO_PORT" $auth_opts \
-            --db "$DATABASE" --out "$output_path" 2>/dev/null || {
+            --db "$DATABASE" --out "$output_path" 2> /dev/null || {
             log_error "Failed to dump database: $DATABASE"
             exit $EXIT_DUMP_FAILED
         }
@@ -491,7 +557,7 @@ backup_mongodb() {
     # Create archive
     log_info "Creating archive..."
     local archive_file="${output_path}.tar"
-    tar -cf "$archive_file" -C "$OUTPUT_DIR" "$filename" 2>/dev/null
+    tar -cf "$archive_file" -C "$OUTPUT_DIR" "$filename" 2> /dev/null
     rm -rf "$output_path"
 
     # Compress and encrypt
@@ -511,17 +577,26 @@ finalize_backup() {
     case "$COMPRESS" in
         gzip)
             log_debug "Compressing with gzip..."
-            gzip -9 "$file" || { log_error "Compression failed"; exit $EXIT_COMPRESS_FAIL; }
+            gzip -9 "$file" || {
+                log_error "Compression failed"
+                exit $EXIT_COMPRESS_FAIL
+            }
             final_file="${file}.gz"
             ;;
         xz)
             log_debug "Compressing with xz..."
-            xz -9 "$file" || { log_error "Compression failed"; exit $EXIT_COMPRESS_FAIL; }
+            xz -9 "$file" || {
+                log_error "Compression failed"
+                exit $EXIT_COMPRESS_FAIL
+            }
             final_file="${file}.xz"
             ;;
         lz4)
             log_debug "Compressing with lz4..."
-            lz4 -9 "$file" "${file}.lz4" && rm -f "$file" || { log_error "Compression failed"; exit $EXIT_COMPRESS_FAIL; }
+            lz4 -9 "$file" "${file}.lz4" && rm -f "$file" || {
+                log_error "Compression failed"
+                exit $EXIT_COMPRESS_FAIL
+            }
             final_file="${file}.lz4"
             ;;
         none)
@@ -548,11 +623,11 @@ finalize_backup() {
     fi
 
     # Create checksum
-    sha256sum "$final_file" > "${final_file}.sha256" 2>/dev/null || \
-    shasum -a 256 "$final_file" > "${final_file}.sha256" 2>/dev/null || true
+    sha256sum "$final_file" > "${final_file}.sha256" 2> /dev/null \
+        || shasum -a 256 "$final_file" > "${final_file}.sha256" 2> /dev/null || true
 
     local size
-    size=$(stat -f%z "$final_file" 2>/dev/null || stat -c%s "$final_file" 2>/dev/null || echo "0")
+    size=$(stat -f%z "$final_file" 2> /dev/null || stat -c%s "$final_file" 2> /dev/null || echo "0")
 
     log_ok "Backup: $(basename "$final_file") ($(human_size $size))"
 
@@ -576,7 +651,7 @@ verify_backup() {
     # Check checksum
     local checksum_file="${file}.sha256"
     if [[ -f "$checksum_file" ]]; then
-        if sha256sum -c "$checksum_file" &>/dev/null || shasum -a 256 -c "$checksum_file" &>/dev/null; then
+        if sha256sum -c "$checksum_file" &> /dev/null || shasum -a 256 -c "$checksum_file" &> /dev/null; then
             log_debug "Checksum verified"
         else
             log_warn "Checksum verification failed"
@@ -587,13 +662,13 @@ verify_backup() {
     if [[ "$file" =~ \.gpg$ ]]; then
         log_debug "Encrypted backup - skipping content verification"
     elif [[ "$file" =~ \.gz$ ]]; then
-        if gzip -t "$file" &>/dev/null; then
+        if gzip -t "$file" &> /dev/null; then
             log_debug "Gzip archive valid"
         else
             log_warn "Gzip archive may be corrupt"
         fi
     elif [[ "$file" =~ \.xz$ ]]; then
-        if xz -t "$file" &>/dev/null; then
+        if xz -t "$file" &> /dev/null; then
             log_debug "XZ archive valid"
         else
             log_warn "XZ archive may be corrupt"
@@ -608,7 +683,7 @@ upload_backup() {
     log_info "Uploading $(basename "$file")..."
 
     if [[ "$UPLOAD_DEST" =~ ^s3:// ]]; then
-        if command -v aws &>/dev/null; then
+        if command -v aws &> /dev/null; then
             aws s3 cp "$file" "$UPLOAD_DEST" || {
                 log_error "S3 upload failed"
                 exit $EXIT_UPLOAD_FAIL
@@ -619,7 +694,7 @@ upload_backup() {
             exit $EXIT_UPLOAD_FAIL
         fi
     elif [[ "$UPLOAD_DEST" =~ ^gs:// ]]; then
-        if command -v gsutil &>/dev/null; then
+        if command -v gsutil &> /dev/null; then
             gsutil cp "$file" "$UPLOAD_DEST" || {
                 log_error "GCS upload failed"
                 exit $EXIT_UPLOAD_FAIL
@@ -648,11 +723,11 @@ apply_retention() {
 
     for pattern in mysql postgresql mongodb; do
         local backups
-        backups=$(ls -t "$OUTPUT_DIR"/${pattern}-*.sql* "$OUTPUT_DIR"/${pattern}-*.tar* 2>/dev/null | tail -n +$((RETENTION + 1)) || true)
+        backups=$(ls -t "$OUTPUT_DIR"/${pattern}-*.sql* "$OUTPUT_DIR"/${pattern}-*.tar* 2> /dev/null | tail -n +$((RETENTION + 1)) || true)
 
         if [[ -n "$backups" ]]; then
             echo "$backups" | while read -r file; do
-                rm -f "$file" "${file}.sha256" 2>/dev/null || true
+                rm -f "$file" "${file}.sha256" 2> /dev/null || true
                 log_debug "Removed: $file"
             done
         fi
@@ -677,8 +752,8 @@ list_backups() {
         [[ "$file" =~ \.sha256$ ]] && continue
 
         local size date
-        size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null || echo "?")
-        date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M" "$file" 2>/dev/null || stat -c "%y" "$file" 2>/dev/null | cut -d. -f1 || echo "?")
+        size=$(stat -f%z "$file" 2> /dev/null || stat -c%s "$file" 2> /dev/null || echo "?")
+        date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M" "$file" 2> /dev/null || stat -c "%y" "$file" 2> /dev/null | cut -d. -f1 || echo "?")
 
         printf "%-50s %10s %s\n" "$(basename "$file")" "$(human_size $size)" "$date"
         ((count++)) || true
@@ -741,15 +816,24 @@ restore_backup() {
     # Handle compressed backups
     if [[ "$restore_file" =~ \.gz$ ]]; then
         log_info "Decompressing..."
-        gunzip -k "$restore_file" || { log_error "Decompression failed"; exit $EXIT_RESTORE_FAIL; }
+        gunzip -k "$restore_file" || {
+            log_error "Decompression failed"
+            exit $EXIT_RESTORE_FAIL
+        }
         restore_file="${restore_file%.gz}"
     elif [[ "$restore_file" =~ \.xz$ ]]; then
         log_info "Decompressing..."
-        xz -dk "$restore_file" || { log_error "Decompression failed"; exit $EXIT_RESTORE_FAIL; }
+        xz -dk "$restore_file" || {
+            log_error "Decompression failed"
+            exit $EXIT_RESTORE_FAIL
+        }
         restore_file="${restore_file%.xz}"
     elif [[ "$restore_file" =~ \.lz4$ ]]; then
         log_info "Decompressing..."
-        lz4 -d "$restore_file" "${restore_file%.lz4}" || { log_error "Decompression failed"; exit $EXIT_RESTORE_FAIL; }
+        lz4 -d "$restore_file" "${restore_file%.lz4}" || {
+            log_error "Decompression failed"
+            exit $EXIT_RESTORE_FAIL
+        }
         restore_file="${restore_file%.lz4}"
     fi
 
@@ -855,7 +939,10 @@ main() {
             mysql) backup_mysql ;;
             postgresql) backup_postgresql ;;
             mongodb) backup_mongodb ;;
-            *) log_error "Unknown database type: $DB_TYPE"; exit $EXIT_INVALID_ARGS ;;
+            *)
+                log_error "Unknown database type: $DB_TYPE"
+                exit $EXIT_INVALID_ARGS
+                ;;
         esac
     else
         log_error "Specify --mysql, --postgresql, --mongodb, or --auto"
@@ -872,4 +959,3 @@ main() {
 }
 
 main "$@"
-

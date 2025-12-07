@@ -1,4 +1,15 @@
 #!/bin/bash
+# =============================================================================
+# @id           setup
+# @name         server-setup
+# @displayName  Server Setup
+# @description  Initial server setup: users, SSH hardening, firewall, common tools
+# @category     setup
+# @version      1.0.0
+# @author       codefuturist
+# @tags         setup,server,users,ssh,firewall,tools,initialization
+# @shells       bash
+# =============================================================================
 
 # Server Setup Script
 # Example: /bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/scripts/bash/server-setup.sh)" -- -u admin -p production -i nginx docker
@@ -71,13 +82,13 @@ log() {
     local level="$1"
     local message="$2"
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    
+
     case "$level" in
-        "INFO")  echo -e "${BLUE}[INFO]${NC} $message" ;;
-        "WARN")  echo -e "${YELLOW}[WARN]${NC} $message" ;;
+        "INFO") echo -e "${BLUE}[INFO]${NC} $message" ;;
+        "WARN") echo -e "${YELLOW}[WARN]${NC} $message" ;;
         "ERROR") echo -e "${RED}[ERROR]${NC} $message" ;;
-        "OK")    echo -e "${GREEN}[OK]${NC} $message" ;;
-        *)       echo "[$level] $message" ;;
+        "OK") echo -e "${GREEN}[OK]${NC} $message" ;;
+        *) echo "[$level] $message" ;;
     esac
 }
 
@@ -95,22 +106,22 @@ is_package_available() {
 # Function to simulate package installation
 install_package() {
     local package="$1"
-    
+
     if ! is_package_available "$package"; then
         log "ERROR" "Package '$package' is not available"
         return 1
     fi
-    
+
     log "INFO" "Installing $package..."
-    
+
     if [[ "$DRY_RUN" == true ]]; then
         log "INFO" "[DRY RUN] Would install: $package"
         return 0
     fi
-    
+
     # Simulate installation time
     sleep 1
-    
+
     case "$package" in
         nginx)
             log "OK" "nginx installed successfully"
@@ -137,18 +148,18 @@ install_package() {
 # Function to configure user
 configure_user() {
     local username="$1"
-    
+
     log "INFO" "Configuring user: $username"
-    
+
     if [[ "$DRY_RUN" == true ]]; then
         log "INFO" "[DRY RUN] Would configure user: $username"
         return 0
     fi
-    
+
     # Simulate user configuration
     sleep 0.5
     log "OK" "User $username configured successfully"
-    
+
     if [[ "$VERBOSE" == true ]]; then
         log "INFO" "Created ~/.bashrc configuration"
         log "INFO" "Set up SSH key authentication"
@@ -159,14 +170,14 @@ configure_user() {
 # Function to apply profile-specific configurations
 apply_profile() {
     local profile="$1"
-    
+
     log "INFO" "Applying $profile profile..."
-    
+
     if [[ "$DRY_RUN" == true ]]; then
         log "INFO" "[DRY RUN] Would apply profile: $profile"
         return 0
     fi
-    
+
     case "$profile" in
         development)
             log "OK" "Development profile applied"
@@ -185,27 +196,27 @@ apply_profile() {
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
-        -h|--help)
+        -h | --help)
             usage
             exit 0
             ;;
-        -u|--username)
+        -u | --username)
             USERNAME="$2"
             shift 2
             ;;
-        -p|--profile)
+        -p | --profile)
             PROFILE="$2"
             shift 2
             ;;
-        -i|--install)
+        -i | --install)
             INSTALL_PACKAGES+=("$2")
             shift 2
             ;;
-        -d|--dry-run)
+        -d | --dry-run)
             DRY_RUN=true
             shift
             ;;
-        -v|--verbose)
+        -v | --verbose)
             VERBOSE=true
             shift
             ;;
@@ -219,7 +230,6 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
-
 
 # Validation
 if [[ -z "$USERNAME" ]]; then
@@ -263,7 +273,7 @@ done
 log "OK" "Server setup completed successfully!"
 log "INFO" "Summary:"
 log "INFO" "  User '$USERNAME' configured"
-log "INFO" "  Profile '$PROFILE' applied" 
+log "INFO" "  Profile '$PROFILE' applied"
 log "INFO" "  ${#INSTALL_PACKAGES[@]} packages installed: ${INSTALL_PACKAGES[*]}"
 
 if [[ "$DRY_RUN" == true ]]; then

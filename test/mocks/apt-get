@@ -1,0 +1,39 @@
+#!/bin/bash
+# Mock apt-get for testing
+# Returns success and simulates package operations
+
+case "$1" in
+    update)
+        echo "Hit:1 http://archive.ubuntu.com/ubuntu focal InRelease"
+        echo "Hit:2 http://archive.ubuntu.com/ubuntu focal-updates InRelease"
+        echo "Reading package lists..."
+        ;;
+    upgrade)
+        echo "Reading package lists..."
+        echo "Building dependency tree..."
+        echo "0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded."
+        ;;
+    clean)
+        echo "Cleaned package cache"
+        ;;
+    autoremove)
+        echo "Reading package lists..."
+        echo "0 packages were automatically removed."
+        ;;
+    install)
+        echo "Reading package lists..."
+        echo "Building dependency tree..."
+        echo "The following NEW packages will be installed:"
+        shift
+        for pkg in "$@"; do
+            [[ "$pkg" != -* ]] && echo "  $pkg"
+        done
+        echo "0 upgraded, 1 newly installed, 0 to remove."
+        ;;
+    *)
+        echo "apt-get mock: unknown command $1"
+        ;;
+esac
+
+exit 0
+

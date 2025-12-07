@@ -159,22 +159,67 @@ human_size() {
 parse_args() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help) usage ;;
-            -v|--verbose) VERBOSE=true; shift ;;
-            -a|--all) SECTIONS=("etc" "packages" "crontabs" "systemd" "ssh" "nginx" "apache" "database"); shift ;;
-            -s|--section) SECTIONS+=("$2"); shift 2 ;;
-            -o|--output) OUTPUT_DIR="$2"; shift 2 ;;
-            --compress) COMPRESS="$2"; shift 2 ;;
-            --encrypt) DO_ENCRYPT=true; shift ;;
-            --gpg-key) GPG_KEY="$2"; shift 2 ;;
-            --upload) UPLOAD_DEST="$2"; shift 2 ;;
-            --retention) RETENTION="$2"; shift 2 ;;
-            --exclude) EXCLUDE_PATTERNS+=("$2"); shift 2 ;;
-            --verify) DO_VERIFY=true; shift ;;
-            --list) LIST_BACKUPS=true; shift ;;
-            --restore) RESTORE_FILE="$2"; shift 2 ;;
-            -d|--dry-run) DRY_RUN=true; shift ;;
-            -*) log_error "Unknown option: $1"; exit $EXIT_INVALID_ARGS ;;
+            -h | --help) usage ;;
+            -v | --verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -a | --all)
+                SECTIONS=("etc" "packages" "crontabs" "systemd" "ssh" "nginx" "apache" "database")
+                shift
+                ;;
+            -s | --section)
+                SECTIONS+=("$2")
+                shift 2
+                ;;
+            -o | --output)
+                OUTPUT_DIR="$2"
+                shift 2
+                ;;
+            --compress)
+                COMPRESS="$2"
+                shift 2
+                ;;
+            --encrypt)
+                DO_ENCRYPT=true
+                shift
+                ;;
+            --gpg-key)
+                GPG_KEY="$2"
+                shift 2
+                ;;
+            --upload)
+                UPLOAD_DEST="$2"
+                shift 2
+                ;;
+            --retention)
+                RETENTION="$2"
+                shift 2
+                ;;
+            --exclude)
+                EXCLUDE_PATTERNS+=("$2")
+                shift 2
+                ;;
+            --verify)
+                DO_VERIFY=true
+                shift
+                ;;
+            --list)
+                LIST_BACKUPS=true
+                shift
+                ;;
+            --restore)
+                RESTORE_FILE="$2"
+                shift 2
+                ;;
+            -d | --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            -*)
+                log_error "Unknown option: $1"
+                exit $EXIT_INVALID_ARGS
+                ;;
             *) shift ;;
         esac
     done
@@ -188,7 +233,7 @@ parse_args() {
 # Check disk space
 check_disk_space() {
     local available
-    available=$(df -P "$OUTPUT_DIR" 2>/dev/null | tail -1 | awk '{print $4}')
+    available=$(df -P "$OUTPUT_DIR" 2> /dev/null | tail -1 | awk '{print $4}')
 
     # Require at least 100MB
     if [[ -n "$available" && "$available" -lt 102400 ]]; then
@@ -208,7 +253,7 @@ get_backup_filename() {
     local timestamp
     timestamp=$(date +%Y%m%d_%H%M%S)
     local hostname
-    hostname=$(hostname -s 2>/dev/null || echo "server")
+    hostname=$(hostname -s 2> /dev/null || echo "server")
 
     echo "backup-${hostname}-${timestamp}"
 }
@@ -235,12 +280,12 @@ backup_etc() {
         return 0
     fi
 
-    tar -cf "$tmp_file" /etc $exclude_args 2>/dev/null || {
+    tar -cf "$tmp_file" /etc $exclude_args 2> /dev/null || {
         log_warn "Some files could not be read (permission denied)"
     }
 
     local size
-    size=$(stat -f%z "$tmp_file" 2>/dev/null || stat -c%s "$tmp_file" 2>/dev/null || echo "0")
+    size=$(stat -f%z "$tmp_file" 2> /dev/null || stat -c%s "$tmp_file" 2> /dev/null || echo "0")
     TOTAL_SIZE=$((TOTAL_SIZE + size))
 
     BACKUP_FILES+=("$tmp_file")
@@ -265,46 +310,46 @@ backup_packages() {
         echo "# Hostname: $(hostname)"
         echo ""
 
-        if command -v dpkg &>/dev/null; then
+        if command -v dpkg &> /dev/null; then
             echo "# Debian/Ubuntu packages (dpkg)"
-            dpkg-query -W -f='${Package}\t${Version}\n' 2>/dev/null
+            dpkg-query -W -f='${Package}\t${Version}\n' 2> /dev/null
         fi
 
-        if command -v rpm &>/dev/null; then
+        if command -v rpm &> /dev/null; then
             echo ""
             echo "# RPM packages"
-            rpm -qa --queryformat '%{NAME}\t%{VERSION}-%{RELEASE}\n' 2>/dev/null
+            rpm -qa --queryformat '%{NAME}\t%{VERSION}-%{RELEASE}\n' 2> /dev/null
         fi
 
-        if command -v pacman &>/dev/null; then
+        if command -v pacman &> /dev/null; then
             echo ""
             echo "# Arch packages (pacman)"
-            pacman -Q 2>/dev/null
+            pacman -Q 2> /dev/null
         fi
 
-        if command -v brew &>/dev/null; then
+        if command -v brew &> /dev/null; then
             echo ""
             echo "# Homebrew packages"
-            brew list --versions 2>/dev/null
+            brew list --versions 2> /dev/null
         fi
 
         # Also save pip packages if available
-        if command -v pip3 &>/dev/null; then
+        if command -v pip3 &> /dev/null; then
             echo ""
             echo "# Python packages (pip3)"
-            pip3 list --format=freeze 2>/dev/null || true
+            pip3 list --format=freeze 2> /dev/null || true
         fi
 
         # npm global packages
-        if command -v npm &>/dev/null; then
+        if command -v npm &> /dev/null; then
             echo ""
             echo "# NPM global packages"
-            npm list -g --depth=0 2>/dev/null || true
+            npm list -g --depth=0 2> /dev/null || true
         fi
     } > "$tmp_file"
 
     local size
-    size=$(stat -f%z "$tmp_file" 2>/dev/null || stat -c%s "$tmp_file" 2>/dev/null || echo "0")
+    size=$(stat -f%z "$tmp_file" 2> /dev/null || stat -c%s "$tmp_file" 2> /dev/null || echo "0")
     TOTAL_SIZE=$((TOTAL_SIZE + size))
 
     BACKUP_FILES+=("$tmp_file")
@@ -330,28 +375,28 @@ backup_crontabs() {
     # System crontabs
     for file in /etc/crontab /etc/cron.d/*; do
         if [[ -f "$file" ]]; then
-            cp "$file" "$tmp_dir/" 2>/dev/null || true
+            cp "$file" "$tmp_dir/" 2> /dev/null || true
             ((count++)) || true
         fi
     done
 
     # User crontabs
     if [[ -d /var/spool/cron/crontabs ]]; then
-        cp -r /var/spool/cron/crontabs "$tmp_dir/user-crontabs" 2>/dev/null || true
+        cp -r /var/spool/cron/crontabs "$tmp_dir/user-crontabs" 2> /dev/null || true
     elif [[ -d /var/spool/cron ]]; then
-        cp -r /var/spool/cron "$tmp_dir/user-crontabs" 2>/dev/null || true
+        cp -r /var/spool/cron "$tmp_dir/user-crontabs" 2> /dev/null || true
     fi
 
     # Export current user's crontab
-    crontab -l > "$tmp_dir/current-user-crontab" 2>/dev/null || true
+    crontab -l > "$tmp_dir/current-user-crontab" 2> /dev/null || true
 
     # Create archive
     local tmp_file="/tmp/crontabs-$$.tar"
-    tar -cf "$tmp_file" -C /tmp "crontabs-$$" 2>/dev/null
+    tar -cf "$tmp_file" -C /tmp "crontabs-$$" 2> /dev/null
     rm -rf "$tmp_dir"
 
     local size
-    size=$(stat -f%z "$tmp_file" 2>/dev/null || stat -c%s "$tmp_file" 2>/dev/null || echo "0")
+    size=$(stat -f%z "$tmp_file" 2> /dev/null || stat -c%s "$tmp_file" 2> /dev/null || echo "0")
     TOTAL_SIZE=$((TOTAL_SIZE + size))
 
     BACKUP_FILES+=("$tmp_file")
@@ -378,10 +423,10 @@ backup_systemd() {
 
     # Backup custom units from /etc/systemd
     tar -cf "$tmp_file" /etc/systemd/system/*.service /etc/systemd/system/*.timer \
-        /etc/systemd/system/*.mount 2>/dev/null || true
+        /etc/systemd/system/*.mount 2> /dev/null || true
 
     local size
-    size=$(stat -f%z "$tmp_file" 2>/dev/null || stat -c%s "$tmp_file" 2>/dev/null || echo "0")
+    size=$(stat -f%z "$tmp_file" 2> /dev/null || stat -c%s "$tmp_file" 2> /dev/null || echo "0")
 
     if [[ $size -gt 0 ]]; then
         TOTAL_SIZE=$((TOTAL_SIZE + size))
@@ -411,17 +456,17 @@ backup_ssh() {
         /etc/ssh/sshd_config \
         /etc/ssh/ssh_config \
         /etc/ssh/*.pub \
-        2>/dev/null || true
+        2> /dev/null || true
 
     # Backup user authorized_keys
     for home in /home/* /root; do
         if [[ -f "$home/.ssh/authorized_keys" ]]; then
-            tar -rf "$tmp_file" "$home/.ssh/authorized_keys" 2>/dev/null || true
+            tar -rf "$tmp_file" "$home/.ssh/authorized_keys" 2> /dev/null || true
         fi
     done
 
     local size
-    size=$(stat -f%z "$tmp_file" 2>/dev/null || stat -c%s "$tmp_file" 2>/dev/null || echo "0")
+    size=$(stat -f%z "$tmp_file" 2> /dev/null || stat -c%s "$tmp_file" 2> /dev/null || echo "0")
     TOTAL_SIZE=$((TOTAL_SIZE + size))
 
     BACKUP_FILES+=("$tmp_file")
@@ -446,12 +491,12 @@ backup_nginx() {
         return 0
     fi
 
-    tar -cf "$tmp_file" /etc/nginx 2>/dev/null || {
+    tar -cf "$tmp_file" /etc/nginx 2> /dev/null || {
         log_warn "Some Nginx files could not be read"
     }
 
     local size
-    size=$(stat -f%z "$tmp_file" 2>/dev/null || stat -c%s "$tmp_file" 2>/dev/null || echo "0")
+    size=$(stat -f%z "$tmp_file" 2> /dev/null || stat -c%s "$tmp_file" 2> /dev/null || echo "0")
     TOTAL_SIZE=$((TOTAL_SIZE + size))
 
     BACKUP_FILES+=("$tmp_file")
@@ -481,12 +526,12 @@ backup_apache() {
         return 0
     fi
 
-    tar -cf "$tmp_file" "$apache_dir" 2>/dev/null || {
+    tar -cf "$tmp_file" "$apache_dir" 2> /dev/null || {
         log_warn "Some Apache files could not be read"
     }
 
     local size
-    size=$(stat -f%z "$tmp_file" 2>/dev/null || stat -c%s "$tmp_file" 2>/dev/null || echo "0")
+    size=$(stat -f%z "$tmp_file" 2> /dev/null || stat -c%s "$tmp_file" 2> /dev/null || echo "0")
     TOTAL_SIZE=$((TOTAL_SIZE + size))
 
     BACKUP_FILES+=("$tmp_file")
@@ -511,7 +556,7 @@ backup_database() {
     # MySQL/MariaDB
     for conf in /etc/mysql/my.cnf /etc/my.cnf /etc/mysql/mysql.conf.d/*.cnf; do
         if [[ -f "$conf" ]]; then
-            cp "$conf" "$tmp_dir/" 2>/dev/null || true
+            cp "$conf" "$tmp_dir/" 2> /dev/null || true
             found=true
         fi
     done
@@ -520,30 +565,30 @@ backup_database() {
     for conf in /etc/postgresql/*/main/*.conf; do
         if [[ -f "$conf" ]]; then
             mkdir -p "$tmp_dir/postgresql"
-            cp "$conf" "$tmp_dir/postgresql/" 2>/dev/null || true
+            cp "$conf" "$tmp_dir/postgresql/" 2> /dev/null || true
             found=true
         fi
     done
 
     # MongoDB
     if [[ -f /etc/mongod.conf ]]; then
-        cp /etc/mongod.conf "$tmp_dir/" 2>/dev/null || true
+        cp /etc/mongod.conf "$tmp_dir/" 2> /dev/null || true
         found=true
     fi
 
     # Redis
     if [[ -f /etc/redis/redis.conf ]]; then
-        cp /etc/redis/redis.conf "$tmp_dir/" 2>/dev/null || true
+        cp /etc/redis/redis.conf "$tmp_dir/" 2> /dev/null || true
         found=true
     fi
 
     if [[ "$found" == "true" ]]; then
         local tmp_file="/tmp/db-config-$$.tar"
-        tar -cf "$tmp_file" -C /tmp "db-config-$$" 2>/dev/null
+        tar -cf "$tmp_file" -C /tmp "db-config-$$" 2> /dev/null
         rm -rf "$tmp_dir"
 
         local size
-        size=$(stat -f%z "$tmp_file" 2>/dev/null || stat -c%s "$tmp_file" 2>/dev/null || echo "0")
+        size=$(stat -f%z "$tmp_file" 2> /dev/null || stat -c%s "$tmp_file" 2> /dev/null || echo "0")
         TOTAL_SIZE=$((TOTAL_SIZE + size))
 
         BACKUP_FILES+=("$tmp_file")
@@ -590,9 +635,9 @@ create_final_backup() {
     } > "$manifest"
 
     # Combine all files
-    tar -cf "$final_file" -C /tmp "manifest-$$.txt" 2>/dev/null || true
+    tar -cf "$final_file" -C /tmp "manifest-$$.txt" 2> /dev/null || true
     for file in "${BACKUP_FILES[@]}"; do
-        tar -rf "$final_file" "$file" 2>/dev/null || true
+        tar -rf "$final_file" "$file" 2> /dev/null || true
     done
 
     rm -f "$manifest"
@@ -636,11 +681,11 @@ create_final_backup() {
 
     # Create checksum
     local checksum_file="${final_file}.sha256"
-    sha256sum "$final_file" > "$checksum_file" 2>/dev/null || \
-    shasum -a 256 "$final_file" > "$checksum_file" 2>/dev/null || true
+    sha256sum "$final_file" > "$checksum_file" 2> /dev/null \
+        || shasum -a 256 "$final_file" > "$checksum_file" 2> /dev/null || true
 
     local final_size
-    final_size=$(stat -f%z "$final_file" 2>/dev/null || stat -c%s "$final_file" 2>/dev/null || echo "0")
+    final_size=$(stat -f%z "$final_file" 2> /dev/null || stat -c%s "$final_file" 2> /dev/null || echo "0")
 
     log_ok "Backup created: $final_file ($(human_size $final_size))"
 
@@ -684,21 +729,21 @@ verify_backup() {
     if [[ "$file" =~ \.gpg$ ]]; then
         log_info "Encrypted backup - skipping content verification"
     elif [[ "$file" =~ \.gz$ ]]; then
-        if tar -tzf "$file" &>/dev/null; then
+        if tar -tzf "$file" &> /dev/null; then
             log_ok "Backup verified (gzip archive valid)"
         else
             log_error "Backup verification failed"
             return 1
         fi
     elif [[ "$file" =~ \.xz$ ]]; then
-        if tar -tJf "$file" &>/dev/null; then
+        if tar -tJf "$file" &> /dev/null; then
             log_ok "Backup verified (xz archive valid)"
         else
             log_error "Backup verification failed"
             return 1
         fi
     else
-        if tar -tf "$file" &>/dev/null; then
+        if tar -tf "$file" &> /dev/null; then
             log_ok "Backup verified (tar archive valid)"
         else
             log_error "Backup verification failed"
@@ -716,7 +761,7 @@ upload_backup() {
     log_info "Uploading backup to $UPLOAD_DEST..."
 
     if [[ "$UPLOAD_DEST" =~ ^s3:// ]]; then
-        if command -v aws &>/dev/null; then
+        if command -v aws &> /dev/null; then
             aws s3 cp "$file" "$UPLOAD_DEST" || {
                 log_error "S3 upload failed"
                 exit $EXIT_UPLOAD_FAIL
@@ -753,14 +798,14 @@ apply_retention() {
     log_info "Applying retention policy (keeping $RETENTION backups)..."
 
     local backups
-    backups=$(ls -t "$OUTPUT_DIR"/backup-*.tar* 2>/dev/null | tail -n +$((RETENTION + 1)) || true)
+    backups=$(ls -t "$OUTPUT_DIR"/backup-*.tar* 2> /dev/null | tail -n +$((RETENTION + 1)) || true)
 
     if [[ -n "$backups" ]]; then
         local count
         count=$(echo "$backups" | wc -l)
         log_info "Removing $count old backup(s)..."
         echo "$backups" | while read -r file; do
-            rm -f "$file" "${file}.sha256" 2>/dev/null || true
+            rm -f "$file" "${file}.sha256" 2> /dev/null || true
             log_debug "Removed: $file"
         done
     fi
@@ -784,8 +829,8 @@ list_backups() {
         [[ "$file" =~ \.sha256$ ]] && continue
 
         local size date
-        size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null || echo "?")
-        date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M" "$file" 2>/dev/null || stat -c "%y" "$file" 2>/dev/null | cut -d. -f1 || echo "?")
+        size=$(stat -f%z "$file" 2> /dev/null || stat -c%s "$file" 2> /dev/null || echo "?")
+        date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M" "$file" 2> /dev/null || stat -c "%y" "$file" 2> /dev/null | cut -d. -f1 || echo "?")
 
         printf "%-45s %10s %s\n" "$(basename "$file")" "$(human_size $size)" "$date"
         ((count++)) || true
@@ -846,17 +891,17 @@ restore_backup() {
 
     # Extract
     if [[ "$file" =~ \.gz$ ]]; then
-        tar -xzvf "$file" -C / 2>/dev/null || {
+        tar -xzvf "$file" -C / 2> /dev/null || {
             log_error "Extraction failed"
             exit $EXIT_RESTORE_FAIL
         }
     elif [[ "$file" =~ \.xz$ ]]; then
-        tar -xJvf "$file" -C / 2>/dev/null || {
+        tar -xJvf "$file" -C / 2> /dev/null || {
             log_error "Extraction failed"
             exit $EXIT_RESTORE_FAIL
         }
     else
-        tar -xvf "$file" -C / 2>/dev/null || {
+        tar -xvf "$file" -C / 2> /dev/null || {
             log_error "Extraction failed"
             exit $EXIT_RESTORE_FAIL
         }
@@ -915,4 +960,3 @@ main() {
 }
 
 main "$@"
-

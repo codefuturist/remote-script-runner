@@ -1,4 +1,15 @@
 #!/usr/bin/env zsh
+# =============================================================================
+# @id           health
+# @name         system-health-check
+# @displayName  System Health Check
+# @description  Check system health: CPU, memory, disk usage, network status
+# @category     monitoring
+# @version      1.0.0
+# @author       codefuturist
+# @tags         health,monitoring,cpu,memory,disk,network,system
+# @shells       zsh
+# =============================================================================
 
 # System Health Check Script (Zsh Enhanced Version)
 # This script uses zsh-specific features for better functionality
@@ -11,7 +22,7 @@ setopt NO_UNSET
 # Script metadata
 typeset -r SCRIPT_NAME="System Health Check (Zsh)"
 typeset -r SCRIPT_VERSION="1.0.0"
-typeset -r SCRIPT_URL="https://github.com/yourusername/remote-script-runner"
+typeset -r SCRIPT_URL="https://github.com/codefuturist/remote-script-runner"
 
 # Default values with type declarations
 typeset -g VERBOSE=false
