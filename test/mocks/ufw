@@ -1,0 +1,57 @@
+#!/bin/bash
+# Mock ufw for testing firewall setup
+
+# Log arguments
+echo "$@" >> "${MOCK_LOG_DIR:-/tmp}/ufw.args" 2>/dev/null || true
+
+case "$1" in
+    status)
+        if [[ "$2" == "verbose" ]]; then
+            cat << 'EOF'
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere
+80/tcp                     ALLOW IN    Anywhere
+443/tcp                    ALLOW IN    Anywhere
+22/tcp (v6)                ALLOW IN    Anywhere (v6)
+80/tcp (v6)                ALLOW IN    Anywhere (v6)
+443/tcp (v6)               ALLOW IN    Anywhere (v6)
+EOF
+        else
+            echo "Status: active"
+        fi
+        ;;
+    enable)
+        echo "Firewall is active and enabled on system startup"
+        ;;
+    disable)
+        echo "Firewall stopped and disabled on system startup"
+        ;;
+    allow)
+        echo "Rule added"
+        ;;
+    deny)
+        echo "Rule added"
+        ;;
+    delete)
+        echo "Rule deleted"
+        ;;
+    reset)
+        echo "Resetting all rules to installed defaults."
+        ;;
+    --version)
+        echo "ufw 0.36.1"
+        ;;
+    *)
+        echo "ufw mock: unknown command $1"
+        exit 1
+        ;;
+esac
+
+exit 0
+

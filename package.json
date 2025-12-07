@@ -1,0 +1,19 @@
+{
+  "name": "remote-script-runner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Development dependencies for code quality tools",
+  "scripts": {
+    "lint:commits": "commitlint --from HEAD~1 --to HEAD --verbose",
+    "prepare": "husky install || true"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "husky": "^8.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+

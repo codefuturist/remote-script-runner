@@ -1,6 +1,16 @@
 #!/bin/bash
+# =============================================================================
+# @id           health
+# @name         system-health-check
+# @displayName  System Health Check
+# @description  Check system health: CPU, memory, disk usage, network status
+# @category     monitoring
+# @version      1.0.0
+# @author       codefuturist
+# @tags         health,monitoring,cpu,memory,disk,network,system
+# @shells       bash,zsh,sh,fish
+# =============================================================================
 
-# System Health Check Script
 # This script can be run remotely with curl and accepts multiple arguments
 # Example: /bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/scripts/bash/system-health-check.sh)" -- -v -s cpu memory disk -t 5
 
@@ -67,19 +77,19 @@ log() {
     local level="$1"
     local message="$2"
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    
+
     if [[ "$OUTPUT_FORMAT" == "json" ]]; then
         echo "{\"timestamp\":\"$timestamp\",\"level\":\"$level\",\"message\":\"$message\"}"
     else
         case "$level" in
-            "INFO")  echo -e "${BLUE}[INFO]${NC} $message" ;;
-            "WARN")  echo -e "${YELLOW}[WARN]${NC} $message" ;;
+            "INFO") echo -e "${BLUE}[INFO]${NC} $message" ;;
+            "WARN") echo -e "${YELLOW}[WARN]${NC} $message" ;;
             "ERROR") echo -e "${RED}[ERROR]${NC} $message" ;;
-            "OK")    echo -e "${GREEN}[OK]${NC} $message" ;;
-            *)       echo "[$level] $message" ;;
+            "OK") echo -e "${GREEN}[OK]${NC} $message" ;;
+            *) echo "[$level] $message" ;;
         esac
     fi
-    
+
     if [[ -n "$LOG_FILE" ]]; then
         echo "[$timestamp] [$level] $message" >> "$LOG_FILE"
     fi
@@ -88,8 +98,8 @@ log() {
 # Function to check CPU usage
 check_cpu() {
     log "INFO" "Checking CPU usage..."
-    
-    if command -v top >/dev/null 2>&1; then
+
+    if command -v top > /dev/null 2>&1; then
         if [[ "$OSTYPE" == "darwin"* ]]; then
             # macOS
             local cpu_usage=$(top -l 1 -n 0 | grep "CPU usage" | awk '{print $3}' | sed 's/%//')
@@ -99,12 +109,12 @@ check_cpu() {
             local cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1)
             local load_avg=$(uptime | awk -F'load average:' '{print $2}')
         fi
-        
+
         log "OK" "CPU Usage: ${cpu_usage}%"
         log "OK" "Load Average:$load_avg"
-        
+
         if [[ "$VERBOSE" == true ]]; then
-            log "INFO" "CPU Cores: $(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 'unknown')"
+            log "INFO" "CPU Cores: $(sysctl -n hw.ncpu 2> /dev/null || nproc 2> /dev/null || echo 'unknown')"
         fi
     else
         log "ERROR" "Unable to check CPU usage - 'top' command not found"
@@ -114,7 +124,7 @@ check_cpu() {
 # Function to check memory usage
 check_memory() {
     log "INFO" "Checking memory usage..."
-    
+
     if [[ "$OSTYPE" == "darwin"* ]]; then
         # macOS
         local total=$(sysctl -n hw.memsize | awk '{print $1/1024/1024/1024}')
@@ -124,11 +134,11 @@ check_memory() {
         local inactive=$(echo "$vm_stat" | grep "Pages inactive" | awk '{print $3}' | sed 's/\.//')
         local speculative=$(echo "$vm_stat" | grep "Pages speculative" | awk '{print $3}' | sed 's/\.//')
         local wired=$(echo "$vm_stat" | grep "Pages wired" | awk '{print $3}' | sed 's/\.//')
-        
+
         local page_size=4096
         local free_gb=$(echo "scale=2; ($free * $page_size) / 1024 / 1024 / 1024" | bc)
         local used_gb=$(echo "scale=2; $total - $free_gb" | bc)
-        
+
         log "OK" "Memory: ${used_gb}GB used / ${total}GB total"
     else
         # Linux
@@ -136,7 +146,7 @@ check_memory() {
         local total=$(echo "$mem_info" | awk '{print $2}')
         local used=$(echo "$mem_info" | awk '{print $3}')
         local free=$(echo "$mem_info" | awk '{print $4}')
-        
+
         log "OK" "Memory: $used used / $total total ($free free)"
     fi
 }
@@ -144,7 +154,7 @@ check_memory() {
 # Function to check disk usage
 check_disk() {
     log "INFO" "Checking disk usage..."
-    
+
     df -h | grep -v "Filesystem" | while read -r line; do
         local filesystem=$(echo "$line" | awk '{print $1}')
         local size=$(echo "$line" | awk '{print $2}')
@@ -152,13 +162,13 @@ check_disk() {
         local avail=$(echo "$line" | awk '{print $4}')
         local use_percent=$(echo "$line" | awk '{print $5}')
         local mount=$(echo "$line" | awk '{print $6}')
-        
+
         # Skip certain filesystems
         if [[ "$filesystem" =~ ^(tmpfs|devfs|map|shm).*$ ]]; then
             [[ "$VERBOSE" == true ]] && log "INFO" "Skipping $filesystem"
             continue
         fi
-        
+
         local percent_num=$(echo "$use_percent" | sed 's/%//')
         if [[ "$percent_num" -gt 90 ]]; then
             log "WARN" "Disk $mount: $use_percent used ($used/$size)"
@@ -171,17 +181,17 @@ check_disk() {
 # Function to check network interfaces
 check_network() {
     log "INFO" "Checking network interfaces..."
-    
-    if command -v ifconfig >/dev/null 2>&1; then
+
+    if command -v ifconfig > /dev/null 2>&1; then
         ifconfig | grep -E "^[a-zA-Z0-9]+:" | cut -d: -f1 | while read -r interface; do
             if [[ "$OSTYPE" == "darwin"* ]]; then
                 local status=$(ifconfig "$interface" | grep "status:" | awk '{print $2}')
                 local ip=$(ifconfig "$interface" | grep "inet " | awk '{print $2}')
             else
-                local status=$(ip link show "$interface" 2>/dev/null | grep -o "state [^ ]*" | awk '{print $2}')
-                local ip=$(ip addr show "$interface" 2>/dev/null | grep "inet " | awk '{print $2}')
+                local status=$(ip link show "$interface" 2> /dev/null | grep -o "state [^ ]*" | awk '{print $2}')
+                local ip=$(ip addr show "$interface" 2> /dev/null | grep "inet " | awk '{print $2}')
             fi
-            
+
             if [[ -n "$ip" ]]; then
                 log "OK" "Interface $interface: ${status:-active} - IP: $ip"
             elif [[ "$VERBOSE" == true ]]; then
@@ -196,7 +206,7 @@ check_network() {
 # Function to check common services
 check_services() {
     log "INFO" "Checking common services..."
-    
+
     # Define services to check based on OS
     local services=()
     if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -204,7 +214,7 @@ check_services() {
     else
         services=("sshd" "nginx" "apache2" "mysql" "postgresql" "docker")
     fi
-    
+
     for service in "${services[@]}"; do
         if [[ "$OSTYPE" == "darwin"* ]]; then
             if launchctl list | grep -q "$service"; then
@@ -213,7 +223,7 @@ check_services() {
                 log "INFO" "Service $service is not running"
             fi
         else
-            if systemctl is-active "$service" >/dev/null 2>&1; then
+            if systemctl is-active "$service" > /dev/null 2>&1; then
                 log "OK" "Service $service is active"
             elif systemctl list-unit-files | grep -q "^$service"; then
                 log "WARN" "Service $service is installed but not active"
@@ -227,43 +237,43 @@ check_services() {
 # Function to check system uptime
 check_uptime() {
     log "INFO" "Checking system uptime..."
-    
+
     local uptime_str=$(uptime | sed 's/^.*up //' | sed 's/, [0-9]* user.*//')
     log "OK" "System uptime: $uptime_str"
-    
+
     if [[ "$VERBOSE" == true ]]; then
-        log "INFO" "Boot time: $(who -b 2>/dev/null | awk '{print $3, $4}' || echo 'unknown')"
+        log "INFO" "Boot time: $(who -b 2> /dev/null | awk '{print $3, $4}' || echo 'unknown')"
     fi
 }
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
-        -h|--help)
+        -h | --help)
             usage
             exit 0
             ;;
-        -v|--verbose)
+        -v | --verbose)
             VERBOSE=true
             shift
             ;;
-        -t|--timeout)
+        -t | --timeout)
             TIMEOUT="$2"
             shift 2
             ;;
-        -l|--log)
+        -l | --log)
             LOG_FILE="$2"
             shift 2
             ;;
-        -f|--format)
+        -f | --format)
             OUTPUT_FORMAT="$2"
             shift 2
             ;;
-        -s|--select)
+        -s | --select)
             CHECKS+=("$2")
             shift 2
             ;;
-        -a|--all)
+        -a | --all)
             CHECKS=("cpu" "memory" "disk" "network" "services" "uptime")
             shift
             ;;
@@ -277,7 +287,6 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
-
 
 # If no checks specified, show usage
 if [[ ${#CHECKS[@]} -eq 0 ]]; then
@@ -302,13 +311,13 @@ log "INFO" "Starting $SCRIPT_NAME v$SCRIPT_VERSION"
 # Run selected checks with timeout
 for check in "${CHECKS[@]}"; do
     case "$check" in
-        cpu)     timeout "$TIMEOUT" bash -c "$(declare -f check_cpu log); check_cpu" || log "ERROR" "CPU check timed out" ;;
-        memory)  timeout "$TIMEOUT" bash -c "$(declare -f check_memory log); check_memory" || log "ERROR" "Memory check timed out" ;;
-        disk)    timeout "$TIMEOUT" bash -c "$(declare -f check_disk log); check_disk" || log "ERROR" "Disk check timed out" ;;
+        cpu) timeout "$TIMEOUT" bash -c "$(declare -f check_cpu log); check_cpu" || log "ERROR" "CPU check timed out" ;;
+        memory) timeout "$TIMEOUT" bash -c "$(declare -f check_memory log); check_memory" || log "ERROR" "Memory check timed out" ;;
+        disk) timeout "$TIMEOUT" bash -c "$(declare -f check_disk log); check_disk" || log "ERROR" "Disk check timed out" ;;
         network) timeout "$TIMEOUT" bash -c "$(declare -f check_network log); check_network" || log "ERROR" "Network check timed out" ;;
         services) timeout "$TIMEOUT" bash -c "$(declare -f check_services log); check_services" || log "ERROR" "Services check timed out" ;;
-        uptime)  timeout "$TIMEOUT" bash -c "$(declare -f check_uptime log); check_uptime" || log "ERROR" "Uptime check timed out" ;;
-        *)       log "WARN" "Unknown check: $check" ;;
+        uptime) timeout "$TIMEOUT" bash -c "$(declare -f check_uptime log); check_uptime" || log "ERROR" "Uptime check timed out" ;;
+        *) log "WARN" "Unknown check: $check" ;;
     esac
 done
 

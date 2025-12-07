@@ -44,22 +44,22 @@ check_dependencies() {
 # Generate script mappings for rsr
 generate_script_mappings() {
     log_info "Generating script mappings..."
-    
+
     local mappings=""
     local script_count=$(jq '.scripts | length' "$REGISTRY_FILE")
-    
-    for ((i=0; i<script_count; i++)); do
+
+    for ((i = 0; i < script_count; i++)); do
         local id=$(jq -r ".scripts[$i].id" "$REGISTRY_FILE")
         local name=$(jq -r ".scripts[$i].name" "$REGISTRY_FILE")
-        local shells=$(jq -r ".scripts[$i].shells | keys[]" "$REGISTRY_FILE" 2>/dev/null || echo "bash")
-        
+        local shells=$(jq -r ".scripts[$i].shells | keys[]" "$REGISTRY_FILE" 2> /dev/null || echo "bash")
+
         # Build aliases (id, name, and common variations)
         local aliases="$id"
         [ "$id" != "$name" ] && aliases="$aliases|$name"
-        
+
         mappings+="        $aliases)\n"
         mappings+="            case \"\$shell_type\" in\n"
-        
+
         # Add each shell variant
         for shell in $shells; do
             local path=$(jq -r ".scripts[$i].shells.$shell" "$REGISTRY_FILE")
@@ -71,53 +71,53 @@ generate_script_mappings() {
             esac
             mappings+="                $shell) echo \"$path\" ;;\n"
         done
-        
+
         # Add fallback
         local default_path=$(jq -r ".scripts[$i].shells.bash // .scripts[$i].shells[.scripts[$i].defaultShell]" "$REGISTRY_FILE")
         mappings+="                *) echo \"$default_path\" ;;\n"
         mappings+="            esac\n"
         mappings+="            ;;\n"
     done
-    
+
     mappings+="        *)\n"
     mappings+="            echo \"\"\n"
     mappings+="            ;;"
-    
+
     echo -e "$mappings"
 }
 
 # Generate script list for rsr
 generate_script_list() {
     log_info "Generating script list..."
-    
+
     local list=""
     local script_count=$(jq '.scripts | length' "$REGISTRY_FILE")
-    
-    for ((i=0; i<script_count; i++)); do
+
+    for ((i = 0; i < script_count; i++)); do
         local id=$(jq -r ".scripts[$i].id" "$REGISTRY_FILE")
         local display=$(jq -r ".scripts[$i].displayName" "$REGISTRY_FILE")
         local desc=$(jq -r ".scripts[$i].description" "$REGISTRY_FILE")
         local example1=$(jq -r ".scripts[$i].examples[0].command // empty" "$REGISTRY_FILE")
         local example2=$(jq -r ".scripts[$i].examples[1].command // empty" "$REGISTRY_FILE")
-        
+
         list+="        printf \"  \${GREEN}%-10s\${NC} %s\\\n\" \"$id\" \"$display\"\n"
         list+="        printf \"            %s\\\n\" \"$desc\"\n"
         [ -n "$example1" ] && list+="        printf \"            \${DIM}$example1\${NC}\\\n\"\n"
         [ -n "$example2" ] && list+="        printf \"            \${DIM}$example2\${NC}\\\n\"\n"
         list+="        printf \"\\\n\"\n"
     done
-    
+
     echo -e "$list"
 }
 
 # Generate script cards HTML for index.html
 generate_script_cards() {
     log_info "Generating script cards HTML..."
-    
+
     local html=""
     local script_count=$(jq '.scripts | length' "$REGISTRY_FILE")
-    
-    for ((i=0; i<script_count; i++)); do
+
+    for ((i = 0; i < script_count; i++)); do
         local id=$(jq -r ".scripts[$i].id" "$REGISTRY_FILE")
         local name=$(jq -r ".scripts[$i].name" "$REGISTRY_FILE")
         local display=$(jq -r ".scripts[$i].displayName" "$REGISTRY_FILE")
@@ -125,7 +125,7 @@ generate_script_cards() {
         local tags=$(jq -r ".scripts[$i].tags | join(\",\")" "$REGISTRY_FILE")
         local example=$(jq -r ".scripts[$i].examples[0].command // \"rsr $id\"" "$REGISTRY_FILE")
         local example_desc=$(jq -r ".scripts[$i].examples[0].description // \"Run $display\"" "$REGISTRY_FILE")
-        
+
         html+="      <div class=\"script-card searchable\" data-search=\"$id $name $tags\">\n"
         html+="        <h3>$display</h3>\n"
         html+="        <p>$desc</p>\n"
@@ -143,7 +143,7 @@ generate_script_cards() {
         html+="        </div>\n"
         html+="      </div>\n"
     done
-    
+
     echo -e "$html"
 }
 
@@ -154,19 +154,19 @@ update_section() {
     local end_marker="$3"
     local content="$4"
     local temp_file=$(mktemp)
-    
+
     if ! grep -q "$begin_marker" "$file"; then
         log_warn "Marker '$begin_marker' not found in $file"
         return 1
     fi
-    
+
     # Use awk to replace content between markers
     awk -v begin="$begin_marker" -v end="$end_marker" -v content="$content" '
         $0 ~ begin { print; printing=1; printf "%s", content; next }
         $0 ~ end { printing=0 }
         !printing { print }
     ' "$file" > "$temp_file"
-    
+
     mv "$temp_file" "$file"
     return 0
 }
@@ -175,24 +175,24 @@ update_section() {
 main() {
     log_info "Building from registry..."
     echo
-    
+
     check_dependencies
-    
+
     if [ ! -f "$REGISTRY_FILE" ]; then
         log_error "Registry file not found: $REGISTRY_FILE"
         exit 1
     fi
-    
+
     # Validate JSON
-    if ! jq empty "$REGISTRY_FILE" 2>/dev/null; then
+    if ! jq empty "$REGISTRY_FILE" 2> /dev/null; then
         log_error "Invalid JSON in $REGISTRY_FILE"
         exit 1
     fi
-    
+
     local script_count=$(jq '.scripts | length' "$REGISTRY_FILE")
     log_ok "Found $script_count scripts in registry"
     echo
-    
+
     # Generate and update rsr script mappings
     # Note: Manual update required - markers in rsr would need to be exact
     # For now, just show what would be generated
@@ -201,21 +201,21 @@ main() {
     generate_script_mappings
     echo "---"
     echo
-    
+
     # Generate and update rsr script list
     log_info "Generated script list (update manually in rsr if needed):"
     echo "---"
     generate_script_list
     echo "---"
     echo
-    
+
     # Generate script cards HTML
     log_info "Generated script cards HTML:"
     echo "---"
     generate_script_cards
     echo "---"
     echo
-    
+
     log_ok "Build complete!"
     echo
     log_info "To update files automatically, run with --write flag (TODO)"

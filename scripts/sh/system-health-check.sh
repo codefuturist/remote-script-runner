@@ -1,4 +1,15 @@
 #!/bin/sh
+# =============================================================================
+# @id           health
+# @name         system-health-check
+# @displayName  System Health Check
+# @description  Check system health: CPU, memory, disk usage, network status
+# @category     monitoring
+# @version      1.0.0
+# @author       codefuturist
+# @tags         health,monitoring,cpu,memory,disk,network,system
+# @shells       sh
+# =============================================================================
 
 # System Health Check Script (POSIX sh version)
 # This script can be run remotely with curl and accepts multiple arguments
@@ -9,7 +20,7 @@ set -eu
 # Script metadata
 SCRIPT_NAME="System Health Check"
 SCRIPT_VERSION="1.0.0"
-SCRIPT_URL="https://github.com/yourusername/remote-script-runner"
+SCRIPT_URL="https://github.com/codefuturist/remote-script-runner"
 
 # Default values
 VERBOSE=false

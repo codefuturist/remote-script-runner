@@ -1,0 +1,49 @@
+#!/bin/bash
+# Mock pg_dump for testing PostgreSQL database backup
+
+# Log arguments for verification
+echo "$@" >> "${MOCK_LOG_DIR:-/tmp}/pg_dump.args" 2>/dev/null || true
+
+# Generate mock SQL dump
+cat << 'EOF'
+--
+-- PostgreSQL database dump mock
+--
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+
+--
+-- Name: testdb; Type: DATABASE; Schema: -; Owner: postgres
+--
+
+CREATE DATABASE testdb WITH TEMPLATE = template0 ENCODING = 'UTF8';
+
+\connect testdb
+
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.users (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    email character varying(255) NOT NULL
+);
+
+--
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.users (id, name, email) FROM stdin;
+1	Test User	test@example.com
+\.
+
+--
+-- PostgreSQL database dump complete
+--
+EOF
+
+exit 0
+

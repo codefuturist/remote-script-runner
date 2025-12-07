@@ -1,0 +1,8 @@
+# Test domains for SSL checker tests
+# Lines starting with # are comments
+
+example.com
+api.example.com
+www.example.com
+mail.example.com
+

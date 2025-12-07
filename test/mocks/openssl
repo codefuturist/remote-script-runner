@@ -1,0 +1,105 @@
+#!/bin/bash
+# Mock openssl for testing SSL certificate checks
+# Simulates certificate retrieval and parsing
+
+# Parse arguments to determine what's being requested
+COMMAND=""
+for arg in "$@"; do
+    case "$arg" in
+        s_client) COMMAND="s_client" ;;
+        x509) COMMAND="x509" ;;
+    esac
+done
+
+case "$COMMAND" in
+    s_client)
+        # Simulate certificate retrieval
+        cat << 'EOF'
+CONNECTED(00000003)
+depth=2 C = US, O = DigiCert Inc, OU = www.digicert.com, CN = DigiCert Global Root CA
+verify return:1
+depth=1 C = US, O = DigiCert Inc, CN = DigiCert TLS RSA SHA256 2020 CA1
+verify return:1
+depth=0 C = US, ST = California, L = San Francisco, O = Example Inc, CN = example.com
+verify return:1
+---
+Certificate chain
+ 0 s:C = US, ST = California, L = San Francisco, O = Example Inc, CN = example.com
+   i:C = US, O = DigiCert Inc, CN = DigiCert TLS RSA SHA256 2020 CA1
+-----BEGIN CERTIFICATE-----
+MIIFWjCCBEKgAwIBAgIQDxSWXyAgaZlP1ceseIlB4jANBgkqhkiG9w0BAQsFAMDY
+-----END CERTIFICATE-----
+ 1 s:C = US, O = DigiCert Inc, CN = DigiCert TLS RSA SHA256 2020 CA1
+   i:C = US, O = DigiCert Inc, OU = www.digicert.com, CN = DigiCert Global Root CA
+-----BEGIN CERTIFICATE-----
+MIIEvjCCA6agAwIBAgIQBtjZBNVYQ0b2ii+nVCJ+xDANBgkqhkiG9w0BAQsFADBh
+-----END CERTIFICATE-----
+---
+Server certificate
+subject=C = US, ST = California, L = San Francisco, O = Example Inc, CN = example.com
+issuer=C = US, O = DigiCert Inc, CN = DigiCert TLS RSA SHA256 2020 CA1
+---
+No client certificate CA names sent
+Peer signing digest: SHA256
+Peer signature type: RSA-PSS
+Server Temp Key: X25519, 253 bits
+---
+SSL handshake has read 3574 bytes and written 392 bytes
+Verification: OK
+---
+New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384
+Server public key is 2048 bit
+Secure Renegotiation IS NOT supported
+Compression: NONE
+Expansion: NONE
+No ALPN negotiated
+Early data was not sent
+Verify return code: 0 (ok)
+---
+EOF
+        ;;
+    x509)
+        # Check what info is being requested
+        if echo "$@" | grep -q "enddate"; then
+            # Return expiry date (90 days from now for testing)
+            local future_date=$(date -v+90d "+%b %d %H:%M:%S %Y GMT" 2>/dev/null || date -d "+90 days" "+%b %d %H:%M:%S %Y GMT" 2>/dev/null)
+            echo "notAfter=$future_date"
+        elif echo "$@" | grep -q "subject"; then
+            echo "subject=C = US, ST = California, L = San Francisco, O = Example Inc, CN = example.com"
+        elif echo "$@" | grep -q "issuer"; then
+            echo "issuer=C = US, O = DigiCert Inc, CN = DigiCert TLS RSA SHA256 2020 CA1"
+        elif echo "$@" | grep -q "dates"; then
+            local start_date=$(date -v-30d "+%b %d %H:%M:%S %Y GMT" 2>/dev/null || date -d "-30 days" "+%b %d %H:%M:%S %Y GMT" 2>/dev/null)
+            local end_date=$(date -v+90d "+%b %d %H:%M:%S %Y GMT" 2>/dev/null || date -d "+90 days" "+%b %d %H:%M:%S %Y GMT" 2>/dev/null)
+            echo "notBefore=$start_date"
+            echo "notAfter=$end_date"
+        else
+            # General certificate info
+            cat << 'EOF'
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 12345678901234567890
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C = US, O = DigiCert Inc, CN = DigiCert TLS RSA SHA256 2020 CA1
+        Validity
+            Not Before: Jan  1 00:00:00 2024 GMT
+            Not After : Dec 31 23:59:59 2024 GMT
+        Subject: C = US, ST = California, L = San Francisco, O = Example Inc, CN = example.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: (2048 bit)
+        X509v3 extensions:
+            X509v3 Subject Alternative Name:
+                DNS:example.com, DNS:www.example.com, DNS:api.example.com
+EOF
+        fi
+        ;;
+    *)
+        echo "openssl mock: command not recognized"
+        exit 1
+        ;;
+esac
+
+exit 0
+
