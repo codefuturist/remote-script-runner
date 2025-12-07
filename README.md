@@ -12,10 +12,37 @@ A collection of scripts designed to be run remotely via curl with support for mu
 - ✅ Multiple output formats (text, JSON)
 - ✅ Comprehensive system health checking
 - ✅ User-friendly CLI with interactive menu
+- ✅ Universal `rsr` entry point (POSIX-compatible)
 
 ## Quick Start
 
-### 🎯 **Recommended Syntax** (see [SYNTAX_GUIDE.md](SYNTAX_GUIDE.md) for full comparison)
+### 🚀 **Using `rsr` (Recommended)**
+
+The `rsr` command is a universal, POSIX-compatible entry point that works everywhere:
+
+```bash
+# Remote execution via curl
+curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- health -a
+
+# Or with bash -c form
+/bin/sh -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr)" -- health -a
+```
+
+**Available commands:**
+```bash
+rsr health -a                    # Run all health checks
+rsr health -s cpu -s memory      # Specific checks
+rsr setup -d -u admin nginx      # Server setup (dry-run)
+rsr list                         # List available scripts
+rsr --help                       # Show help
+```
+
+### 🎯 **Direct Script Syntax** (see [SYNTAX_GUIDE.md](SYNTAX_GUIDE.md) for full comparison)
+
+```bash
+```
+
+### 🎯 **Direct Script Syntax** (see [SYNTAX_GUIDE.md](SYNTAX_GUIDE.md) for full comparison)
 
 ```bash
 # Pattern 1: Pipe Form (RECOMMENDED for most cases)
