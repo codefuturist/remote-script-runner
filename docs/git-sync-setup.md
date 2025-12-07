@@ -9,6 +9,7 @@ This script provides a comprehensive solution for managing the git-sync service,
 ## Features
 
 - 🚀 **One-command installation** - Install entire git-sync service
+- 🎯 **Interactive mode** - User-friendly guided setup with menus
 - 📦 **Repository management** - Add/remove repos with automatic configuration
 - 🔄 **Multi-branch support** - Sync different branches per repository
 - ⏰ **Configurable intervals** - Set sync frequency per repository
@@ -16,8 +17,30 @@ This script provides a comprehensive solution for managing the git-sync service,
 - 🔍 **Status monitoring** - Check sync status and test connections
 - 🧪 **Dry-run mode** - Preview changes before applying
 - 📝 **Comprehensive logging** - Per-repository log files
+- 🖥️ **Dual mode operation** - Interactive GUI or CLI for automation
 
 ## Quick Start
+
+### Interactive Mode (Recommended for First Time Users)
+
+The easiest way to get started is using the interactive mode:
+
+```bash
+# Download and run interactively
+wget https://codefuturist.github.io/remote-script-runner/scripts/bash/git-sync-setup.sh
+chmod +x git-sync-setup.sh
+sudo ./git-sync-setup.sh --interactive
+
+# Or simply run without arguments (defaults to interactive)
+sudo ./git-sync-setup.sh
+```
+
+Interactive mode provides:
+- 📋 **Numbered menu system** - Easy navigation
+- ✅ **Input validation** - Prevents errors
+- 🎨 **Colorful UI** - Clear visual feedback
+- 💾 **Default values** - Quick setup
+- ⚠️ **Confirmations** - Safe operations
 
 ### Install via curl (Remote Execution)
 
@@ -30,7 +53,7 @@ curl -fsSL https://codefuturist.github.io/remote-script-runner/scripts/bash/git-
     --add-repo --repo-url git@github.com:user/repo.git
 ```
 
-### Local Installation
+### Local Installation (CLI Mode)
 
 ```bash
 # Download script
@@ -46,6 +69,38 @@ sudo ./git-sync-setup.sh --add-repo --repo-url git@github.com:user/iac-catalog.g
 ```
 
 ## Usage
+
+### Interactive Mode
+
+Start the user-friendly interactive mode:
+
+```bash
+# Start interactive mode
+sudo ./git-sync-setup.sh --interactive
+sudo ./git-sync-setup.sh -i
+
+# Or just run without arguments
+sudo ./git-sync-setup.sh
+```
+
+**Interactive Menu Options:**
+1. Install git-sync service
+2. Add a new repository
+3. Remove a repository
+4. List configured repositories
+5. Test synchronization
+6. View logs
+7. Deploy to another host
+8. Uninstall git-sync service
+9. Exit
+
+**Features:**
+- Guided prompts with default values
+- Repository selection by number
+- Log file viewer
+- Confirmation dialogs for destructive actions
+- Clear visual feedback
+- Help text at each step
 
 ### Installation Actions
 
@@ -160,7 +215,24 @@ Enables detailed debug output.
 
 ## Examples
 
-### Basic Setup
+### Interactive Mode Workflow
+
+```bash
+# 1. Start interactive mode
+sudo ./git-sync-setup.sh
+
+# Follow the menu:
+# → Select 1: Install git-sync service
+# → Select 2: Add a new repository
+#    - Enter repository URL
+#    - Choose branch (or accept default: main)
+#    - Set interval (or accept default: 15 minutes)
+# → Select 5: Test synchronization
+# → Select 4: List configured repositories
+# → Select 9: Exit
+```
+
+### Basic Setup (CLI Mode)
 
 ```bash
 # 1. Install service
