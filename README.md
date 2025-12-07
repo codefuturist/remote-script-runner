@@ -37,12 +37,7 @@ rsr list                         # List available scripts
 rsr --help                       # Show help
 ```
 
-### 🎯 **Direct Script Syntax** (see [SYNTAX_GUIDE.md](SYNTAX_GUIDE.md) for full comparison)
-
-```bash
-```
-
-### 🎯 **Direct Script Syntax** (see [SYNTAX_GUIDE.md](SYNTAX_GUIDE.md) for full comparison)
+### 🎯 **Direct Script Syntax** (see [SYNTAX_GUIDE.md](docs/SYNTAX_GUIDE.md) for full comparison)
 
 ```bash
 # Pattern 1: Pipe Form (RECOMMENDED for most cases)
@@ -336,7 +331,7 @@ less /tmp/check.sh  # Review first
 chmod +x /tmp/check.sh && /tmp/check.sh -- -a
 ```
 
-📖 **See [SYNTAX_GUIDE.md](SYNTAX_GUIDE.md) for comprehensive syntax recommendations and advanced patterns.**
+📖 **See [SYNTAX_GUIDE.md](docs/SYNTAX_GUIDE.md) for comprehensive syntax recommendations and advanced patterns.**
 
 ## Security Considerations
 
