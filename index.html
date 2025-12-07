@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remote Script Runner (rsr)</title>
+  <meta name="description" content="Run shell scripts remotely with a single command. Cross-platform, shell-aware script runner.">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-secondary: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-hover: #79b8ff;
+      --success: #3fb950;
+      --code-bg: #1c2128;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 code {
+      background: var(--accent);
+      color: var(--bg);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-size: 2rem;
+    }
+
+    .tagline {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      margin: 2.5rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h2:first-of-type {
+      margin-top: 0;
+    }
+
+    .command-block {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+
+    .command-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 1rem;
+      background: var(--code-bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .command-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.35rem 0.7rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .copy-btn.copied {
+      background: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+
+    .copy-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .command-code {
+      padding: 1rem;
+      overflow-x: auto;
+    }
+
+    .command-code code {
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+      font-size: 0.9rem;
+      color: var(--text);
+      white-space: pre;
+      display: block;
+    }
+
+    .command-code .comment {
+      color: var(--text-muted);
+    }
+
+    .description {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--bg);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .scripts-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .script-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+    }
+
+    .script-card h3 {
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+      color: var(--accent);
+    }
+
+    .script-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .script-card .command-block {
+      margin: 0;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .feature {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature h3 {
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .feature p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      h1 code {
+        font-size: 1.5rem;
+      }
+      .command-code code {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><code>rsr</code></h1>
+      <p class="tagline">Remote Script Runner — run shell scripts with a single command</p>
+    </header>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">🐚</div>
+        <h3>Shell-Aware</h3>
+        <p>Auto-detects bash, zsh, sh, fish</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🌐</div>
+        <h3>Cross-Platform</h3>
+        <p>macOS, Linux, WSL</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <h3>Zero Dependencies</h3>
+        <p>POSIX-compatible</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔒</div>
+        <h3>Inspect First</h3>
+        <p>Review scripts before running</p>
+      </div>
+    </div>
+
+    <h2>🚀 Quick Install</h2>
+    <p class="description">Install <code>rsr</code> to your local bin directory:</p>
+    <div class="command-block">
+      <div class="command-header">
+        <span class="command-label">bash / zsh</span>
+        <button class="copy-btn" onclick="copyCommand(this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="command-code">
+        <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash</code>
+      </div>
+    </div>
+
+    <h2>⚡ One-Liner Usage</h2>
+    <p class="description">Run scripts directly without installing:</p>
+    
+    <div class="command-block">
+      <div class="command-header">
+        <span class="command-label">Run a script <span class="badge">Recommended</span></span>
+        <button class="copy-btn" onclick="copyCommand(this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="command-code">
+        <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- run &lt;script-name&gt;</code>
+      </div>
+    </div>
+
+    <div class="command-block">
+      <div class="command-header">
+        <span class="command-label">List available scripts</span>
+        <button class="copy-btn" onclick="copyCommand(this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="command-code">
+        <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- list</code>
+      </div>
+    </div>
+
+    <div class="command-block">
+      <div class="command-header">
+        <span class="command-label">Show help</span>
+        <button class="copy-btn" onclick="copyCommand(this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="command-code">
+        <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- --help</code>
+      </div>
+    </div>
+
+    <h2>📦 Available Scripts</h2>
+    <div class="scripts-grid">
+      <div class="script-card">
+        <h3>system-health-check</h3>
+        <p>Check system health: CPU, memory, disk usage, network status</p>
+        <div class="command-block">
+          <div class="command-header">
+            <span class="command-label">Run with verbose output</span>
+            <button class="copy-btn" onclick="copyCommand(this)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+          <div class="command-code">
+            <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- run system-health-check -v</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="script-card">
+        <h3>server-setup</h3>
+        <p>Initial server setup: users, SSH hardening, firewall, common tools</p>
+        <div class="command-block">
+          <div class="command-header">
+            <span class="command-label">Run server setup</span>
+            <button class="copy-btn" onclick="copyCommand(this)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+          <div class="command-code">
+            <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- run server-setup</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>🔍 Inspect Before Running</h2>
+    <p class="description">Always review scripts before executing them:</p>
+    <div class="command-block">
+      <div class="command-header">
+        <span class="command-label">View script source</span>
+        <button class="copy-btn" onclick="copyCommand(this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="command-code">
+        <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | less</code>
+      </div>
+    </div>
+
+    <h2>📋 Direct Script URLs</h2>
+    <p class="description">Run specific shell versions directly:</p>
+    <div class="command-block">
+      <div class="command-header">
+        <span class="command-label">Bash script directly</span>
+        <button class="copy-btn" onclick="copyCommand(this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="command-code">
+        <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/scripts/bash/system-health-check.sh | bash</code>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        <a href="https://github.com/codefuturist/remote-script-runner">GitHub Repository</a> · 
+        <a href="https://github.com/codefuturist/remote-script-runner/blob/main/docs/SYNTAX_GUIDE.md">Syntax Guide</a> · 
+        <a href="https://github.com/codefuturist/remote-script-runner/blob/main/docs/CHANGELOG.md">Changelog</a>
+      </p>
+      <p style="margin-top: 0.5rem;">Made with ♥ by <a href="https://github.com/codefuturist">codefuturist</a></p>
+    </footer>
+  </div>
+
+  <script>
+    function copyCommand(button) {
+      const codeBlock = button.closest('.command-block').querySelector('code');
+      const text = codeBlock.textContent.trim();
+      
+      navigator.clipboard.writeText(text).then(() => {
+        const originalHTML = button.innerHTML;
+        button.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Copied!
+        `;
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+          button.innerHTML = originalHTML;
+          button.classList.remove('copied');
+        }, 2000);
+      }).catch(err => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        const originalHTML = button.innerHTML;
+        button.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Copied!
+        `;
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+          button.innerHTML = originalHTML;
+          button.classList.remove('copied');
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

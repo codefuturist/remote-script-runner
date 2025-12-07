@@ -2,14 +2,14 @@
 
 # System Health Check Script
 # This script can be run remotely with curl and accepts multiple arguments
-# Example: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/yourusername/remote-script-runner/main/system-health-check.sh)" -- -v -s cpu memory disk -t 5
+# Example: /bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/scripts/bash/system-health-check.sh)" -- -v -s cpu memory disk -t 5
 
 set -euo pipefail
 
 # Script metadata
 SCRIPT_NAME="System Health Check"
 SCRIPT_VERSION="1.0.0"
-SCRIPT_URL="https://github.com/yourusername/remote-script-runner"
+SCRIPT_URL="https://github.com/codefuturist/remote-script-runner"
 
 # Default values
 VERBOSE=false
