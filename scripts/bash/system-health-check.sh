@@ -2,7 +2,7 @@
 
 # System Health Check Script
 # This script can be run remotely with curl and accepts multiple arguments
-# Example: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/yourusername/remote-script-runner/main/system-health-check.sh)" -- -v -s cpu memory disk -t 5
+# Example: /bin/bash -c "$(curl -fsSL https://scripts.pandia.io/scripts/bash/system-health-check.sh)" -- -v -s cpu memory disk -t 5
 
 set -euo pipefail
 

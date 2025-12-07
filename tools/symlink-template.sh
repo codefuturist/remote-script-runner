@@ -17,8 +17,8 @@ else
         REPO_URL=$(git remote get-url origin | sed 's/\.git$//' | sed 's/github.com:/github.com\//')
         REPO_BASE_URL="https://raw.githubusercontent.com/${REPO_URL#*github.com/}/main"
     else
-        # Fallback to hardcoded URL
-        REPO_BASE_URL="https://raw.githubusercontent.com/codefuturist/remote-script-runner/main"
+        # Fallback to scripts.pandia.io
+        REPO_BASE_URL="https://scripts.pandia.io"
     fi
     
     # Download and execute

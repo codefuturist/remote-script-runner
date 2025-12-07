@@ -1,12 +1,12 @@
 #!/bin/bash
 # Standalone Remote Script Runner
 # Can be downloaded and run without cloning the repository
-# Usage: curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/remote-runner.sh | bash -s -- [COMMAND] [OPTIONS]
+# Usage: curl -fsSL https://scripts.pandia.io/remote-runner.sh | bash -s -- [COMMAND] [OPTIONS]
 
 set -euo pipefail
 
 # Configuration
-REPO_BASE_URL="https://raw.githubusercontent.com/codefuturist/remote-script-runner/a37c9f8"
+REPO_BASE_URL="https://scripts.pandia.io"
 SCRIPT_VERSION="1.0.0"
 
 # Color codes

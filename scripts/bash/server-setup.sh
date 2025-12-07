@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Server Setup Script
-# Example: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/main/server-setup.sh)" -- -u admin -p production -i nginx docker
+# Example: /bin/bash -c "$(curl -fsSL https://scripts.pandia.io/scripts/bash/server-setup.sh)" -- -u admin -p production -i nginx docker
 
 set -euo pipefail
 

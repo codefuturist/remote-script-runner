@@ -48,7 +48,7 @@ param(
 )
 
 # Base repository URL
-$baseUrl = "https://raw.githubusercontent.com/codefuturist/remote-script-runner/main"
+$baseUrl = "https://scripts.pandia.io"
 
 # Script mappings
 $scriptMap = @{
