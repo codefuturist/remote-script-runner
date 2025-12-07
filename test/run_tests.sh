@@ -307,7 +307,7 @@ main() {
         bats_cmd+=("--print-output-on-failure")
     fi
 
-    bats_cmd+=("${BATS_ARGS[@]}")
+    bats_cmd+=("${BATS_ARGS[@]+"${BATS_ARGS[@]}"}")
     bats_cmd+=("${test_files[@]}")
 
     # Run tests
