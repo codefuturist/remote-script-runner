@@ -593,10 +593,12 @@ finalize_backup() {
             ;;
         lz4)
             log_debug "Compressing with lz4..."
-            lz4 -9 "$file" "${file}.lz4" && rm -f "$file" || {
+            if lz4 -9 "$file" "${file}.lz4"; then
+                rm -f "$file"
+            else
                 log_error "Compression failed"
                 exit $EXIT_COMPRESS_FAIL
-            }
+            fi
             final_file="${file}.lz4"
             ;;
         none)
