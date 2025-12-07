@@ -49,7 +49,15 @@
           "description": "Check disk usage only"
         }
       ],
-      "tags": ["cpu", "memory", "disk", "network", "monitoring", "system", "diagnostics"]
+      "tags": [
+        "cpu",
+        "memory",
+        "disk",
+        "network",
+        "monitoring",
+        "system",
+        "diagnostics"
+      ]
     },
     {
       "id": "setup",
@@ -96,7 +104,15 @@
           "description": "Preview nginx and docker installation"
         }
       ],
-      "tags": ["server", "setup", "ssh", "firewall", "users", "configuration", "hardening"]
+      "tags": [
+        "server",
+        "setup",
+        "ssh",
+        "firewall",
+        "users",
+        "configuration",
+        "hardening"
+      ]
     },
     {
       "id": "cleanup",
@@ -111,20 +127,67 @@
       },
       "defaultShell": "bash",
       "options": [
-        { "short": "-a", "long": "--all", "description": "Run all cleanup tasks" },
-        { "short": "-d", "long": "--dry-run", "description": "Show what would be deleted (default)" },
-        { "short": "-x", "long": "--execute", "description": "Actually perform deletions" },
-        { "short": "-s", "long": "--section", "argument": "SECTION", "description": "Run specific section (tmp, cache, logs, kernels, journal, thumbnails)" },
-        { "short": "-v", "long": "--verbose", "description": "Verbose output" },
-        { "long": "--older-than", "argument": "DAYS", "description": "Only remove files older than N days (default: 7)" },
-        { "long": "--keep-kernels", "argument": "N", "description": "Keep N most recent kernels (default: 2)" }
+        {
+          "short": "-a",
+          "long": "--all",
+          "description": "Run all cleanup tasks"
+        },
+        {
+          "short": "-d",
+          "long": "--dry-run",
+          "description": "Show what would be deleted (default)"
+        },
+        {
+          "short": "-x",
+          "long": "--execute",
+          "description": "Actually perform deletions"
+        },
+        {
+          "short": "-s",
+          "long": "--section",
+          "argument": "SECTION",
+          "description": "Run specific section (tmp, cache, logs, kernels, journal, thumbnails)"
+        },
+        {
+          "short": "-v",
+          "long": "--verbose",
+          "description": "Verbose output"
+        },
+        {
+          "long": "--older-than",
+          "argument": "DAYS",
+          "description": "Only remove files older than N days (default: 7)"
+        },
+        {
+          "long": "--keep-kernels",
+          "argument": "N",
+          "description": "Keep N most recent kernels (default: 2)"
+        }
       ],
       "examples": [
-        { "command": "rsr cleanup -d -a", "description": "Dry run all cleanup tasks" },
-        { "command": "rsr cleanup -x -s cache -s logs", "description": "Execute cache and log cleanup" },
-        { "command": "sudo rsr cleanup -x -s kernels", "description": "Clean old kernels" }
+        {
+          "command": "rsr cleanup -d -a",
+          "description": "Dry run all cleanup tasks"
+        },
+        {
+          "command": "rsr cleanup -x -s cache -s logs",
+          "description": "Execute cache and log cleanup"
+        },
+        {
+          "command": "sudo rsr cleanup -x -s kernels",
+          "description": "Clean old kernels"
+        }
       ],
-      "tags": ["disk", "cleanup", "temp", "logs", "cache", "kernels", "maintenance", "storage"]
+      "tags": [
+        "disk",
+        "cleanup",
+        "temp",
+        "logs",
+        "cache",
+        "kernels",
+        "maintenance",
+        "storage"
+      ]
     },
     {
       "id": "ssl",
@@ -139,23 +202,84 @@
       },
       "defaultShell": "bash",
       "options": [
-        { "short": "-d", "long": "--domain", "argument": "DOMAIN", "description": "Check specific domain (can repeat)" },
-        { "short": "-f", "long": "--file", "argument": "FILE", "description": "Read domains from file" },
-        { "short": "-w", "long": "--warn", "argument": "DAYS", "description": "Warning threshold days (default: 30)" },
-        { "short": "-c", "long": "--critical", "argument": "DAYS", "description": "Critical threshold days (default: 7)" },
-        { "short": "-C", "long": "--chain", "description": "Validate certificate chain" },
-        { "short": "-S", "long": "--ciphers", "description": "Check for weak cipher suites" },
-        { "short": "-a", "long": "--all", "description": "Run all checks (chain + ciphers)" },
-        { "short": "-v", "long": "--verbose", "description": "Show detailed certificate info" },
-        { "short": "-o", "long": "--output", "argument": "FORMAT", "description": "Output format: text, json" }
+        {
+          "short": "-d",
+          "long": "--domain",
+          "argument": "DOMAIN",
+          "description": "Check specific domain (can repeat)"
+        },
+        {
+          "short": "-f",
+          "long": "--file",
+          "argument": "FILE",
+          "description": "Read domains from file"
+        },
+        {
+          "short": "-w",
+          "long": "--warn",
+          "argument": "DAYS",
+          "description": "Warning threshold days (default: 30)"
+        },
+        {
+          "short": "-c",
+          "long": "--critical",
+          "argument": "DAYS",
+          "description": "Critical threshold days (default: 7)"
+        },
+        {
+          "short": "-C",
+          "long": "--chain",
+          "description": "Validate certificate chain"
+        },
+        {
+          "short": "-S",
+          "long": "--ciphers",
+          "description": "Check for weak cipher suites"
+        },
+        {
+          "short": "-a",
+          "long": "--all",
+          "description": "Run all checks (chain + ciphers)"
+        },
+        {
+          "short": "-v",
+          "long": "--verbose",
+          "description": "Show detailed certificate info"
+        },
+        {
+          "short": "-o",
+          "long": "--output",
+          "argument": "FORMAT",
+          "description": "Output format: text, json"
+        }
       ],
       "examples": [
-        { "command": "rsr ssl example.com", "description": "Check single domain" },
-        { "command": "rsr ssl -d example.com -d api.example.com", "description": "Check multiple domains" },
-        { "command": "rsr ssl -a example.com", "description": "Run all checks including chain/ciphers" },
-        { "command": "rsr ssl -f domains.txt -w 60", "description": "Check from file, warn at 60 days" }
+        {
+          "command": "rsr ssl example.com",
+          "description": "Check single domain"
+        },
+        {
+          "command": "rsr ssl -d example.com -d api.example.com",
+          "description": "Check multiple domains"
+        },
+        {
+          "command": "rsr ssl -a example.com",
+          "description": "Run all checks including chain/ciphers"
+        },
+        {
+          "command": "rsr ssl -f domains.txt -w 60",
+          "description": "Check from file, warn at 60 days"
+        }
       ],
-      "tags": ["ssl", "tls", "certificate", "security", "expiry", "https", "cipher"]
+      "tags": [
+        "ssl",
+        "tls",
+        "certificate",
+        "security",
+        "expiry",
+        "https",
+        "cipher"
+      ]
     },
     {
       "id": "users",
@@ -170,22 +294,72 @@
       },
       "defaultShell": "bash",
       "options": [
-        { "short": "-a", "long": "--all", "description": "Run all audit checks" },
-        { "short": "-s", "long": "--section", "argument": "SECTION", "description": "Run specific section (accounts, sudo, passwords, logins, ssh, orphans)" },
-        { "short": "-u", "long": "--user", "argument": "USER", "description": "Audit specific user only" },
-        { "long": "--sudo-only", "description": "Show only users with sudo access" },
-        { "long": "--expired", "description": "Show only expired/expiring accounts" },
-        { "long": "--orphans", "description": "Find files with no owner" },
-        { "long": "--ssh-keys", "description": "Audit SSH authorized keys" },
-        { "short": "-v", "long": "--verbose", "description": "Enable verbose output" }
+        {
+          "short": "-a",
+          "long": "--all",
+          "description": "Run all audit checks"
+        },
+        {
+          "short": "-s",
+          "long": "--section",
+          "argument": "SECTION",
+          "description": "Run specific section (accounts, sudo, passwords, logins, ssh, orphans)"
+        },
+        {
+          "short": "-u",
+          "long": "--user",
+          "argument": "USER",
+          "description": "Audit specific user only"
+        },
+        {
+          "long": "--sudo-only",
+          "description": "Show only users with sudo access"
+        },
+        {
+          "long": "--expired",
+          "description": "Show only expired/expiring accounts"
+        },
+        {
+          "long": "--orphans",
+          "description": "Find files with no owner"
+        },
+        {
+          "long": "--ssh-keys",
+          "description": "Audit SSH authorized keys"
+        },
+        {
+          "short": "-v",
+          "long": "--verbose",
+          "description": "Enable verbose output"
+        }
       ],
       "examples": [
-        { "command": "rsr users -a", "description": "Full user audit" },
-        { "command": "rsr users -s sudo -s passwords", "description": "Check sudo and password status" },
-        { "command": "rsr users --sudo-only", "description": "List only sudo users" },
-        { "command": "sudo rsr users --orphans", "description": "Find orphaned files" }
+        {
+          "command": "rsr users -a",
+          "description": "Full user audit"
+        },
+        {
+          "command": "rsr users -s sudo -s passwords",
+          "description": "Check sudo and password status"
+        },
+        {
+          "command": "rsr users --sudo-only",
+          "description": "List only sudo users"
+        },
+        {
+          "command": "sudo rsr users --orphans",
+          "description": "Find orphaned files"
+        }
       ],
-      "tags": ["users", "accounts", "sudo", "security", "audit", "login", "permissions"]
+      "tags": [
+        "users",
+        "accounts",
+        "sudo",
+        "security",
+        "audit",
+        "login",
+        "permissions"
+      ]
     },
     {
       "id": "update",
@@ -200,23 +374,78 @@
       },
       "defaultShell": "bash",
       "options": [
-        { "short": "-c", "long": "--check", "description": "Check for available updates only" },
-        { "short": "-l", "long": "--list", "description": "List available updates with details" },
-        { "short": "-a", "long": "--all", "description": "Install all available updates" },
-        { "long": "--security", "description": "Install security updates only" },
-        { "short": "-e", "long": "--exclude", "argument": "PKG", "description": "Exclude package(s) from update" },
-        { "short": "-y", "long": "--yes", "description": "Automatic yes to prompts" },
-        { "long": "--reboot-required", "description": "Check if reboot is needed" },
-        { "short": "-d", "long": "--dry-run", "description": "Show what would be updated" },
-        { "short": "-v", "long": "--verbose", "description": "Enable verbose output" }
+        {
+          "short": "-c",
+          "long": "--check",
+          "description": "Check for available updates only"
+        },
+        {
+          "short": "-l",
+          "long": "--list",
+          "description": "List available updates with details"
+        },
+        {
+          "short": "-a",
+          "long": "--all",
+          "description": "Install all available updates"
+        },
+        {
+          "long": "--security",
+          "description": "Install security updates only"
+        },
+        {
+          "short": "-e",
+          "long": "--exclude",
+          "argument": "PKG",
+          "description": "Exclude package(s) from update"
+        },
+        {
+          "short": "-y",
+          "long": "--yes",
+          "description": "Automatic yes to prompts"
+        },
+        {
+          "long": "--reboot-required",
+          "description": "Check if reboot is needed"
+        },
+        {
+          "short": "-d",
+          "long": "--dry-run",
+          "description": "Show what would be updated"
+        },
+        {
+          "short": "-v",
+          "long": "--verbose",
+          "description": "Enable verbose output"
+        }
       ],
       "examples": [
-        { "command": "rsr update -c", "description": "Check for updates" },
-        { "command": "rsr update -l", "description": "List available updates" },
-        { "command": "sudo rsr update -a -y", "description": "Install all updates non-interactive" },
-        { "command": "sudo rsr update --security -y", "description": "Security updates only" }
+        {
+          "command": "rsr update -c",
+          "description": "Check for updates"
+        },
+        {
+          "command": "rsr update -l",
+          "description": "List available updates"
+        },
+        {
+          "command": "sudo rsr update -a -y",
+          "description": "Install all updates non-interactive"
+        },
+        {
+          "command": "sudo rsr update --security -y",
+          "description": "Security updates only"
+        }
       ],
-      "tags": ["update", "packages", "security", "patches", "kernel", "upgrade", "maintenance"]
+      "tags": [
+        "update",
+        "packages",
+        "security",
+        "patches",
+        "kernel",
+        "upgrade",
+        "maintenance"
+      ]
     },
     {
       "id": "audit",
@@ -231,22 +460,74 @@
       },
       "defaultShell": "bash",
       "options": [
-        { "short": "-a", "long": "--all", "description": "Run all security checks" },
-        { "short": "-s", "long": "--section", "argument": "SECTION", "description": "Run specific section (ports, auth, files, users, network, ssh, updates, processes, kernel)" },
-        { "long": "--severity", "argument": "LEVEL", "description": "Show only issues at level (critical, high, medium, low)" },
-        { "long": "--quick", "description": "Quick scan (skip slow checks)" },
-        { "long": "--deep", "description": "Deep scan (more thorough)" },
-        { "short": "-r", "long": "--report", "argument": "FILE", "description": "Generate report to file" },
-        { "long": "--format", "argument": "FMT", "description": "Report format: text, json, html" },
-        { "short": "-v", "long": "--verbose", "description": "Enable verbose output" }
+        {
+          "short": "-a",
+          "long": "--all",
+          "description": "Run all security checks"
+        },
+        {
+          "short": "-s",
+          "long": "--section",
+          "argument": "SECTION",
+          "description": "Run specific section (ports, auth, files, users, network, ssh, updates, processes, kernel)"
+        },
+        {
+          "long": "--severity",
+          "argument": "LEVEL",
+          "description": "Show only issues at level (critical, high, medium, low)"
+        },
+        {
+          "long": "--quick",
+          "description": "Quick scan (skip slow checks)"
+        },
+        {
+          "long": "--deep",
+          "description": "Deep scan (more thorough)"
+        },
+        {
+          "short": "-r",
+          "long": "--report",
+          "argument": "FILE",
+          "description": "Generate report to file"
+        },
+        {
+          "long": "--format",
+          "argument": "FMT",
+          "description": "Report format: text, json, html"
+        },
+        {
+          "short": "-v",
+          "long": "--verbose",
+          "description": "Enable verbose output"
+        }
       ],
       "examples": [
-        { "command": "rsr audit -a", "description": "Full security audit" },
-        { "command": "rsr audit -s ports -s auth", "description": "Check ports and authentication" },
-        { "command": "rsr audit --quick", "description": "Quick scan" },
-        { "command": "sudo rsr audit -a --deep", "description": "Deep thorough scan" }
+        {
+          "command": "rsr audit -a",
+          "description": "Full security audit"
+        },
+        {
+          "command": "rsr audit -s ports -s auth",
+          "description": "Check ports and authentication"
+        },
+        {
+          "command": "rsr audit --quick",
+          "description": "Quick scan"
+        },
+        {
+          "command": "sudo rsr audit -a --deep",
+          "description": "Deep thorough scan"
+        }
       ],
-      "tags": ["security", "audit", "ports", "suid", "permissions", "logins", "hardening"]
+      "tags": [
+        "security",
+        "audit",
+        "ports",
+        "suid",
+        "permissions",
+        "logins",
+        "hardening"
+      ]
     },
     {
       "id": "netdiag",
@@ -261,23 +542,77 @@
       },
       "defaultShell": "bash",
       "options": [
-        { "short": "-a", "long": "--all", "description": "Run all diagnostics" },
-        { "short": "-s", "long": "--section", "argument": "SECTION", "description": "Run specific section (connectivity, dns, gateway, interfaces, services, routing)" },
-        { "long": "--ping", "argument": "HOSTS", "description": "Ping specific hosts (comma-separated)" },
-        { "long": "--dns", "description": "Test DNS resolution" },
-        { "long": "--trace", "argument": "HOST", "description": "Traceroute to host" },
-        { "long": "--port", "argument": "HOST:PORT", "description": "Test port connectivity" },
-        { "long": "--interfaces", "description": "Show network interfaces" },
-        { "long": "--public-ip", "description": "Show public IP address" },
-        { "short": "-v", "long": "--verbose", "description": "Enable verbose output" }
+        {
+          "short": "-a",
+          "long": "--all",
+          "description": "Run all diagnostics"
+        },
+        {
+          "short": "-s",
+          "long": "--section",
+          "argument": "SECTION",
+          "description": "Run specific section (connectivity, dns, gateway, interfaces, services, routing)"
+        },
+        {
+          "long": "--ping",
+          "argument": "HOSTS",
+          "description": "Ping specific hosts (comma-separated)"
+        },
+        {
+          "long": "--dns",
+          "description": "Test DNS resolution"
+        },
+        {
+          "long": "--trace",
+          "argument": "HOST",
+          "description": "Traceroute to host"
+        },
+        {
+          "long": "--port",
+          "argument": "HOST:PORT",
+          "description": "Test port connectivity"
+        },
+        {
+          "long": "--interfaces",
+          "description": "Show network interfaces"
+        },
+        {
+          "long": "--public-ip",
+          "description": "Show public IP address"
+        },
+        {
+          "short": "-v",
+          "long": "--verbose",
+          "description": "Enable verbose output"
+        }
       ],
       "examples": [
-        { "command": "rsr netdiag -a", "description": "Full diagnostics" },
-        { "command": "rsr netdiag --ping google.com,cloudflare.com", "description": "Ping specific hosts" },
-        { "command": "rsr netdiag --port example.com:443", "description": "Test port connectivity" },
-        { "command": "rsr netdiag --interfaces --public-ip", "description": "Show interface and public IP" }
+        {
+          "command": "rsr netdiag -a",
+          "description": "Full diagnostics"
+        },
+        {
+          "command": "rsr netdiag --ping google.com,cloudflare.com",
+          "description": "Ping specific hosts"
+        },
+        {
+          "command": "rsr netdiag --port example.com:443",
+          "description": "Test port connectivity"
+        },
+        {
+          "command": "rsr netdiag --interfaces --public-ip",
+          "description": "Show interface and public IP"
+        }
       ],
-      "tags": ["network", "diagnostics", "ping", "dns", "trace", "ports", "connectivity"]
+      "tags": [
+        "network",
+        "diagnostics",
+        "ping",
+        "dns",
+        "trace",
+        "ports",
+        "connectivity"
+      ]
     },
     {
       "id": "ssh-harden",
@@ -292,24 +627,78 @@
       },
       "defaultShell": "bash",
       "options": [
-        { "short": "-a", "long": "--all", "description": "Apply all hardening measures" },
-        { "short": "-d", "long": "--dry-run", "description": "Show changes without applying" },
-        { "long": "--status", "description": "Show current SSH configuration status" },
-        { "long": "--no-root", "description": "Disable root login" },
-        { "long": "--key-only", "description": "Disable password authentication" },
-        { "short": "-p", "long": "--port", "argument": "PORT", "description": "Change SSH port" },
-        { "long": "--fail2ban", "description": "Install and configure fail2ban" },
-        { "long": "--strong-crypto", "description": "Apply strong cipher/MAC/Kex settings" },
-        { "long": "--rollback", "description": "Rollback to previous configuration" },
-        { "short": "-v", "long": "--verbose", "description": "Enable verbose output" }
+        {
+          "short": "-a",
+          "long": "--all",
+          "description": "Apply all hardening measures"
+        },
+        {
+          "short": "-d",
+          "long": "--dry-run",
+          "description": "Show changes without applying"
+        },
+        {
+          "long": "--status",
+          "description": "Show current SSH configuration status"
+        },
+        {
+          "long": "--no-root",
+          "description": "Disable root login"
+        },
+        {
+          "long": "--key-only",
+          "description": "Disable password authentication"
+        },
+        {
+          "short": "-p",
+          "long": "--port",
+          "argument": "PORT",
+          "description": "Change SSH port"
+        },
+        {
+          "long": "--fail2ban",
+          "description": "Install and configure fail2ban"
+        },
+        {
+          "long": "--strong-crypto",
+          "description": "Apply strong cipher/MAC/Kex settings"
+        },
+        {
+          "long": "--rollback",
+          "description": "Rollback to previous configuration"
+        },
+        {
+          "short": "-v",
+          "long": "--verbose",
+          "description": "Enable verbose output"
+        }
       ],
       "examples": [
-        { "command": "rsr ssh-harden --status", "description": "Show current config status" },
-        { "command": "rsr ssh-harden -a -d", "description": "Dry run all hardening" },
-        { "command": "sudo rsr ssh-harden --no-root --key-only", "description": "Disable root and passwords" },
-        { "command": "sudo rsr ssh-harden --fail2ban", "description": "Install fail2ban" }
+        {
+          "command": "rsr ssh-harden --status",
+          "description": "Show current config status"
+        },
+        {
+          "command": "rsr ssh-harden -a -d",
+          "description": "Dry run all hardening"
+        },
+        {
+          "command": "sudo rsr ssh-harden --no-root --key-only",
+          "description": "Disable root and passwords"
+        },
+        {
+          "command": "sudo rsr ssh-harden --fail2ban",
+          "description": "Install fail2ban"
+        }
       ],
-      "tags": ["ssh", "security", "hardening", "fail2ban", "keys", "authentication"]
+      "tags": [
+        "ssh",
+        "security",
+        "hardening",
+        "fail2ban",
+        "keys",
+        "authentication"
+      ]
     },
     {
       "id": "firewall",
@@ -324,25 +713,89 @@
       },
       "defaultShell": "bash",
       "options": [
-        { "short": "-p", "long": "--preset", "argument": "PRESET", "description": "Apply preset profile (minimal, web, database, docker, mail)" },
-        { "short": "-a", "long": "--allow", "argument": "PORT[/PROTO]", "description": "Allow port (e.g., 3000/tcp)" },
-        { "short": "-D", "long": "--deny", "argument": "PORT[/PROTO]", "description": "Deny port" },
-        { "long": "--allow-from", "argument": "IP", "description": "Allow from IP/CIDR" },
-        { "long": "--rate-limit", "argument": "PORT", "description": "Enable rate limiting on port" },
-        { "long": "--status", "description": "Show current status and rules" },
-        { "long": "--enable", "description": "Enable firewall" },
-        { "long": "--disable", "description": "Disable firewall" },
-        { "long": "--backup", "argument": "FILE", "description": "Backup current rules" },
-        { "short": "-d", "long": "--dry-run", "description": "Show what would be configured" },
-        { "short": "-v", "long": "--verbose", "description": "Enable verbose output" }
+        {
+          "short": "-p",
+          "long": "--preset",
+          "argument": "PRESET",
+          "description": "Apply preset profile (minimal, web, database, docker, mail)"
+        },
+        {
+          "short": "-a",
+          "long": "--allow",
+          "argument": "PORT[/PROTO]",
+          "description": "Allow port (e.g., 3000/tcp)"
+        },
+        {
+          "short": "-D",
+          "long": "--deny",
+          "argument": "PORT[/PROTO]",
+          "description": "Deny port"
+        },
+        {
+          "long": "--allow-from",
+          "argument": "IP",
+          "description": "Allow from IP/CIDR"
+        },
+        {
+          "long": "--rate-limit",
+          "argument": "PORT",
+          "description": "Enable rate limiting on port"
+        },
+        {
+          "long": "--status",
+          "description": "Show current status and rules"
+        },
+        {
+          "long": "--enable",
+          "description": "Enable firewall"
+        },
+        {
+          "long": "--disable",
+          "description": "Disable firewall"
+        },
+        {
+          "long": "--backup",
+          "argument": "FILE",
+          "description": "Backup current rules"
+        },
+        {
+          "short": "-d",
+          "long": "--dry-run",
+          "description": "Show what would be configured"
+        },
+        {
+          "short": "-v",
+          "long": "--verbose",
+          "description": "Enable verbose output"
+        }
       ],
       "examples": [
-        { "command": "rsr firewall --status", "description": "Show current status" },
-        { "command": "rsr firewall -p web -d", "description": "Dry run web preset" },
-        { "command": "sudo rsr firewall -p minimal", "description": "Apply minimal preset" },
-        { "command": "sudo rsr firewall -a 8080/tcp", "description": "Allow port 8080" }
+        {
+          "command": "rsr firewall --status",
+          "description": "Show current status"
+        },
+        {
+          "command": "rsr firewall -p web -d",
+          "description": "Dry run web preset"
+        },
+        {
+          "command": "sudo rsr firewall -p minimal",
+          "description": "Apply minimal preset"
+        },
+        {
+          "command": "sudo rsr firewall -a 8080/tcp",
+          "description": "Allow port 8080"
+        }
       ],
-      "tags": ["firewall", "ufw", "iptables", "firewalld", "security", "network", "ports"]
+      "tags": [
+        "firewall",
+        "ufw",
+        "iptables",
+        "firewalld",
+        "security",
+        "network",
+        "ports"
+      ]
     },
     {
       "id": "backup",
@@ -357,26 +810,95 @@
       },
       "defaultShell": "bash",
       "options": [
-        { "short": "-a", "long": "--all", "description": "Backup everything" },
-        { "short": "-s", "long": "--section", "argument": "SECTION", "description": "Backup specific section (etc, packages, crontabs, systemd, ssh, nginx, apache, database)" },
-        { "short": "-o", "long": "--output", "argument": "DIR", "description": "Output directory (default: /var/backups/rsr)" },
-        { "long": "--compress", "argument": "METHOD", "description": "Compression: gzip, xz, none (default: gzip)" },
-        { "long": "--encrypt", "description": "Encrypt with GPG" },
-        { "long": "--gpg-key", "argument": "KEY", "description": "GPG key ID for encryption" },
-        { "long": "--upload", "argument": "DEST", "description": "Upload to remote (s3://, rsync://, scp://)" },
-        { "long": "--retention", "argument": "N", "description": "Keep N most recent backups (default: 7)" },
-        { "long": "--list", "description": "List existing backups" },
-        { "long": "--restore", "argument": "FILE", "description": "Restore from backup file" },
-        { "short": "-d", "long": "--dry-run", "description": "Show what would be backed up" },
-        { "short": "-v", "long": "--verbose", "description": "Enable verbose output" }
+        {
+          "short": "-a",
+          "long": "--all",
+          "description": "Backup everything"
+        },
+        {
+          "short": "-s",
+          "long": "--section",
+          "argument": "SECTION",
+          "description": "Backup specific section (etc, packages, crontabs, systemd, ssh, nginx, apache, database)"
+        },
+        {
+          "short": "-o",
+          "long": "--output",
+          "argument": "DIR",
+          "description": "Output directory (default: /var/backups/rsr)"
+        },
+        {
+          "long": "--compress",
+          "argument": "METHOD",
+          "description": "Compression: gzip, xz, none (default: gzip)"
+        },
+        {
+          "long": "--encrypt",
+          "description": "Encrypt with GPG"
+        },
+        {
+          "long": "--gpg-key",
+          "argument": "KEY",
+          "description": "GPG key ID for encryption"
+        },
+        {
+          "long": "--upload",
+          "argument": "DEST",
+          "description": "Upload to remote (s3://, rsync://, scp://)"
+        },
+        {
+          "long": "--retention",
+          "argument": "N",
+          "description": "Keep N most recent backups (default: 7)"
+        },
+        {
+          "long": "--list",
+          "description": "List existing backups"
+        },
+        {
+          "long": "--restore",
+          "argument": "FILE",
+          "description": "Restore from backup file"
+        },
+        {
+          "short": "-d",
+          "long": "--dry-run",
+          "description": "Show what would be backed up"
+        },
+        {
+          "short": "-v",
+          "long": "--verbose",
+          "description": "Enable verbose output"
+        }
       ],
       "examples": [
-        { "command": "rsr backup -a -d", "description": "Dry run full backup" },
-        { "command": "sudo rsr backup -a", "description": "Full backup" },
-        { "command": "sudo rsr backup -s etc -s packages", "description": "Backup etc and packages" },
-        { "command": "rsr backup --list", "description": "List existing backups" }
+        {
+          "command": "rsr backup -a -d",
+          "description": "Dry run full backup"
+        },
+        {
+          "command": "sudo rsr backup -a",
+          "description": "Full backup"
+        },
+        {
+          "command": "sudo rsr backup -s etc -s packages",
+          "description": "Backup etc and packages"
+        },
+        {
+          "command": "rsr backup --list",
+          "description": "List existing backups"
+        }
       ],
-      "tags": ["backup", "config", "etc", "crontab", "packages", "restore", "maintenance"]
+      "tags": [
+        "backup",
+        "config",
+        "etc",
+        "crontab",
+        "packages",
+        "restore",
+        "maintenance"
+      ],
+      "isNew": true
     },
     {
       "id": "db-backup",
@@ -391,29 +913,104 @@
       },
       "defaultShell": "bash",
       "options": [
-        { "long": "--mysql", "description": "Backup MySQL/MariaDB" },
-        { "long": "--postgresql", "description": "Backup PostgreSQL" },
-        { "long": "--mongodb", "description": "Backup MongoDB" },
-        { "long": "--auto", "description": "Auto-detect databases" },
-        { "short": "-d", "long": "--database", "argument": "DB", "description": "Backup specific database" },
-        { "short": "-A", "long": "--all-databases", "description": "Backup all databases" },
-        { "long": "--schema-only", "description": "Dump schema only" },
-        { "long": "--compress", "argument": "METHOD", "description": "Compression: gzip, xz, lz4 (default: gzip)" },
-        { "long": "--encrypt", "description": "Encrypt with GPG" },
-        { "long": "--upload", "argument": "DEST", "description": "Upload to remote storage" },
-        { "long": "--retention", "argument": "N", "description": "Keep N most recent backups (default: 7)" },
-        { "long": "--list", "description": "List existing backups" },
-        { "long": "--restore", "argument": "FILE", "description": "Restore from backup" },
-        { "long": "--dry-run", "description": "Show what would be done" },
-        { "short": "-v", "long": "--verbose", "description": "Enable verbose output" }
+        {
+          "long": "--mysql",
+          "description": "Backup MySQL/MariaDB"
+        },
+        {
+          "long": "--postgresql",
+          "description": "Backup PostgreSQL"
+        },
+        {
+          "long": "--mongodb",
+          "description": "Backup MongoDB"
+        },
+        {
+          "long": "--auto",
+          "description": "Auto-detect databases"
+        },
+        {
+          "short": "-d",
+          "long": "--database",
+          "argument": "DB",
+          "description": "Backup specific database"
+        },
+        {
+          "short": "-A",
+          "long": "--all-databases",
+          "description": "Backup all databases"
+        },
+        {
+          "long": "--schema-only",
+          "description": "Dump schema only"
+        },
+        {
+          "long": "--compress",
+          "argument": "METHOD",
+          "description": "Compression: gzip, xz, lz4 (default: gzip)"
+        },
+        {
+          "long": "--encrypt",
+          "description": "Encrypt with GPG"
+        },
+        {
+          "long": "--upload",
+          "argument": "DEST",
+          "description": "Upload to remote storage"
+        },
+        {
+          "long": "--retention",
+          "argument": "N",
+          "description": "Keep N most recent backups (default: 7)"
+        },
+        {
+          "long": "--list",
+          "description": "List existing backups"
+        },
+        {
+          "long": "--restore",
+          "argument": "FILE",
+          "description": "Restore from backup"
+        },
+        {
+          "long": "--dry-run",
+          "description": "Show what would be done"
+        },
+        {
+          "short": "-v",
+          "long": "--verbose",
+          "description": "Enable verbose output"
+        }
       ],
       "examples": [
-        { "command": "rsr db-backup --mysql -A", "description": "Backup all MySQL databases" },
-        { "command": "rsr db-backup --postgresql -d myapp", "description": "Backup specific PostgreSQL DB" },
-        { "command": "rsr db-backup --auto -A", "description": "Auto-detect and backup all" },
-        { "command": "rsr db-backup --list", "description": "List existing backups" }
+        {
+          "command": "rsr db-backup --mysql -A",
+          "description": "Backup all MySQL databases"
+        },
+        {
+          "command": "rsr db-backup --postgresql -d myapp",
+          "description": "Backup specific PostgreSQL DB"
+        },
+        {
+          "command": "rsr db-backup --auto -A",
+          "description": "Auto-detect and backup all"
+        },
+        {
+          "command": "rsr db-backup --list",
+          "description": "List existing backups"
+        }
       ],
-      "tags": ["database", "backup", "mysql", "mariadb", "postgresql", "mongodb", "dump", "maintenance"]
+      "tags": [
+        "database",
+        "backup",
+        "mysql",
+        "mariadb",
+        "postgresql",
+        "mongodb",
+        "dump",
+        "maintenance"
+      ],
+      "isNew": true
     }
   ]
 }
