@@ -47,7 +47,7 @@ teardown() {
 
     # In a terminal, these should be set
     # In tests (non-terminal), they may be empty
-    [[ -v RSR_BLUE ]] || [[ -v BLUE ]]
+    [[ -v RSR_BLUE || -v BLUE ]]
 }
 
 # =============================================================================
