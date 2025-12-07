@@ -23,6 +23,7 @@ REPOSITORIES_DIR="/opt/repositories"
 SSH_KEY_PATH="${HOME}/.ssh/id_ed25519_proxmox"
 DRY_RUN=false
 VERBOSE=false
+INTERACTIVE=false
 
 # Color codes
 RED='\033[0;31m'
@@ -68,7 +69,8 @@ ${YELLOW}Usage:${NC}
     $0 [ACTION] [OPTIONS]
 
 ${YELLOW}Actions:${NC}
-    --install               Install git-sync service (tools, config, cron)
+    --interactive, -i      Start interactive mode (user-friendly guided setup)
+    --install              Install git-sync service (tools, config, cron)
     --uninstall            Uninstall git-sync service
     --add-repo             Add repository to sync
     --remove-repo          Remove repository from sync
@@ -87,6 +89,11 @@ ${YELLOW}Options:${NC}
     --dry-run              Show what would be done without doing it
     --verbose              Enable verbose output
     -h, --help             Show this help message
+
+${YELLOW}Interactive Mode:${NC}
+    # Start interactive guided setup
+    $0 --interactive
+    $0 -i
 
 ${YELLOW}Examples:${NC}
     # Install git-sync service
@@ -124,6 +131,441 @@ ${YELLOW}Remote Execution:${NC}
 
 EOF
     exit 0
+}
+
+# ============================================================================
+# Interactive Mode Functions
+# ============================================================================
+
+print_header() {
+    clear
+    echo -e "${BLUE}╔═══════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║        Git-Sync Setup - Interactive Mode                  ║${NC}"
+    echo -e "${BLUE}╚═══════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+}
+
+print_menu() {
+    echo -e "${CYAN}What would you like to do?${NC}"
+    echo ""
+    echo "  1) Install git-sync service"
+    echo "  2) Add a new repository"
+    echo "  3) Remove a repository"
+    echo "  4) List configured repositories"
+    echo "  5) Test synchronization"
+    echo "  6) View logs"
+    echo "  7) Deploy to another host"
+    echo "  8) Uninstall git-sync service"
+    echo "  9) Exit"
+    echo ""
+}
+
+prompt_input() {
+    local prompt_text="$1"
+    local default_value="${2:-}"
+    local result
+    
+    if [ -n "$default_value" ]; then
+        echo -ne "${YELLOW}${prompt_text}${NC} ${GREEN}[${default_value}]${NC}: "
+    else
+        echo -ne "${YELLOW}${prompt_text}${NC}: "
+    fi
+    
+    read -r result
+    
+    if [ -z "$result" ] && [ -n "$default_value" ]; then
+        echo "$default_value"
+    else
+        echo "$result"
+    fi
+}
+
+prompt_confirm() {
+    local prompt_text="$1"
+    local default="${2:-n}"
+    local result
+    
+    if [ "$default" = "y" ]; then
+        echo -ne "${YELLOW}${prompt_text}${NC} ${GREEN}[Y/n]${NC}: "
+    else
+        echo -ne "${YELLOW}${prompt_text}${NC} ${GREEN}[y/N]${NC}: "
+    fi
+    
+    read -r -n 1 result
+    echo ""
+    
+    if [ -z "$result" ]; then
+        result="$default"
+    fi
+    
+    [[ "$result" =~ ^[Yy]$ ]]
+}
+
+interactive_install() {
+    print_header
+    echo -e "${CYAN}Installing Git-Sync Service${NC}"
+    echo ""
+    
+    log "This will install the following components:"
+    echo "  • git-sync - Core synchronization utility"
+    echo "  • git-sync-manager - Multi-repository manager"
+    echo "  • git-sync-branch - Branch switching helper"
+    echo "  • Configuration file: $CONFIG_FILE"
+    echo "  • Log directory: /var/log/git-sync/"
+    echo ""
+    
+    if prompt_confirm "Proceed with installation?" "y"; then
+        install_git_sync
+        echo ""
+        success "Installation completed!"
+        echo ""
+        log "Next steps:"
+        log "  • Add repositories (Option 2 from main menu)"
+        log "  • Configure SSH key if needed: $SSH_KEY_PATH"
+        echo ""
+    else
+        warn "Installation cancelled"
+    fi
+    
+    echo ""
+    echo -n "Press Enter to continue..."
+    read -r
+}
+
+interactive_add_repo() {
+    print_header
+    echo -e "${CYAN}Add New Repository${NC}"
+    echo ""
+    
+    # Get repository URL
+    REPO_URL=$(prompt_input "Repository URL (e.g., git@github.com:user/repo.git)")
+    
+    if [ -z "$REPO_URL" ]; then
+        error "Repository URL is required"
+        echo ""
+        echo -n "Press Enter to continue..."
+        read -r
+        return 1
+    fi
+    
+    # Extract and suggest repo name
+    local suggested_name
+    suggested_name=$(basename "$REPO_URL" .git)
+    
+    # Get branch
+    REPO_BRANCH=$(prompt_input "Branch to sync" "main")
+    
+    # Get interval
+    REPO_INTERVAL=$(prompt_input "Sync interval (minutes)" "15")
+    
+    # Get path
+    local default_path="$REPOSITORIES_DIR/$suggested_name"
+    REPO_PATH=$(prompt_input "Installation path" "$default_path")
+    
+    # Show summary
+    echo ""
+    echo -e "${CYAN}Summary:${NC}"
+    echo "  URL:      $REPO_URL"
+    echo "  Branch:   $REPO_BRANCH"
+    echo "  Interval: Every $REPO_INTERVAL minutes"
+    echo "  Path:     $REPO_PATH"
+    echo ""
+    
+    if prompt_confirm "Add this repository?" "y"; then
+        add_repository
+        echo ""
+        success "Repository added successfully!"
+        echo ""
+        log "The repository will sync automatically every $REPO_INTERVAL minutes"
+        log "Manual sync: git-sync-manager test"
+    else
+        warn "Repository not added"
+    fi
+    
+    echo ""
+    echo -n "Press Enter to continue..."
+    read -r
+}
+
+interactive_remove_repo() {
+    print_header
+    echo -e "${CYAN}Remove Repository${NC}"
+    echo ""
+    
+    if [ ! -f "$CONFIG_FILE" ]; then
+        error "No configuration file found. No repositories configured."
+        echo ""
+        echo -n "Press Enter to continue..."
+        read -r
+        return 1
+    fi
+    
+    # List current repositories with numbers
+    log "Currently configured repositories:"
+    echo ""
+    
+    local repos=()
+    local counter=1
+    while IFS=: read -r repo_path branch interval; do
+        [[ -z "$repo_path" || "$repo_path" =~ ^[[:space:]]*# ]] && continue
+        repo_path=$(echo "$repo_path" | xargs)
+        branch=$(echo "$branch" | xargs)
+        interval=$(echo "$interval" | xargs)
+        
+        echo "  $counter) $repo_path (branch: ${branch:-main}, interval: ${interval:-15}min)"
+        repos+=("$repo_path")
+        ((counter++))
+    done < "$CONFIG_FILE"
+    
+    if [ ${#repos[@]} -eq 0 ]; then
+        warn "No repositories configured"
+        echo ""
+        echo -n "Press Enter to continue..."
+        read -r
+        return 1
+    fi
+    
+    echo ""
+    local selection
+    selection=$(prompt_input "Select repository number (or 0 to cancel)" "0")
+    
+    if [ "$selection" = "0" ] || [ -z "$selection" ]; then
+        warn "Cancelled"
+        echo ""
+        echo -n "Press Enter to continue..."
+        read -r
+        return 0
+    fi
+    
+    if [ "$selection" -ge 1 ] && [ "$selection" -le ${#repos[@]} ]; then
+        REPO_PATH="${repos[$((selection-1))]}"
+        echo ""
+        echo -e "${CYAN}Selected:${NC} $REPO_PATH"
+        echo ""
+        
+        if prompt_confirm "Remove this repository from sync?" "y"; then
+            remove_repository
+            echo ""
+            success "Repository removed from sync"
+        else
+            warn "Repository not removed"
+        fi
+    else
+        error "Invalid selection"
+    fi
+    
+    echo ""
+    echo -n "Press Enter to continue..."
+    read -r
+}
+
+interactive_list() {
+    print_header
+    echo -e "${CYAN}Configured Repositories${NC}"
+    echo ""
+    
+    if command -v git-sync-manager &> /dev/null; then
+        git-sync-manager list
+    else
+        error "git-sync not installed. Install it first (Option 1)"
+    fi
+    
+    echo ""
+    echo -n "Press Enter to continue..."
+    read -r
+}
+
+interactive_test() {
+    print_header
+    echo -e "${CYAN}Testing Synchronization${NC}"
+    echo ""
+    
+    if command -v git-sync-manager &> /dev/null; then
+        log "Testing all configured repositories..."
+        echo ""
+        git-sync-manager test
+    else
+        error "git-sync not installed. Install it first (Option 1)"
+    fi
+    
+    echo ""
+    echo -n "Press Enter to continue..."
+    read -r
+}
+
+interactive_view_logs() {
+    print_header
+    echo -e "${CYAN}View Logs${NC}"
+    echo ""
+    
+    if [ ! -d "/var/log/git-sync" ]; then
+        error "Log directory not found. No repositories synced yet."
+        echo ""
+        echo -n "Press Enter to continue..."
+        read -r
+        return 1
+    fi
+    
+    # List available log files
+    log "Available log files:"
+    echo ""
+    
+    local logs=()
+    local counter=1
+    for logfile in /var/log/git-sync/*.log; do
+        if [ -f "$logfile" ]; then
+            local basename=$(basename "$logfile" .log)
+            local size=$(du -h "$logfile" | cut -f1)
+            echo "  $counter) $basename ($size)"
+            logs+=("$logfile")
+            ((counter++))
+        fi
+    done
+    
+    if [ ${#logs[@]} -eq 0 ]; then
+        warn "No log files found"
+        echo ""
+        echo -n "Press Enter to continue..."
+        read -r
+        return 1
+    fi
+    
+    echo ""
+    local selection
+    selection=$(prompt_input "Select log to view (or 0 to cancel)" "0")
+    
+    if [ "$selection" = "0" ] || [ -z "$selection" ]; then
+        return 0
+    fi
+    
+    if [ "$selection" -ge 1 ] && [ "$selection" -le ${#logs[@]} ]; then
+        local logfile="${logs[$((selection-1))]}"
+        echo ""
+        echo -e "${CYAN}Last 30 lines of $(basename "$logfile"):${NC}"
+        echo ""
+        tail -30 "$logfile"
+    else
+        error "Invalid selection"
+    fi
+    
+    echo ""
+    echo -n "Press Enter to continue..."
+    read -r
+}
+
+interactive_deploy() {
+    print_header
+    echo -e "${CYAN}Deploy to Another Host${NC}"
+    echo ""
+    
+    local target_host
+    target_host=$(prompt_input "Target host (e.g., root@192.168.1.50)")
+    
+    if [ -z "$target_host" ]; then
+        error "Target host is required"
+        echo ""
+        echo -n "Press Enter to continue..."
+        read -r
+        return 1
+    fi
+    
+    echo ""
+    log "This will deploy git-sync to: $target_host"
+    log "Components to be deployed:"
+    echo "  • SSH keys"
+    echo "  • git-sync tools"
+    echo "  • Configuration file"
+    echo "  • Cron jobs"
+    echo ""
+    
+    if prompt_confirm "Proceed with deployment?" "y"; then
+        DEPLOY_HOST="$target_host"
+        deploy_to_host "$DEPLOY_HOST"
+        echo ""
+        success "Deployment completed!"
+    else
+        warn "Deployment cancelled"
+    fi
+    
+    echo ""
+    echo -n "Press Enter to continue..."
+    read -r
+}
+
+interactive_uninstall() {
+    print_header
+    echo -e "${CYAN}Uninstall Git-Sync Service${NC}"
+    echo ""
+    
+    error "⚠️  WARNING: This will remove git-sync tools and cron jobs"
+    warn "Configuration and repositories will be preserved"
+    echo ""
+    
+    if prompt_confirm "Are you sure you want to uninstall?" "n"; then
+        echo ""
+        if prompt_confirm "Really uninstall? (Type 'yes' to confirm)" "n"; then
+            uninstall_git_sync
+            echo ""
+            success "Git-sync uninstalled"
+        else
+            warn "Uninstall cancelled"
+        fi
+    else
+        warn "Uninstall cancelled"
+    fi
+    
+    echo ""
+    echo -n "Press Enter to continue..."
+    read -r
+}
+
+interactive_mode() {
+    check_root
+    
+    while true; do
+        print_header
+        print_menu
+        
+        local choice
+        choice=$(prompt_input "Enter your choice [1-9]")
+        
+        case "$choice" in
+            1)
+                interactive_install
+                ;;
+            2)
+                interactive_add_repo
+                ;;
+            3)
+                interactive_remove_repo
+                ;;
+            4)
+                interactive_list
+                ;;
+            5)
+                interactive_test
+                ;;
+            6)
+                interactive_view_logs
+                ;;
+            7)
+                interactive_deploy
+                ;;
+            8)
+                interactive_uninstall
+                ;;
+            9)
+                print_header
+                log "Thank you for using Git-Sync Setup!"
+                echo ""
+                exit 0
+                ;;
+            *)
+                error "Invalid choice. Please enter a number between 1 and 9."
+                sleep 2
+                ;;
+        esac
+    done
 }
 
 # ============================================================================
@@ -565,6 +1007,10 @@ deploy_to_host() {
 
 while [[ $# -gt 0 ]]; do
     case $1 in
+        --interactive|-i)
+            ACTION="interactive"
+            shift
+            ;;
         --install)
             ACTION="install"
             shift
@@ -682,6 +1128,9 @@ done
 
 # Execute action
 case "$ACTION" in
+    interactive)
+        interactive_mode
+        ;;
     install)
         check_root
         install_git_sync
@@ -736,8 +1185,8 @@ case "$ACTION" in
         deploy_to_host "$DEPLOY_HOST"
         ;;
     "")
-        error "No action specified"
-        usage
+        # No arguments provided - start interactive mode
+        interactive_mode
         ;;
     *)
         error "Unknown action: $ACTION"
