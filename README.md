@@ -31,16 +31,16 @@ curl -fsSL https://example.com/script.sh | bash -s -- [ARGUMENTS]
 
 ```bash
 # Run all health checks (using pipe form)
-curl -fsSL https://scripts.pandia.io/system-health-check.sh | bash -s -- -a
+curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh | bash -s -- -a
 
 # Run specific checks with verbose output
-curl -fsSL https://scripts.pandia.io/system-health-check.sh | bash -s -- -v -s cpu -s memory -s disk
+curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh | bash -s -- -v -s cpu -s memory -s disk
 
 # Setup a server with nginx and docker (bash -c form for sudo environments)
-/bin/bash -c "$(curl -fsSL https://scripts.pandia.io/server-setup.sh)" -- -u admin -p production -i nginx -i docker
+/bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/server-setup.sh)" -- -u admin -p production -i nginx -i docker
 
 # Dry run server setup with verbose output
-curl -fsSL https://scripts.pandia.io/server-setup.sh | bash -s -- -d -v -u dev -p development nodejs git vim
+curl -fsSL https://codefuturist.github.io/remote-script-runner/server-setup.sh | bash -s -- -d -v -u dev -p development nodejs git vim
 ```
 
 ## Scripts
@@ -86,7 +86,7 @@ See [`scripts/README.md`](scripts/README.md) for details on shell-specific featu
 **🚀 One-liner Installation:**
 ```bash
 # Install remote-runner to ~/.local/bin/remote-runner
-curl -fsSL https://scripts.pandia.io/install.sh | bash
+curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash
 
 # Then use it anywhere:
 remote-runner health -a
@@ -96,19 +96,19 @@ remote-runner setup -d -u admin -p production nginx
 **⚡ Direct Execution (no installation):**
 ```bash
 # Run health check directly
-curl -fsSL https://scripts.pandia.io/remote-runner.sh | bash -s -- health -a
+curl -fsSL https://codefuturist.github.io/remote-script-runner/remote-runner.sh | bash -s -- health -a
 
 # Run server setup directly
-curl -fsSL https://scripts.pandia.io/remote-runner.sh | bash -s -- setup -d -u admin -p production nginx
+curl -fsSL https://codefuturist.github.io/remote-script-runner/remote-runner.sh | bash -s -- setup -d -u admin -p production nginx
 
 # Show help
-curl -fsSL https://scripts.pandia.io/remote-runner.sh | bash -s -- -h
+curl -fsSL https://codefuturist.github.io/remote-script-runner/remote-runner.sh | bash -s -- -h
 ```
 
 **📥 Download and Reuse:**
 ```bash
 # Download once
-curl -fsSL https://scripts.pandia.io/remote-runner.sh -o remote-runner.sh
+curl -fsSL https://codefuturist.github.io/remote-script-runner/remote-runner.sh -o remote-runner.sh
 chmod +x remote-runner.sh
 
 # Use multiple times
@@ -163,7 +163,7 @@ A comprehensive system health monitoring script that can check:
 ./system-health-check.sh -l /var/log/health-check.log -f json -a
 
 # Remote execution
-/bin/bash -c "$(curl -fsSL https://scripts.pandia.io/system-health-check.sh)" -- -v -s cpu memory disk -t 5 >> /var/log/health-check.log 2>/dev/null
+/bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh)" -- -v -s cpu memory disk -t 5 >> /var/log/health-check.log 2>/dev/null
 ```
 
 ### server-setup.sh
@@ -208,8 +208,8 @@ A server configuration script that simulates setting up a server environment wit
 ./server-setup.sh -d -u admin -p production -i nginx -i docker  # Dry run
 
 # Remote execution  
-/bin/bash -c "$(curl -fsSL https://scripts.pandia.io/server-setup.sh)" -- -u admin -p production -i nginx docker
-/bin/bash -c "$(curl -fsSL https://scripts.pandia.io/server-setup.sh)" -- -d -v -u dev nodejs python3 git
+/bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/server-setup.sh)" -- -u admin -p production -i nginx docker
+/bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/server-setup.sh)" -- -d -v -u dev nodejs python3 git
 ```
 
 ## How It Works
@@ -238,28 +238,28 @@ Key components:
 
 ```bash
 # System monitoring in cron
-*/5 * * * * /bin/bash -c "$(curl -fsSL https://scripts.pandia.io/system-health-check.sh)" -- -s cpu memory disk >> /var/log/health.log 2>&1
+*/5 * * * * /bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh)" -- -s cpu memory disk >> /var/log/health.log 2>&1
 
 # Server provisioning
-/bin/bash -c "$(curl -fsSL https://scripts.pandia.io/server-setup.sh)" -- -u $(whoami) -p production nginx docker python3
+/bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/server-setup.sh)" -- -u $(whoami) -p production nginx docker python3
 
 # Quick health check with timeout
-/bin/bash -c "$(curl -fsSL https://scripts.pandia.io/system-health-check.sh)" -- -a -t 30
+/bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh)" -- -a -t 30
 
 # Dry run before actual execution
-/bin/bash -c "$(curl -fsSL https://scripts.pandia.io/server-setup.sh)" -- -d -v -u admin -p production nginx
+/bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/server-setup.sh)" -- -d -v -u admin -p production nginx
 ```
 
 ### SSH Remote Execution
 
 ```bash
 # Execute on remote server
-ssh user@server '/bin/bash -c "$(curl -fsSL https://scripts.pandia.io/system-health-check.sh)" -- -a'
+ssh user@server '/bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh)" -- -a'
 
 # Multiple servers
 for server in web1 web2 db1; do
     echo "Checking $server..."
-    ssh "user@$server" '/bin/bash -c "$(curl -fsSL https://scripts.pandia.io/system-health-check.sh)" -- -s cpu memory'
+    ssh "user@$server" '/bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh)" -- -s cpu memory'
 done
 ```
 
@@ -267,33 +267,33 @@ done
 
 ```bash
 # Use zsh explicitly (pipe form)
-curl -fsSL https://scripts.pandia.io/system-health-check.sh | zsh -s -- -v -s cpu memory
+curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh | zsh -s -- -v -s cpu memory
 
 # Use zsh with bash -c form
-zsh -c "$(curl -fsSL https://scripts.pandia.io/system-health-check.sh)" -- -s uptime
+zsh -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh)" -- -s uptime
 
 # Auto-detect current shell
-curl -fsSL https://scripts.pandia.io/system-health-check.sh | "$SHELL" -s -- -a
+curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh | "$SHELL" -s -- -a
 
 # Cross-platform: use bash for consistency
-curl -fsSL https://scripts.pandia.io/server-setup.sh | bash -s -- -d -u admin -p development nodejs
+curl -fsSL https://codefuturist.github.io/remote-script-runner/server-setup.sh | bash -s -- -d -u admin -p development nodejs
 ```
 
 ### PowerShell Examples (Windows/macOS/Linux)
 
 ```powershell
 # Basic execution with PowerShell
-Invoke-RestMethod -Uri 'https://scripts.pandia.io/system-health-check.sh' | bash -s -- -v -s cpu memory
+Invoke-RestMethod -Uri 'https://codefuturist.github.io/remote-script-runner/system-health-check.sh' | bash -s -- -v -s cpu memory
 
 # Save and execute
-$script = Invoke-RestMethod -Uri 'https://scripts.pandia.io/server-setup.sh'
+$script = Invoke-RestMethod -Uri 'https://codefuturist.github.io/remote-script-runner/server-setup.sh'
 $script | bash -s -- -d -u admin -p production nginx docker
 
 # One-liner from any shell
-pwsh -Command "Invoke-RestMethod -Uri 'https://scripts.pandia.io/system-health-check.sh' | bash -s -- -a"
+pwsh -Command "Invoke-RestMethod -Uri 'https://codefuturist.github.io/remote-script-runner/system-health-check.sh' | bash -s -- -a"
 
 # Windows with WSL
-Invoke-RestMethod -Uri 'https://scripts.pandia.io/system-health-check.sh' | wsl bash -s -- -s uptime
+Invoke-RestMethod -Uri 'https://codefuturist.github.io/remote-script-runner/system-health-check.sh' | wsl bash -s -- -s uptime
 ```
 
 ### Production Safety
@@ -304,7 +304,7 @@ COMMIT="d943416"
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/${COMMIT}/system-health-check.sh)" -- -a
 
 # Download, review, then execute
-curl -fsSL https://scripts.pandia.io/system-health-check.sh > /tmp/check.sh
+curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh > /tmp/check.sh
 less /tmp/check.sh  # Review first
 chmod +x /tmp/check.sh && /tmp/check.sh -- -a
 ```

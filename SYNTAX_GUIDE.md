@@ -75,10 +75,10 @@ bash -c "$(curl -fsSL https://example.com/script.sh)" -- script-name -u admin -p
 
 ```bash
 # System health check
-curl -fsSL https://scripts.pandia.io/system-health-check.sh | bash -s -- -v -s cpu memory -t 5
+curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh | bash -s -- -v -s cpu memory -t 5
 
 # Server setup with dry run
-curl -fsSL https://scripts.pandia.io/server-setup.sh | bash -s -- -d -u admin -p production nginx docker
+curl -fsSL https://codefuturist.github.io/remote-script-runner/server-setup.sh | bash -s -- -d -u admin -p production nginx docker
 
 # In a cron job with logging
 */5 * * * * curl -fsSL https://example.com/health-check.sh | bash -s -- -a >> /var/log/health.log 2>&1
@@ -107,7 +107,7 @@ watch -n 60 '/bin/bash -c "$(curl -fsSL https://example.com/monitor.sh)" -- moni
 /bin/bash -c "$(curl -fsSL https://example.com/update-lxcs.sh)" -s 103 111 >> /var/log/update.log 2>/dev/null
 
 # Our scripts with this pattern
-/bin/bash -c "$(curl -fsSL https://scripts.pandia.io/system-health-check.sh)" -s uptime
+/bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh)" -s uptime
 
 # Note: -s becomes $0, real args start at $1
 /bin/bash -c "$(curl -fsSL https://example.com/script.sh)" dummy-$0 arg1 arg2
@@ -119,7 +119,7 @@ watch -n 60 '/bin/bash -c "$(curl -fsSL https://example.com/monitor.sh)" -- moni
 
 ```bash
 # 1. Download and review first
-SCRIPT_URL="https://scripts.pandia.io/script.sh"
+SCRIPT_URL="https://codefuturist.github.io/remote-script-runner/script.sh"
 curl -fsSL "$SCRIPT_URL" > /tmp/script.sh
 less /tmp/script.sh  # Review the script
 
@@ -143,7 +143,7 @@ COMMIT="d943416"  # Replace with actual commit hash
 
 ```bash
 # Verify script integrity
-SCRIPT_URL="https://scripts.pandia.io/script.sh"
+SCRIPT_URL="https://codefuturist.github.io/remote-script-runner/script.sh"
 EXPECTED_SHA256="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 
 # Download and verify
@@ -224,13 +224,13 @@ All patterns work seamlessly with zsh (the default shell on macOS):
 
 ```bash
 # Pattern 1: Pipe Form with zsh
-curl -fsSL https://scripts.pandia.io/system-health-check.sh | zsh -s -- -v -s cpu memory
+curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh | zsh -s -- -v -s cpu memory
 
 # Pattern 2: zsh -c Form
-zsh -c "$(curl -fsSL https://scripts.pandia.io/system-health-check.sh)" -- -s uptime
+zsh -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh)" -- -s uptime
 
 # Pattern 3: Original form works identically
-zsh -c "$(curl -fsSL https://scripts.pandia.io/system-health-check.sh)" -s uptime
+zsh -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh)" -s uptime
 ```
 
 ### Cross-Shell Examples
@@ -265,14 +265,14 @@ PowerShell requires different syntax but works on Windows, macOS, and Linux:
 
 ```powershell
 # Pattern 1: Pipe to bash (Recommended)
-Invoke-RestMethod -Uri 'https://scripts.pandia.io/system-health-check.sh' | bash -s -- -v -s cpu memory
+Invoke-RestMethod -Uri 'https://codefuturist.github.io/remote-script-runner/system-health-check.sh' | bash -s -- -v -s cpu memory
 
 # Pattern 2: Using Invoke-Expression with bash
-$script = Invoke-RestMethod -Uri 'https://scripts.pandia.io/system-health-check.sh'
+$script = Invoke-RestMethod -Uri 'https://codefuturist.github.io/remote-script-runner/system-health-check.sh'
 bash -c $script -- -s uptime
 
 # Pattern 3: One-liner with subshell
-pwsh -Command "Invoke-RestMethod -Uri 'https://scripts.pandia.io/system-health-check.sh' | bash -s -- -a"
+pwsh -Command "Invoke-RestMethod -Uri 'https://codefuturist.github.io/remote-script-runner/system-health-check.sh' | bash -s -- -a"
 
 # Cross-platform PowerShell function
 function Invoke-RemoteScript {
@@ -285,20 +285,20 @@ function Invoke-RemoteScript {
 }
 
 # Usage
-Invoke-RemoteScript -Uri 'https://scripts.pandia.io/system-health-check.sh' -Arguments '-v', '-s', 'cpu', 'memory'
+Invoke-RemoteScript -Uri 'https://codefuturist.github.io/remote-script-runner/system-health-check.sh' -Arguments '-v', '-s', 'cpu', 'memory'
 ```
 
 ### Windows-Specific PowerShell Examples
 
 ```powershell
 # On Windows with WSL
-wsl bash -c "$(curl -fsSL https://scripts.pandia.io/system-health-check.sh)" -- -a
+wsl bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh)" -- -a
 
 # On Windows with Git Bash
-& "C:\Program Files\Git\bin\bash.exe" -c "$(curl -fsSL https://scripts.pandia.io/system-health-check.sh)" -- -a
+& "C:\Program Files\Git\bin\bash.exe" -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/system-health-check.sh)" -- -a
 
 # Using PowerShell's native web cmdlets
-$scriptContent = Invoke-WebRequest -Uri 'https://scripts.pandia.io/system-health-check.sh' -UseBasicParsing
+$scriptContent = Invoke-WebRequest -Uri 'https://codefuturist.github.io/remote-script-runner/system-health-check.sh' -UseBasicParsing
 $scriptContent.Content | wsl bash -s -- -v -s cpu memory
 ```
 

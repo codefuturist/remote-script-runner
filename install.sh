@@ -1,12 +1,12 @@
 #!/bin/bash
 # Remote Script Runner - One-Line Installer
-# Usage: curl -fsSL https://scripts.pandia.io/install.sh | bash
-# Or with arguments: curl -fsSL https://scripts.pandia.io/install.sh | bash -s -- [install|run] [options]
+# Usage: curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash
+# Or with arguments: curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash -s -- [install|run] [options]
 
 set -euo pipefail
 
 # Configuration
-REPO_BASE_URL="https://scripts.pandia.io"
+REPO_BASE_URL="https://codefuturist.github.io/remote-script-runner"
 INSTALL_DIR="${HOME}/.local/bin"
 SCRIPT_NAME="remote-runner"
 

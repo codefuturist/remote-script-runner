@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # Configuration
-REPO_BASE_URL="https://scripts.pandia.io"
+REPO_BASE_URL="https://codefuturist.github.io/remote-script-runner"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 

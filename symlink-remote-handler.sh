@@ -15,8 +15,8 @@ if [ -f "$TARGET" ]; then
     # Local execution - just run the target script directly
     exec "$TARGET" "$@"
 else
-    # Remote execution - fetch and run from scripts.pandia.io
-    REPO_BASE_URL="https://scripts.pandia.io"
+    # Remote execution - fetch and run from GitHub Pages
+    REPO_BASE_URL="https://codefuturist.github.io/remote-script-runner"
     
     if command -v curl >/dev/null 2>&1; then
         curl -fsSL "$REPO_BASE_URL/$TARGET" | bash -s -- "$@"
