@@ -1,7 +1,14 @@
 #!/bin/bash
+# DEPRECATED: Use 'rsr' instead. This file will be removed in v2.0.0
 # Standalone Remote Script Runner
 # Can be downloaded and run without cloning the repository
-# Usage: curl -fsSL https://codefuturist.github.io/remote-script-runner/remote-runner.sh | bash -s -- [COMMAND] [OPTIONS]
+#
+# Migration: Replace 'remote-runner.sh' with 'rsr'
+#   curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- [COMMAND] [OPTIONS]
+
+echo "⚠️  DEPRECATED: 'remote-runner.sh' is deprecated. Use 'rsr' instead." >&2
+echo "   Example: curl -fsSL .../rsr | sh -s -- health -a" >&2
+echo "" >&2
 
 set -euo pipefail
 

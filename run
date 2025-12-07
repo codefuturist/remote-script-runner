@@ -1,6 +1,13 @@
 #!/bin/bash
+# DEPRECATED: Use 'rsr' instead. This file will be removed in v2.0.0
 # Simple command runner for remote-script-runner
 # Usage: ./run [health|setup] [options]
+#
+# Migration: Replace './run health' with './rsr health'
+
+echo "⚠️  DEPRECATED: 'run' is deprecated. Use 'rsr' instead." >&2
+echo "   Example: ./rsr health -a" >&2
+echo "" >&2
 
 set -euo pipefail
 

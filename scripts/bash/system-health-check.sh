@@ -9,7 +9,7 @@ set -euo pipefail
 # Script metadata
 SCRIPT_NAME="System Health Check"
 SCRIPT_VERSION="1.0.0"
-SCRIPT_URL="https://github.com/yourusername/remote-script-runner"
+SCRIPT_URL="https://github.com/codefuturist/remote-script-runner"
 
 # Default values
 VERBOSE=false

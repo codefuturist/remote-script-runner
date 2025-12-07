@@ -8,7 +8,7 @@ set -euo pipefail
 # Configuration
 REPO_BASE_URL="https://codefuturist.github.io/remote-script-runner"
 INSTALL_DIR="${HOME}/.local/bin"
-SCRIPT_NAME="remote-runner"
+SCRIPT_NAME="rsr"
 
 # Color codes
 if [ -t 1 ]; then
@@ -25,18 +25,18 @@ else
     NC=''
 fi
 
-# Function to install the remote runner
+# Function to install rsr
 install_runner() {
-    echo -e "${BLUE}Installing Remote Script Runner...${NC}"
+    echo -e "${BLUE}Installing Remote Script Runner (rsr)...${NC}"
     
     # Create install directory if it doesn't exist
     mkdir -p "$INSTALL_DIR"
     
-    # Download the remote-runner script
+    # Download the rsr script
     if command -v curl >/dev/null 2>&1; then
-        curl -fsSL "$REPO_BASE_URL/remote-runner.sh" -o "$INSTALL_DIR/$SCRIPT_NAME"
+        curl -fsSL "$REPO_BASE_URL/rsr" -o "$INSTALL_DIR/$SCRIPT_NAME"
     elif command -v wget >/dev/null 2>&1; then
-        wget -qO "$INSTALL_DIR/$SCRIPT_NAME" "$REPO_BASE_URL/remote-runner.sh"
+        wget -qO "$INSTALL_DIR/$SCRIPT_NAME" "$REPO_BASE_URL/rsr"
     else
         echo -e "${RED}Error: Neither curl nor wget is available${NC}"
         exit 1
@@ -45,7 +45,7 @@ install_runner() {
     # Make it executable
     chmod +x "$INSTALL_DIR/$SCRIPT_NAME"
     
-    echo -e "${GREEN}✓ Remote Script Runner installed to: $INSTALL_DIR/$SCRIPT_NAME${NC}"
+    echo -e "${GREEN}✓ rsr installed to: $INSTALL_DIR/$SCRIPT_NAME${NC}"
     
     # Check if install directory is in PATH
     if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
@@ -60,18 +60,19 @@ install_runner() {
     
     echo
     echo -e "${GREEN}Examples:${NC}"
-    echo "  $SCRIPT_NAME health -a              # Run all health checks"
-    echo "  $SCRIPT_NAME setup -h               # Show server setup help"
-    echo "  $SCRIPT_NAME health -s cpu memory   # Check CPU and memory"
+    echo "  rsr health -a              # Run all health checks"
+    echo "  rsr setup -h               # Show server setup help"
+    echo "  rsr health -s cpu memory   # Check CPU and memory"
+    echo "  rsr list                   # List available scripts"
 }
 
 # Function to run directly without installing
 run_direct() {
-    # Download and execute remote-runner with passed arguments
+    # Download and execute rsr with passed arguments
     if command -v curl >/dev/null 2>&1; then
-        curl -fsSL "$REPO_BASE_URL/remote-runner.sh" | bash -s -- "$@"
+        curl -fsSL "$REPO_BASE_URL/rsr" | sh -s -- "$@"
     elif command -v wget >/dev/null 2>&1; then
-        wget -qO- "$REPO_BASE_URL/remote-runner.sh" | bash -s -- "$@"
+        wget -qO- "$REPO_BASE_URL/rsr" | sh -s -- "$@"
     else
         echo -e "${RED}Error: Neither curl nor wget is available${NC}"
         exit 1

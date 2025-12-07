@@ -1,6 +1,13 @@
 #!/bin/bash
+# DEPRECATED: Use 'rsr' instead. This file will be removed in v2.0.0
 # User-friendly script runner for remote-script-runner project
 # Provides both CLI and interactive menu interfaces
+#
+# Migration: Replace './run-script.sh' with './rsr'
+
+echo "⚠️  DEPRECATED: 'run-script.sh' is deprecated. Use 'rsr' instead." >&2
+echo "   Example: ./rsr health -a" >&2
+echo "" >&2
 
 set -euo pipefail
 
