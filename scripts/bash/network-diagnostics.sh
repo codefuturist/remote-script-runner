@@ -262,7 +262,7 @@ check_dns() {
     if [[ -f /etc/resolv.conf ]]; then
         while read -r line; do
             if [[ "$line" =~ ^nameserver ]]; then
-                nameservers+=($(echo "$line" | awk '{print $2}'))
+                nameservers+=("$(echo "$line" | awk '{print $2}')")
             fi
         done < /etc/resolv.conf
     fi
@@ -586,7 +586,7 @@ discover_mtu() {
     while [[ $min -lt $max ]]; do
         mtu=$(((min + max + 1) / 2))
 
-        if ping -c 1 -M do -s $((mtu - 28)) -W "$TIMEOUT" "$MTU_HOST" &> /dev/null; then
+        if ping -c 1 -M "do" -s $((mtu - 28)) -W "$TIMEOUT" "$MTU_HOST" &> /dev/null; then
             min=$mtu
         else
             max=$((mtu - 1))

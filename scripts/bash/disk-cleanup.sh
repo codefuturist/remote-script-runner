@@ -285,7 +285,7 @@ cleanup_kernels() {
             if [[ "$DRY_RUN" == "false" ]]; then
                 echo "$old_kernels" | xargs apt-get remove -y 2> /dev/null || true
             else
-                echo "$old_kernels" | while read kernel; do
+                echo "$old_kernels" | while read -r kernel; do
                     log_debug "Would remove: $kernel"
                 done
             fi
@@ -345,8 +345,8 @@ cleanup_thumbnails() {
             local dir_count=$(count_files "$dir")
             count=$((count + dir_count))
 
-            if [[ "$DRY_RUN" == "false" ]]; then
-                rm -rf "$dir"/* 2> /dev/null || true
+            if [[ "$DRY_RUN" == "false" && -n "$dir" ]]; then
+                rm -rf "${dir:?}"/* 2> /dev/null || true
             fi
         fi
     done
