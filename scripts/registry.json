@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "scripts": [
+    {
+      "id": "health",
+      "name": "system-health-check",
+      "displayName": "System Health Check",
+      "description": "Check system health: CPU, memory, disk usage, network status",
+      "category": "monitoring",
+      "version": "1.0.0",
+      "author": "codefuturist",
+      "shells": {
+        "bash": "scripts/bash/system-health-check.sh",
+        "zsh": "scripts/zsh/system-health-check.zsh",
+        "sh": "scripts/sh/system-health-check.sh",
+        "fish": "scripts/fish/system-health-check.fish"
+      },
+      "defaultShell": "bash",
+      "options": [
+        {
+          "short": "-a",
+          "long": "--all",
+          "description": "Run all health checks"
+        },
+        {
+          "short": "-v",
+          "long": "--verbose",
+          "description": "Enable verbose output"
+        },
+        {
+          "short": "-s",
+          "long": "--check",
+          "argument": "CHECK",
+          "description": "Run specific check (cpu, memory, disk, network, services, uptime)"
+        }
+      ],
+      "examples": [
+        {
+          "command": "rsr health -a",
+          "description": "Run all health checks"
+        },
+        {
+          "command": "rsr health -v -s cpu -s memory",
+          "description": "Check CPU and memory with verbose output"
+        },
+        {
+          "command": "rsr health -s disk",
+          "description": "Check disk usage only"
+        }
+      ],
+      "tags": ["cpu", "memory", "disk", "network", "monitoring", "system", "diagnostics"]
+    },
+    {
+      "id": "setup",
+      "name": "server-setup",
+      "displayName": "Server Setup",
+      "description": "Initial server setup: users, SSH hardening, firewall, common tools",
+      "category": "configuration",
+      "version": "1.0.0",
+      "author": "codefuturist",
+      "shells": {
+        "bash": "scripts/bash/server-setup.sh"
+      },
+      "defaultShell": "bash",
+      "options": [
+        {
+          "short": "-d",
+          "long": "--dry-run",
+          "description": "Show what would be done without making changes"
+        },
+        {
+          "short": "-u",
+          "long": "--user",
+          "argument": "USERNAME",
+          "description": "Create a new user"
+        },
+        {
+          "short": "-p",
+          "long": "--profile",
+          "argument": "PROFILE",
+          "description": "Use configuration profile (development, production)"
+        }
+      ],
+      "examples": [
+        {
+          "command": "rsr setup -d",
+          "description": "Dry run to preview changes"
+        },
+        {
+          "command": "rsr setup -u admin -p production",
+          "description": "Create admin user with production profile"
+        },
+        {
+          "command": "rsr setup -d nginx docker",
+          "description": "Preview nginx and docker installation"
+        }
+      ],
+      "tags": ["server", "setup", "ssh", "firewall", "users", "configuration", "hardening"]
+    }
+  ],
+  "categories": [
+    {
+      "id": "monitoring",
+      "name": "Monitoring",
+      "description": "System monitoring and health check scripts",
+      "icon": "📊"
+    },
+    {
+      "id": "configuration",
+      "name": "Configuration",
+      "description": "Server and system configuration scripts",
+      "icon": "⚙️"
+    },
+    {
+      "id": "security",
+      "name": "Security",
+      "description": "Security auditing and hardening scripts",
+      "icon": "🔒"
+    },
+    {
+      "id": "deployment",
+      "name": "Deployment",
+      "description": "Application deployment and release scripts",
+      "icon": "🚀"
+    },
+    {
+      "id": "maintenance",
+      "name": "Maintenance",
+      "description": "System maintenance and cleanup scripts",
+      "icon": "🔧"
+    }
+  ],
+  "shellInfo": {
+    "bash": {
+      "name": "Bash",
+      "extension": ".sh",
+      "description": "Default shell, works on most systems"
+    },
+    "zsh": {
+      "name": "Zsh",
+      "extension": ".zsh",
+      "description": "macOS default shell"
+    },
+    "sh": {
+      "name": "POSIX sh",
+      "extension": ".sh",
+      "description": "Maximum compatibility"
+    },
+    "fish": {
+      "name": "Fish",
+      "extension": ".fish",
+      "description": "Modern interactive shell"
+    }
+  }
+}

@@ -1,11 +1,21 @@
 #!/bin/bash
-
-# Server Setup Script
+# =============================================================================
+# @id           setup
+# @name         server-setup
+# @displayName  Server Setup
+# @description  Initial server setup: users, SSH hardening, firewall, common tools
+# @category     configuration
+# @version      1.0.0
+# @author       codefuturist
+# @tags         server,setup,ssh,firewall,users,configuration,hardening
+# @shells       bash
+# =============================================================================
+#
 # Example: /bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/scripts/bash/server-setup.sh)" -- -u admin -p production -i nginx docker
 
 set -euo pipefail
 
-# Script metadata
+# Script metadata (runtime)
 SCRIPT_NAME="Server Setup"
 SCRIPT_VERSION="1.0.0"
 
