@@ -697,12 +697,14 @@
             <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
               Install once, use everywhere. Best for frequent use.
             </p>
-            <div style="background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-              <code style="font-family: 'Courier New', monospace; font-size: 0.875rem; color: var(--accent); display: block;">curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash</code>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copy(this)">Copy</button>
+              <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash</code>
             </div>
             <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem;">Then use:</p>
-            <div style="background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
-              <code style="font-family: 'Courier New', monospace; font-size: 0.875rem; color: var(--success); display: block;">rsr health -a</code>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copy(this)">Copy</button>
+              <code>rsr health -a</code>
             </div>
           </div>
           
@@ -713,12 +715,14 @@
             <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
               Run directly without installation. Perfect for one-time use.
             </p>
-            <div style="background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-              <code style="font-family: 'Courier New', monospace; font-size: 0.875rem; color: var(--purple); display: block; word-break: break-all;">curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- health -a</code>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copy(this)">Copy</button>
+              <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- health -a</code>
             </div>
             <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem;">Or via install.sh:</p>
-            <div style="background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
-              <code style="font-family: 'Courier New', monospace; font-size: 0.875rem; color: var(--warning); display: block; word-break: break-all;">curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash -s -- run health -a</code>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copy(this)">Copy</button>
+              <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash -s -- run health -a</code>
             </div>
           </div>
         </div>
