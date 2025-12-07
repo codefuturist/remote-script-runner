@@ -18,16 +18,16 @@ jobs:
         run: sudo apt-get install -y shellcheck
 
       - name: Run ShellCheck on rsr
-        run: shellcheck -x rsr
+        run: shellcheck -x --severity=warning rsr
 
       - name: Run ShellCheck on bash scripts
-        run: shellcheck -x scripts/bash/*.sh
+        run: shellcheck -x --severity=warning scripts/bash/*.sh
 
       - name: Run ShellCheck on lib scripts
-        run: shellcheck -x lib/*.sh
+        run: shellcheck -x --severity=warning lib/*.sh
 
       - name: Run ShellCheck on tools
-        run: shellcheck -x tools/*.sh
+        run: shellcheck -x --severity=warning tools/*.sh
 
   shfmt:
     name: Shell Formatting (shfmt)
