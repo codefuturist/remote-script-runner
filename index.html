@@ -687,23 +687,42 @@
     <div id="content" class="hidden">
       <div class="quick-start">
         <h2>Get Started in 30 Seconds ⚡</h2>
-        <div class="steps">
-          <div class="step">
-            <span class="step-num">1</span>
-            <h3>Install</h3>
-            <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash</code>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Choose your preferred method:</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div style="background: var(--bg-card); border: 2px solid var(--border); border-radius: 12px; padding: 1.5rem;">
+            <h3 style="font-size: 1.25rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+              💾 Option 1: Install Locally
+            </h3>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+              Install once, use everywhere. Best for frequent use.
+            </p>
+            <div style="background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+              <code style="font-family: 'Courier New', monospace; font-size: 0.875rem; color: var(--accent); display: block;">curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash</code>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem;">Then use:</p>
+            <div style="background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+              <code style="font-family: 'Courier New', monospace; font-size: 0.875rem; color: var(--success); display: block;">rsr health -a</code>
+            </div>
           </div>
-          <div class="step">
-            <span class="step-num">2</span>
-            <h3>Run</h3>
-            <code>rsr health -v</code>
-          </div>
-          <div class="step">
-            <span class="step-num">3</span>
-            <h3>Explore</h3>
-            <span style="color: var(--accent); font-weight: 600; font-size: 1.125rem;">12+ scripts ready</span>
+          
+          <div style="background: var(--bg-card); border: 2px solid var(--border); border-radius: 12px; padding: 1.5rem;">
+            <h3 style="font-size: 1.25rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+              ⚡ Option 2: Remote Execute
+            </h3>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+              Run directly without installation. Perfect for one-time use.
+            </p>
+            <div style="background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+              <code style="font-family: 'Courier New', monospace; font-size: 0.875rem; color: var(--purple); display: block; word-break: break-all;">curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- health -a</code>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem;">Or via install.sh:</p>
+            <div style="background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+              <code style="font-family: 'Courier New', monospace; font-size: 0.875rem; color: var(--warning); display: block; word-break: break-all;">curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash -s -- run health -a</code>
+            </div>
           </div>
         </div>
+        
         <div class="stats">
           <div class="stat"><span class="stat-value" id="totalScripts">12</span><span class="stat-label">Scripts</span></div>
           <div class="stat"><span class="stat-value" id="totalCats">5</span><span class="stat-label">Categories</span></div>
@@ -994,11 +1013,30 @@ function openModal(id, e) {
   document.getElementById('modalTitle').textContent = s.displayName;
   document.getElementById('modalBody').innerHTML = `
     <p style="margin-bottom: 1rem;">${s.description}</p>
-    <h3 style="margin: 1.5rem 0 0.5rem;">Quick Run</h3>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copy(this)">Copy</button>
-      <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- run ${s.id}</code>
+    
+    <h3 style="margin: 1.5rem 0 0.5rem;">🚀 Quick Run Options</h3>
+    <div style="display: grid; gap: 1rem; margin-bottom: 1rem;">
+      <div>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+          <strong>Remote Execute</strong> (no installation needed):
+        </p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copy(this)">Copy</button>
+          <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- ${s.id}</code>
+        </div>
+      </div>
+      
+      <div>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+          <strong>If installed locally</strong>:
+        </p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copy(this)">Copy</button>
+          <code>rsr ${s.id}</code>
+        </div>
+      </div>
     </div>
+    
     ${Object.keys(s.shells || {}).length > 0 ? `
       <h3 style="margin: 1.5rem 0 0.5rem;">Available Shells</h3>
       <div class="shells">${Object.keys(s.shells).map(sh => `<span class="shell">${sh}</span>`).join('')}</div>
@@ -1013,7 +1051,10 @@ function openModal(id, e) {
         </div>
       `).join('')}
     ` : ''}
-    <h3 style="margin: 1.5rem 0 0.5rem;">Installation</h3>
+    <h3 style="margin: 1.5rem 0 0.5rem;">💾 Installation</h3>
+    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+      Install rsr to use scripts with shorter commands:
+    </p>
     <div class="code-block">
       <button class="copy-btn" onclick="copy(this)">Copy</button>
       <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash</code>
