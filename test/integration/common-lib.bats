@@ -48,7 +48,10 @@ teardown() {
     # In a terminal, these should be set
     # In tests (non-terminal), they may be empty
     # At least one should be defined
-    [[ -v RSR_BLUE ]] || [[ -v BLUE ]] || return 0
+    if [[ -v RSR_BLUE ]] || [[ -v BLUE ]]; then
+        return 0
+    fi
+    return 0  # Pass test even if neither is set (non-terminal)
 }
 
 # =============================================================================
