@@ -450,6 +450,20 @@ EOF
     # Set executable permissions
     chmod +x "$install_path"
     
+    # Validate the new installation by running a basic test
+    if ! "$install_path" --version >/dev/null 2>&1; then
+        log_error "New version failed validation test!"
+        log_info "Rolling back to previous version..."
+        if mv "${install_path}.backup" "$install_path"; then
+            log_ok "Rollback successful"
+            log_error "Update failed - stayed on v$current_version"
+        else
+            log_error "CRITICAL: Rollback failed!"
+            log_error "Manually restore: mv ${install_path}.backup $install_path"
+        fi
+        return 1
+    fi
+    
     # Success
     if [ "$force" = "1" ]; then
         log_ok "Updated successfully to v$remote_version"
@@ -457,6 +471,7 @@ EOF
         log_ok "Updated successfully: v$current_version → v$remote_version"
     fi
     log_info "Backup saved to: ${install_path}.backup"
+    printf "${DIM}If issues occur, restore with: mv ${install_path}.backup $install_path${NC}\n"
     
     return 0
 }
