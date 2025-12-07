@@ -1,0 +1,103 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'scripts/**'
+      - 'lib/**'
+      - 'rsr'
+      - 'test/**'
+      - '.github/workflows/test.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - 'lib/**'
+      - 'rsr'
+      - 'test/**'
+
+jobs:
+  test:
+    name: Run Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install jq
+
+      - name: Initialize BATS submodules
+        run: |
+          git submodule update --init --recursive
+
+      - name: Make scripts executable
+        run: |
+          chmod +x rsr
+          chmod +x scripts/bash/*.sh
+          chmod +x test/run_tests.sh
+          chmod +x test/mocks/*
+          chmod +x tools/*.sh
+
+      - name: Run unit tests
+        run: |
+          ./test/run_tests.sh --unit
+
+      - name: Run integration tests
+        run: |
+          ./test/run_tests.sh --integration
+
+      - name: Run all tests with verbose output (on failure)
+        if: failure()
+        run: |
+          ./test/run_tests.sh --verbose
+
+  validate:
+    name: Validate Registry
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Validate registry.json
+        run: |
+          echo "Validating registry.json..."
+          jq '.' scripts/registry.json > /dev/null
+          echo "✓ Valid JSON"
+
+      - name: Check all scripts exist
+        run: |
+          echo "Checking script files exist..."
+          for path in $(jq -r '.scripts[].shells.bash // empty' scripts/registry.json); do
+            if [[ ! -f "$path" ]]; then
+              echo "✗ Missing: $path"
+              exit 1
+            else
+              echo "✓ Found: $path"
+            fi
+          done
+
+      - name: Run validation tool
+        run: |
+          chmod +x tools/validate.sh
+          ./tools/validate.sh
+
