@@ -271,6 +271,11 @@ list_scripts() {
     printf "  ${GREEN}db-backup${NC}   Database backup\n"
     printf "              ${DIM}rsr db-backup${NC}\n\n"
 
+    printf "  ${GREEN}self-update${NC} Update rsr to latest version\n"
+    printf "              ${DIM}rsr self-update${NC}\n"
+    printf "              ${DIM}rsr self-update --check${NC}\n"
+    printf "              ${DIM}rsr self-update --force${NC}\n\n"
+
     printf "  ${GREEN}menu${NC}        Interactive menu\n"
     printf "  ${GREEN}list${NC}        Show this list\n\n"
 
@@ -279,6 +284,181 @@ list_scripts() {
     printf "  ${DIM}scripts/zsh/${NC}   Zsh        ${DIM}(macOS default)${NC}\n"
     printf "  ${DIM}scripts/sh/${NC}    POSIX sh   ${DIM}(maximum compatibility)${NC}\n"
     printf "  ${DIM}scripts/fish/${NC}  Fish       ${DIM}(modern interactive)${NC}\n"
+}
+
+# ============================================================================
+# Self-Update Functionality
+# ============================================================================
+
+self_update() {
+    local force=0
+    local check_only=0
+    
+    # Parse flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --force|-f)
+                force=1
+                shift
+                ;;
+            --check|-c)
+                check_only=1
+                shift
+                ;;
+            -h|--help)
+                cat << EOF
+${BOLD}Usage:${NC} rsr self-update [OPTIONS]
+
+Update rsr to the latest version from GitHub.
+
+${BOLD}Options:${NC}
+  --force, -f      Force update even if already up-to-date
+  --check, -c      Check for updates without installing
+  -h, --help       Show this help
+
+${BOLD}Examples:${NC}
+  rsr self-update           # Update if newer version available
+  rsr self-update --check   # Check for updates only
+  rsr self-update --force   # Force update regardless of version
+
+${BOLD}Location:${NC}
+  rsr is installed at: $(command -v rsr 2>/dev/null || echo "$HOME/.local/bin/rsr")
+  Backup saved to: <install_path>.backup
+
+EOF
+                return 0
+                ;;
+            *)
+                log_error "Unknown option: $1"
+                log_info "Use 'rsr self-update --help' for usage"
+                return 1
+                ;;
+        esac
+    done
+    
+    # Get current version
+    local current_version="$SCRIPT_VERSION"
+    
+    # Find installation path
+    local install_path
+    if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/rsr" ]; then
+        install_path="$SCRIPT_DIR/rsr"
+    else
+        install_path="$(command -v rsr 2>/dev/null)" || install_path="$HOME/.local/bin/rsr"
+    fi
+    
+    # Check if rsr is actually installed
+    if [ ! -f "$install_path" ]; then
+        log_error "rsr is not installed at: $install_path"
+        log_info "Install using: curl -fsSL $REPO_BASE_URL/install.sh | bash"
+        return 1
+    fi
+    
+    # Fetch remote version
+    log_info "Checking for updates..."
+    local remote_version
+    if command -v curl >/dev/null 2>&1; then
+        remote_version=$(curl -fsSL "$REPO_BASE_URL/VERSION" 2>/dev/null | tr -d '[:space:]')
+    elif command -v wget >/dev/null 2>&1; then
+        remote_version=$(wget -qO- "$REPO_BASE_URL/VERSION" 2>/dev/null | tr -d '[:space:]')
+    else
+        log_error "Neither curl nor wget is available"
+        return 1
+    fi
+    
+    if [ -z "$remote_version" ]; then
+        log_error "Failed to fetch remote version"
+        log_info "Check your internet connection or try again later"
+        return 1
+    fi
+    
+    # Compare versions (skip if force)
+    if [ "$force" = "0" ]; then
+        if [ "$current_version" = "$remote_version" ]; then
+            log_ok "Already up-to-date (v$current_version)"
+            return 0
+        fi
+    fi
+    
+    # If check-only mode, show info and exit
+    if [ "$check_only" = "1" ]; then
+        if [ "$current_version" != "$remote_version" ]; then
+            printf "${YELLOW}Update available:${NC} v%s ${BOLD}→${NC} v%s\n" "$current_version" "$remote_version"
+            printf "${DIM}Run 'rsr self-update' to upgrade${NC}\n"
+        else
+            log_ok "Already up-to-date (v$current_version)"
+        fi
+        return 0
+    fi
+    
+    # Perform update
+    if [ "$force" = "1" ]; then
+        log_info "Forcing update to v$remote_version..."
+    else
+        log_info "Updating from v$current_version to v$remote_version..."
+    fi
+    
+    # Create temporary file
+    local temp_file="${install_path}.new.$$"
+    
+    # Download new version
+    if command -v curl >/dev/null 2>&1; then
+        if ! curl -fsSL "$REPO_BASE_URL/rsr" -o "$temp_file" 2>/dev/null; then
+            log_error "Failed to download update"
+            rm -f "$temp_file"
+            return 1
+        fi
+    elif command -v wget >/dev/null 2>&1; then
+        if ! wget -qO "$temp_file" "$REPO_BASE_URL/rsr" 2>/dev/null; then
+            log_error "Failed to download update"
+            rm -f "$temp_file"
+            return 1
+        fi
+    fi
+    
+    # Verify download
+    if [ ! -s "$temp_file" ]; then
+        log_error "Downloaded file is empty or invalid"
+        rm -f "$temp_file"
+        return 1
+    fi
+    
+    # Check if we can write to installation directory
+    if ! touch "$install_path.test" 2>/dev/null; then
+        log_error "Cannot write to installation directory"
+        log_info "Try running with elevated permissions or check directory permissions"
+        rm -f "$temp_file"
+        return 1
+    fi
+    rm -f "$install_path.test"
+    
+    # Backup current version
+    if ! cp "$install_path" "${install_path}.backup"; then
+        log_error "Failed to create backup"
+        rm -f "$temp_file"
+        return 1
+    fi
+    
+    # Replace with new version
+    if ! mv "$temp_file" "$install_path"; then
+        log_error "Failed to replace installation"
+        log_info "Restoring backup..."
+        mv "${install_path}.backup" "$install_path"
+        return 1
+    fi
+    
+    # Set executable permissions
+    chmod +x "$install_path"
+    
+    # Success
+    if [ "$force" = "1" ]; then
+        log_ok "Updated successfully to v$remote_version"
+    else
+        log_ok "Updated successfully: v$current_version → v$remote_version"
+    fi
+    log_info "Backup saved to: ${install_path}.backup"
+    
+    return 0
 }
 
 # ============================================================================
@@ -316,6 +496,7 @@ show_menu() {
     printf " ${GREEN}12)${NC} Network Diagnostics    ${DIM}- Network connectivity tests${NC}\n\n"
 
     printf "${BOLD}Other:${NC}\n"
+    printf "  ${YELLOW}u)${NC} Update rsr            ${DIM}- Update to latest version${NC}\n"
     printf "  ${YELLOW}h)${NC} Help                  ${DIM}- Show detailed help${NC}\n"
     printf "  ${YELLOW}l)${NC} List All Scripts      ${DIM}- Show all available scripts${NC}\n"
     printf "  ${RED}q)${NC} Quit                  ${DIM}- Exit menu${NC}\n\n"
@@ -424,6 +605,10 @@ run_menu() {
             l|L)
                 list_scripts
                 ;;
+            u|U)
+                echo
+                self_update
+                ;;
             q|Q)
                 echo
                 log_ok "Goodbye!"
@@ -460,6 +645,7 @@ ${YELLOW}Usage:${NC}
 
 ${BOLD}Commands:${NC}
   ${GREEN}menu${NC}         Interactive script selector menu
+  ${GREEN}self-update${NC}  Update rsr to latest version
   ${GREEN}health${NC}       Run system health checks
   ${GREEN}setup${NC}        Run server setup
   ${GREEN}cleanup${NC}      Disk cleanup and maintenance
@@ -489,6 +675,11 @@ ${BOLD}Examples:${NC}
   ${DIM}# Show interactive menu${NC}
   rsr
   rsr menu
+
+  ${DIM}# Update rsr${NC}
+  rsr self-update
+  rsr self-update --check
+  rsr self-update --force
 
   ${DIM}# Run all health checks${NC}
   rsr health -a
@@ -593,6 +784,9 @@ main() {
     case "$COMMAND" in
         menu | interactive)
             run_menu
+            ;;
+        self-update | upgrade)
+            self_update "$@"
             ;;
         health | health-check | system-health-check)
             run_script "health" "$@"
