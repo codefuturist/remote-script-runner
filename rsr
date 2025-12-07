@@ -233,16 +233,46 @@ list_scripts() {
     echo
     printf "${BOLD}Available Commands:${NC}\n\n"
 
-    printf "  ${GREEN}health${NC}    System health monitoring\n"
-    printf "            CPU, memory, disk, network, services, uptime\n"
-    printf "            ${DIM}rsr health -a${NC}\n"
-    printf "            ${DIM}rsr health -s cpu -s memory -s disk${NC}\n\n"
+    printf "  ${GREEN}health${NC}      System health monitoring\n"
+    printf "              CPU, memory, disk, network, services, uptime\n"
+    printf "              ${DIM}rsr health -a${NC}\n\n"
 
-    printf "  ${GREEN}setup${NC}     Server configuration\n"
-    printf "            User setup, profile config, package installation\n"
-    printf "            ${DIM}rsr setup -d -u admin -p production nginx${NC}\n\n"
+    printf "  ${GREEN}setup${NC}       Server configuration\n"
+    printf "              User setup, profile config, package installation\n"
+    printf "              ${DIM}rsr setup -d -u admin -p production nginx${NC}\n\n"
 
-    printf "  ${GREEN}list${NC}      Show this list\n\n"
+    printf "  ${GREEN}cleanup${NC}     Disk cleanup and maintenance\n"
+    printf "              ${DIM}rsr cleanup --dry-run${NC}\n\n"
+
+    printf "  ${GREEN}ssl${NC}         SSL certificate checker\n"
+    printf "              ${DIM}rsr ssl example.com${NC}\n\n"
+
+    printf "  ${GREEN}users${NC}       User account audit\n"
+    printf "              ${DIM}rsr users${NC}\n\n"
+
+    printf "  ${GREEN}update${NC}      System package updates\n"
+    printf "              ${DIM}rsr update${NC}\n\n"
+
+    printf "  ${GREEN}audit${NC}       Security audit\n"
+    printf "              ${DIM}rsr audit${NC}\n\n"
+
+    printf "  ${GREEN}netdiag${NC}     Network diagnostics\n"
+    printf "              ${DIM}rsr netdiag${NC}\n\n"
+
+    printf "  ${GREEN}ssh-harden${NC}  SSH hardening\n"
+    printf "              ${DIM}rsr ssh-harden${NC}\n\n"
+
+    printf "  ${GREEN}firewall${NC}    Firewall setup\n"
+    printf "              ${DIM}rsr firewall${NC}\n\n"
+
+    printf "  ${GREEN}backup${NC}      Configuration backup\n"
+    printf "              ${DIM}rsr backup${NC}\n\n"
+
+    printf "  ${GREEN}db-backup${NC}   Database backup\n"
+    printf "              ${DIM}rsr db-backup${NC}\n\n"
+
+    printf "  ${GREEN}menu${NC}        Interactive menu\n"
+    printf "  ${GREEN}list${NC}        Show this list\n\n"
 
     printf "${BOLD}Shell Variants:${NC}\n"
     printf "  ${DIM}scripts/bash/${NC}  Bash       ${DIM}(default)${NC}\n"
@@ -251,18 +281,198 @@ list_scripts() {
     printf "  ${DIM}scripts/fish/${NC}  Fish       ${DIM}(modern interactive)${NC}\n"
 }
 
+# ============================================================================
+# Interactive Menu
+# ============================================================================
+
+show_menu() {
+    clear
+    show_banner
+    echo
+    printf "${BOLD}${CYAN}═══════════════════════════════════════════════════${NC}\n"
+    printf "${BOLD}            Interactive Script Selector            ${NC}\n"
+    printf "${BOLD}${CYAN}═══════════════════════════════════════════════════${NC}\n\n"
+
+    printf "${BOLD}Monitoring & Health:${NC}\n"
+    printf "  ${GREEN}1)${NC} System Health Check    ${DIM}- CPU, memory, disk, network${NC}\n\n"
+
+    printf "${BOLD}Configuration:${NC}\n"
+    printf "  ${GREEN}2)${NC} Server Setup           ${DIM}- Initial server configuration${NC}\n"
+    printf "  ${GREEN}3)${NC} Firewall Setup         ${DIM}- Configure firewall rules${NC}\n\n"
+
+    printf "${BOLD}Security:${NC}\n"
+    printf "  ${GREEN}4)${NC} SSL Certificate Check ${DIM}- Validate SSL certificates${NC}\n"
+    printf "  ${GREEN}5)${NC} User Audit             ${DIM}- Audit user accounts${NC}\n"
+    printf "  ${GREEN}6)${NC} Security Audit         ${DIM}- Full security scan${NC}\n"
+    printf "  ${GREEN}7)${NC} SSH Hardening          ${DIM}- Secure SSH configuration${NC}\n\n"
+
+    printf "${BOLD}Maintenance:${NC}\n"
+    printf "  ${GREEN}8)${NC} Disk Cleanup           ${DIM}- Clean temp files and cache${NC}\n"
+    printf "  ${GREEN}9)${NC} System Update          ${DIM}- Update packages${NC}\n"
+    printf " ${GREEN}10)${NC} Configuration Backup   ${DIM}- Backup system configs${NC}\n"
+    printf " ${GREEN}11)${NC} Database Backup        ${DIM}- Backup databases${NC}\n\n"
+
+    printf "${BOLD}Network:${NC}\n"
+    printf " ${GREEN}12)${NC} Network Diagnostics    ${DIM}- Network connectivity tests${NC}\n\n"
+
+    printf "${BOLD}Other:${NC}\n"
+    printf "  ${YELLOW}h)${NC} Help                  ${DIM}- Show detailed help${NC}\n"
+    printf "  ${YELLOW}l)${NC} List All Scripts      ${DIM}- Show all available scripts${NC}\n"
+    printf "  ${RED}q)${NC} Quit                  ${DIM}- Exit menu${NC}\n\n"
+
+    printf "${BOLD}${CYAN}═══════════════════════════════════════════════════${NC}\n"
+}
+
+run_menu() {
+    while true; do
+        show_menu
+        printf "\n${BOLD}Enter your choice:${NC} "
+        read -r choice
+        
+        case "$choice" in
+            1)
+                echo
+                log_info "Running System Health Check..."
+                echo
+                run_script "health" "-a"
+                ;;
+            2)
+                echo
+                log_info "Running Server Setup..."
+                printf "${YELLOW}Note: This script requires sudo access${NC}\n"
+                echo
+                printf "Run in dry-run mode? (y/N): "
+                read -r dryrun
+                if [ "$dryrun" = "y" ] || [ "$dryrun" = "Y" ]; then
+                    run_script "setup" "-d"
+                else
+                    run_script "setup"
+                fi
+                ;;
+            3)
+                echo
+                log_info "Running Firewall Setup..."
+                run_script "firewall"
+                ;;
+            4)
+                echo
+                printf "${BOLD}Enter domain to check:${NC} "
+                read -r domain
+                if [ -n "$domain" ]; then
+                    log_info "Checking SSL certificate for $domain..."
+                    run_script "ssl" "$domain"
+                else
+                    log_warn "No domain provided"
+                fi
+                ;;
+            5)
+                echo
+                log_info "Running User Audit..."
+                run_script "users"
+                ;;
+            6)
+                echo
+                log_info "Running Security Audit..."
+                run_script "audit"
+                ;;
+            7)
+                echo
+                log_info "Running SSH Hardening..."
+                printf "${YELLOW}Note: This will modify SSH configuration${NC}\n"
+                printf "Continue? (y/N): "
+                read -r confirm
+                if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
+                    run_script "ssh-harden"
+                else
+                    log_info "Cancelled"
+                fi
+                ;;
+            8)
+                echo
+                log_info "Running Disk Cleanup..."
+                printf "Run in dry-run mode first? (Y/n): "
+                read -r dryrun
+                if [ "$dryrun" != "n" ] && [ "$dryrun" != "N" ]; then
+                    run_script "cleanup" "--dry-run"
+                else
+                    run_script "cleanup"
+                fi
+                ;;
+            9)
+                echo
+                log_info "Running System Update..."
+                run_script "update"
+                ;;
+            10)
+                echo
+                log_info "Running Configuration Backup..."
+                run_script "backup"
+                ;;
+            11)
+                echo
+                log_info "Running Database Backup..."
+                run_script "db-backup"
+                ;;
+            12)
+                echo
+                log_info "Running Network Diagnostics..."
+                run_script "netdiag"
+                ;;
+            h|H)
+                show_help
+                ;;
+            l|L)
+                list_scripts
+                ;;
+            q|Q)
+                echo
+                log_ok "Goodbye!"
+                exit 0
+                ;;
+            "")
+                # Empty input, redraw menu
+                continue
+                ;;
+            *)
+                echo
+                log_error "Invalid choice: $choice"
+                ;;
+        esac
+        
+        # Wait for user to press Enter before continuing
+        if [ "$choice" != "q" ] && [ "$choice" != "Q" ] && [ -n "$choice" ]; then
+            echo
+            printf "${DIM}Press Enter to continue...${NC}"
+            read -r _
+        fi
+    done
+}
+
 show_help() {
     show_banner
     cat << EOF
 
 ${YELLOW}Usage:${NC}
-  rsr <command> [options]
+  rsr                         ${DIM}# Interactive menu (if TTY)${NC}
+  rsr menu                    ${DIM}# Force interactive menu${NC}
+  rsr <command> [options]     ${DIM}# Run specific command${NC}
   rsr [flags]
 
 ${BOLD}Commands:${NC}
+  ${GREEN}menu${NC}         Interactive script selector menu
   ${GREEN}health${NC}       Run system health checks
   ${GREEN}setup${NC}        Run server setup
-  ${GREEN}list${NC}         List available scripts
+  ${GREEN}cleanup${NC}      Disk cleanup and maintenance
+  ${GREEN}ssl${NC}          SSL certificate checker
+  ${GREEN}users${NC}        User account audit
+  ${GREEN}update${NC}       System package updates
+  ${GREEN}audit${NC}        Security audit
+  ${GREEN}netdiag${NC}      Network diagnostics
+  ${GREEN}ssh-harden${NC}   SSH hardening
+  ${GREEN}firewall${NC}     Firewall setup
+  ${GREEN}backup${NC}       Configuration backup
+  ${GREEN}db-backup${NC}    Database backup
+  ${GREEN}list${NC}         List all available scripts
 
 ${BOLD}Global Flags:${NC}
   -h, --help       Show this help
@@ -276,6 +486,10 @@ ${BOLD}Environment Variables:${NC}
 
 ${BOLD}Examples:${NC}
 
+  ${DIM}# Show interactive menu${NC}
+  rsr
+  rsr menu
+
   ${DIM}# Run all health checks${NC}
   rsr health -a
 
@@ -285,6 +499,9 @@ ${BOLD}Examples:${NC}
   ${DIM}# Dry-run server setup${NC}
   rsr setup -d -u admin -p production nginx docker
 
+  ${DIM}# Check SSL certificate${NC}
+  rsr ssl example.com
+
   ${DIM}# Force zsh shell${NC}
   rsr --shell zsh health -a
 
@@ -293,14 +510,18 @@ ${BOLD}Examples:${NC}
 
 ${BOLD}Remote Execution:${NC}
 
-  ${DIM}# Pipe form (recommended)${NC}
+  ${DIM}# Interactive menu (requires TTY)${NC}
+  curl -fsSL $REPO_BASE_URL/rsr | sh
+
+  ${DIM}# Direct script execution${NC}
   curl -fsSL $REPO_BASE_URL/rsr | sh -s -- health -a
 
   ${DIM}# bash -c form${NC}
   /bin/sh -c "\$(curl -fsSL $REPO_BASE_URL/rsr)" -- setup -d -u admin
 
 ${BOLD}More Info:${NC}
-  https://github.com/codefuturist/remote-script-runner
+  Website: https://codefuturist.github.io/remote-script-runner
+  GitHub:  https://github.com/codefuturist/remote-script-runner
 
 EOF
 }
@@ -315,12 +536,6 @@ show_version() {
 
 main() {
     setup_colors
-
-    # No arguments - show help
-    if [ $# -eq 0 ]; then
-        show_help
-        exit 0
-    fi
 
     # Parse global flags
     while [ $# -gt 0 ]; do
@@ -360,9 +575,15 @@ main() {
         esac
     done
 
-    # No command after flags
+    # No command after flags - show interactive menu if TTY
     if [ $# -eq 0 ]; then
-        show_help
+        if [ -t 0 ] && [ -t 1 ]; then
+            # Interactive terminal - show menu
+            run_menu
+        else
+            # Non-interactive (pipe/redirect) - show help
+            show_help
+        fi
         exit 0
     fi
 
@@ -370,6 +591,9 @@ main() {
     shift
 
     case "$COMMAND" in
+        menu | interactive)
+            run_menu
+            ;;
         health | health-check | system-health-check)
             run_script "health" "$@"
             ;;
