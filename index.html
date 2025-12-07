@@ -237,6 +237,135 @@
       color: var(--text-muted);
     }
 
+    /* Search functionality */
+    .search-container {
+      margin: 2rem 0;
+      position: sticky;
+      top: 1rem;
+      z-index: 100;
+      background: var(--bg);
+      padding: 1rem 0;
+    }
+
+    .search-box {
+      position: relative;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.85rem 3rem 0.85rem 3rem;
+      font-size: 1rem;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+    }
+
+    .clear-search {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.25rem;
+      display: none;
+      transition: color 0.2s;
+    }
+
+    .clear-search:hover {
+      color: var(--text);
+    }
+
+    .clear-search.visible {
+      display: block;
+    }
+
+    .search-hint {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
+    .search-hint kbd {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      font-size: 0.75rem;
+    }
+
+    .search-results {
+      margin-top: 0.75rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .search-results.hidden {
+      display: none;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+      display: none;
+    }
+
+    .no-results.visible {
+      display: block;
+    }
+
+    .no-results svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* Searchable elements */
+    .searchable-section {
+      transition: opacity 0.2s;
+    }
+
+    .searchable-section.hidden {
+      display: none;
+    }
+
+    .script-card.highlight {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.1);
+    }
+
     @media (max-width: 600px) {
       h1 {
         font-size: 1.8rem;
@@ -246,6 +375,10 @@
       }
       .command-code code {
         font-size: 0.8rem;
+      }
+      .search-container {
+        position: relative;
+        top: 0;
       }
     }
   </style>
@@ -280,9 +413,45 @@
       </div>
     </div>
 
-    <h2>🚀 Quick Install</h2>
-    <p class="description">Install <code>rsr</code> to your local bin directory:</p>
-    <div class="command-block">
+    <!-- Search Box -->
+    <div class="search-container">
+      <div class="search-box">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input 
+          type="text" 
+          id="searchInput" 
+          class="search-input" 
+          placeholder="Search scripts... (health, backup, security, ssh, docker)"
+          autocomplete="off"
+          aria-label="Search scripts"
+        />
+        <button class="clear-search" id="clearSearch" aria-label="Clear search">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <p class="search-hint">Press <kbd>/</kbd> to focus · <kbd>Esc</kbd> to clear</p>
+      <div class="search-results hidden" id="searchResults"></div>
+    </div>
+
+    <!-- No Results Message -->
+    <div class="no-results" id="noResults">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+        <path d="M8 8l6 6M14 8l-6 6"/>
+      </svg>
+      <p><strong>No scripts found</strong></p>
+      <p style="font-size: 0.85rem; margin-top: 0.5rem;">Try: health, backup, setup, security, network, database</p>
+    </div>
+
+    <h2 class="searchable-section" data-section="install">🚀 Quick Install</h2>
+    <p class="description" data-keywords="install rsr local bin setup download">Install <code>rsr</code> to your local bin directory:</p>
+    <div class="command-block" data-keywords="install curl bash zsh download">
       <div class="command-header">
         <span class="command-label">bash / zsh</span>
         <button class="copy-btn" onclick="copyCommand(this)">
@@ -295,8 +464,8 @@
       </div>
     </div>
 
-    <h2>⚡ One-Liner Usage</h2>
-    <p class="description">Run scripts directly without installing:</p>
+    <h2 class="searchable-section" data-section="usage">⚡ One-Liner Usage</h2>
+    <p class="description" data-keywords="run scripts directly one-liner remote execute">Run scripts directly without installing:</p>
     
     <div class="command-block">
       <div class="command-header">
@@ -337,9 +506,9 @@
       </div>
     </div>
 
-    <h2>📦 Available Scripts</h2>
+    <h2 class="searchable-section" data-section="scripts">📦 Available Scripts</h2>
     <div class="scripts-grid">
-      <div class="script-card">
+      <div class="script-card" data-keywords="health monitoring cpu memory disk network status diagnostics system check">
         <h3>system-health-check</h3>
         <p>Check system health: CPU, memory, disk usage, network status</p>
         <div class="command-block">
@@ -356,7 +525,7 @@
         </div>
       </div>
 
-      <div class="script-card">
+      <div class="script-card" data-keywords="setup configuration server install users ssh hardening firewall security initial">
         <h3>server-setup</h3>
         <p>Initial server setup: users, SSH hardening, firewall, common tools</p>
         <div class="command-block">
@@ -374,9 +543,9 @@
       </div>
     </div>
 
-    <h2>🔍 Inspect Before Running</h2>
-    <p class="description">Always review scripts before executing them:</p>
-    <div class="command-block">
+    <h2 class="searchable-section" data-section="inspect">🔍 Inspect Before Running</h2>
+    <p class="description" data-keywords="inspect review security audit read source code">Always review scripts before executing them:</p>
+    <div class="command-block" data-keywords="inspect view source less review security audit">
       <div class="command-header">
         <span class="command-label">View script source</span>
         <button class="copy-btn" onclick="copyCommand(this)">
@@ -389,9 +558,9 @@
       </div>
     </div>
 
-    <h2>📋 Direct Script URLs</h2>
-    <p class="description">Run specific shell versions directly:</p>
-    <div class="command-block">
+    <h2 class="searchable-section" data-section="direct">📋 Direct Script URLs</h2>
+    <p class="description" data-keywords="direct url bash zsh sh fish shell specific version">Run specific shell versions directly:</p>
+    <div class="command-block" data-keywords="bash direct url script shell">
       <div class="command-header">
         <span class="command-label">Bash script directly</span>
         <button class="copy-btn" onclick="copyCommand(this)">
@@ -415,6 +584,7 @@
   </div>
 
   <script>
+    // Copy command functionality
     function copyCommand(button) {
       const codeBlock = button.closest('.command-block').querySelector('code');
       const text = codeBlock.textContent.trim();
@@ -455,6 +625,155 @@
         }, 2000);
       });
     }
+
+    // Search functionality
+    (function() {
+      const searchInput = document.getElementById('searchInput');
+      const clearSearch = document.getElementById('clearSearch');
+      const searchResults = document.getElementById('searchResults');
+      const noResults = document.getElementById('noResults');
+      const sections = document.querySelectorAll('.searchable-section');
+      const scriptCards = document.querySelectorAll('.script-card');
+      
+      let searchTimeout;
+
+      // Perform search
+      function performSearch() {
+        const query = searchInput.value.toLowerCase().trim();
+        
+        // Show/hide clear button
+        clearSearch.classList.toggle('visible', query.length > 0);
+        
+        if (!query) {
+          // Reset to show all
+          resetSearch();
+          return;
+        }
+
+        const terms = query.split(/\s+/);
+        let visibleCount = 0;
+        const visibleSections = new Set();
+
+        // Search through script cards
+        scriptCards.forEach(card => {
+          const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
+          const description = card.querySelector('p')?.textContent.toLowerCase() || '';
+          const keywords = card.dataset.keywords?.toLowerCase() || '';
+          const combined = `${title} ${description} ${keywords}`;
+
+          const matches = terms.every(term => combined.includes(term));
+
+          if (matches) {
+            card.style.display = '';
+            card.classList.add('highlight');
+            visibleCount++;
+            
+            // Track parent section
+            let section = card;
+            while (section && !section.classList.contains('searchable-section')) {
+              section = section.previousElementSibling;
+            }
+            if (section) visibleSections.add(section);
+          } else {
+            card.style.display = 'none';
+            card.classList.remove('highlight');
+          }
+        });
+
+        // Search through other searchable elements
+        document.querySelectorAll('[data-keywords]').forEach(el => {
+          if (el.classList.contains('script-card')) return; // Already handled
+          
+          const text = el.textContent.toLowerCase();
+          const keywords = el.dataset.keywords?.toLowerCase() || '';
+          const combined = `${text} ${keywords}`;
+          
+          const matches = terms.every(term => combined.includes(term));
+          
+          if (matches) {
+            el.style.display = '';
+            visibleCount++;
+            
+            // Track parent section
+            let section = el;
+            while (section && !section.classList.contains('searchable-section')) {
+              section = section.previousElementSibling;
+            }
+            if (section) visibleSections.add(section);
+          } else {
+            el.style.display = 'none';
+          }
+        });
+
+        // Show/hide sections based on visible content
+        sections.forEach(section => {
+          if (visibleSections.has(section)) {
+            section.classList.remove('hidden');
+          } else {
+            section.classList.add('hidden');
+          }
+        });
+
+        // Update results display
+        if (visibleCount > 0) {
+          searchResults.textContent = `Found ${visibleCount} result${visibleCount !== 1 ? 's' : ''}`;
+          searchResults.classList.remove('hidden');
+          noResults.classList.remove('visible');
+        } else {
+          searchResults.classList.add('hidden');
+          noResults.classList.add('visible');
+        }
+      }
+
+      // Reset search
+      function resetSearch() {
+        searchInput.value = '';
+        clearSearch.classList.remove('visible');
+        searchResults.classList.add('hidden');
+        noResults.classList.remove('visible');
+        
+        // Show all elements
+        scriptCards.forEach(card => {
+          card.style.display = '';
+          card.classList.remove('highlight');
+        });
+        
+        document.querySelectorAll('[data-keywords]').forEach(el => {
+          el.style.display = '';
+        });
+        
+        sections.forEach(section => {
+          section.classList.remove('hidden');
+        });
+      }
+
+      // Event listeners
+      searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(performSearch, 200);
+      });
+
+      clearSearch.addEventListener('click', resetSearch);
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        // Press / to focus search
+        if (e.key === '/' && document.activeElement !== searchInput) {
+          e.preventDefault();
+          searchInput.focus();
+        }
+        
+        // Press Escape to clear search
+        if (e.key === 'Escape' && document.activeElement === searchInput) {
+          e.preventDefault();
+          resetSearch();
+          searchInput.blur();
+        }
+      });
+
+      // Initial state
+      clearSearch.classList.remove('visible');
+    })();
   </script>
 </body>
 </html>
