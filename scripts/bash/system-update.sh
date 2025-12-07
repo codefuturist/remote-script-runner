@@ -429,9 +429,9 @@ check_reboot_required() {
         reboot_needed=true
         if [[ -f /var/run/reboot-required.pkgs ]]; then
             log_warn "Reboot required by packages:"
-            cat /var/run/reboot-required.pkgs | while read -r pkg; do
+            while read -r pkg; do
                 echo "    • $pkg"
-            done
+            done < /var/run/reboot-required.pkgs
         else
             log_warn "Reboot required"
         fi
