@@ -1,0 +1,122 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the information below.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Run command '...'
+        2. See error
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: What actually happened?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: What OS are you running?
+      options:
+        - macOS
+        - Ubuntu/Debian
+        - RHEL/CentOS/Fedora
+        - Other Linux
+        - Windows (WSL)
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: os-version
+    attributes:
+      label: OS Version
+      description: What version of the OS?
+      placeholder: e.g., macOS 14.0, Ubuntu 22.04
+
+  - type: dropdown
+    id: shell
+    attributes:
+      label: Shell
+      description: What shell are you using?
+      options:
+        - bash
+        - zsh
+        - sh
+        - fish
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: shell-version
+    attributes:
+      label: Shell Version
+      description: Output of `bash --version` or equivalent
+      placeholder: e.g., GNU bash, version 5.2.15
+
+  - type: dropdown
+    id: execution-method
+    attributes:
+      label: Execution Method
+      description: How are you running the script?
+      options:
+        - Local (./rsr or ./scripts/bash/...)
+        - Remote via curl pipe (curl ... | bash)
+        - Remote via bash -c form
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Output / Logs
+      description: Paste any error messages or relevant log output
+      render: shell
+      placeholder: |
+        Paste error output here...
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem?
+

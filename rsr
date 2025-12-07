@@ -3,7 +3,7 @@
 # Universal entry point for running scripts locally or remotely
 # POSIX-compatible for maximum portability
 #
-# Usage: curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- [COMMAND] [OPTIONS]
+# Usage: curl -fsSL https://scripts.pandia.io/rsr | sh -s -- [COMMAND] [OPTIONS]
 #        ./rsr [COMMAND] [OPTIONS]
 #
 # Note: This script is self-contained for remote execution via curl.
@@ -23,7 +23,7 @@ else
     SCRIPT_VERSION="1.0.0"
 fi
 
-REPO_BASE_URL="https://codefuturist.github.io/remote-script-runner"
+REPO_BASE_URL="https://scripts.pandia.io"
 
 # Environment variable defaults
 RSR_VERBOSE="${RSR_VERBOSE:-0}"
@@ -105,56 +105,12 @@ detect_shell() {
     fi
 }
 
-# Get shell extension for a given shell type
-get_shell_extension() {
-    case "$1" in
-        bash) echo "sh" ;;
-        zsh)  echo "zsh" ;;
-        sh)   echo "sh" ;;
-        fish) echo "fish" ;;
-        *)    echo "sh" ;;
-    esac
-}
-
-# Dynamic script discovery - finds script by ID
-# Searches: scripts/$shell/$name.* and scripts/bash/$name.* as fallback
 get_script_path() {
-    script_id="$1"
+    script_name="$1"
     shell_type="$2"
     
-    # Build possible filenames based on script ID
-    # Script ID can be: "health" -> matches "system-health-check", "health-check", "health"
-    # or full name: "system-health-check" -> matches exactly
-    
-    ext=$(get_shell_extension "$shell_type")
-    
-    # If running locally, do filesystem discovery
-    if is_local; then
-        # First try exact match with shell-specific extension
-        for dir in "scripts/$shell_type" "scripts/bash"; do
-            [ -d "./$dir" ] || continue
-            
-            # Try patterns in order of specificity
-            for pattern in \
-                "$dir/*${script_id}*.$ext" \
-                "$dir/*${script_id}*.sh" \
-                "$dir/${script_id}.$ext" \
-                "$dir/${script_id}.sh"; do
-                for file in $pattern; do
-                    if [ -f "$file" ]; then
-                        echo "$file"
-                        return
-                    fi
-                done
-            done
-        done
-    fi
-    
-    # Fallback to known mappings (for remote execution without filesystem access)
-    # This block is auto-maintained by tools/build-registry.sh
-    # --- BEGIN SCRIPT_MAPPINGS ---
-    case "$script_id" in
-        health|health-check|system-health-check)
+    case "$script_name" in
+        health)
             case "$shell_type" in
                 bash) echo "scripts/bash/system-health-check.sh" ;;
                 zsh)  echo "scripts/zsh/system-health-check.zsh" ;;
@@ -163,40 +119,43 @@ get_script_path() {
                 *)    echo "scripts/bash/system-health-check.sh" ;;
             esac
             ;;
-        setup|server-setup)
-            case "$shell_type" in
-                *) echo "scripts/bash/server-setup.sh" ;;
-            esac
+        setup)
+            echo "scripts/bash/server-setup.sh"
+            ;;
+        cleanup)
+            echo "scripts/bash/disk-cleanup.sh"
+            ;;
+        ssl)
+            echo "scripts/bash/ssl-checker.sh"
+            ;;
+        users)
+            echo "scripts/bash/user-audit.sh"
+            ;;
+        update)
+            echo "scripts/bash/system-update.sh"
+            ;;
+        audit)
+            echo "scripts/bash/security-audit.sh"
+            ;;
+        netdiag)
+            echo "scripts/bash/network-diagnostics.sh"
+            ;;
+        ssh-harden)
+            echo "scripts/bash/ssh-hardening.sh"
+            ;;
+        firewall)
+            echo "scripts/bash/firewall-setup.sh"
+            ;;
+        backup)
+            echo "scripts/bash/config-backup.sh"
+            ;;
+        db-backup)
+            echo "scripts/bash/database-backup.sh"
             ;;
         *)
             echo ""
             ;;
     esac
-    # --- END SCRIPT_MAPPINGS ---
-}
-
-# Get script metadata by extracting @description from file header
-get_script_description() {
-    script_path="$1"
-    if [ -f "$script_path" ]; then
-        grep -m1 "^# @description" "$script_path" 2>/dev/null | sed 's/^# @description[[:space:]]*//' || echo ""
-    fi
-}
-
-# Get script display name from @displayName header
-get_script_display_name() {
-    script_path="$1"
-    if [ -f "$script_path" ]; then
-        grep -m1 "^# @displayName" "$script_path" 2>/dev/null | sed 's/^# @displayName[[:space:]]*//' || echo ""
-    fi
-}
-
-# Get script ID from @id header
-get_script_id() {
-    script_path="$1"
-    if [ -f "$script_path" ]; then
-        grep -m1 "^# @id" "$script_path" 2>/dev/null | sed 's/^# @id[[:space:]]*//' || echo ""
-    fi
 }
 
 # ============================================================================
@@ -273,44 +232,18 @@ list_scripts() {
     show_banner
     echo
     printf "${BOLD}Available Commands:${NC}\n\n"
-    
-    # Dynamic listing when running locally
-    if is_local && [ -d "./scripts/bash" ]; then
-        for script in ./scripts/bash/*.sh; do
-            [ -f "$script" ] || continue
-            
-            script_id=$(get_script_id "$script")
-            display_name=$(get_script_display_name "$script")
-            description=$(get_script_description "$script")
-            
-            # Fallback to filename-based ID if no @id header
-            if [ -z "$script_id" ]; then
-                script_id=$(basename "$script" .sh | sed 's/system-//' | sed 's/-check//')
-            fi
-            
-            printf "  ${GREEN}%-10s${NC} %s\n" "$script_id" "${display_name:-$script_id}"
-            if [ -n "$description" ]; then
-                printf "            ${DIM}%s${NC}\n" "$description"
-            fi
-            printf "            ${DIM}rsr %s --help${NC}\n\n" "$script_id"
-        done
-    else
-        # Fallback static list for remote execution
-        # This block is auto-maintained by tools/build-registry.sh
-        # --- BEGIN SCRIPT_LIST ---
-        printf "  ${GREEN}health${NC}    System Health Check\n"
-        printf "            Check system health: CPU, memory, disk usage, network status\n"
-        printf "            ${DIM}rsr health -a${NC}\n"
-        printf "            ${DIM}rsr health -s cpu -s memory -s disk${NC}\n\n"
-        
-        printf "  ${GREEN}setup${NC}     Server Setup\n"
-        printf "            Initial server setup: users, SSH hardening, firewall, common tools\n"
-        printf "            ${DIM}rsr setup -d -u admin -p production${NC}\n\n"
-        # --- END SCRIPT_LIST ---
-    fi
-    
+
+    printf "  ${GREEN}health${NC}    System health monitoring\n"
+    printf "            CPU, memory, disk, network, services, uptime\n"
+    printf "            ${DIM}rsr health -a${NC}\n"
+    printf "            ${DIM}rsr health -s cpu -s memory -s disk${NC}\n\n"
+
+    printf "  ${GREEN}setup${NC}     Server configuration\n"
+    printf "            User setup, profile config, package installation\n"
+    printf "            ${DIM}rsr setup -d -u admin -p production nginx${NC}\n\n"
+
     printf "  ${GREEN}list${NC}      Show this list\n\n"
-    
+
     printf "${BOLD}Shell Variants:${NC}\n"
     printf "  ${DIM}scripts/bash/${NC}  Bash       ${DIM}(default)${NC}\n"
     printf "  ${DIM}scripts/zsh/${NC}   Zsh        ${DIM}(macOS default)${NC}\n"
@@ -327,18 +260,15 @@ ${YELLOW}Usage:${NC}
   rsr [flags]
 
 ${BOLD}Commands:${NC}
-  ${GREEN}run${NC} <script>   Run a script by name or ID
-  ${GREEN}list${NC}          List available scripts
-
-${BOLD}Script Shortcuts:${NC}
-  ${GREEN}health${NC}        Run system health checks (alias for: run health)
-  ${GREEN}setup${NC}         Run server setup (alias for: run setup)
+  ${GREEN}health${NC}       Run system health checks
+  ${GREEN}setup${NC}        Run server setup
+  ${GREEN}list${NC}         List available scripts
 
 ${BOLD}Global Flags:${NC}
   -h, --help       Show this help
   -v, --verbose    Verbose output
   -V, --version    Show version
-  --shell SHELL    Force shell (bash, zsh, sh, fish)
+  --shell SHELL    Force shell (bash, zsh, sh)
 
 ${BOLD}Environment Variables:${NC}
   RSR_VERBOSE=1    Enable verbose mode
@@ -348,9 +278,6 @@ ${BOLD}Examples:${NC}
 
   ${DIM}# Run all health checks${NC}
   rsr health -a
-
-  ${DIM}# Run by script name${NC}
-  rsr run system-health-check -v
 
   ${DIM}# Specific checks with verbose output${NC}
   rsr health -v -s cpu -s memory
@@ -442,47 +369,52 @@ main() {
     COMMAND="$1"
     shift
     
-    case "$COMMAND" in
-        # Explicit run command
-        run)
-            if [ $# -eq 0 ]; then
-                log_error "run requires a script name"
-                echo "Usage: rsr run <script-name> [options]"
-                echo "Run 'rsr list' to see available scripts"
-                exit 1
-            fi
-            run_script "$1" "${@:2}"
-            ;;
-        
-        # List command
-        list|ls)
-            list_scripts
-            ;;
-        
-        # Direct script shortcuts (aliases for common scripts)
-        # These are auto-discovered when running locally
+case "$COMMAND" in
         health|health-check|system-health-check)
             run_script "health" "$@"
             ;;
         setup|server-setup)
             run_script "setup" "$@"
             ;;
-        
-        # Try dynamic lookup for any other command
+        cleanup|disk-cleanup)
+            run_script "cleanup" "$@"
+            ;;
+        ssl|ssl-checker|ssl-check)
+            run_script "ssl" "$@"
+            ;;
+        users|user-audit)
+            run_script "users" "$@"
+            ;;
+        update|system-update)
+            run_script "update" "$@"
+            ;;
+        audit|security-audit)
+            run_script "audit" "$@"
+            ;;
+        netdiag|network-diagnostics)
+            run_script "netdiag" "$@"
+            ;;
+        ssh-harden|ssh-hardening)
+            run_script "ssh-harden" "$@"
+            ;;
+        firewall|firewall-setup)
+            run_script "firewall" "$@"
+            ;;
+        backup|config-backup)
+            run_script "backup" "$@"
+            ;;
+        db-backup|database-backup)
+            run_script "db-backup" "$@"
+            ;;
+        list|ls)
+            list_scripts
+            ;;
         *)
-            # Check if it's a valid script ID
-            shell_type=$(detect_shell)
-            script_path=$(get_script_path "$COMMAND" "$shell_type")
-            
-            if [ -n "$script_path" ]; then
-                run_script "$COMMAND" "$@"
-            else
-                log_error "Unknown command: $COMMAND"
-                echo
-                printf "Run ${CYAN}rsr list${NC} to see available scripts\n"
-                printf "Run ${CYAN}rsr --help${NC} for usage information\n"
-                exit 1
-            fi
+            log_error "Unknown command: $COMMAND"
+            echo
+            printf "Run ${CYAN}rsr list${NC} to see available scripts\n"
+            printf "Run ${CYAN}rsr --help${NC} for usage information\n"
+            exit 1
             ;;
     esac
 }

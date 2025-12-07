@@ -1,0 +1,82 @@
+# Pre-commit hooks for Remote Script Runner
+# https://pre-commit.com
+#
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^test/libs/
+      - id: end-of-file-fixer
+        exclude: ^test/libs/
+      - id: check-yaml
+        args: [--unsafe]
+      - id: check-json
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: check-merge-conflict
+      - id: check-executables-have-shebangs
+        exclude: ^test/libs/
+      - id: check-shebang-scripts-are-executable
+        exclude: ^test/libs/
+      - id: mixed-line-ending
+        args: [--fix=lf]
+        exclude: ^test/libs/
+
+  # Shell script linting with ShellCheck
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        args: [-x, --severity=warning]
+        exclude: ^test/libs/
+        types: [shell]
+        files: \.(sh|bash|zsh)$
+
+  # Shell script formatting with shfmt
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.8.0-1
+    hooks:
+      - id: shfmt
+        args: [-i, '4', -ci, -bn, -sr]
+        exclude: ^test/libs/
+        types: [shell]
+        # Only check, don't auto-fix (use 'make format' for that)
+        # Remove -d flag if you want auto-formatting on commit
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.38.0
+    hooks:
+      - id: markdownlint
+        args: [--fix, --disable, MD013, MD033, MD041, --]
+        exclude: ^(test/libs/|CHANGELOG\.md)
+
+  # YAML linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.33.0
+    hooks:
+      - id: yamllint
+        args: [-d, '{extends: relaxed, rules: {line-length: disable}}']
+        exclude: ^test/libs/
+
+  # Check for secrets/credentials
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+        exclude: ^test/libs/
+
+# CI configuration
+ci:
+  autofix_commit_msg: 'style: auto-fix from pre-commit hooks'
+  autofix_prs: true
+  autoupdate_commit_msg: 'chore: update pre-commit hooks'
+  autoupdate_schedule: monthly
+  skip: [shellcheck]  # Run shellcheck in CI instead for better error reporting
+

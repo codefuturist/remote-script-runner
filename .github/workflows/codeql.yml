@@ -1,0 +1,85 @@
+name: CodeQL Security Analysis
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run weekly on Sundays at midnight
+    - cron: '0 0 * * 0'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+          # CodeQL doesn't directly support shell, but we can use
+          # custom queries or rely on ShellCheck for shell analysis
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript"
+
+  shell-security:
+    name: Shell Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Security-focused ShellCheck
+        run: |
+          echo "Running security-focused shell analysis..."
+
+          # Check for common security issues
+          shellcheck -x -S warning \
+            -e SC2086 \
+            rsr scripts/bash/*.sh lib/*.sh tools/*.sh 2>&1 | tee shellcheck-results.txt
+
+          # Check for specific security patterns
+          echo ""
+          echo "Checking for potential security issues..."
+
+          # Check for eval usage
+          if grep -rn "eval " scripts/ lib/ rsr 2>/dev/null; then
+            echo "⚠️  Warning: 'eval' found - review for security"
+          fi
+
+          # Check for curl | bash patterns in scripts
+          if grep -rn "curl.*|.*sh\|wget.*|.*sh" scripts/ lib/ 2>/dev/null; then
+            echo "⚠️  Warning: curl pipe to shell found in scripts"
+          fi
+
+          # Check for hardcoded credentials patterns
+          if grep -rniE "(password|secret|token|api_key)\s*=" scripts/ lib/ 2>/dev/null | grep -v "^#"; then
+            echo "⚠️  Warning: Potential hardcoded credentials found"
+          fi
+
+          echo ""
+          echo "✓ Security scan complete"
+
+      - name: Upload ShellCheck results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shellcheck-security-results
+          path: shellcheck-results.txt
+          retention-days: 30
+

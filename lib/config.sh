@@ -21,7 +21,7 @@ fi
 # URLs (Single Source of Truth)
 # =============================================================================
 
-REPO_BASE_URL="https://codefuturist.github.io/remote-script-runner"
+REPO_BASE_URL="https://scripts.pandia.io"
 REPO_GITHUB_URL="https://github.com/codefuturist/remote-script-runner"
 
 # =============================================================================
