@@ -1,23 +1,13 @@
 #!/usr/bin/env fish
-# =============================================================================
-# @id           health
-# @name         system-health-check
-# @displayName  System Health Check (Fish)
-# @description  Check system health: CPU, memory, disk usage, network status
-# @category     monitoring
-# @version      1.0.0
-# @author       codefuturist
-# @tags         cpu,memory,disk,network,monitoring,system,diagnostics
-# @shells       fish
-# =============================================================================
-#
-# This script is written specifically for the Fish shell
-# Example: curl -fsSL https://codefuturist.github.io/remote-script-runner/scripts/fish/system-health-check.fish | fish
 
-# Script metadata (runtime)
+# System Health Check Script (Fish Shell Version)
+# This script is written specifically for the Fish shell
+# Example: curl -fsSL https://example.com/script.fish | fish
+
+# Script metadata
 set -g SCRIPT_NAME "System Health Check (Fish)"
 set -g SCRIPT_VERSION "1.0.0"
-set -g SCRIPT_URL "https://github.com/codefuturist/remote-script-runner"
+set -g SCRIPT_URL "https://github.com/yourusername/remote-script-runner"
 
 # Default values
 set -g VERBOSE false

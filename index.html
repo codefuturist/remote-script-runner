@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Remote Script Runner (rsr)</title>
-  <meta name="description"
-    content="Run shell scripts remotely with a single command. Cross-platform, shell-aware script runner.">
+  <meta name="description" content="Run shell scripts remotely with a single command. Cross-platform, shell-aware script runner.">
   <style>
     :root {
       --bg: #0d1117;
@@ -243,106 +241,15 @@
       h1 {
         font-size: 1.8rem;
       }
-
       h1 code {
         font-size: 1.5rem;
       }
-
       .command-code code {
         font-size: 0.8rem;
       }
     }
-
-    /* Search box */
-    .search-container {
-      margin: 1.5rem 0 2rem;
-    }
-
-    .search-box {
-      position: relative;
-    }
-
-    .search-box svg {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 18px;
-      height: 18px;
-      color: var(--text-muted);
-      pointer-events: none;
-    }
-
-    .search-box input {
-      width: 100%;
-      padding: 0.85rem 1rem 0.85rem 2.75rem;
-      font-size: 1rem;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .search-box input::placeholder {
-      color: var(--text-muted);
-    }
-
-    .search-box input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
-    }
-
-    .search-hint {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 0.5rem;
-      text-align: center;
-    }
-
-    .search-hint kbd {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 0.15rem 0.4rem;
-      font-family: inherit;
-      font-size: 0.75rem;
-    }
-
-    /* Searchable sections */
-    .searchable {
-      transition: opacity 0.15s;
-    }
-
-    .searchable.hidden {
-      display: none;
-    }
-
-    .section-header.hidden {
-      display: none;
-    }
-
-    .no-results {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--text-muted);
-      display: none;
-    }
-
-    .no-results.visible {
-      display: block;
-    }
-
-    .no-results svg {
-      width: 48px;
-      height: 48px;
-      margin-bottom: 1rem;
-      opacity: 0.5;
-    }
   </style>
 </head>
-
 <body>
   <div class="container">
     <header>
@@ -373,42 +280,13 @@
       </div>
     </div>
 
-    <!-- Search Box -->
-    <div class="search-container">
-      <div class="search-box">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8" />
-          <path d="m21 21-4.35-4.35" />
-        </svg>
-        <input type="text" id="search" placeholder="Search commands... (install, health, setup, list, help)"
-          autocomplete="off" />
-      </div>
-      <p class="search-hint">Press <kbd>/</kbd> to focus · <kbd>Esc</kbd> to clear</p>
-    </div>
-
-    <!-- No Results Message -->
-    <div class="no-results" id="no-results">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="11" cy="11" r="8" />
-        <path d="m21 21-4.35-4.35" />
-        <path d="M8 8l6 6M14 8l-6 6" />
-      </svg>
-      <p>No commands found</p>
-      <p style="font-size: 0.85rem; margin-top: 0.25rem;">Try: install, health, setup, list, help, bash, inspect</p>
-    </div>
-
-    <h2 class="section-header" data-section="install">🚀 Quick Install</h2>
-    <p class="description searchable" data-search="install rsr local bin">Install <code>rsr</code> to your local bin
-      directory:</p>
-    <div class="command-block searchable" data-search="install curl bash zsh rsr local bin download">
+    <h2>🚀 Quick Install</h2>
+    <p class="description">Install <code>rsr</code> to your local bin directory:</p>
+    <div class="command-block">
       <div class="command-header">
         <span class="command-label">bash / zsh</span>
         <button class="copy-btn" onclick="copyCommand(this)">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy
         </button>
       </div>
@@ -417,19 +295,14 @@
       </div>
     </div>
 
-    <h2 class="section-header" data-section="usage">⚡ One-Liner Usage</h2>
-    <p class="description searchable" data-search="run scripts directly one-liner remote">Run scripts directly without
-      installing:</p>
-
-    <div class="command-block searchable" data-search="run script curl remote execute recommended">
+    <h2>⚡ One-Liner Usage</h2>
+    <p class="description">Run scripts directly without installing:</p>
+    
+    <div class="command-block">
       <div class="command-header">
         <span class="command-label">Run a script <span class="badge">Recommended</span></span>
         <button class="copy-btn" onclick="copyCommand(this)">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy
         </button>
       </div>
@@ -438,15 +311,11 @@
       </div>
     </div>
 
-    <div class="command-block searchable" data-search="list available scripts show commands">
+    <div class="command-block">
       <div class="command-header">
         <span class="command-label">List available scripts</span>
         <button class="copy-btn" onclick="copyCommand(this)">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy
         </button>
       </div>
@@ -455,15 +324,11 @@
       </div>
     </div>
 
-    <div class="command-block searchable" data-search="help usage options flags documentation">
+    <div class="command-block">
       <div class="command-header">
         <span class="command-label">Show help</span>
         <button class="copy-btn" onclick="copyCommand(this)">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy
         </button>
       </div>
@@ -472,22 +337,16 @@
       </div>
     </div>
 
-    <h2 class="section-header" data-section="scripts">📦 Available Scripts</h2>
-    <!-- BEGIN SCRIPTS -->
+    <h2>📦 Available Scripts</h2>
     <div class="scripts-grid">
-      <div class="script-card searchable"
-        data-search="system health check cpu memory disk network status monitoring verbose">
+      <div class="script-card">
         <h3>system-health-check</h3>
         <p>Check system health: CPU, memory, disk usage, network status</p>
         <div class="command-block">
           <div class="command-header">
             <span class="command-label">Run with verbose output</span>
             <button class="copy-btn" onclick="copyCommand(this)">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               Copy
             </button>
           </div>
@@ -497,19 +356,14 @@
         </div>
       </div>
 
-      <div class="script-card searchable"
-        data-search="server setup users ssh hardening firewall tools configuration initial">
+      <div class="script-card">
         <h3>server-setup</h3>
         <p>Initial server setup: users, SSH hardening, firewall, common tools</p>
         <div class="command-block">
           <div class="command-header">
             <span class="command-label">Run server setup</span>
             <button class="copy-btn" onclick="copyCommand(this)">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               Copy
             </button>
           </div>
@@ -519,20 +373,14 @@
         </div>
       </div>
     </div>
-    <!-- END SCRIPTS -->
 
-    <h2 class="section-header" data-section="inspect">🔍 Inspect Before Running</h2>
-    <p class="description searchable" data-search="inspect review security audit">Always review scripts before executing
-      them:</p>
-    <div class="command-block searchable" data-search="inspect view source less review security audit read">
+    <h2>🔍 Inspect Before Running</h2>
+    <p class="description">Always review scripts before executing them:</p>
+    <div class="command-block">
       <div class="command-header">
         <span class="command-label">View script source</span>
         <button class="copy-btn" onclick="copyCommand(this)">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy
         </button>
       </div>
@@ -541,18 +389,13 @@
       </div>
     </div>
 
-    <h2 class="section-header" data-section="direct">📋 Direct Script URLs</h2>
-    <p class="description searchable" data-search="direct url shell versions bash zsh sh">Run specific shell versions
-      directly:</p>
-    <div class="command-block searchable" data-search="bash direct url script shell specific version">
+    <h2>📋 Direct Script URLs</h2>
+    <p class="description">Run specific shell versions directly:</p>
+    <div class="command-block">
       <div class="command-header">
         <span class="command-label">Bash script directly</span>
         <button class="copy-btn" onclick="copyCommand(this)">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy
         </button>
       </div>
@@ -563,8 +406,8 @@
 
     <footer>
       <p>
-        <a href="https://github.com/codefuturist/remote-script-runner">GitHub Repository</a> ·
-        <a href="https://github.com/codefuturist/remote-script-runner/blob/main/docs/SYNTAX_GUIDE.md">Syntax Guide</a> ·
+        <a href="https://github.com/codefuturist/remote-script-runner">GitHub Repository</a> · 
+        <a href="https://github.com/codefuturist/remote-script-runner/blob/main/docs/SYNTAX_GUIDE.md">Syntax Guide</a> · 
         <a href="https://github.com/codefuturist/remote-script-runner/blob/main/docs/CHANGELOG.md">Changelog</a>
       </p>
       <p style="margin-top: 0.5rem;">Made with ♥ by <a href="https://github.com/codefuturist">codefuturist</a></p>
@@ -572,103 +415,10 @@
   </div>
 
   <script>
-    // Search functionality
-    const searchInput = document.getElementById('search');
-    const noResults = document.getElementById('no-results');
-    const searchables = document.querySelectorAll('.searchable');
-    const sectionHeaders = document.querySelectorAll('.section-header');
-
-    function filterCommands() {
-      const query = searchInput.value.toLowerCase().trim();
-
-      if (!query) {
-        // Show all when search is empty
-        searchables.forEach(el => el.classList.remove('hidden'));
-        sectionHeaders.forEach(el => el.classList.remove('hidden'));
-        noResults.classList.remove('visible');
-        return;
-      }
-
-      const terms = query.split(/\s+/);
-      let visibleCount = 0;
-      const visibleSections = new Set();
-
-      searchables.forEach(el => {
-        const searchData = (el.dataset.search || '').toLowerCase();
-        const textContent = el.textContent.toLowerCase();
-        const combined = searchData + ' ' + textContent;
-
-        // Check if all search terms match
-        const matches = terms.every(term => combined.includes(term));
-
-        if (matches) {
-          el.classList.remove('hidden');
-          visibleCount++;
-          // Track which section this belongs to
-          const section = el.closest('.scripts-grid') || el.previousElementSibling;
-          let header = el;
-          while (header && !header.classList.contains('section-header')) {
-            header = header.previousElementSibling;
-          }
-          if (header) visibleSections.add(header);
-        } else {
-          el.classList.add('hidden');
-        }
-      });
-
-      // Show/hide section headers based on visible content
-      sectionHeaders.forEach(header => {
-        const section = header.dataset.section;
-        let hasVisibleContent = false;
-
-        // Check next siblings until next section header
-        let sibling = header.nextElementSibling;
-        while (sibling && !sibling.classList.contains('section-header')) {
-          if (sibling.classList.contains('searchable') && !sibling.classList.contains('hidden')) {
-            hasVisibleContent = true;
-            break;
-          }
-          // Check inside scripts-grid
-          if (sibling.classList.contains('scripts-grid')) {
-            const visibleCards = sibling.querySelectorAll('.searchable:not(.hidden)');
-            if (visibleCards.length > 0) hasVisibleContent = true;
-          }
-          sibling = sibling.nextElementSibling;
-        }
-
-        header.classList.toggle('hidden', !hasVisibleContent);
-      });
-
-      // Show/hide no results message
-      noResults.classList.toggle('visible', visibleCount === 0);
-    }
-
-    // Debounce search for performance
-    let searchTimeout;
-    searchInput.addEventListener('input', () => {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(filterCommands, 150);
-    });
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-      // Press / to focus search (when not in input)
-      if (e.key === '/' && document.activeElement !== searchInput) {
-        e.preventDefault();
-        searchInput.focus();
-      }
-      // Press Escape to clear and blur search
-      if (e.key === 'Escape' && document.activeElement === searchInput) {
-        searchInput.value = '';
-        filterCommands();
-        searchInput.blur();
-      }
-    });
-
     function copyCommand(button) {
       const codeBlock = button.closest('.command-block').querySelector('code');
       const text = codeBlock.textContent.trim();
-
+      
       navigator.clipboard.writeText(text).then(() => {
         const originalHTML = button.innerHTML;
         button.innerHTML = `
@@ -676,7 +426,7 @@
           Copied!
         `;
         button.classList.add('copied');
-
+        
         setTimeout(() => {
           button.innerHTML = originalHTML;
           button.classList.remove('copied');
@@ -691,14 +441,14 @@
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-
+        
         const originalHTML = button.innerHTML;
         button.innerHTML = `
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
           Copied!
         `;
         button.classList.add('copied');
-
+        
         setTimeout(() => {
           button.innerHTML = originalHTML;
           button.classList.remove('copied');
@@ -707,5 +457,4 @@
     }
   </script>
 </body>
-
 </html>
