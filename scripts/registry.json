@@ -115,6 +115,100 @@
       ]
     },
     {
+      "id": "docker",
+      "name": "docker-management",
+      "displayName": "Docker Management",
+      "description": "Install Docker Engine, manage containers, images, volumes, networks, and system operations",
+      "category": "infrastructure",
+      "version": "1.0.0",
+      "author": "codefuturist",
+      "shells": {
+        "bash": "scripts/bash/docker-management.sh"
+      },
+      "defaultShell": "bash",
+      "options": [
+        {
+          "command": "install engine",
+          "description": "Install Docker Engine"
+        },
+        {
+          "command": "status",
+          "description": "Show Docker status and system information"
+        },
+        {
+          "command": "ps",
+          "description": "List running containers"
+        },
+        {
+          "command": "ps all",
+          "description": "List all containers (including stopped)"
+        },
+        {
+          "command": "images",
+          "description": "List Docker images"
+        },
+        {
+          "command": "df",
+          "description": "Show Docker disk usage"
+        },
+        {
+          "command": "cleanup",
+          "description": "Remove unused resources"
+        },
+        {
+          "command": "cleanup all",
+          "description": "Aggressively remove all unused resources"
+        },
+        {
+          "command": "start",
+          "description": "Start Docker daemon"
+        },
+        {
+          "command": "stop",
+          "description": "Stop Docker daemon"
+        }
+      ],
+      "examples": [
+        {
+          "command": "rsr docker install engine",
+          "description": "Install Docker Engine"
+        },
+        {
+          "command": "rsr docker status",
+          "description": "Check Docker status"
+        },
+        {
+          "command": "rsr docker ps",
+          "description": "List running containers"
+        },
+        {
+          "command": "rsr docker cleanup",
+          "description": "Clean up unused Docker resources"
+        }
+      ],
+      "tags": [
+        "docker",
+        "containers",
+        "images",
+        "infrastructure",
+        "devops",
+        "installation",
+        "management"
+      ],
+      "platforms": {
+        "linux": [
+          "ubuntu",
+          "debian",
+          "rhel",
+          "rocky",
+          "almalinux",
+          "fedora",
+          "arch"
+        ],
+        "macos": "manual"
+      }
+    },
+    {
       "id": "cleanup",
       "name": "disk-cleanup",
       "displayName": "Disk Cleanup",

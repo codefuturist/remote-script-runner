@@ -13,12 +13,17 @@
 
 set -euo pipefail
 
+# Source interactive utilities if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ -f "$SCRIPT_DIR/../../lib/interactive.sh" ]] && source "$SCRIPT_DIR/../../lib/interactive.sh"
+
 # Script metadata
 SCRIPT_NAME="Security Audit"
 SCRIPT_VERSION="1.0.0"
 
 # Default values
 VERBOSE=false
+INTERACTIVE=auto
 SECTIONS=()
 SEVERITY_FILTER=""
 QUICK_MODE=false
@@ -67,6 +72,8 @@ ${YELLOW}Usage:${NC}
 ${BOLD}Options:${NC}
     -h, --help              Show this help message
     -v, --verbose           Enable verbose output
+    -i, --interactive       Run in interactive mode (default when no args)
+    --no-interactive        Disable interactive mode
     -a, --all               Run all security checks
     -s, --section SECTION   Run specific section (can repeat)
     --severity LEVEL        Show only issues at level (critical, high, medium, low)
@@ -167,6 +174,14 @@ parse_args() {
             -h | --help) usage ;;
             -v | --verbose)
                 VERBOSE=true
+                shift
+                ;;
+            -i | --interactive)
+                INTERACTIVE=true
+                shift
+                ;;
+            --no-interactive)
+                INTERACTIVE=false
                 shift
                 ;;
             -a | --all)
@@ -807,9 +822,129 @@ EOF
     log_ok "Report saved to $REPORT_FILE"
 }
 
+# =============================================================================
+# Interactive Mode
+# =============================================================================
+
+run_interactive() {
+    print_interactive_header "$SCRIPT_NAME" "$SCRIPT_VERSION"
+    
+    echo ""
+    
+    # Scan type selection
+    local scan_type
+    scan_type=$(prompt_select "Select scan type:" \
+        "Quick scan (common checks)" \
+        "Full scan (all checks)" \
+        "Deep scan (thorough, slow)" \
+        "Custom (select sections)")
+    
+    case "$scan_type" in
+        "Quick scan (common checks)")
+            QUICK_MODE=true
+            SECTIONS=("ports" "auth" "files" "users" "ssh")
+            ;;
+        "Full scan (all checks)")
+            SECTIONS=("ports" "auth" "files" "users" "network" "ssh" "updates" "processes" "kernel")
+            ;;
+        "Deep scan (thorough, slow)")
+            DEEP_MODE=true
+            SECTIONS=("ports" "auth" "files" "users" "network" "ssh" "updates" "processes" "kernel")
+            ;;
+        "Custom (select sections)")
+            echo ""
+            local selected
+            selected=$(prompt_multiselect "Select sections to audit:" \
+                "Open ports and services" \
+                "Authentication failures" \
+                "File permissions (SUID/SGID)" \
+                "User account security" \
+                "Network/Firewall settings" \
+                "SSH configuration" \
+                "Pending security updates" \
+                "Running processes" \
+                "Kernel security settings")
+            
+            SECTIONS=()
+            [[ "$selected" == *"Open ports"* ]] && SECTIONS+=("ports")
+            [[ "$selected" == *"Authentication"* ]] && SECTIONS+=("auth")
+            [[ "$selected" == *"File permissions"* ]] && SECTIONS+=("files")
+            [[ "$selected" == *"User account"* ]] && SECTIONS+=("users")
+            [[ "$selected" == *"Network/Firewall"* ]] && SECTIONS+=("network")
+            [[ "$selected" == *"SSH configuration"* ]] && SECTIONS+=("ssh")
+            [[ "$selected" == *"Pending security"* ]] && SECTIONS+=("updates")
+            [[ "$selected" == *"Running processes"* ]] && SECTIONS+=("processes")
+            [[ "$selected" == *"Kernel security"* ]] && SECTIONS+=("kernel")
+            ;;
+    esac
+    
+    if [[ ${#SECTIONS[@]} -eq 0 ]]; then
+        log_error "No sections selected"
+        return 1
+    fi
+    
+    echo ""
+    
+    # Report options
+    if prompt_yes_no "Generate a report file?" "n"; then
+        echo ""
+        local format
+        format=$(prompt_select "Report format:" "Text" "JSON" "HTML")
+        REPORT_FORMAT=$(echo "$format" | tr '[:upper:]' '[:lower:]')
+        
+        local default_file="/tmp/security-audit-$(date +%Y%m%d).${REPORT_FORMAT}"
+        [[ "$REPORT_FORMAT" == "text" ]] && default_file="/tmp/security-audit-$(date +%Y%m%d).txt"
+        
+        REPORT_FILE=$(prompt_input "Report file path" "$default_file")
+    fi
+    
+    echo ""
+    
+    # Severity filter
+    if prompt_yes_no "Filter by severity level?" "n"; then
+        echo ""
+        local sev
+        sev=$(prompt_select "Show only:" "Critical" "High" "Medium" "Low")
+        SEVERITY_FILTER=$(echo "$sev" | tr '[:upper:]' '[:lower:]')
+    fi
+    
+    # Summary
+    echo ""
+    log_info "Audit configuration:"
+    echo -e "  ${CYAN}•${NC} Sections: ${SECTIONS[*]}"
+    [[ "$QUICK_MODE" == "true" ]] && echo -e "  ${CYAN}•${NC} Mode: Quick"
+    [[ "$DEEP_MODE" == "true" ]] && echo -e "  ${CYAN}•${NC} Mode: Deep"
+    [[ -n "$REPORT_FILE" ]] && echo -e "  ${CYAN}•${NC} Report: $REPORT_FILE ($REPORT_FORMAT)"
+    [[ -n "$SEVERITY_FILTER" ]] && echo -e "  ${CYAN}•${NC} Severity filter: $SEVERITY_FILTER"
+    echo ""
+    
+    if prompt_yes_no "Start security audit?" "y"; then
+        # Continue with audit
+        return 0
+    else
+        log_info "Audit cancelled"
+        exit 0
+    fi
+}
+
 # Main function
 main() {
+    local original_args=("$@")
     parse_args "$@"
+
+    # Determine if interactive mode should be enabled
+    if [[ "$INTERACTIVE" == "auto" ]]; then
+        if [[ ${#original_args[@]} -eq 0 ]] && [[ -t 0 ]] && [[ -t 1 ]]; then
+            INTERACTIVE=true
+        else
+            INTERACTIVE=false
+        fi
+    fi
+
+    # Run interactive mode if enabled
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+        run_interactive
+    fi
 
     echo -e "${BOLD}$SCRIPT_NAME v$SCRIPT_VERSION${NC}"
     echo -e "${DIM}Hostname: $(hostname) | Date: $(date)${NC}"

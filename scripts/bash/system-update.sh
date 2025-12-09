@@ -13,12 +13,17 @@
 
 set -euo pipefail
 
+# Source interactive utilities if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ -f "$SCRIPT_DIR/../../lib/interactive.sh" ]] && source "$SCRIPT_DIR/../../lib/interactive.sh"
+
 # Script metadata
 SCRIPT_NAME="System Update"
 SCRIPT_VERSION="1.0.0"
 
 # Default values
 VERBOSE=false
+INTERACTIVE=auto
 CHECK_ONLY=false
 LIST_UPDATES=false
 INSTALL_ALL=false
@@ -71,6 +76,8 @@ ${YELLOW}Usage:${NC}
 ${BOLD}Options:${NC}
     -h, --help              Show this help message
     -v, --verbose           Enable verbose output
+    -i, --interactive       Run in interactive mode (default when no args)
+    --no-interactive        Disable interactive mode
     -c, --check             Check for available updates only
     -l, --list              List available updates with details
     -a, --all               Install all available updates
@@ -137,6 +144,14 @@ parse_args() {
             -h | --help) usage ;;
             -v | --verbose)
                 VERBOSE=true
+                shift
+                ;;
+            -i | --interactive)
+                INTERACTIVE=true
+                shift
+                ;;
+            --no-interactive)
+                INTERACTIVE=false
                 shift
                 ;;
             -c | --check)
@@ -634,14 +649,161 @@ show_changelog() {
     esac
 }
 
+# =============================================================================
+# Interactive Mode
+# =============================================================================
+
+run_interactive() {
+    print_interactive_header "$SCRIPT_NAME" "$SCRIPT_VERSION"
+    
+    echo ""
+    log_info "Detected package manager: $PKG_MANAGER"
+    echo ""
+    
+    # Check for updates first
+    local count
+    count=$(count_updates)
+    
+    if [[ "$count" -eq 0 ]]; then
+        log_ok "System is up to date - no updates available"
+        echo ""
+        
+        # Offer to check reboot status
+        if prompt_yes_no "Check if system reboot is required?" "y"; then
+            check_reboot_required
+        fi
+        return 0
+    fi
+    
+    log_warn "$count update(s) available"
+    echo ""
+    
+    # Main action selection
+    local action
+    action=$(prompt_select "What would you like to do?" \
+        "View available updates" \
+        "Install all updates" \
+        "Install security updates only" \
+        "View changelogs" \
+        "Check if reboot is required")
+    
+    case "$action" in
+        "View available updates")
+            list_available_updates
+            check_security_updates
+            echo ""
+            if prompt_yes_no "Would you like to install updates now?" "n"; then
+                interactive_install_updates
+            fi
+            ;;
+        "Install all updates")
+            interactive_install_updates
+            ;;
+        "Install security updates only")
+            SECURITY_ONLY=true
+            interactive_install_updates
+            ;;
+        "View changelogs")
+            show_changelog
+            echo ""
+            if prompt_yes_no "Would you like to install updates now?" "n"; then
+                interactive_install_updates
+            fi
+            ;;
+        "Check if reboot is required")
+            check_reboot_required
+            ;;
+    esac
+}
+
+interactive_install_updates() {
+    echo ""
+    
+    # Exclusions
+    if prompt_yes_no "Would you like to exclude any packages?" "n"; then
+        echo ""
+        log_info "Enter packages to exclude (one per line, empty line to finish):"
+        while true; do
+            local pkg
+            read -r -p "  Package: " pkg
+            [[ -z "$pkg" ]] && break
+            EXCLUDE_PACKAGES+=("$pkg")
+        done
+    fi
+    
+    echo ""
+    
+    # Dry run option
+    if prompt_yes_no "Perform a dry run first?" "y"; then
+        DRY_RUN=true
+        log_info "Performing dry run..."
+        perform_update
+        DRY_RUN=false
+        echo ""
+        if ! prompt_yes_no "Proceed with actual update?" "y"; then
+            log_info "Update cancelled"
+            return 0
+        fi
+    fi
+    
+    # Final confirmation
+    local update_type="all"
+    [[ "$SECURITY_ONLY" == "true" ]] && update_type="security"
+    
+    echo ""
+    log_info "Update configuration:"
+    echo -e "  ${CYAN}•${NC} Update type: $update_type updates"
+    [[ ${#EXCLUDE_PACKAGES[@]} -gt 0 ]] && echo -e "  ${CYAN}•${NC} Excluding: ${EXCLUDE_PACKAGES[*]}"
+    echo ""
+    
+    if confirm_destructive "This will update system packages"; then
+        AUTO_YES=true
+        INSTALL_ALL=true
+        perform_update
+        
+        echo ""
+        log_ok "Update completed!"
+        
+        # Check reboot
+        if check_reboot_required; then
+            echo ""
+            if prompt_yes_no "Reboot now?" "n"; then
+                log_warn "Rebooting system..."
+                sleep 2
+                reboot
+            fi
+        fi
+    fi
+}
+
 # Main function
 main() {
+    local original_args=("$@")
     parse_args "$@"
+
+    detect_pkg_manager
+
+    # Determine if interactive mode should be enabled
+    if [[ "$INTERACTIVE" == "auto" ]]; then
+        if [[ ${#original_args[@]} -eq 0 ]] && [[ -t 0 ]] && [[ -t 1 ]]; then
+            INTERACTIVE=true
+        else
+            INTERACTIVE=false
+        fi
+    fi
+
+    # Run interactive mode if enabled
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+        # Refresh packages first (if we have permission)
+        if [[ $EUID -eq 0 ]]; then
+            refresh_packages
+        fi
+        run_interactive
+        exit $EXIT_OK
+    fi
 
     echo -e "${BOLD}$SCRIPT_NAME v$SCRIPT_VERSION${NC}"
     echo ""
-
-    detect_pkg_manager
 
     # Refresh packages first (if we have permission)
     if [[ $EUID -eq 0 ]]; then

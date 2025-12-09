@@ -13,6 +13,10 @@
 
 set -euo pipefail
 
+# Source interactive utilities if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ -f "$SCRIPT_DIR/../../lib/interactive.sh" ]] && source "$SCRIPT_DIR/../../lib/interactive.sh"
+
 # Script metadata
 SCRIPT_NAME="Configuration Backup"
 SCRIPT_VERSION="1.0.0"
@@ -20,6 +24,8 @@ SCRIPT_VERSION="1.0.0"
 # Default values
 VERBOSE=false
 DRY_RUN=false
+INTERACTIVE=auto
+RSR_YES=0
 SECTIONS=()
 OUTPUT_DIR="/var/backups/rsr"
 COMPRESS="gzip"
@@ -69,6 +75,9 @@ ${YELLOW}Usage:${NC}
 ${BOLD}Options:${NC}
     -h, --help              Show this help message
     -v, --verbose           Enable verbose output
+    -i, --interactive       Run in interactive mode (default when no args)
+    --no-interactive        Disable interactive mode
+    -y, --yes               Auto-confirm all prompts
     -a, --all               Backup everything
     -s, --section SECTION   Backup specific section (can repeat)
     -o, --output DIR        Output directory (default: /var/backups/rsr)
@@ -162,6 +171,19 @@ parse_args() {
             -h | --help) usage ;;
             -v | --verbose)
                 VERBOSE=true
+                shift
+                ;;
+            -i | --interactive)
+                INTERACTIVE=true
+                shift
+                ;;
+            --no-interactive)
+                INTERACTIVE=false
+                shift
+                ;;
+            -y | --yes)
+                RSR_YES=1
+                INTERACTIVE=false
                 shift
                 ;;
             -a | --all)
@@ -911,9 +933,182 @@ restore_backup() {
     log_warn "You may need to restart services for changes to take effect"
 }
 
+# =============================================================================
+# Interactive Mode
+# =============================================================================
+
+run_interactive() {
+    print_interactive_header "$SCRIPT_NAME" "$SCRIPT_VERSION"
+    
+    # Main action selection
+    local action
+    action=$(prompt_select "What would you like to do?" \
+        "Backup configurations" \
+        "Restore from backup" \
+        "List existing backups")
+    
+    case "$action" in
+        "Backup configurations")
+            interactive_backup
+            ;;
+        "Restore from backup")
+            interactive_restore
+            ;;
+        "List existing backups")
+            list_backups
+            ;;
+    esac
+}
+
+interactive_backup() {
+    echo ""
+    
+    # Section selection
+    local all_sections=("etc" "packages" "crontabs" "systemd" "ssh" "nginx" "apache" "database")
+    local section_labels=(
+        "/etc directory (system configuration)"
+        "Installed package list with versions"
+        "All user and system crontabs"
+        "Custom systemd units"
+        "SSH keys and authorized_keys"
+        "Nginx configuration"
+        "Apache configuration"
+        "Database configs (not data)"
+    )
+    
+    local scope
+    scope=$(prompt_select "What would you like to backup?" \
+        "Everything (all sections)" \
+        "Select specific sections")
+    
+    if [[ "$scope" == "Everything (all sections)" ]]; then
+        SECTIONS=("${all_sections[@]}")
+    else
+        echo ""
+        local selected
+        selected=$(prompt_multiselect "Select sections to backup:" \
+            "${section_labels[@]}")
+        
+        # Map selections back to section names
+        SECTIONS=()
+        local i=0
+        for label in "${section_labels[@]}"; do
+            if [[ "$selected" == *"$label"* ]]; then
+                SECTIONS+=("${all_sections[$i]}")
+            fi
+            ((i++)) || true
+        done
+        
+        if [[ ${#SECTIONS[@]} -eq 0 ]]; then
+            log_error "No sections selected"
+            return 1
+        fi
+    fi
+    
+    echo ""
+    
+    # Output directory
+    local output
+    output=$(prompt_input "Output directory" "$OUTPUT_DIR")
+    OUTPUT_DIR="$output"
+    
+    echo ""
+    
+    # Compression
+    local compress_choice
+    compress_choice=$(prompt_select "Compression method:" \
+        "gzip (fast, good compression)" \
+        "xz (slower, best compression)" \
+        "none (no compression)")
+    
+    COMPRESS=$(echo "$compress_choice" | cut -d' ' -f1)
+    
+    echo ""
+    
+    # Encryption
+    if prompt_yes_no "Encrypt backup with GPG?" "n"; then
+        DO_ENCRYPT=true
+        local key
+        key=$(prompt_input "GPG key ID (email or key ID, leave empty for symmetric)" "")
+        [[ -n "$key" ]] && GPG_KEY="$key"
+    fi
+    
+    # Summary
+    echo ""
+    log_info "Backup configuration:"
+    echo -e "  ${CYAN}•${NC} Sections: ${SECTIONS[*]}"
+    echo -e "  ${CYAN}•${NC} Output: $OUTPUT_DIR"
+    echo -e "  ${CYAN}•${NC} Compression: $COMPRESS"
+    [[ "$DO_ENCRYPT" == "true" ]] && echo -e "  ${CYAN}•${NC} Encryption: Yes"
+    echo ""
+    
+    if prompt_yes_no "Start backup?" "y"; then
+        # Continue to run backup
+        return 0
+    else
+        log_info "Backup cancelled"
+        exit 0
+    fi
+}
+
+interactive_restore() {
+    echo ""
+    
+    # List available backups
+    log_info "Available backups in $OUTPUT_DIR:"
+    echo ""
+    
+    local backups
+    backups=$(find "$OUTPUT_DIR" -maxdepth 1 -type f \( -name "backup-*.tar*" -o -name "*.gpg" \) 2>/dev/null | sort -r | head -10)
+    
+    if [[ -z "$backups" ]]; then
+        log_warn "No backups found in $OUTPUT_DIR"
+        return 0
+    fi
+    
+    echo "$backups" | while read -r backup; do
+        local size
+        size=$(ls -lh "$backup" 2>/dev/null | awk '{print $5}')
+        echo -e "  ${CYAN}•${NC} $(basename "$backup") ($size)"
+    done
+    
+    echo ""
+    local restore_path
+    restore_path=$(prompt_input "Enter backup file path to restore" "")
+    
+    if [[ -z "$restore_path" || ! -f "$restore_path" ]]; then
+        log_error "Invalid file path"
+        return 1
+    fi
+    
+    RESTORE_FILE="$restore_path"
+    
+    echo ""
+    if confirm_destructive "This will restore configuration files and may overwrite existing files"; then
+        restore_backup "$RESTORE_FILE"
+    fi
+    
+    exit 0
+}
+
 # Main function
 main() {
+    local original_args=("$@")
     parse_args "$@"
+
+    # Determine if interactive mode should be enabled
+    if [[ "$INTERACTIVE" == "auto" ]]; then
+        if [[ ${#original_args[@]} -eq 0 ]] && [[ -t 0 ]] && [[ -t 1 ]]; then
+            INTERACTIVE=true
+        else
+            INTERACTIVE=false
+        fi
+    fi
+
+    # Run interactive mode if enabled
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+        run_interactive
+    fi
 
     echo -e "${BOLD}$SCRIPT_NAME v$SCRIPT_VERSION${NC}"
     echo ""

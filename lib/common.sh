@@ -186,6 +186,29 @@ print_line() {
 }
 
 # =============================================================================
+# Interactive Mode Utilities (Bash-specific)
+# =============================================================================
+# These functions require bash and are used for interactive user prompts
+# with modern arrow-key navigation support.
+
+# Check if interactive mode should be enabled
+# Returns 0 (true) if interactive mode is appropriate
+# Usage: if is_interactive; then ... fi
+is_interactive() {
+    # Explicitly disabled
+    [ "${RSR_NO_INTERACTIVE:-0}" = "1" ] && return 1
+    # Explicitly enabled
+    [ "${RSR_INTERACTIVE:-0}" = "1" ] && return 0
+    # Auto-detect: must be a terminal and stdin must be connected
+    [ -t 0 ] && [ -t 1 ]
+}
+
+# Check if running interactively (for backward compatibility)
+can_prompt() {
+    [ -t 0 ] && [ -t 1 ]
+}
+
+# =============================================================================
 # Initialize
 # =============================================================================
 

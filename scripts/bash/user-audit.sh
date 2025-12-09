@@ -13,12 +13,17 @@
 
 set -euo pipefail
 
+# Source interactive utilities if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ -f "$SCRIPT_DIR/../../lib/interactive.sh" ]] && source "$SCRIPT_DIR/../../lib/interactive.sh"
+
 # Script metadata
 SCRIPT_NAME="User Audit"
 SCRIPT_VERSION="1.0.0"
 
 # Default values
 VERBOSE=false
+INTERACTIVE=auto
 SECTIONS=()
 TARGET_USER=""
 SUDO_ONLY=false
@@ -53,6 +58,8 @@ ${YELLOW}Usage:${NC}
 ${BOLD}Options:${NC}
     -h, --help              Show this help message
     -v, --verbose           Enable verbose output
+    -i, --interactive       Run in interactive mode (default when no args)
+    --no-interactive        Disable interactive mode
     -a, --all               Run all audit checks
     -s, --section SECTION   Run specific section (can repeat)
     -u, --user USER         Audit specific user only
@@ -127,6 +134,14 @@ parse_args() {
             -h | --help) usage ;;
             -v | --verbose)
                 VERBOSE=true
+                shift
+                ;;
+            -i | --interactive)
+                INTERACTIVE=true
+                shift
+                ;;
+            --no-interactive)
+                INTERACTIVE=false
                 shift
                 ;;
             -a | --all)
@@ -617,9 +632,109 @@ print_summary() {
     fi
 }
 
+# =============================================================================
+# Interactive Mode
+# =============================================================================
+
+run_interactive() {
+    print_interactive_header "$SCRIPT_NAME" "$SCRIPT_VERSION"
+    
+    echo ""
+    
+    # Audit scope
+    local scope
+    scope=$(prompt_select "What would you like to audit?" \
+        "Full user audit (all sections)" \
+        "Specific user account" \
+        "Select specific sections" \
+        "Quick checks (sudo users, expired accounts)")
+    
+    case "$scope" in
+        "Full user audit (all sections)")
+            SECTIONS=("accounts" "sudo" "passwords" "logins" "ssh" "orphans")
+            ;;
+        "Specific user account")
+            echo ""
+            TARGET_USER=$(prompt_input "Enter username to audit" "")
+            if [[ -z "$TARGET_USER" ]]; then
+                log_error "No username specified"
+                return 1
+            fi
+            SECTIONS=("accounts" "sudo" "passwords" "ssh")
+            ;;
+        "Select specific sections")
+            echo ""
+            local selected
+            selected=$(prompt_multiselect "Select sections to audit:" \
+                "User accounts list" \
+                "Sudo/wheel group membership" \
+                "Password status and expiry" \
+                "Login history" \
+                "SSH authorized keys" \
+                "Orphaned files scan")
+            
+            SECTIONS=()
+            [[ "$selected" == *"User accounts"* ]] && SECTIONS+=("accounts")
+            [[ "$selected" == *"Sudo/wheel"* ]] && SECTIONS+=("sudo")
+            [[ "$selected" == *"Password status"* ]] && SECTIONS+=("passwords")
+            [[ "$selected" == *"Login history"* ]] && SECTIONS+=("logins")
+            [[ "$selected" == *"SSH authorized"* ]] && SECTIONS+=("ssh")
+            [[ "$selected" == *"Orphaned files"* ]] && SECTIONS+=("orphans")
+            ;;
+        "Quick checks (sudo users, expired accounts)")
+            SUDO_ONLY=true
+            EXPIRED_ONLY=true
+            SECTIONS=("accounts" "sudo" "passwords")
+            ;;
+    esac
+    
+    if [[ ${#SECTIONS[@]} -eq 0 && -z "$TARGET_USER" && "$SUDO_ONLY" != "true" ]]; then
+        log_error "No sections selected"
+        return 1
+    fi
+    
+    echo ""
+    
+    # Additional options
+    if prompt_yes_no "Enable verbose output?" "n"; then
+        VERBOSE=true
+    fi
+    
+    # Summary
+    echo ""
+    log_info "Audit configuration:"
+    [[ -n "$TARGET_USER" ]] && echo -e "  ${CYAN}•${NC} Target user: $TARGET_USER"
+    [[ ${#SECTIONS[@]} -gt 0 ]] && echo -e "  ${CYAN}•${NC} Sections: ${SECTIONS[*]}"
+    [[ "$SUDO_ONLY" == "true" ]] && echo -e "  ${CYAN}•${NC} Filter: Sudo users only"
+    [[ "$EXPIRED_ONLY" == "true" ]] && echo -e "  ${CYAN}•${NC} Filter: Expired/expiring accounts"
+    echo ""
+    
+    if prompt_yes_no "Start user audit?" "y"; then
+        return 0
+    else
+        log_info "Audit cancelled"
+        exit 0
+    fi
+}
+
 # Main function
 main() {
+    local original_args=("$@")
     parse_args "$@"
+
+    # Determine if interactive mode should be enabled
+    if [[ "$INTERACTIVE" == "auto" ]]; then
+        if [[ ${#original_args[@]} -eq 0 ]] && [[ -t 0 ]] && [[ -t 1 ]]; then
+            INTERACTIVE=true
+        else
+            INTERACTIVE=false
+        fi
+    fi
+
+    # Run interactive mode if enabled
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+        run_interactive
+    fi
 
     echo -e "${BOLD}$SCRIPT_NAME v$SCRIPT_VERSION${NC}"
     echo ""

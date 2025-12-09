@@ -16,6 +16,10 @@
 
 set -euo pipefail
 
+# Source interactive utilities if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ -f "$SCRIPT_DIR/../../lib/interactive.sh" ]] && source "$SCRIPT_DIR/../../lib/interactive.sh"
+
 # Script metadata
 SCRIPT_NAME="Server Setup"
 SCRIPT_VERSION="1.0.0"
@@ -27,12 +31,17 @@ PROFILE="development"
 INSTALL_PACKAGES=()
 DRY_RUN=false
 VERBOSE=false
+INTERACTIVE=auto
+RSR_YES=0
 
 # Color codes
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+DIM='\033[2m'
+BOLD='\033[1m'
 NC='\033[0m'
 
 # Available packages
@@ -50,6 +59,9 @@ OPTIONS:
     -u, --username USERNAME   Set username for configuration
     -p, --profile PROFILE     Environment profile (development|production) [default: development]
     -i, --install PACKAGES    Packages to install (can be used multiple times)
+    --interactive             Run in interactive mode (default when no args)
+    --no-interactive          Disable interactive mode
+    -y, --yes                 Auto-confirm all prompts
     -d, --dry-run            Show what would be done without executing
     -v, --verbose            Enable verbose output
 
@@ -84,10 +96,10 @@ log() {
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
 
     case "$level" in
-        "INFO") echo -e "${BLUE}[INFO]${NC} $message" ;;
-        "WARN") echo -e "${YELLOW}[WARN]${NC} $message" ;;
-        "ERROR") echo -e "${RED}[ERROR]${NC} $message" ;;
-        "OK") echo -e "${GREEN}[OK]${NC} $message" ;;
+        "INFO") echo -e "${BLUE}▸${NC} $message" ;;
+        "WARN") echo -e "${YELLOW}⚠${NC} $message" ;;
+        "ERROR") echo -e "${RED}✗${NC} $message" >&2 ;;
+        "OK") echo -e "${GREEN}✓${NC} $message" ;;
         *) echo "[$level] $message" ;;
     esac
 }
@@ -194,88 +206,233 @@ apply_profile() {
 }
 
 # Parse command line arguments
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        -h | --help)
-            usage
-            exit 0
-            ;;
-        -u | --username)
-            USERNAME="$2"
-            shift 2
-            ;;
-        -p | --profile)
-            PROFILE="$2"
-            shift 2
-            ;;
-        -i | --install)
-            INSTALL_PACKAGES+=("$2")
-            shift 2
-            ;;
-        -d | --dry-run)
-            DRY_RUN=true
-            shift
-            ;;
-        -v | --verbose)
-            VERBOSE=true
-            shift
-            ;;
-        -*)
-            echo "Unknown option $1"
-            exit 1
-            ;;
-        *)
-            INSTALL_PACKAGES+=("$1")
-            shift
-            ;;
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -h | --help)
+                usage
+                exit 0
+                ;;
+            -u | --username)
+                USERNAME="$2"
+                shift 2
+                ;;
+            -p | --profile)
+                PROFILE="$2"
+                shift 2
+                ;;
+            -i | --install)
+                INSTALL_PACKAGES+=("$2")
+                shift 2
+                ;;
+            --interactive)
+                INTERACTIVE=true
+                shift
+                ;;
+            --no-interactive)
+                INTERACTIVE=false
+                shift
+                ;;
+            -y | --yes)
+                RSR_YES=1
+                INTERACTIVE=false
+                shift
+                ;;
+            -d | --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            -v | --verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -*)
+                echo "Unknown option $1"
+                exit 1
+                ;;
+            *)
+                INSTALL_PACKAGES+=("$1")
+                shift
+                ;;
+        esac
+    done
+}
+
+# =============================================================================
+# Interactive Mode
+# =============================================================================
+
+run_interactive() {
+    print_interactive_header "$SCRIPT_NAME" "$SCRIPT_VERSION"
+    
+    echo ""
+    echo -e "${DIM}This wizard will guide you through initial server setup.${NC}"
+    echo ""
+    
+    # Username configuration
+    USERNAME=$(prompt_input "Enter admin username" "admin")
+    
+    echo ""
+    
+    # Profile selection
+    local profile_choice
+    profile_choice=$(prompt_select "Select environment profile:" \
+        "Development (debug logging, dev tools)" \
+        "Production (security hardening, monitoring)")
+    
+    case "$profile_choice" in
+        "Development"*) PROFILE="development" ;;
+        "Production"*) PROFILE="production" ;;
     esac
-done
+    
+    echo ""
+    
+    # Package selection - using multiselect
+    log "INFO" "Select packages to install:"
+    echo ""
+    
+    local selected_packages
+    selected_packages=$(prompt_multiselect "Available packages:" \
+        "nginx - Web server" \
+        "docker - Container platform" \
+        "nodejs - JavaScript runtime" \
+        "python3 - Python programming" \
+        "git - Version control" \
+        "curl - HTTP client" \
+        "vim - Text editor" \
+        "htop - Process monitor" \
+        "fail2ban - Intrusion prevention")
+    
+    INSTALL_PACKAGES=()
+    [[ "$selected_packages" == *"nginx"* ]] && INSTALL_PACKAGES+=("nginx")
+    [[ "$selected_packages" == *"docker"* ]] && INSTALL_PACKAGES+=("docker")
+    [[ "$selected_packages" == *"nodejs"* ]] && INSTALL_PACKAGES+=("nodejs")
+    [[ "$selected_packages" == *"python3"* ]] && INSTALL_PACKAGES+=("python3")
+    [[ "$selected_packages" == *"git"* ]] && INSTALL_PACKAGES+=("git")
+    [[ "$selected_packages" == *"curl"* ]] && INSTALL_PACKAGES+=("curl")
+    [[ "$selected_packages" == *"vim"* ]] && INSTALL_PACKAGES+=("vim")
+    [[ "$selected_packages" == *"htop"* ]] && INSTALL_PACKAGES+=("htop")
+    [[ "$selected_packages" == *"fail2ban"* ]] && INSTALL_PACKAGES+=("fail2ban")
+    
+    if [[ ${#INSTALL_PACKAGES[@]} -eq 0 ]]; then
+        log "WARN" "No packages selected"
+        echo ""
+        if ! prompt_yes_no "Continue without installing packages?" "n"; then
+            log "INFO" "Setup cancelled"
+            exit 0
+        fi
+    fi
+    
+    echo ""
+    
+    # Additional options
+    if prompt_yes_no "Enable verbose output?" "n"; then
+        VERBOSE=true
+    fi
+    
+    echo ""
+    
+    # Dry run option
+    if prompt_yes_no "Perform a dry run first?" "y"; then
+        DRY_RUN=true
+    fi
+    
+    # Summary
+    echo ""
+    log "INFO" "Setup configuration:"
+    echo -e "  ${CYAN}•${NC} Username: $USERNAME"
+    echo -e "  ${CYAN}•${NC} Profile: $PROFILE"
+    if [[ ${#INSTALL_PACKAGES[@]} -gt 0 ]]; then
+        echo -e "  ${CYAN}•${NC} Packages: ${INSTALL_PACKAGES[*]}"
+    else
+        echo -e "  ${CYAN}•${NC} Packages: (none)"
+    fi
+    [[ "$DRY_RUN" == "true" ]] && echo -e "  ${CYAN}•${NC} Mode: Dry run"
+    echo ""
+    
+    if confirm_destructive "This will configure the server"; then
+        return 0
+    else
+        log "INFO" "Setup cancelled"
+        exit 0
+    fi
+}
 
-# Validation
-if [[ -z "$USERNAME" ]]; then
-    log "ERROR" "Username is required. Use -u or --username"
-    exit 1
-fi
+# Main function
+main() {
+    local original_args=("$@")
+    parse_args "$@"
 
-if [[ "$PROFILE" != "development" && "$PROFILE" != "production" ]]; then
-    log "ERROR" "Profile must be 'development' or 'production'"
-    exit 1
-fi
+    # Determine if interactive mode should be enabled
+    if [[ "$INTERACTIVE" == "auto" ]]; then
+        if [[ ${#original_args[@]} -eq 0 ]] && [[ -t 0 ]] && [[ -t 1 ]]; then
+            INTERACTIVE=true
+        else
+            INTERACTIVE=false
+        fi
+    fi
 
-if [[ ${#INSTALL_PACKAGES[@]} -eq 0 ]]; then
-    log "ERROR" "At least one package must be specified"
-    exit 1
-fi
+    # Run interactive mode if enabled
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+        run_interactive
+    fi
 
-# Main execution
-log "INFO" "Starting $SCRIPT_NAME v$SCRIPT_VERSION"
-[[ "$DRY_RUN" == true ]] && log "INFO" "DRY RUN MODE - No changes will be made"
-[[ "$VERBOSE" == true ]] && log "INFO" "Verbose mode enabled"
+    # Validation (only if not from interactive mode which already validated)
+    if [[ -z "$USERNAME" ]]; then
+        log "ERROR" "Username is required. Use -u or --username"
+        exit 1
+    fi
 
-log "INFO" "Configuration:"
-log "INFO" "  Username: $USERNAME"
-log "INFO" "  Profile: $PROFILE"
-log "INFO" "  Packages: ${INSTALL_PACKAGES[*]}"
+    if [[ "$PROFILE" != "development" && "$PROFILE" != "production" ]]; then
+        log "ERROR" "Profile must be 'development' or 'production'"
+        exit 1
+    fi
 
-# Configure user
-configure_user "$USERNAME"
+    # Allow running without packages in interactive mode
+    if [[ ${#INSTALL_PACKAGES[@]} -eq 0 && "$INTERACTIVE" != "true" ]]; then
+        log "ERROR" "At least one package must be specified"
+        exit 1
+    fi
 
-# Apply profile
-apply_profile "$PROFILE"
+    # Main execution
+    echo -e "${BOLD}$SCRIPT_NAME v$SCRIPT_VERSION${NC}"
+    echo ""
+    
+    [[ "$DRY_RUN" == true ]] && log "INFO" "DRY RUN MODE - No changes will be made"
+    [[ "$VERBOSE" == true ]] && log "INFO" "Verbose mode enabled"
 
-# Install packages
-log "INFO" "Installing ${#INSTALL_PACKAGES[@]} packages..."
-for package in "${INSTALL_PACKAGES[@]}"; do
-    install_package "$package"
-done
+    log "INFO" "Configuration:"
+    echo -e "  ${CYAN}•${NC} Username: $USERNAME"
+    echo -e "  ${CYAN}•${NC} Profile: $PROFILE"
+    [[ ${#INSTALL_PACKAGES[@]} -gt 0 ]] && echo -e "  ${CYAN}•${NC} Packages: ${INSTALL_PACKAGES[*]}"
+    echo ""
 
-# Final summary
-log "OK" "Server setup completed successfully!"
-log "INFO" "Summary:"
-log "INFO" "  User '$USERNAME' configured"
-log "INFO" "  Profile '$PROFILE' applied"
-log "INFO" "  ${#INSTALL_PACKAGES[@]} packages installed: ${INSTALL_PACKAGES[*]}"
+    # Configure user
+    configure_user "$USERNAME"
 
-if [[ "$DRY_RUN" == true ]]; then
-    log "INFO" "This was a dry run. Run without -d flag to apply changes."
-fi
+    # Apply profile
+    apply_profile "$PROFILE"
+
+    # Install packages
+    if [[ ${#INSTALL_PACKAGES[@]} -gt 0 ]]; then
+        log "INFO" "Installing ${#INSTALL_PACKAGES[@]} packages..."
+        for package in "${INSTALL_PACKAGES[@]}"; do
+            install_package "$package"
+        done
+    fi
+
+    # Final summary
+    echo ""
+    log "OK" "Server setup completed successfully!"
+    log "INFO" "Summary:"
+    echo -e "  ${CYAN}•${NC} User '$USERNAME' configured"
+    echo -e "  ${CYAN}•${NC} Profile '$PROFILE' applied"
+    [[ ${#INSTALL_PACKAGES[@]} -gt 0 ]] && echo -e "  ${CYAN}•${NC} ${#INSTALL_PACKAGES[@]} packages installed: ${INSTALL_PACKAGES[*]}"
+
+    if [[ "$DRY_RUN" == true ]]; then
+        echo ""
+        log "INFO" "This was a dry run. Run without -d flag to apply changes."
+    fi
+}
+
+main "$@"

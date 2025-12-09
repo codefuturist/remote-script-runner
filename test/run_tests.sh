@@ -229,7 +229,8 @@ while [[ $# -gt 0 ]]; do
             ;;
         --junit)
             JUNIT_FILE="$2"
-            BATS_ARGS+=("--report-formatter" "junit" "--output" "$(dirname "$2")")
+            mkdir -p "$(dirname "$JUNIT_FILE")"
+            BATS_ARGS+=("--report-formatter" "junit" "--output" "$JUNIT_FILE")
             shift 2
             ;;
         -*)

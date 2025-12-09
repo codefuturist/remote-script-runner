@@ -13,6 +13,10 @@
 
 set -euo pipefail
 
+# Source interactive utilities if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ -f "$SCRIPT_DIR/../../lib/interactive.sh" ]] && source "$SCRIPT_DIR/../../lib/interactive.sh"
+
 # Script metadata
 SCRIPT_NAME="Firewall Setup"
 SCRIPT_VERSION="1.0.0"
@@ -20,6 +24,7 @@ SCRIPT_VERSION="1.0.0"
 # Default values
 VERBOSE=false
 DRY_RUN=false
+INTERACTIVE=auto
 PRESET=""
 ALLOW_PORTS=()
 DENY_PORTS=()
@@ -69,6 +74,9 @@ ${BOLD}Options:${NC}
     -h, --help              Show this help message
     -v, --verbose           Enable verbose output
     -d, --dry-run           Show what would be configured
+    -i, --interactive       Run in interactive mode (default when no args)
+    --no-interactive        Disable interactive mode
+    -y, --yes               Auto-confirm all prompts
     -p, --preset PRESET     Apply preset profile
     -a, --allow PORT[/PROTO] Allow port (e.g., 3000/tcp)
     -D, --deny PORT[/PROTO]  Deny port
@@ -149,6 +157,19 @@ parse_args() {
                 ;;
             -d | --dry-run)
                 DRY_RUN=true
+                shift
+                ;;
+            -i | --interactive)
+                INTERACTIVE=true
+                shift
+                ;;
+            --no-interactive)
+                INTERACTIVE=false
+                shift
+                ;;
+            -y | --yes)
+                RSR_YES=1
+                INTERACTIVE=false
                 shift
                 ;;
             -p | --preset)
@@ -742,14 +763,306 @@ reload_firewall() {
     esac
 }
 
+# =============================================================================
+# Interactive Mode
+# =============================================================================
+
+run_interactive() {
+    print_interactive_header "$SCRIPT_NAME" "$SCRIPT_VERSION"
+    
+    log_info "Detected firewall: ${BOLD}$FIREWALL${NC}"
+    echo ""
+    
+    # Main action selection
+    local action
+    action=$(prompt_select "What would you like to do?" \
+        "Apply a preset profile" \
+        "Allow/deny specific ports" \
+        "Allow/deny IP addresses" \
+        "Show current status" \
+        "Backup rules" \
+        "Restore rules" \
+        "Reset to defaults" \
+        "Enable/disable firewall")
+    
+    case "$action" in
+        "Apply a preset profile")
+            interactive_preset
+            ;;
+        "Allow/deny specific ports")
+            interactive_ports
+            ;;
+        "Allow/deny IP addresses")
+            interactive_ips
+            ;;
+        "Show current status")
+            show_status
+            return 0
+            ;;
+        "Backup rules")
+            interactive_backup
+            ;;
+        "Restore rules")
+            interactive_restore
+            ;;
+        "Reset to defaults")
+            interactive_reset
+            ;;
+        "Enable/disable firewall")
+            interactive_enable_disable
+            ;;
+    esac
+}
+
+interactive_preset() {
+    echo ""
+    local preset_choice
+    preset_choice=$(prompt_select "Select a firewall preset:" \
+        "minimal - SSH only (port 22)" \
+        "web - SSH, HTTP, HTTPS (22, 80, 443)" \
+        "database - SSH + MySQL/PostgreSQL (localhost only)" \
+        "docker - SSH, HTTP, HTTPS + Docker ports" \
+        "mail - SSH + SMTP, IMAP, POP3 with SSL")
+    
+    PRESET=$(echo "$preset_choice" | cut -d' ' -f1)
+    
+    echo ""
+    log_info "Selected preset: ${BOLD}$PRESET${NC}"
+    echo ""
+    
+    # Show what will be configured
+    case "$PRESET" in
+        minimal)
+            echo -e "  ${CYAN}•${NC} Allow SSH (port 22)"
+            echo -e "  ${CYAN}•${NC} Block all other incoming traffic"
+            ;;
+        web)
+            echo -e "  ${CYAN}•${NC} Allow SSH (port 22)"
+            echo -e "  ${CYAN}•${NC} Allow HTTP (port 80)"
+            echo -e "  ${CYAN}•${NC} Allow HTTPS (port 443)"
+            echo -e "  ${CYAN}•${NC} Block all other incoming traffic"
+            ;;
+        database)
+            echo -e "  ${CYAN}•${NC} Allow SSH (port 22)"
+            echo -e "  ${CYAN}•${NC} Allow MySQL (port 3306) from localhost only"
+            echo -e "  ${CYAN}•${NC} Allow PostgreSQL (port 5432) from localhost only"
+            ;;
+        docker)
+            echo -e "  ${CYAN}•${NC} Allow SSH (port 22)"
+            echo -e "  ${CYAN}•${NC} Allow HTTP (port 80)"
+            echo -e "  ${CYAN}•${NC} Allow HTTPS (port 443)"
+            echo -e "  ${CYAN}•${NC} Allow Docker API (ports 2375, 2376)"
+            ;;
+        mail)
+            echo -e "  ${CYAN}•${NC} Allow SSH (port 22)"
+            echo -e "  ${CYAN}•${NC} Allow SMTP (25), SMTPS (465), Submission (587)"
+            echo -e "  ${CYAN}•${NC} Allow POP3 (110), POP3S (995)"
+            echo -e "  ${CYAN}•${NC} Allow IMAP (143), IMAPS (993)"
+            ;;
+    esac
+    
+    echo ""
+    
+    # Ask about additional options
+    if prompt_yes_no "Enable rate limiting on SSH?" "y"; then
+        RATE_LIMIT_PORTS+=("22")
+    fi
+    
+    if prompt_yes_no "Enable IPv6 rules?" "y"; then
+        IPV6=true
+    else
+        IPV6=false
+    fi
+    
+    echo ""
+    
+    # Confirmation
+    if confirm_destructive "This will modify your firewall rules. Make sure you have console access in case of SSH lockout."; then
+        check_root
+        apply_preset "$PRESET"
+        
+        for port in "${RATE_LIMIT_PORTS[@]}"; do
+            rate_limit_port "$port"
+        done
+        
+        if prompt_yes_no "Enable firewall now?" "y"; then
+            enable_firewall
+        fi
+        
+        reload_firewall
+        
+        echo ""
+        log_ok "Firewall configured successfully!"
+        echo ""
+        show_status
+    else
+        log_info "Operation cancelled"
+    fi
+}
+
+interactive_ports() {
+    echo ""
+    local port_action
+    port_action=$(prompt_select "What would you like to do?" \
+        "Allow a port" \
+        "Deny a port" \
+        "Rate limit a port")
+    
+    echo ""
+    local port_input
+    port_input=$(prompt_input "Enter port number (e.g., 8080 or 8080/tcp)" "")
+    
+    if [[ -z "$port_input" ]]; then
+        log_error "No port specified"
+        return 1
+    fi
+    
+    echo ""
+    if prompt_yes_no "Apply this change?" "y"; then
+        check_root
+        case "$port_action" in
+            "Allow a port")
+                allow_port "$port_input"
+                ;;
+            "Deny a port")
+                deny_port "$port_input"
+                ;;
+            "Rate limit a port")
+                rate_limit_port "${port_input%%/*}"
+                ;;
+        esac
+        reload_firewall
+        log_ok "Port rule applied"
+    fi
+}
+
+interactive_ips() {
+    echo ""
+    local ip_action
+    ip_action=$(prompt_select "What would you like to do?" \
+        "Allow traffic from IP/CIDR" \
+        "Deny traffic from IP/CIDR")
+    
+    echo ""
+    local ip_input
+    ip_input=$(prompt_input "Enter IP address or CIDR (e.g., 192.168.1.0/24)" "")
+    
+    if [[ -z "$ip_input" ]]; then
+        log_error "No IP specified"
+        return 1
+    fi
+    
+    echo ""
+    if prompt_yes_no "Apply this change?" "y"; then
+        check_root
+        case "$ip_action" in
+            "Allow traffic from IP/CIDR")
+                allow_from_ip "$ip_input"
+                ;;
+            "Deny traffic from IP/CIDR")
+                deny_from_ip "$ip_input"
+                ;;
+        esac
+        reload_firewall
+        log_ok "IP rule applied"
+    fi
+}
+
+interactive_backup() {
+    echo ""
+    local backup_path
+    backup_path=$(prompt_input "Enter backup file path" "/tmp/firewall-backup-$(date +%Y%m%d-%H%M%S).bak")
+    
+    if [[ -n "$backup_path" ]]; then
+        check_root
+        backup_rules "$backup_path"
+    fi
+}
+
+interactive_restore() {
+    echo ""
+    local restore_path
+    restore_path=$(prompt_input "Enter backup file path to restore from" "")
+    
+    if [[ -z "$restore_path" ]]; then
+        log_error "No file specified"
+        return 1
+    fi
+    
+    if [[ ! -f "$restore_path" ]]; then
+        log_error "File not found: $restore_path"
+        return 1
+    fi
+    
+    echo ""
+    if confirm_destructive "This will replace your current firewall rules with the backup"; then
+        check_root
+        restore_rules "$restore_path"
+    fi
+}
+
+interactive_reset() {
+    echo ""
+    if confirm_destructive "This will reset all firewall rules to system defaults. You may lose SSH access!"; then
+        check_root
+        reset_firewall
+        log_ok "Firewall reset to defaults"
+    fi
+}
+
+interactive_enable_disable() {
+    echo ""
+    local fw_action
+    fw_action=$(prompt_select "Select action:" \
+        "Enable firewall" \
+        "Disable firewall")
+    
+    echo ""
+    case "$fw_action" in
+        "Enable firewall")
+            if prompt_yes_no "Enable the firewall?" "y"; then
+                check_root
+                enable_firewall
+            fi
+            ;;
+        "Disable firewall")
+            if confirm_destructive "Disabling the firewall will expose all ports to the network"; then
+                check_root
+                disable_firewall
+            fi
+            ;;
+    esac
+}
+
+# =============================================================================
+# Main Function
+# =============================================================================
+
 # Main function
 main() {
+    local original_args=("$@")
     parse_args "$@"
+
+    # Determine if interactive mode should be enabled
+    # Auto-enable if: terminal + no arguments provided
+    if [[ "$INTERACTIVE" == "auto" ]]; then
+        if [[ ${#original_args[@]} -eq 0 ]] && [[ -t 0 ]] && [[ -t 1 ]]; then
+            INTERACTIVE=true
+        else
+            INTERACTIVE=false
+        fi
+    fi
+
+    detect_firewall
+
+    # Run interactive mode if enabled
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+        run_interactive
+        exit $EXIT_OK
+    fi
 
     echo -e "${BOLD}$SCRIPT_NAME v$SCRIPT_VERSION${NC}"
     echo ""
-
-    detect_firewall
 
     # Handle status
     if [[ "$SHOW_STATUS" == "true" ]]; then

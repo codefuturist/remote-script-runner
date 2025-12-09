@@ -152,6 +152,9 @@ get_script_path() {
         db-backup)
             echo "scripts/bash/database-backup.sh"
             ;;
+        docker)
+            echo "scripts/bash/docker-management.sh"
+            ;;
         *)
             echo ""
             ;;
@@ -270,6 +273,12 @@ list_scripts() {
 
     printf "  ${GREEN}db-backup${NC}   Database backup\n"
     printf "              ${DIM}rsr db-backup${NC}\n\n"
+
+    printf "  ${GREEN}docker${NC}      Docker management\n"
+    printf "              Install Docker, manage containers and images\n"
+    printf "              ${DIM}rsr docker install engine${NC}\n"
+    printf "              ${DIM}rsr docker status${NC}\n"
+    printf "              ${DIM}rsr docker ps${NC}\n\n"
 
     printf "  ${GREEN}self-update${NC} Update rsr to latest version\n"
     printf "              ${DIM}rsr self-update${NC}\n"
@@ -838,6 +847,9 @@ main() {
             ;;
         db-backup | database-backup)
             run_script "db-backup" "$@"
+            ;;
+        docker | docker-management)
+            run_script "docker" "$@"
             ;;
         list | ls)
             list_scripts

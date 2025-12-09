@@ -16,6 +16,10 @@
 
 set -euo pipefail
 
+# Source interactive utilities if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ -f "$SCRIPT_DIR/../../lib/interactive.sh" ]] && source "$SCRIPT_DIR/../../lib/interactive.sh"
+
 # Script metadata
 SCRIPT_NAME="System Health Check"
 SCRIPT_VERSION="1.0.0"
@@ -23,6 +27,7 @@ SCRIPT_URL="https://github.com/codefuturist/remote-script-runner"
 
 # Default values
 VERBOSE=false
+INTERACTIVE=auto
 TIMEOUT=10
 CHECKS=()
 LOG_FILE=""
@@ -45,6 +50,8 @@ Usage: $0 [OPTIONS] [CHECKS...]
 OPTIONS:
     -h, --help              Display this help message
     -v, --verbose           Enable verbose output
+    -i, --interactive       Run in interactive mode (default when no args)
+    --no-interactive        Disable interactive mode
     -t, --timeout SECONDS   Set timeout for each check (default: 10)
     -l, --log FILE         Log output to file
     -f, --format FORMAT    Output format: text, json, csv (default: text)
@@ -247,78 +254,202 @@ check_uptime() {
 }
 
 # Parse command line arguments
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        -h | --help)
-            usage
-            exit 0
-            ;;
-        -v | --verbose)
-            VERBOSE=true
-            shift
-            ;;
-        -t | --timeout)
-            TIMEOUT="$2"
-            shift 2
-            ;;
-        -l | --log)
-            LOG_FILE="$2"
-            shift 2
-            ;;
-        -f | --format)
-            OUTPUT_FORMAT="$2"
-            shift 2
-            ;;
-        -s | --select)
-            CHECKS+=("$2")
-            shift 2
-            ;;
-        -a | --all)
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -h | --help)
+                usage
+                exit 0
+                ;;
+            -v | --verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -i | --interactive)
+                INTERACTIVE=true
+                shift
+                ;;
+            --no-interactive)
+                INTERACTIVE=false
+                shift
+                ;;
+            -t | --timeout)
+                TIMEOUT="$2"
+                shift 2
+                ;;
+            -l | --log)
+                LOG_FILE="$2"
+                shift 2
+                ;;
+            -f | --format)
+                OUTPUT_FORMAT="$2"
+                shift 2
+                ;;
+            -s | --select)
+                CHECKS+=("$2")
+                shift 2
+                ;;
+            -a | --all)
+                CHECKS=("cpu" "memory" "disk" "network" "services" "uptime")
+                shift
+                ;;
+            -*)
+                echo "Unknown option $1"
+                exit 1
+                ;;
+            *)
+                CHECKS+=("$1")
+                shift
+                ;;
+        esac
+    done
+}
+
+# =============================================================================
+# Interactive Mode
+# =============================================================================
+
+run_interactive() {
+    print_interactive_header "$SCRIPT_NAME" "$SCRIPT_VERSION"
+    
+    echo ""
+    
+    # Check selection
+    local check_scope
+    check_scope=$(prompt_select "What would you like to check?" \
+        "All checks (recommended)" \
+        "Quick check (CPU, memory, disk)" \
+        "Select specific checks")
+    
+    case "$check_scope" in
+        "All checks (recommended)")
             CHECKS=("cpu" "memory" "disk" "network" "services" "uptime")
-            shift
             ;;
-        -*)
-            echo "Unknown option $1"
-            exit 1
+        "Quick check (CPU, memory, disk)")
+            CHECKS=("cpu" "memory" "disk")
             ;;
-        *)
-            CHECKS+=("$1")
-            shift
+        "Select specific checks")
+            echo ""
+            local selected
+            selected=$(prompt_multiselect "Select checks to run:" \
+                "CPU usage and load" \
+                "Memory statistics" \
+                "Disk usage" \
+                "Network interfaces" \
+                "Service status" \
+                "System uptime")
+            
+            CHECKS=()
+            [[ "$selected" == *"CPU"* ]] && CHECKS+=("cpu")
+            [[ "$selected" == *"Memory"* ]] && CHECKS+=("memory")
+            [[ "$selected" == *"Disk"* ]] && CHECKS+=("disk")
+            [[ "$selected" == *"Network"* ]] && CHECKS+=("network")
+            [[ "$selected" == *"Service"* ]] && CHECKS+=("services")
+            [[ "$selected" == *"uptime"* ]] && CHECKS+=("uptime")
             ;;
     esac
-done
-
-# If no checks specified, show usage
-if [[ ${#CHECKS[@]} -eq 0 ]]; then
-    echo "No checks specified. Use -h for help."
-    echo "Quick start: $0 -a    # Run all checks"
-    exit 1
-fi
-
-# Create log file if specified
-if [[ -n "$LOG_FILE" ]]; then
-    mkdir -p "$(dirname "$LOG_FILE")"
-    touch "$LOG_FILE" || {
-        log "ERROR" "Cannot create log file: $LOG_FILE"
+    
+    if [[ ${#CHECKS[@]} -eq 0 ]]; then
+        log "ERROR" "No checks selected"
         exit 1
-    }
-fi
-
-# Main execution
-log "INFO" "Starting $SCRIPT_NAME v$SCRIPT_VERSION"
-[[ "$VERBOSE" == true ]] && log "INFO" "Running on: $(uname -s) $(uname -r)"
-
-# Run selected checks with timeout
-for check in "${CHECKS[@]}"; do
-    case "$check" in
-        cpu) timeout "$TIMEOUT" bash -c "$(declare -f check_cpu log); check_cpu" || log "ERROR" "CPU check timed out" ;;
-        memory) timeout "$TIMEOUT" bash -c "$(declare -f check_memory log); check_memory" || log "ERROR" "Memory check timed out" ;;
-        disk) timeout "$TIMEOUT" bash -c "$(declare -f check_disk log); check_disk" || log "ERROR" "Disk check timed out" ;;
-        network) timeout "$TIMEOUT" bash -c "$(declare -f check_network log); check_network" || log "ERROR" "Network check timed out" ;;
-        services) timeout "$TIMEOUT" bash -c "$(declare -f check_services log); check_services" || log "ERROR" "Services check timed out" ;;
-        uptime) timeout "$TIMEOUT" bash -c "$(declare -f check_uptime log); check_uptime" || log "ERROR" "Uptime check timed out" ;;
-        *) log "WARN" "Unknown check: $check" ;;
+    fi
+    
+    echo ""
+    
+    # Output options
+    local output_choice
+    output_choice=$(prompt_select "Output format:" \
+        "Text (default)" \
+        "JSON" \
+        "Log to file")
+    
+    case "$output_choice" in
+        "Text (default)") OUTPUT_FORMAT="text" ;;
+        "JSON") OUTPUT_FORMAT="json" ;;
+        "Log to file")
+            OUTPUT_FORMAT="text"
+            echo ""
+            LOG_FILE=$(prompt_input "Log file path" "/var/log/health-check.log")
+            ;;
     esac
-done
+    
+    echo ""
+    
+    # Verbose option
+    if prompt_yes_no "Enable verbose output?" "n"; then
+        VERBOSE=true
+    fi
+    
+    # Summary
+    echo ""
+    log "INFO" "Health check configuration:"
+    echo -e "  • Checks: ${CHECKS[*]}"
+    echo -e "  • Format: $OUTPUT_FORMAT"
+    [[ -n "$LOG_FILE" ]] && echo -e "  • Log file: $LOG_FILE"
+    [[ "$VERBOSE" == "true" ]] && echo -e "  • Verbose: enabled"
+    echo ""
+    
+    if prompt_yes_no "Start health check?" "y"; then
+        return 0
+    else
+        log "INFO" "Health check cancelled"
+        exit 0
+    fi
+}
 
-log "INFO" "Health check completed"
+# Main function
+main() {
+    local original_args=("$@")
+    parse_args "$@"
+
+    # Determine if interactive mode should be enabled
+    if [[ "$INTERACTIVE" == "auto" ]]; then
+        if [[ ${#original_args[@]} -eq 0 ]] && [[ -t 0 ]] && [[ -t 1 ]]; then
+            INTERACTIVE=true
+        else
+            INTERACTIVE=false
+        fi
+    fi
+
+    # Run interactive mode if enabled
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+        run_interactive
+    fi
+
+    # If still no checks specified after interactive mode, show usage
+    if [[ ${#CHECKS[@]} -eq 0 ]]; then
+        echo "No checks specified. Use -h for help."
+        echo "Quick start: $0 -a    # Run all checks"
+        exit 1
+    fi
+
+    # Create log file if specified
+    if [[ -n "$LOG_FILE" ]]; then
+        mkdir -p "$(dirname "$LOG_FILE")"
+        touch "$LOG_FILE" || {
+            log "ERROR" "Cannot create log file: $LOG_FILE"
+            exit 1
+        }
+    fi
+
+    # Main execution
+    log "INFO" "Starting $SCRIPT_NAME v$SCRIPT_VERSION"
+    [[ "$VERBOSE" == true ]] && log "INFO" "Running on: $(uname -s) $(uname -r)"
+
+    # Run selected checks with timeout
+    for check in "${CHECKS[@]}"; do
+        case "$check" in
+            cpu) timeout "$TIMEOUT" bash -c "$(declare -f check_cpu log); check_cpu" || log "ERROR" "CPU check timed out" ;;
+            memory) timeout "$TIMEOUT" bash -c "$(declare -f check_memory log); check_memory" || log "ERROR" "Memory check timed out" ;;
+            disk) timeout "$TIMEOUT" bash -c "$(declare -f check_disk log); check_disk" || log "ERROR" "Disk check timed out" ;;
+            network) timeout "$TIMEOUT" bash -c "$(declare -f check_network log); check_network" || log "ERROR" "Network check timed out" ;;
+            services) timeout "$TIMEOUT" bash -c "$(declare -f check_services log); check_services" || log "ERROR" "Services check timed out" ;;
+            uptime) timeout "$TIMEOUT" bash -c "$(declare -f check_uptime log); check_uptime" || log "ERROR" "Uptime check timed out" ;;
+            *) log "WARN" "Unknown check: $check" ;;
+        esac
+    done
+
+    log "INFO" "Health check completed"
+}
+
+main "$@"
