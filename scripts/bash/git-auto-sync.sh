@@ -30,6 +30,8 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     OS="linux"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     OS="macos"
+elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
+    OS="windows"
 else
     OS="unknown"
 fi
@@ -39,6 +41,8 @@ DISTRO="unknown"
 DISTRO_FAMILY="unknown"
 PACKAGE_MANAGER="unknown"
 INIT_SYSTEM="unknown"
+MACOS_VERSION="unknown"
+WINDOWS_VERSION="unknown"
 
 if [[ "$OS" == "linux" ]]; then
     # Detect distribution
@@ -99,42 +103,138 @@ if [[ "$OS" == "linux" ]]; then
             INIT_SYSTEM="sysvinit"
         fi
     fi
+elif [[ "$OS" == "macos" ]]; then
+    # macOS detection
+    DISTRO="macos"
+    DISTRO_FAMILY="macos"
+    PACKAGE_MANAGER="brew"
+    INIT_SYSTEM="launchd"
+    
+    if command -v sw_vers >/dev/null 2>&1; then
+        MACOS_VERSION=$(sw_vers -productVersion)
+        MACOS_NAME=$(sw_vers -productName)
+    fi
+elif [[ "$OS" == "windows" ]]; then
+    # Windows detection
+    DISTRO="windows"
+    DISTRO_FAMILY="windows"
+    
+    # Detect Windows environment
+    if [[ -n "${MSYSTEM:-}" ]]; then
+        PACKAGE_MANAGER="pacman"  # MSYS2
+        WINDOWS_ENV="msys2"
+    elif command -v cygcheck >/dev/null 2>&1; then
+        PACKAGE_MANAGER="apt-cyg"  # Cygwin
+        WINDOWS_ENV="cygwin"
+    elif command -v wsl.exe >/dev/null 2>&1; then
+        PACKAGE_MANAGER="apt"  # WSL
+        WINDOWS_ENV="wsl"
+    else
+        PACKAGE_MANAGER="choco"  # Chocolatey
+        WINDOWS_ENV="native"
+    fi
+    
+    INIT_SYSTEM="windows-service"
+    
+    # Get Windows version if available
+    if command -v wmic >/dev/null 2>&1; then
+        WINDOWS_VERSION=$(wmic os get Caption /value 2>/dev/null | grep "Caption" | cut -d= -f2 | tr -d '\r')
+    elif command -v powershell.exe >/dev/null 2>&1; then
+        WINDOWS_VERSION=$(powershell.exe -Command "[System.Environment]::OSVersion.VersionString" 2>/dev/null | tr -d '\r\n')
+    fi
 fi
 
-# Runtime directories (auto-detect user vs system level)
-if [[ $EUID -eq 0 ]]; then
-    # Running as root - system level
-    RUNTIME_DIR="/var/run/git-auto-sync"
-    STATE_DIR="/var/lib/git-auto-sync"
-    LOG_DIR="/var/log/git-auto-sync"
-    DEFAULT_CONFIG_DIR="/etc/git-auto-sync"
-    DEFAULT_CONFIG_FILE="config.yaml"
-    
-    # Environment file location varies by distro
-    if [[ "$DISTRO_FAMILY" == "rhel" ]] || [[ "$DISTRO_FAMILY" == "suse" ]]; then
-        ENV_FILE="/etc/sysconfig/git-auto-sync"
+# Runtime directories (auto-detect OS, privilege, and user)
+if [[ "$OS" == "macos" ]]; then
+    # macOS paths
+    if [[ $EUID -eq 0 ]]; then
+        # System level (requires sudo)
+        RUNTIME_DIR="/var/run/git-auto-sync"
+        STATE_DIR="/var/lib/git-auto-sync"
+        LOG_DIR="/var/log/git-auto-sync"
+        DEFAULT_CONFIG_DIR="/usr/local/etc/git-auto-sync"
+        DEFAULT_CONFIG_FILE="config.yaml"
+        ENV_FILE="/usr/local/etc/git-auto-sync/environment"
+        LAUNCHD_DIR="/Library/LaunchDaemons"
     else
-        ENV_FILE="/etc/default/git-auto-sync"
+        # User level
+        RUNTIME_DIR="$HOME/Library/Caches/git-auto-sync"
+        STATE_DIR="$HOME/Library/Application Support/git-auto-sync"
+        LOG_DIR="$HOME/Library/Logs/git-auto-sync"
+        DEFAULT_CONFIG_DIR="$HOME/Library/Application Support/git-auto-sync"
+        DEFAULT_CONFIG_FILE="config.yaml"
+        ENV_FILE="$DEFAULT_CONFIG_DIR/environment"
+        LAUNCHD_DIR="$HOME/Library/LaunchAgents"
     fi
-    
-    # Service locations
-    if [[ "$INIT_SYSTEM" == "systemd" ]]; then
-        SYSTEMD_DIR="/etc/systemd/system"
-    elif [[ "$INIT_SYSTEM" == "openrc" ]]; then
-        INITD_DIR="/etc/init.d"
+elif [[ "$OS" == "windows" ]]; then
+    # Windows paths
+    if [[ "$WINDOWS_ENV" == "wsl" ]]; then
+        # WSL uses Linux-style paths
+        RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.cache}/git-auto-sync"
+        STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/git-auto-sync"
+        LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/git-auto-sync/logs"
+        DEFAULT_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/git-auto-sync"
+        DEFAULT_CONFIG_FILE="config.yaml"
+        ENV_FILE="$DEFAULT_CONFIG_DIR/environment"
+    else
+        # Native Windows, MSYS2, or Cygwin
+        if [[ -n "${LOCALAPPDATA:-}" ]]; then
+            # Convert Windows path to Unix-style
+            LOCALAPPDATA_UNIX=$(cygpath -u "$LOCALAPPDATA" 2>/dev/null || echo "$LOCALAPPDATA")
+            PROGRAMDATA_UNIX=$(cygpath -u "${PROGRAMDATA:-C:\\ProgramData}" 2>/dev/null || echo "/c/ProgramData")
+            
+            RUNTIME_DIR="$LOCALAPPDATA_UNIX/git-auto-sync/cache"
+            STATE_DIR="$LOCALAPPDATA_UNIX/git-auto-sync"
+            LOG_DIR="$LOCALAPPDATA_UNIX/git-auto-sync/logs"
+            DEFAULT_CONFIG_DIR="$LOCALAPPDATA_UNIX/git-auto-sync"
+            DEFAULT_CONFIG_FILE="config.yaml"
+            ENV_FILE="$DEFAULT_CONFIG_DIR/environment"
+        else
+            # Fallback for MSYS2/Cygwin
+            RUNTIME_DIR="$HOME/.cache/git-auto-sync"
+            STATE_DIR="$HOME/.local/state/git-auto-sync"
+            LOG_DIR="$HOME/.local/state/git-auto-sync/logs"
+            DEFAULT_CONFIG_DIR="$HOME/.config/git-auto-sync"
+            DEFAULT_CONFIG_FILE="config.yaml"
+            ENV_FILE="$DEFAULT_CONFIG_DIR/environment"
+        fi
     fi
-else
-    # Running as user - user level
-    RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.cache}/git-auto-sync"
-    STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/git-auto-sync"
-    LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/git-auto-sync/logs"
-    DEFAULT_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/git-auto-sync"
-    DEFAULT_CONFIG_FILE="config.yaml"
-    ENV_FILE="$DEFAULT_CONFIG_DIR/environment"
-    
-    # User service
-    if [[ "$INIT_SYSTEM" == "systemd" ]]; then
-        SYSTEMD_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
+elif [[ "$OS" == "linux" ]]; then
+    # Linux paths
+    if [[ $EUID -eq 0 ]]; then
+        # Running as root - system level
+        RUNTIME_DIR="/var/run/git-auto-sync"
+        STATE_DIR="/var/lib/git-auto-sync"
+        LOG_DIR="/var/log/git-auto-sync"
+        DEFAULT_CONFIG_DIR="/etc/git-auto-sync"
+        DEFAULT_CONFIG_FILE="config.yaml"
+        
+        # Environment file location varies by distro
+        if [[ "$DISTRO_FAMILY" == "rhel" ]] || [[ "$DISTRO_FAMILY" == "suse" ]]; then
+            ENV_FILE="/etc/sysconfig/git-auto-sync"
+        else
+            ENV_FILE="/etc/default/git-auto-sync"
+        fi
+        
+        # Service locations
+        if [[ "$INIT_SYSTEM" == "systemd" ]]; then
+            SYSTEMD_DIR="/etc/systemd/system"
+        elif [[ "$INIT_SYSTEM" == "openrc" ]]; then
+            INITD_DIR="/etc/init.d"
+        fi
+    else
+        # Running as user - user level
+        RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.cache}/git-auto-sync"
+        STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/git-auto-sync"
+        LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/git-auto-sync/logs"
+        DEFAULT_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/git-auto-sync"
+        DEFAULT_CONFIG_FILE="config.yaml"
+        ENV_FILE="$DEFAULT_CONFIG_DIR/environment"
+        
+        # User service
+        if [[ "$INIT_SYSTEM" == "systemd" ]]; then
+            SYSTEMD_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
+        fi
     fi
 fi
 
