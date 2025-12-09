@@ -1,0 +1,46 @@
+[Unit]
+Description=Git Auto-Sync Service
+Documentation=https://github.com/codefuturist/remote-script-runner
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=git-sync
+Group=git-sync
+
+# Load environment variables
+EnvironmentFile=-/etc/default/git-auto-sync
+
+# Main service command
+ExecStart=/usr/local/bin/git-auto-sync.sh \
+    --daemon \
+    --config ${CONFIG_FILE:-/etc/git-auto-sync/config.yaml} \
+    --interval ${SYNC_INTERVAL:-300}
+
+# Restart policy
+Restart=on-failure
+RestartSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=git-auto-sync
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/etc/bind /etc/nginx /var/log/git-auto-sync /var/lib/git-auto-sync
+
+# Resource limits
+MemoryMax=256M
+CPUQuota=20%
+TasksMax=10
+
+# Working directory
+WorkingDirectory=/var/lib/git-auto-sync
+
+[Install]
+WantedBy=multi-user.target

@@ -28,12 +28,14 @@ if [[ $EUID -eq 0 ]]; then
     STATE_DIR="/var/lib/git-auto-sync"
     LOG_DIR="/var/log/git-auto-sync"
     DEFAULT_CONFIG_DIR="/etc/git-auto-sync"
+DEFAULT_CONFIG_FILE="config.yaml"
 else
     # Running as user - user level
     RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.cache}/git-auto-sync"
     STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/git-auto-sync"
     LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/git-auto-sync/logs"
     DEFAULT_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/git-auto-sync"
+DEFAULT_CONFIG_FILE="config.yaml"
 fi
 
 # Create directories if they don't exist
@@ -748,48 +750,63 @@ retry_command() {
 # Configuration Management
 # =============================================================================
 
-# Detect configuration file format
-detect_config_format() {
-    local config_file="$1"
-    local ext="${config_file##*.}"
-    
-    case "$ext" in
-        json)
-            echo "json"
-            ;;
-        yaml|yml)
-            echo "yaml"
-            ;;
-        *)
-            # Try to detect by content
-            if head -1 "$config_file" | grep -q '^{'; then
-                echo "json"
-            else
-                echo "yaml"
-            fi
-            ;;
-    esac
-}
-
-# Convert YAML to JSON using available tools
-yaml_to_json() {
+# Parse YAML configuration to extract values
+parse_yaml() {
     local yaml_file="$1"
+    local query="$2"
     
-    # Try yq first (YAML processor)
+    # Try yq first (recommended)
     if command -v yq >/dev/null 2>&1; then
-        yq eval -o=json '.' "$yaml_file" 2>/dev/null
+        yq eval "$query" "$yaml_file" 2>/dev/null
         return $?
     fi
     
     # Try python as fallback
     if command -v python3 >/dev/null 2>&1; then
-        python3 -c "import sys, yaml, json; json.dump(yaml.safe_load(open('$yaml_file')), sys.stdout)" 2>/dev/null
+        python3 << PYEOF 2>/dev/null
+import yaml, sys
+try:
+    with open('$yaml_file', 'r') as f:
+        data = yaml.safe_load(f)
+    
+    # Simple query parser for basic paths like .validation.enabled
+    query = '$query'.strip('.')
+    parts = query.split('.')
+    result = data
+    
+    for part in parts:
+        # Handle array indices like repositories[0]
+        if '[' in part:
+            key = part.split('[')[0]
+            idx = int(part.split('[')[1].rstrip(']'))
+            result = result[key][idx]
+        else:
+            result = result.get(part, None) if isinstance(result, dict) else None
+            
+        if result is None:
+            break
+    
+    if result is not None:
+        if isinstance(result, bool):
+            print('true' if result else 'false')
+        elif isinstance(result, list):
+            print(len(result))
+        else:
+            print(result)
+except:
+    sys.exit(1)
+PYEOF
         return $?
     fi
     
     # Try ruby as last resort
     if command -v ruby >/dev/null 2>&1; then
-        ruby -ryaml -rjson -e "puts YAML.load_file('$yaml_file').to_json" 2>/dev/null
+        ruby << 'RBEOF' 2>/dev/null
+require 'yaml'
+data = YAML.load_file('$yaml_file')
+# Basic query support
+puts data # Simplified
+RBEOF
         return $?
     fi
     
@@ -804,80 +821,72 @@ load_config_file() {
         return 1
     fi
     
-    log_info "Loading configuration from: $config_file"
+    log_info "Loading YAML configuration from: $config_file"
     
-    # Detect format
-    local format
-    format=$(detect_config_format "$config_file")
-    log_debug "Detected configuration format: $format"
-    
-    # Convert YAML to JSON if needed
-    local json_data=""
-    if [[ "$format" == "yaml" ]]; then
-        log_info "Converting YAML configuration to JSON..."
-        json_data=$(yaml_to_json "$config_file")
-        if [[ $? -ne 0 ]] || [[ -z "$json_data" ]]; then
-            log_error "Failed to parse YAML configuration"
-            log_info "Please install one of: yq, python3-yaml, or ruby"
-            return 1
-        fi
-    else
-        # Check if jq is available for JSON
-        if ! command -v jq >/dev/null 2>&1; then
-            log_error "jq is required to parse JSON configuration"
-            return 1
-        fi
-        json_data=$(cat "$config_file")
+    # Check if YAML parser is available
+    if ! command -v yq >/dev/null 2>&1 && ! command -v python3 >/dev/null 2>&1; then
+        log_error "YAML parser required. Please install: yq or python3-yaml"
+        log_info "  Debian/Ubuntu: sudo apt install yq"
+        log_info "  or: sudo apt install python3-yaml"
+        return 1
     fi
     
-    # Parse configuration (now always JSON)
+    # Get repository count
     local repo_count
-    if [[ "$format" == "yaml" ]]; then
-        repo_count=$(echo "$json_data" | jq -r '.repositories | length')
-    else
-        repo_count=$(echo "$json_data" | jq -r 'if type == "array" then length else .repositories | length end')
+    repo_count=$(parse_yaml "$config_file" ".repositories | length")
+    
+    if [[ -z "$repo_count" ]] || [[ "$repo_count" == "0" ]]; then
+        log_error "No repositories found in configuration"
+        return 1
     fi
     
     log_info "Found $repo_count repository/repositories in configuration"
     
-    # Determine the JSON path based on format
-    local repo_path=".repositories"
-    if [[ "$format" == "json" ]]; then
-        # Check if it's array-style or object-style JSON
-        if echo "$json_data" | jq -e 'type == "array"' >/dev/null 2>&1; then
-            repo_path="."
-        fi
-    fi
-    
+    # Load repositories
     for ((i=0; i<repo_count; i++)); do
         local name path branch remote mode use_lfs post_hook validator
         
-        name=$(echo "$json_data" | jq -r "${repo_path}[$i].name")
-        path=$(echo "$json_data" | jq -r "${repo_path}[$i].path")
-        branch=$(echo "$json_data" | jq -r "${repo_path}[$i].branch // \"main\"")
-        remote=$(echo "$json_data" | jq -r "${repo_path}[$i].remote // \"origin\"")
-        mode=$(echo "$json_data" | jq -r "${repo_path}[$i].mode // \"safe\"")
-        use_lfs=$(echo "$json_data" | jq -r "${repo_path}[$i].use_lfs // false")
-        post_hook=$(echo "$json_data" | jq -r "${repo_path}[$i].post_hook // \"\"")
-        validator=$(echo "$json_data" | jq -r "${repo_path}[$i].validator // \"\"")
+        name=$(parse_yaml "$config_file" ".repositories[$i].name")
+        path=$(parse_yaml "$config_file" ".repositories[$i].path")
+        branch=$(parse_yaml "$config_file" ".repositories[$i].branch")
+        remote=$(parse_yaml "$config_file" ".repositories[$i].remote")
+        mode=$(parse_yaml "$config_file" ".repositories[$i].mode")
+        use_lfs=$(parse_yaml "$config_file" ".repositories[$i].use_lfs")
+        post_hook=$(parse_yaml "$config_file" ".repositories[$i].post_hook")
+        validator=$(parse_yaml "$config_file" ".repositories[$i].validator")
+        
+        # Set defaults
+        [[ -z "$branch" ]] || [[ "$branch" == "null" ]] && branch="main"
+        [[ -z "$remote" ]] || [[ "$remote" == "null" ]] && remote="origin"
+        [[ -z "$mode" ]] || [[ "$mode" == "null" ]] && mode="safe"
+        [[ -z "$use_lfs" ]] || [[ "$use_lfs" == "null" ]] && use_lfs="false"
+        [[ "$post_hook" == "null" ]] && post_hook=""
+        [[ "$validator" == "null" ]] && validator=""
         
         add_repository "$name" "$path" "$branch" "$remote" "$mode" "$use_lfs" "$post_hook" "$validator"
     done
     
-    # Load global validation settings if present
-    if echo "$json_data" | jq -e '.validation' >/dev/null 2>&1; then
-        VALIDATION_ENABLED=$(echo "$json_data" | jq -r '.validation.enabled // true')
-        MAX_VALIDATION_RETRIES=$(echo "$json_data" | jq -r '.validation.max_retries // 3')
-        ROLLBACK_ON_FAILURE=$(echo "$json_data" | jq -r '.validation.rollback_on_failure // true')
-        log_debug "Validation settings: enabled=$VALIDATION_ENABLED, max_retries=$MAX_VALIDATION_RETRIES, rollback=$ROLLBACK_ON_FAILURE"
-    fi
+    # Load global validation settings
+    local val_enabled val_retries val_rollback
+    val_enabled=$(parse_yaml "$config_file" ".validation.enabled")
+    val_retries=$(parse_yaml "$config_file" ".validation.max_retries")
+    val_rollback=$(parse_yaml "$config_file" ".validation.rollback_on_failure")
     
-    # Load quick check settings if present
-    if echo "$json_data" | jq -e '.quick_check' >/dev/null 2>&1; then
-        QUICK_CHECK_ENABLED=$(echo "$json_data" | jq -r '.quick_check.enabled // true')
-        QUICK_CHECK_INTERVAL=$(echo "$json_data" | jq -r '.quick_check.interval // 30')
-        log_debug "Quick check: enabled=$QUICK_CHECK_ENABLED, interval=${QUICK_CHECK_INTERVAL}s"
-    fi
+    [[ -n "$val_enabled" ]] && [[ "$val_enabled" != "null" ]] && VALIDATION_ENABLED="$val_enabled"
+    [[ -n "$val_retries" ]] && [[ "$val_retries" != "null" ]] && MAX_VALIDATION_RETRIES="$val_retries"
+    [[ -n "$val_rollback" ]] && [[ "$val_rollback" != "null" ]] && ROLLBACK_ON_FAILURE="$val_rollback"
+    
+    log_debug "Validation: enabled=$VALIDATION_ENABLED, max_retries=$MAX_VALIDATION_RETRIES, rollback=$ROLLBACK_ON_FAILURE"
+    
+    # Load quick check settings
+    local qc_enabled qc_interval
+    qc_enabled=$(parse_yaml "$config_file" ".quick_check.enabled")
+    qc_interval=$(parse_yaml "$config_file" ".quick_check.interval")
+    
+    [[ -n "$qc_enabled" ]] && [[ "$qc_enabled" != "null" ]] && QUICK_CHECK_ENABLED="$qc_enabled"
+    [[ -n "$qc_interval" ]] && [[ "$qc_interval" != "null" ]] && QUICK_CHECK_INTERVAL="$qc_interval"
+    
+    log_debug "Quick check: enabled=$QUICK_CHECK_ENABLED, interval=${QUICK_CHECK_INTERVAL}s"
 }
 
 add_repository() {
@@ -1077,7 +1086,7 @@ ${BOLD}USAGE:${NC}
     $0 [OPTIONS]
 
 ${BOLD}OPTIONS:${NC}
-    -c, --config FILE       Configuration file (JSON or YAML format)
+    -c, --config FILE       Configuration file (YAML format, default: $DEFAULT_CONFIG_DIR/$DEFAULT_CONFIG_FILE)
     -d, --daemon            Run in daemon mode (continuous sync)
     -i, --interval SECONDS  Sync interval for daemon mode (default: 300)
     -r, --repo PATH         Add repository to sync (can be used multiple times)
@@ -1112,47 +1121,23 @@ ${BOLD}EFFICIENT CHANGE DETECTION:${NC}
     • Perfect for high-frequency monitoring (every 30s)
 
 ${BOLD}EXAMPLES:${NC}
-    # Sync with validation
-    $0 --config repos.json
+    # Sync with config file
+    $0 --config /etc/git-auto-sync/config.yaml
 
     # DNS zone sync with validation
     $0 -r /etc/bind/zones --validator /usr/local/bin/validate-dns.sh
 
     # Daemon mode with automatic retry
-    $0 --daemon --config repos.yaml --interval 300
+    $0 --daemon --config /etc/git-auto-sync/config.yaml --interval 300
 
     # High-frequency monitoring (checks every 30s, full sync only on changes)
-    $0 --daemon --config repos.yaml
+    $0 --daemon
 
-    # Remote execution with validation (JSON or YAML)
+    # Remote execution
     curl -fsSL https://example.com/git-auto-sync.sh | bash -s -- --config /tmp/config.yaml
 
-${BOLD}CONFIG FILE FORMAT (JSON):${NC}
-    {
-      "validation": {
-        "enabled": true,
-        "max_retries": 3,
-        "rollback_on_failure": true
-      },
-      "quick_check": {
-        "enabled": true,
-        "interval": 30
-      },
-      "repositories": [
-        {
-          "name": "dns-zones",
-          "path": "/etc/bind/zones",
-          "branch": "main",
-          "remote": "origin",
-          "mode": "safe",
-          "use_lfs": false,
-          "validator": "/usr/local/bin/validate-dns.sh",
-          "post_hook": "/usr/local/bin/reload-bind.sh"
-        }
-      ]
-    }
-
-${BOLD}CONFIG FILE FORMAT (YAML):${NC}
+${BOLD}CONFIGURATION FILE (YAML):${NC}
+    # /etc/git-auto-sync/config.yaml or ~/.config/git-auto-sync/config.yaml
     validation:
       enabled: true
       max_retries: 3
