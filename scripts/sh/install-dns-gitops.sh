@@ -128,11 +128,17 @@ error() {
 clone_or_update_repo() {
     if [[ ! -d "$REPO_DIR/.git" ]]; then
         log "Cloning repository..."
-        git clone --depth 1 --branch "$REPO_BRANCH" "$REPO_URL" "$REPO_DIR"
+        GIT_TERMINAL_PROMPT=0 git clone --depth 1 --branch "$REPO_BRANCH" "$REPO_URL" "$REPO_DIR" 2>&1 || {
+            error "Failed to clone repository"
+            return 1
+        }
     else
         log "Updating repository..."
         cd "$REPO_DIR"
-        git fetch origin "$REPO_BRANCH"
+        GIT_TERMINAL_PROMPT=0 git fetch origin "$REPO_BRANCH" 2>&1 || {
+            error "Failed to fetch updates"
+            return 1
+        }
         git reset --hard "origin/$REPO_BRANCH"
     fi
 }
