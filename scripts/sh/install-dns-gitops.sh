@@ -332,12 +332,18 @@ SYNCSCRIPT
 install_python_deps() {
     log_info "Installing Python dependencies..."
     
-    if command -v pip3 &> /dev/null; then
-        pip3 install tomli tomli-w
-    elif command -v apt-get &> /dev/null; then
-        apt-get install -y python3-tomli python3-tomli-w
+    if command -v apt-get &> /dev/null; then
+        apt-get install -y python3-tomli python3-tomli-w 2>/dev/null || log_warn "Could not install via apt, trying pip..."
+    fi
+    
+    if ! python3 -c "import tomli, tomli_w" 2>/dev/null; then
+        if command -v pip3 &> /dev/null; then
+            pip3 install --break-system-packages tomli tomli-w 2>/dev/null || log_warn "Could not install Python TOML libraries via pip"
+        else
+            log_warn "Could not install Python TOML libraries. Please install tomli and tomli-w manually."
+        fi
     else
-        log_warn "Could not install Python TOML libraries. Please install tomli and tomli-w manually."
+        log_info "Python TOML libraries already installed"
     fi
 }
 
