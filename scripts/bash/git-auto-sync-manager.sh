@@ -235,7 +235,12 @@ install_dependencies() {
     if ! check_git_installed; then
         log_error "Git is not installed!"
         if [[ "$OS" == "linux" ]]; then
-            log_info "Install with: sudo apt install git  # or: sudo yum install git"
+            if [[ "$INSTALL_MODE" == "system" ]]; then
+                log_info "Install with: sudo apt install git  # or: sudo yum install git"
+            else
+                log_info "Install with: apt install git  # or: yum install git"
+                log_info "Or download from: https://git-scm.com/downloads"
+            fi
         else
             log_info "Install with: brew install git"
         fi
@@ -247,14 +252,25 @@ install_dependencies() {
     if ! check_jq_installed; then
         log_warn "jq is not installed (required for JSON config files)"
         if prompt_yes_no "Install jq now?" "y"; then
-            if [[ "$OS" == "linux" ]]; then
-                if command -v apt-get >/dev/null 2>&1; then
-                    sudo apt-get install -y jq
-                elif command -v yum >/dev/null 2>&1; then
-                    sudo yum install -y jq
+            if [[ "$INSTALL_MODE" == "system" ]]; then
+                # System mode - use sudo
+                if [[ "$OS" == "linux" ]]; then
+                    if command -v apt-get >/dev/null 2>&1; then
+                        sudo apt-get install -y jq
+                    elif command -v yum >/dev/null 2>&1; then
+                        sudo yum install -y jq
+                    fi
+                else
+                    brew install jq
                 fi
             else
-                brew install jq
+                # User mode - suggest manual installation
+                log_warn "Package installation requires root access"
+                if [[ "$OS" == "linux" ]]; then
+                    log_info "Please install manually: sudo apt install jq  # or: sudo yum install jq"
+                else
+                    log_info "Install with: brew install jq"
+                fi
             fi
         fi
     else
@@ -264,16 +280,27 @@ install_dependencies() {
     if ! check_git_lfs_installed; then
         log_warn "Git LFS is not installed (optional, for large files)"
         if prompt_yes_no "Install Git LFS?" "n"; then
-            if [[ "$OS" == "linux" ]]; then
-                if command -v apt-get >/dev/null 2>&1; then
-                    sudo apt-get install -y git-lfs
-                elif command -v yum >/dev/null 2>&1; then
-                    sudo yum install -y git-lfs
+            if [[ "$INSTALL_MODE" == "system" ]]; then
+                # System mode - use sudo
+                if [[ "$OS" == "linux" ]]; then
+                    if command -v apt-get >/dev/null 2>&1; then
+                        sudo apt-get install -y git-lfs
+                    elif command -v yum >/dev/null 2>&1; then
+                        sudo yum install -y git-lfs
+                    fi
+                else
+                    brew install git-lfs
                 fi
+                git lfs install
             else
-                brew install git-lfs
+                # User mode - suggest manual installation
+                log_warn "Package installation requires root access"
+                if [[ "$OS" == "linux" ]]; then
+                    log_info "Please install manually: sudo apt install git-lfs  # or: sudo yum install git-lfs"
+                else
+                    log_info "Install with: brew install git-lfs"
+                fi
             fi
-            git lfs install
         fi
     else
         log_ok "Git LFS is installed"
@@ -347,10 +374,17 @@ create_configuration() {
     
     # Create config directory
     if [[ ! -d "$CONFIG_DIR" ]]; then
-        if check_root || [[ "$OS" == "macos" ]]; then
-            mkdir -p "$CONFIG_DIR"
+        if [[ "$INSTALL_MODE" == "user" ]]; then
+            mkdir -p "$CONFIG_DIR" || {
+                log_error "Cannot create config directory: $CONFIG_DIR"
+                return 1
+            }
         else
-            sudo mkdir -p "$CONFIG_DIR"
+            if check_root; then
+                mkdir -p "$CONFIG_DIR"
+            else
+                sudo mkdir -p "$CONFIG_DIR"
+            fi
         fi
         log_ok "Created configuration directory"
     fi
@@ -443,10 +477,16 @@ EOF
     done
     
     # Save configuration
-    if check_root || [[ "$OS" == "macos" ]]; then
+    if [[ "$INSTALL_MODE" == "user" ]]; then
+        # User mode - direct write
         echo "$repos" | jq '.' > "$config_file" 2>/dev/null || echo "$repos" > "$config_file"
     else
-        echo "$repos" | jq '.' | sudo tee "$config_file" > /dev/null 2>/dev/null || echo "$repos" | sudo tee "$config_file" > /dev/null
+        # System mode - may need sudo
+        if check_root; then
+            echo "$repos" | jq '.' > "$config_file" 2>/dev/null || echo "$repos" > "$config_file"
+        else
+            echo "$repos" | jq '.' | sudo tee "$config_file" > /dev/null 2>/dev/null || echo "$repos" | sudo tee "$config_file" > /dev/null
+        fi
     fi
     
     log_ok "Configuration saved: $config_file"
@@ -692,10 +732,17 @@ check_service_status() {
         if check_systemd_service; then
             log_ok "SystemD service is installed"
             echo ""
-            sudo systemctl status git-auto-sync.service --no-pager
-            echo ""
-            log_info "Recent logs:"
-            sudo journalctl -u git-auto-sync -n 20 --no-pager
+            if [[ "$INSTALL_MODE" == "system" ]]; then
+                sudo systemctl status git-auto-sync.service --no-pager
+                echo ""
+                log_info "Recent logs:"
+                sudo journalctl -u git-auto-sync -n 20 --no-pager
+            else
+                systemctl --user status git-auto-sync.service --no-pager
+                echo ""
+                log_info "Recent logs:"
+                journalctl --user -u git-auto-sync -n 20 --no-pager
+            fi
         else
             log_error "SystemD service is not installed"
         fi
@@ -706,7 +753,11 @@ check_service_status() {
             launchctl list | grep git-auto-sync || log_warn "Agent not running"
             echo ""
             log_info "Recent logs:"
-            tail -20 /tmp/git-auto-sync.log 2>/dev/null || log_warn "No logs found"
+            if [[ -f "$LOG_DIR/sync.log" ]]; then
+                tail -20 "$LOG_DIR/sync.log"
+            else
+                tail -20 /tmp/git-auto-sync.log 2>/dev/null || log_warn "No logs found"
+            fi
         else
             log_error "LaunchAgent is not installed"
         fi
@@ -732,10 +783,17 @@ uninstall_everything() {
     if [[ "$OS" == "linux" ]]; then
         if check_systemd_service; then
             log_info "Stopping SystemD service..."
-            sudo systemctl stop git-auto-sync.service 2>/dev/null || true
-            sudo systemctl disable git-auto-sync.service 2>/dev/null || true
-            sudo rm -f "$SYSTEMD_DIR/git-auto-sync.service"
-            sudo systemctl daemon-reload
+            if [[ "$INSTALL_MODE" == "system" ]]; then
+                sudo systemctl stop git-auto-sync.service 2>/dev/null || true
+                sudo systemctl disable git-auto-sync.service 2>/dev/null || true
+                sudo rm -f "$SYSTEMD_DIR/git-auto-sync.service"
+                sudo systemctl daemon-reload
+            else
+                systemctl --user stop git-auto-sync.service 2>/dev/null || true
+                systemctl --user disable git-auto-sync.service 2>/dev/null || true
+                rm -f "$SYSTEMD_DIR/git-auto-sync.service"
+                systemctl --user daemon-reload
+            fi
         fi
     else
         if check_launchd_service; then
@@ -748,10 +806,17 @@ uninstall_everything() {
     # Remove script
     if check_script_installed; then
         log_info "Removing script..."
-        if check_root; then
-            rm -f "$INSTALL_DIR/git-auto-sync.sh"
+        if [[ "$INSTALL_MODE" == "system" ]]; then
+            if check_root; then
+                rm -f "$INSTALL_DIR/git-auto-sync.sh"
+            else
+                sudo rm -f "$INSTALL_DIR/git-auto-sync.sh"
+            fi
         else
-            sudo rm -f "$INSTALL_DIR/git-auto-sync.sh"
+            # User mode - no sudo
+            rm -f "$INSTALL_DIR/git-auto-sync.sh" 2>/dev/null || {
+                log_warn "Cannot remove $INSTALL_DIR/git-auto-sync.sh (permission denied)"
+            }
         fi
     fi
     
@@ -759,10 +824,17 @@ uninstall_everything() {
     if [[ -d "$CONFIG_DIR" ]]; then
         if prompt_yes_no "Remove configuration directory?" "n"; then
             log_info "Removing configuration..."
-            if check_root || [[ "$OS" == "macos" ]]; then
-                rm -rf "$CONFIG_DIR"
+            if [[ "$INSTALL_MODE" == "system" ]]; then
+                if check_root; then
+                    rm -rf "$CONFIG_DIR"
+                else
+                    sudo rm -rf "$CONFIG_DIR"
+                fi
             else
-                sudo rm -rf "$CONFIG_DIR"
+                # User mode - no sudo
+                rm -rf "$CONFIG_DIR" 2>/dev/null || {
+                    log_warn "Cannot remove $CONFIG_DIR (permission denied)"
+                }
             fi
         fi
     fi
