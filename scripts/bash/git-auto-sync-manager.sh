@@ -24,19 +24,49 @@ fi
 # =============================================================================
 
 GIT_SYNC_SCRIPT="${SCRIPT_DIR}/git-auto-sync.sh"
-INSTALL_DIR="/usr/local/bin"
-CONFIG_DIR_LINUX="/etc/git-auto-sync"
-CONFIG_DIR_MACOS="$HOME/.config/git-auto-sync"
-SYSTEMD_DIR="/etc/systemd/system"
-LAUNCHD_DIR="$HOME/Library/LaunchAgents"
 
 # Detect OS
 if [[ "$(uname)" == "Darwin" ]]; then
     OS="macos"
-    CONFIG_DIR="$CONFIG_DIR_MACOS"
 else
     OS="linux"
-    CONFIG_DIR="$CONFIG_DIR_LINUX"
+fi
+
+# Detect install mode (system vs user)
+if [[ $EUID -eq 0 ]] || [[ "${GIT_SYNC_SYSTEM_INSTALL:-}" == "true" ]]; then
+    # System-wide installation
+    INSTALL_MODE="system"
+    INSTALL_DIR="/usr/local/bin"
+    if [[ "$OS" == "macos" ]]; then
+        CONFIG_DIR="/etc/git-auto-sync"
+        SYSTEMD_DIR=""
+        LAUNCHD_DIR="/Library/LaunchDaemons"
+    else
+        CONFIG_DIR="/etc/git-auto-sync"
+        SYSTEMD_DIR="/etc/systemd/system"
+        LAUNCHD_DIR=""
+    fi
+else
+    # User-level installation
+    INSTALL_MODE="user"
+    INSTALL_DIR="$HOME/.local/bin"
+    CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/git-auto-sync"
+    if [[ "$OS" == "macos" ]]; then
+        LAUNCHD_DIR="$HOME/Library/LaunchAgents"
+        SYSTEMD_DIR=""
+    else
+        SYSTEMD_DIR="$HOME/.config/systemd/user"
+        LAUNCHD_DIR=""
+    fi
+fi
+
+# Ensure directories exist
+mkdir -p "$INSTALL_DIR" "$CONFIG_DIR" 2>/dev/null || true
+if [[ -n "$SYSTEMD_DIR" ]]; then
+    mkdir -p "$SYSTEMD_DIR" 2>/dev/null || true
+fi
+if [[ -n "$LAUNCHD_DIR" ]]; then
+    mkdir -p "$LAUNCHD_DIR" 2>/dev/null || true
 fi
 
 # =============================================================================
@@ -255,6 +285,9 @@ install_dependencies() {
 install_script() {
     print_header "Installing Git Auto-Sync Script"
     
+    log_info "Install mode: $INSTALL_MODE"
+    log_info "Target directory: $INSTALL_DIR"
+    
     if [[ ! -f "$GIT_SYNC_SCRIPT" ]]; then
         log_error "Script not found: $GIT_SYNC_SCRIPT"
         log_info "Downloading from remote repository..."
@@ -269,14 +302,36 @@ install_script() {
         fi
     fi
     
+    # Ensure install directory exists and is in PATH
+    if [[ ! -d "$INSTALL_DIR" ]]; then
+        mkdir -p "$INSTALL_DIR" 2>/dev/null || {
+            log_error "Cannot create $INSTALL_DIR"
+            return 1
+        }
+    fi
+    
     log_info "Installing to $INSTALL_DIR/git-auto-sync.sh"
     
-    if check_root; then
+    # Copy script based on install mode
+    if [[ "$INSTALL_MODE" == "system" ]]; then
+        if check_root; then
+            cp "$GIT_SYNC_SCRIPT" "$INSTALL_DIR/git-auto-sync.sh"
+            chmod +x "$INSTALL_DIR/git-auto-sync.sh"
+        else
+            sudo cp "$GIT_SYNC_SCRIPT" "$INSTALL_DIR/git-auto-sync.sh"
+            sudo chmod +x "$INSTALL_DIR/git-auto-sync.sh"
+        fi
+    else
+        # User installation - no sudo needed
         cp "$GIT_SYNC_SCRIPT" "$INSTALL_DIR/git-auto-sync.sh"
         chmod +x "$INSTALL_DIR/git-auto-sync.sh"
-    else
-        sudo cp "$GIT_SYNC_SCRIPT" "$INSTALL_DIR/git-auto-sync.sh"
-        sudo chmod +x "$INSTALL_DIR/git-auto-sync.sh"
+        
+        # Check if install dir is in PATH
+        if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
+            log_warn "$INSTALL_DIR is not in your PATH"
+            log_info "Add to your shell profile (~/.bashrc or ~/.zshrc):"
+            echo "  export PATH=\"$INSTALL_DIR:\$PATH\""
+        fi
     fi
     
     log_ok "Script installed successfully"
@@ -412,6 +467,12 @@ setup_systemd_service() {
         return 1
     fi
     
+    if [[ -z "$SYSTEMD_DIR" ]]; then
+        log_error "SystemD directory not configured"
+        prompt_continue
+        return 1
+    fi
+    
     local service_file="$SYSTEMD_DIR/git-auto-sync.service"
     local config_file="$CONFIG_DIR/repos.json"
     
@@ -454,20 +515,31 @@ SyslogIdentifier=git-auto-sync
 [Install]
 WantedBy=multi-user.target"
     
-    echo "$service_content" | sudo tee "$service_file" > /dev/null
+    # Write service file based on mode
+    if [[ "$INSTALL_MODE" == "system" ]]; then
+        echo "$service_content" | sudo tee "$service_file" > /dev/null
+    else
+        echo "$service_content" > "$service_file"
+    fi
     
     log_ok "Service file created: $service_file"
     
     if prompt_yes_no "Enable and start service now?" "y"; then
-        sudo systemctl daemon-reload
-        sudo systemctl enable git-auto-sync.service
-        sudo systemctl start git-auto-sync.service
+        if [[ "$INSTALL_MODE" == "system" ]]; then
+            sudo systemctl daemon-reload
+            sudo systemctl enable git-auto-sync.service
+            sudo systemctl start git-auto-sync.service
+            log_info "Check status with: sudo systemctl status git-auto-sync"
+            log_info "View logs with: sudo journalctl -u git-auto-sync -f"
+        else
+            systemctl --user daemon-reload
+            systemctl --user enable git-auto-sync.service
+            systemctl --user start git-auto-sync.service
+            log_info "Check status with: systemctl --user status git-auto-sync"
+            log_info "View logs with: journalctl --user -u git-auto-sync -f"
+        fi
         
         log_ok "Service enabled and started"
-        
-        echo ""
-        log_info "Check status with: sudo systemctl status git-auto-sync"
-        log_info "View logs with: sudo journalctl -u git-auto-sync -f"
     fi
     
     prompt_continue
@@ -710,7 +782,9 @@ show_main_menu() {
         
         # System status
         log_info "System Information:"
+        printf "  ${DIM}Mode:${NC} %s\n" "$INSTALL_MODE"
         printf "  ${DIM}OS:${NC} %s\n" "$OS"
+        printf "  ${DIM}Install Dir:${NC} %s\n" "$INSTALL_DIR"
         printf "  ${DIM}Config Dir:${NC} %s\n" "$CONFIG_DIR"
         echo ""
         

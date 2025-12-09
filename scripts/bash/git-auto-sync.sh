@@ -20,9 +20,29 @@ DEFAULT_LOG_LEVEL="INFO"
 
 # Daemon control
 DAEMON_MODE=false
-LOCK_FILE="/tmp/git-auto-sync.lock"
-PID_FILE="/tmp/git-auto-sync.pid"
-METRICS_FILE="/tmp/git-auto-sync-metrics.json"
+
+# Runtime directories (auto-detect user vs system level)
+if [[ $EUID -eq 0 ]]; then
+    # Running as root - system level
+    RUNTIME_DIR="/var/run/git-auto-sync"
+    STATE_DIR="/var/lib/git-auto-sync"
+    LOG_DIR="/var/log/git-auto-sync"
+    DEFAULT_CONFIG_DIR="/etc/git-auto-sync"
+else
+    # Running as user - user level
+    RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.cache}/git-auto-sync"
+    STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/git-auto-sync"
+    LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/git-auto-sync/logs"
+    DEFAULT_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/git-auto-sync"
+fi
+
+# Create directories if they don't exist
+mkdir -p "$RUNTIME_DIR" "$STATE_DIR" "$LOG_DIR" 2>/dev/null || true
+
+LOCK_FILE="$RUNTIME_DIR/git-auto-sync.lock"
+PID_FILE="$RUNTIME_DIR/git-auto-sync.pid"
+METRICS_FILE="$STATE_DIR/metrics.json"
+LOG_FILE="$LOG_DIR/sync.log"
 
 # Repository tracking
 declare -a REPOS=()
@@ -90,7 +110,15 @@ log_with_timestamp() {
     shift
     local timestamp
     timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    printf "[%s] [%s] %s\n" "$timestamp" "$level" "$*"
+    local message="[%s] [%s] %s\n"
+    
+    # Log to stdout
+    printf "$message" "$timestamp" "$level" "$*"
+    
+    # Also log to file if LOG_FILE is set
+    if [[ -n "${LOG_FILE:-}" ]] && [[ -w "$(dirname "$LOG_FILE")" ]]; then
+        printf "$message" "$timestamp" "$level" "$*" >> "$LOG_FILE" 2>/dev/null || true
+    fi
 }
 
 log_info() {
@@ -407,7 +435,15 @@ create_backup() {
     local timestamp
     timestamp=$(date '+%Y%m%d-%H%M%S')
     
-    mkdir -p "$backup_dir"
+    # Create backup dir if we have permissions
+    if ! mkdir -p "$backup_dir" 2>/dev/null; then
+        log_warn "Cannot create backup directory (permission denied), using alternate location"
+        backup_dir="$STATE_DIR/backups/$(basename "$repo_path")"
+        mkdir -p "$backup_dir" 2>/dev/null || {
+            log_error "Cannot create backup directory anywhere"
+            return 1
+        }
+    fi
     
     cd "$repo_path"
     local current_commit
