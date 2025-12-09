@@ -13,9 +13,9 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
-REPO_URL="${DNS_REPO_URL:-https://github.com/codefuturist/dns-zones.git}"
-REPO_BRANCH="${DNS_REPO_BRANCH:-main}"
-ZONE_PATH="${DNS_ZONE_PATH:-zones}"
+REPO_URL="${DNS_REPO_URL:-https://github.com/codefuturist/iac-catalog.git}"
+REPO_BRANCH="${DNS_REPO_BRANCH:-develop}"
+ZONE_PATH="${DNS_ZONE_PATH:-environments/global/configurations/dns-zones}"
 CACHE_DIR="${DNS_CACHE_DIR:-/var/cache/dns-gitops}"
 SCRIPT_INSTALL_PATH="/usr/local/bin/dns-gitops-sync.sh"
 SERVICE_NAME="dns-gitops-sync"
