@@ -9,7 +9,16 @@
 # 3. Script files have required metadata headers
 # 4. Shell variants are consistent
 #
-# Usage: ./tools/validate.sh [--strict]
+# With --write flag, it can auto-update:
+# - rsr CLI script mappings (get_script_path function)
+# - rsr CLI command routing (main function case statement)
+#
+# Usage: ./tools/validate.sh [--strict] [--write] [--dry-run]
+#
+# Options:
+#   --strict    Exit with error on warnings
+#   --write     Auto-update rsr with script mappings from registry
+#   --dry-run   Show what --write would change (implies --write)
 #
 # Exit codes:
 #   0 - All validations passed
@@ -21,18 +30,22 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 REGISTRY_FILE="$ROOT_DIR/scripts/registry.json"
+RSR_FILE="$ROOT_DIR/rsr"
 
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 DIM='\033[2m'
 NC='\033[0m'
 
 ERRORS=0
 WARNINGS=0
 STRICT=false
+WRITE_MODE=false
+DRY_RUN=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -40,6 +53,24 @@ while [[ $# -gt 0 ]]; do
         --strict)
             STRICT=true
             shift
+            ;;
+        --write)
+            WRITE_MODE=true
+            shift
+            ;;
+        --dry-run)
+            WRITE_MODE=true
+            DRY_RUN=true
+            shift
+            ;;
+        -h | --help)
+            echo "Usage: $0 [--strict] [--write] [--dry-run]"
+            echo ""
+            echo "Options:"
+            echo "  --strict    Exit with error on warnings"
+            echo "  --write     Auto-update rsr with script mappings from registry"
+            echo "  --dry-run   Show what --write would change without modifying files"
+            exit 0
             ;;
         *) shift ;;
     esac
@@ -55,6 +86,7 @@ log_error() {
     printf "${RED}✗${NC} %s\n" "$1" >&2
     ERRORS=$((ERRORS + 1))
 }
+log_diff() { printf "${CYAN}  %s${NC}\n" "$1"; }
 
 # Check dependencies
 check_dependencies() {
@@ -218,6 +250,172 @@ check_orphan_scripts() {
     if [ "$orphans" -eq 0 ]; then
         log_ok "No orphan scripts found"
     fi
+}
+
+# =============================================================================
+# Auto-Update Functions (--write mode)
+# =============================================================================
+
+# Generate the get_script_path() function content from registry
+generate_get_script_path() {
+    local script_count
+    script_count=$(jq '.scripts | length' "$REGISTRY_FILE")
+    
+    cat << 'EOF'
+get_script_path() {
+    script_name="$1"
+    shell_type="$2"
+
+    case "$script_name" in
+EOF
+
+    for ((i = 0; i < script_count; i++)); do
+        local id name default_shell
+        id=$(jq -r ".scripts[$i].id" "$REGISTRY_FILE")
+        name=$(jq -r ".scripts[$i].name" "$REGISTRY_FILE")
+        default_shell=$(jq -r ".scripts[$i].defaultShell // \"bash\"" "$REGISTRY_FILE")
+        
+        # Get shell variants
+        local shells
+        shells=$(jq -r ".scripts[$i].shells | keys[]" "$REGISTRY_FILE" 2>/dev/null || echo "bash")
+        
+        echo "        $id)"
+        echo "            case \"\$shell_type\" in"
+        
+        for shell in $shells; do
+            local path
+            path=$(jq -r ".scripts[$i].shells.$shell" "$REGISTRY_FILE")
+            echo "                $shell) echo \"$path\" ;;"
+        done
+        
+        # Default fallback
+        local default_path
+        default_path=$(jq -r ".scripts[$i].shells.$default_shell // .scripts[$i].shells | to_entries[0].value" "$REGISTRY_FILE")
+        echo "                *) echo \"$default_path\" ;;"
+        echo "            esac"
+        echo "            ;;"
+    done
+
+    cat << 'EOF'
+        *)
+            echo ""
+            ;;
+    esac
+}
+EOF
+}
+
+# Generate the main() case routing from registry
+generate_main_routing() {
+    local script_count
+    script_count=$(jq '.scripts | length' "$REGISTRY_FILE")
+    
+    local routes=""
+    
+    for ((i = 0; i < script_count; i++)); do
+        local id name
+        id=$(jq -r ".scripts[$i].id" "$REGISTRY_FILE")
+        name=$(jq -r ".scripts[$i].name" "$REGISTRY_FILE")
+        
+        # Build case pattern with aliases
+        local pattern="$id"
+        [ "$id" != "$name" ] && pattern="$id | $name"
+        
+        routes+="        $pattern)\n"
+        routes+="            run_script \"$id\" \"\$@\"\n"
+        routes+="            ;;\n"
+    done
+    
+    echo -e "$routes"
+}
+
+# Update rsr file with generated content
+update_rsr_file() {
+    log_info "Updating rsr file..."
+    
+    if [ ! -f "$RSR_FILE" ]; then
+        log_error "rsr file not found: $RSR_FILE"
+        return 1
+    fi
+    
+    # Create backup
+    local backup_file="${RSR_FILE}.bak"
+    cp "$RSR_FILE" "$backup_file"
+    
+    local temp_file
+    temp_file=$(mktemp)
+    local in_get_script_path=false
+    local in_main_case=false
+    local brace_count=0
+    local skip_until_esac=false
+    local found_script_routing=false
+    
+    # Generate new content
+    local new_get_script_path
+    new_get_script_path=$(generate_get_script_path)
+    
+    # Read the file and replace get_script_path function
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        # Detect start of get_script_path function
+        if [[ "$line" =~ ^get_script_path\(\) ]]; then
+            in_get_script_path=true
+            brace_count=0
+            echo "$new_get_script_path" >> "$temp_file"
+            continue
+        fi
+        
+        # Track braces inside get_script_path
+        if $in_get_script_path; then
+            [[ "$line" == *"{"* ]] && brace_count=$((brace_count + 1))
+            [[ "$line" == *"}"* ]] && brace_count=$((brace_count - 1))
+            
+            # End of function
+            if [[ $brace_count -eq 0 && "$line" == "}" ]]; then
+                in_get_script_path=false
+            fi
+            continue
+        fi
+        
+        echo "$line" >> "$temp_file"
+    done < "$RSR_FILE"
+    
+    if $DRY_RUN; then
+        log_info "Dry run - showing diff:"
+        echo ""
+        if command -v diff &>/dev/null; then
+            diff --color=auto -u "$RSR_FILE" "$temp_file" || true
+        else
+            log_info "Install 'diff' to see changes"
+        fi
+        rm -f "$temp_file" "$backup_file"
+    else
+        mv "$temp_file" "$RSR_FILE"
+        chmod +x "$RSR_FILE"
+        rm -f "$backup_file"
+        log_ok "Updated rsr file"
+    fi
+}
+
+# Show summary of what would be updated
+show_update_preview() {
+    log_info "Preview of updates from registry.json:"
+    echo ""
+    
+    local script_count
+    script_count=$(jq '.scripts | length' "$REGISTRY_FILE")
+    
+    printf "  ${DIM}%-12s %-25s %s${NC}\n" "ID" "Name" "Shells"
+    printf "  ${DIM}%-12s %-25s %s${NC}\n" "---" "----" "------"
+    
+    for ((i = 0; i < script_count; i++)); do
+        local id name shells
+        id=$(jq -r ".scripts[$i].id" "$REGISTRY_FILE")
+        name=$(jq -r ".scripts[$i].name" "$REGISTRY_FILE")
+        shells=$(jq -r ".scripts[$i].shells | keys | join(\", \")" "$REGISTRY_FILE")
+        
+        printf "  %-12s %-25s %s\n" "$id" "$name" "$shells"
+    done
+    echo ""
 }
 
 # Check shell variant coverage

@@ -13,6 +13,10 @@
 
 set -euo pipefail
 
+# Source interactive utilities if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ -f "$SCRIPT_DIR/../../lib/interactive.sh" ]] && source "$SCRIPT_DIR/../../lib/interactive.sh"
+
 # Script metadata
 SCRIPT_NAME="SSH Hardening"
 SCRIPT_VERSION="1.0.0"
@@ -20,6 +24,7 @@ SCRIPT_VERSION="1.0.0"
 # Default values
 VERBOSE=false
 DRY_RUN=false
+INTERACTIVE=auto
 APPLY_ALL=false
 SHOW_STATUS=false
 DISABLE_ROOT=false
@@ -76,6 +81,9 @@ ${BOLD}Options:${NC}
     -v, --verbose           Enable verbose output
     -a, --all               Apply all hardening measures
     -d, --dry-run           Show changes without applying
+    -i, --interactive       Run in interactive mode (default when no args)
+    --no-interactive        Disable interactive mode
+    -y, --yes               Auto-confirm all prompts
     --status                Show current SSH configuration status
     --no-root               Disable root login
     --key-only              Disable password authentication
@@ -154,6 +162,19 @@ parse_args() {
                 ;;
             -d | --dry-run)
                 DRY_RUN=true
+                shift
+                ;;
+            -i | --interactive)
+                INTERACTIVE=true
+                shift
+                ;;
+            --no-interactive)
+                INTERACTIVE=false
+                shift
+                ;;
+            -y | --yes)
+                RSR_YES=1
+                INTERACTIVE=false
                 shift
                 ;;
             --status)
@@ -677,6 +698,260 @@ EOF
     fail2ban-client status sshd 2> /dev/null || true
 }
 
+# =============================================================================
+# Interactive Mode
+# =============================================================================
+
+run_interactive() {
+    print_interactive_header "$SCRIPT_NAME" "$SCRIPT_VERSION"
+    
+    # Show current status first
+    show_status
+    
+    echo ""
+    
+    # Main action selection
+    local action
+    action=$(prompt_select "What would you like to do?" \
+        "Apply recommended hardening" \
+        "Configure specific settings" \
+        "Install/configure fail2ban" \
+        "Generate SSH key for user" \
+        "Change SSH port" \
+        "Rollback to previous config" \
+        "View status only")
+    
+    case "$action" in
+        "Apply recommended hardening")
+            interactive_apply_all
+            ;;
+        "Configure specific settings")
+            interactive_specific_settings
+            ;;
+        "Install/configure fail2ban")
+            interactive_fail2ban
+            ;;
+        "Generate SSH key for user")
+            interactive_generate_key
+            ;;
+        "Change SSH port")
+            interactive_change_port
+            ;;
+        "Rollback to previous config")
+            interactive_rollback
+            ;;
+        "View status only")
+            return 0
+            ;;
+    esac
+}
+
+interactive_apply_all() {
+    echo ""
+    log_info "Recommended hardening measures:"
+    echo ""
+    echo -e "  ${CYAN}•${NC} Disable root login"
+    echo -e "  ${CYAN}•${NC} Disable password authentication (key-only)"
+    echo -e "  ${CYAN}•${NC} Set idle timeout to 300 seconds"
+    echo -e "  ${CYAN}•${NC} Limit authentication attempts to 3"
+    echo -e "  ${CYAN}•${NC} Apply strong cryptographic settings"
+    echo ""
+    
+    if prompt_yes_no "Also install and configure fail2ban?" "y"; then
+        INSTALL_FAIL2BAN=true
+    fi
+    
+    echo ""
+    
+    # Critical warning
+    echo -e "${RED}${BOLD}⚠ IMPORTANT WARNING${NC}"
+    echo ""
+    echo -e "Before disabling password authentication, ensure you have:"
+    echo -e "  ${YELLOW}1.${NC} SSH key access configured and tested"
+    echo -e "  ${YELLOW}2.${NC} Console/physical access in case of lockout"
+    echo -e "  ${YELLOW}3.${NC} Backup of your SSH configuration"
+    echo ""
+    
+    if ! confirm_destructive "These changes may lock you out if SSH keys are not properly configured"; then
+        log_info "Operation cancelled"
+        return 0
+    fi
+    
+    check_root
+    
+    APPLY_ALL=true
+    DISABLE_ROOT=true
+    KEY_ONLY=true
+    STRONG_CRYPTO=true
+    
+    backup_config
+    apply_hardening
+    
+    if [[ "$INSTALL_FAIL2BAN" == "true" ]]; then
+        setup_fail2ban
+    fi
+    
+    echo ""
+    log_ok "SSH hardening applied successfully!"
+    echo ""
+    show_status
+}
+
+interactive_specific_settings() {
+    echo ""
+    
+    # Multi-select for settings
+    local settings_options=(\
+        "Disable root login" \
+        "Disable password authentication (key-only)" \
+        "Apply strong cipher settings" \
+        "Set idle timeout" \
+        "Restrict to specific users" \
+        "Restrict to specific groups")
+    
+    readarray -t selected_settings < <(prompt_multiselect "Select settings to configure:" "${settings_options[@]}")
+    
+    if [[ ${#selected_settings[@]} -eq 0 ]]; then
+        log_warn "No settings selected"
+        return 0
+    fi
+    
+    # Process selections
+    for setting in "${selected_settings[@]}"; do
+        case "$setting" in
+            "Disable root login")
+                DISABLE_ROOT=true
+                ;;
+            "Disable password authentication (key-only)")
+                KEY_ONLY=true
+                ;;
+            "Apply strong cipher settings")
+                STRONG_CRYPTO=true
+                ;;
+            "Set idle timeout")
+                local timeout
+                timeout=$(prompt_input "Idle timeout in seconds" "300")
+                IDLE_TIMEOUT="$timeout"
+                ;;
+            "Restrict to specific users")
+                local users
+                users=$(prompt_input "Allowed users (comma-separated)" "")
+                [[ -n "$users" ]] && ALLOW_USERS="$users"
+                ;;
+            "Restrict to specific groups")
+                local groups
+                groups=$(prompt_input "Allowed groups (comma-separated)" "")
+                [[ -n "$groups" ]] && ALLOW_GROUPS="$groups"
+                ;;
+        esac
+    done
+    
+    echo ""
+    log_info "Selected changes:"
+    [[ "$DISABLE_ROOT" == "true" ]] && echo -e "  ${CYAN}•${NC} Disable root login"
+    [[ "$KEY_ONLY" == "true" ]] && echo -e "  ${CYAN}•${NC} Disable password authentication"
+    [[ "$STRONG_CRYPTO" == "true" ]] && echo -e "  ${CYAN}•${NC} Strong cipher settings"
+    [[ -n "${ALLOW_USERS:-}" ]] && echo -e "  ${CYAN}•${NC} Allow users: $ALLOW_USERS"
+    [[ -n "${ALLOW_GROUPS:-}" ]] && echo -e "  ${CYAN}•${NC} Allow groups: $ALLOW_GROUPS"
+    echo ""
+    
+    if confirm_destructive "Apply these SSH configuration changes?"; then
+        check_root
+        backup_config
+        apply_hardening
+        
+        echo ""
+        log_ok "Settings applied successfully!"
+    fi
+}
+
+interactive_fail2ban() {
+    echo ""
+    
+    if systemctl is-active fail2ban &> /dev/null; then
+        log_ok "fail2ban is already running"
+        if prompt_yes_no "Reconfigure fail2ban?" "n"; then
+            check_root
+            setup_fail2ban
+        fi
+    else
+        if prompt_yes_no "Install and configure fail2ban?" "y"; then
+            check_root
+            setup_fail2ban
+            log_ok "fail2ban installed and configured"
+        fi
+    fi
+}
+
+interactive_generate_key() {
+    echo ""
+    local username
+    username=$(prompt_input "Enter username to generate SSH key for" "$USER")
+    
+    if [[ -n "$username" ]]; then
+        check_root
+        generate_ssh_key "$username"
+    fi
+}
+
+interactive_change_port() {
+    echo ""
+    local current_port
+    current_port=$(get_setting "Port" "22")
+    
+    log_info "Current SSH port: $current_port"
+    echo ""
+    
+    local new_port
+    new_port=$(prompt_input "Enter new SSH port" "2222")
+    
+    if [[ "$new_port" == "$current_port" ]]; then
+        log_info "Port unchanged"
+        return 0
+    fi
+    
+    echo ""
+    echo -e "${YELLOW}⚠ Remember to:${NC}"
+    echo -e "  ${CYAN}•${NC} Update firewall rules for port $new_port"
+    echo -e "  ${CYAN}•${NC} Update any SSH clients/scripts"
+    echo -e "  ${CYAN}•${NC} Test connection on new port before disconnecting"
+    echo ""
+    
+    if confirm_destructive "Change SSH port from $current_port to $new_port?"; then
+        check_root
+        NEW_PORT="$new_port"
+        backup_config
+        apply_hardening
+        
+        echo ""
+        log_ok "SSH port changed to $new_port"
+        log_warn "Remember to update your firewall rules!"
+    fi
+}
+
+interactive_rollback() {
+    echo ""
+    
+    local backups
+    backups=$(ls -t "$BACKUP_DIR"/sshd_config.* 2> /dev/null | head -5 || true)
+    
+    if [[ -z "$backups" ]]; then
+        log_error "No backups found in $BACKUP_DIR"
+        return 1
+    fi
+    
+    log_info "Available backups:"
+    echo "$backups" | while read -r backup; do
+        echo -e "  ${CYAN}•${NC} $(basename "$backup")"
+    done
+    echo ""
+    
+    if confirm_destructive "Restore the most recent backup?"; then
+        check_root
+        rollback_config
+    fi
+}
+
 # Generate SSH key for user
 generate_ssh_key() {
     local user="$1"
@@ -725,7 +1000,23 @@ generate_ssh_key() {
 
 # Main function
 main() {
+    local original_args=("$@")
     parse_args "$@"
+
+    # Determine if interactive mode should be enabled
+    if [[ "$INTERACTIVE" == "auto" ]]; then
+        if [[ ${#original_args[@]} -eq 0 ]] && [[ -t 0 ]] && [[ -t 1 ]]; then
+            INTERACTIVE=true
+        else
+            INTERACTIVE=false
+        fi
+    fi
+
+    # Run interactive mode if enabled
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+        run_interactive
+        exit $EXIT_OK
+    fi
 
     echo -e "${BOLD}$SCRIPT_NAME v$SCRIPT_VERSION${NC}"
     echo ""

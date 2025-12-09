@@ -13,12 +13,18 @@
 
 set -euo pipefail
 
+# Source interactive utilities if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ -f "$SCRIPT_DIR/../../lib/interactive.sh" ]] && source "$SCRIPT_DIR/../../lib/interactive.sh"
+
 # Script metadata
 SCRIPT_NAME="SSL Certificate Checker"
 SCRIPT_VERSION="1.0.0"
 
 # Default values
 DOMAINS=()
+INTERACTIVE=auto
+RSR_YES=0
 WARN_DAYS=30
 CRITICAL_DAYS=7
 CHECK_CHAIN=false
@@ -60,6 +66,8 @@ ${YELLOW}Usage:${NC}
 
 ${BOLD}Options:${NC}
     -d, --domain DOMAIN    Check specific domain (can repeat)
+    -i, --interactive       Run in interactive mode (default when no args)
+    --no-interactive        Disable interactive mode
     -f, --file FILE        Read domains from file (one per line)
     -l, --local FILE       Check local certificate file
     -p, --port PORT        Port to connect to (default: 443)
@@ -119,6 +127,19 @@ parse_args() {
             -h | --help) usage ;;
             -v | --verbose)
                 VERBOSE=true
+                shift
+                ;;
+            -i | --interactive)
+                INTERACTIVE=true
+                shift
+                ;;
+            --no-interactive)
+                INTERACTIVE=false
+                shift
+                ;;
+            -y | --yes)
+                RSR_YES=1
+                INTERACTIVE=false
                 shift
                 ;;
             -d | --domain)
@@ -475,10 +496,162 @@ output_json() {
     echo "}"
 }
 
+# =============================================================================
+# Interactive Mode
+# =============================================================================
+
+run_interactive() {
+    print_interactive_header "$SCRIPT_NAME" "$SCRIPT_VERSION"
+    
+    echo ""
+    log_info "SSL Certificate Checker - Interactive Mode"
+    echo ""
+    
+    # Domain entry method
+    local entry_method
+    entry_method=$(prompt_select "How would you like to specify domains?" \
+        "Enter domains manually" \
+        "Load from file" \
+        "Check localhost certificate")
+    
+    case "$entry_method" in
+        "Enter domains manually")
+            echo ""
+            log_info "Enter domains to check (one per line, empty line to finish):"
+            while true; do
+                local domain
+                read -r -p "  Domain: " domain
+                [[ -z "$domain" ]] && break
+                DOMAINS+=("$domain")
+            done
+            ;;
+        "Load from file")
+            echo ""
+            local file
+            file=$(prompt_input "Enter path to domains file" "domains.txt")
+            if [[ -f "$file" ]]; then
+                while IFS= read -r line || [[ -n "$line" ]]; do
+                    [[ -n "$line" && ! "$line" =~ ^# ]] && DOMAINS+=("$line")
+                done < "$file"
+                log_ok "Loaded ${#DOMAINS[@]} domain(s) from $file"
+            else
+                log_error "File not found: $file"
+                return 1
+            fi
+            ;;
+        "Check localhost certificate")
+            DOMAINS+=("localhost")
+            ;;
+    esac
+    
+    if [[ ${#DOMAINS[@]} -eq 0 ]]; then
+        log_error "No domains specified"
+        return 1
+    fi
+    
+    echo ""
+    
+    # Port selection
+    local port_choice
+    port_choice=$(prompt_select "Which port to check?" \
+        "443 (HTTPS - default)" \
+        "8443 (Alt HTTPS)" \
+        "Custom port")
+    
+    case "$port_choice" in
+        "443 (HTTPS - default)") PORT=443 ;;
+        "8443 (Alt HTTPS)") PORT=8443 ;;
+        "Custom port")
+            echo ""
+            PORT=$(prompt_input "Enter port number" "443")
+            ;;
+    esac
+    
+    echo ""
+    
+    # Warning thresholds
+    local threshold_choice
+    threshold_choice=$(prompt_select "Certificate expiry warning thresholds:" \
+        "Default (30 days warn, 7 days critical)" \
+        "Strict (60 days warn, 14 days critical)" \
+        "Relaxed (14 days warn, 3 days critical)" \
+        "Custom thresholds")
+    
+    case "$threshold_choice" in
+        "Default (30 days warn, 7 days critical)")
+            WARN_DAYS=30
+            CRITICAL_DAYS=7
+            ;;
+        "Strict (60 days warn, 14 days critical)")
+            WARN_DAYS=60
+            CRITICAL_DAYS=14
+            ;;
+        "Relaxed (14 days warn, 3 days critical)")
+            WARN_DAYS=14
+            CRITICAL_DAYS=3
+            ;;
+        "Custom thresholds")
+            echo ""
+            WARN_DAYS=$(prompt_input "Warning threshold (days)" "30")
+            CRITICAL_DAYS=$(prompt_input "Critical threshold (days)" "7")
+            ;;
+    esac
+    
+    echo ""
+    
+    # Additional checks
+    local checks=()
+    checks=$(prompt_multiselect "Select additional checks:" \
+        "Validate certificate chain" \
+        "Check for weak ciphers" \
+        "Verbose output")
+    
+    for check in $checks; do
+        case "$check" in
+            "Validate certificate chain") CHECK_CHAIN=true ;;
+            "Check for weak ciphers") CHECK_CIPHERS=true ;;
+            "Verbose output") VERBOSE=true ;;
+        esac
+    done
+    
+    # Summary
+    echo ""
+    log_info "Configuration summary:"
+    echo -e "  ${CYAN}•${NC} Domains: ${DOMAINS[*]}"
+    echo -e "  ${CYAN}•${NC} Port: $PORT"
+    echo -e "  ${CYAN}•${NC} Warning: $WARN_DAYS days, Critical: $CRITICAL_DAYS days"
+    [[ "$CHECK_CHAIN" == "true" ]] && echo -e "  ${CYAN}•${NC} Chain validation: enabled"
+    [[ "$CHECK_CIPHERS" == "true" ]] && echo -e "  ${CYAN}•${NC} Cipher check: enabled"
+    echo ""
+    
+    if prompt_yes_no "Start certificate check?" "y"; then
+        # Continue to run the checks (fall through to main logic)
+        return 0
+    else
+        log_info "Check cancelled"
+        exit 0
+    fi
+}
+
 # Main function
 main() {
+    local original_args=("$@")
     parse_args "$@"
     check_dependencies
+
+    # Determine if interactive mode should be enabled
+    if [[ "$INTERACTIVE" == "auto" ]]; then
+        if [[ ${#original_args[@]} -eq 0 ]] && [[ -t 0 ]] && [[ -t 1 ]]; then
+            INTERACTIVE=true
+        else
+            INTERACTIVE=false
+        fi
+    fi
+
+    # Run interactive mode if enabled
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+        run_interactive
+    fi
 
     # Check if we have domains to check
     if [[ ${#DOMAINS[@]} -eq 0 && -z "${LOCAL_CERT:-}" ]]; then

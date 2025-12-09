@@ -4,18 +4,18 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'scripts/**'
-      - 'lib/**'
-      - 'rsr'
-      - 'test/**'
-      - '.github/workflows/test.yml'
+      - "scripts/**"
+      - "lib/**"
+      - "rsr"
+      - "test/**"
+      - ".github/workflows/test.yml"
   pull_request:
     branches: [main]
     paths:
-      - 'scripts/**'
-      - 'lib/**'
-      - 'rsr'
-      - 'test/**'
+      - "scripts/**"
+      - "lib/**"
+      - "rsr"
+      - "test/**"
 
 jobs:
   test:
@@ -57,11 +57,19 @@ jobs:
 
       - name: Run unit tests
         run: |
-          ./test/run_tests.sh --unit
+          ./test/run_tests.sh --unit --junit test-results/unit/report.xml
 
       - name: Run integration tests
         run: |
-          ./test/run_tests.sh --integration
+          ./test/run_tests.sh --integration --junit test-results/integration/report.xml
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: test-results
+          retention-days: 14
 
       - name: Run all tests with verbose output (on failure)
         if: failure()
@@ -100,4 +108,3 @@ jobs:
         run: |
           chmod +x tools/validate.sh
           ./tools/validate.sh
-

@@ -13,6 +13,10 @@
 
 set -euo pipefail
 
+# Source interactive utilities if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ -f "$SCRIPT_DIR/../../lib/interactive.sh" ]] && source "$SCRIPT_DIR/../../lib/interactive.sh"
+
 # Script metadata
 SCRIPT_NAME="Disk Cleanup"
 SCRIPT_VERSION="1.0.0"
@@ -20,6 +24,7 @@ SCRIPT_VERSION="1.0.0"
 # Default values
 DRY_RUN=true
 VERBOSE=false
+INTERACTIVE=auto
 SECTIONS=()
 KEEP_DAYS=7
 KEEP_KERNELS=2
@@ -52,6 +57,9 @@ ${BOLD}Options:${NC}
     -v, --verbose           Enable verbose output
     -d, --dry-run           Show what would be deleted (default)
     -x, --execute           Actually perform deletions
+    -i, --interactive       Run in interactive mode (default when no args)
+    --no-interactive        Disable interactive mode
+    -y, --yes               Auto-confirm all prompts
     -a, --all               Run all cleanup sections
     -s, --section SECTION   Run specific section (can repeat)
     --older-than DAYS       Only remove files older than N days (default: 7)
@@ -431,6 +439,125 @@ show_disk_usage() {
     df -h / 2> /dev/null | tail -1 | awk '{printf "  Root filesystem: %s used of %s (%s)\n", $3, $2, $5}'
 }
 
+# =============================================================================
+# Interactive Mode
+# =============================================================================
+
+run_interactive() {
+    print_interactive_header "$SCRIPT_NAME" "$SCRIPT_VERSION"
+    
+    show_disk_usage
+    echo ""
+    
+    # Section selection with multi-select
+    local all_sections=("tmp - Temporary files (/tmp, /var/tmp)" \
+        "logs - Old and rotated log files" \
+        "cache - Package manager cache" \
+        "kernels - Old kernel versions" \
+        "journal - Systemd journal logs" \
+        "thumbnails - Thumbnail caches" \
+        "crash - Core dumps and crash reports")
+    
+    # Pre-select common sections
+    PRESELECTED=(0 1 2 4)
+    
+    echo ""
+    readarray -t selected_sections < <(prompt_multiselect "Select cleanup sections:" "${all_sections[@]}")
+    
+    if [[ ${#selected_sections[@]} -eq 0 ]]; then
+        log_warn "No sections selected"
+        return 0
+    fi
+    
+    # Parse selected sections
+    SECTIONS=()
+    for section in "${selected_sections[@]}"; do
+        SECTIONS+=("$(echo "$section" | cut -d' ' -f1)")
+    done
+    
+    echo ""
+    
+    # Additional options
+    local days
+    days=$(prompt_input "Delete files older than how many days?" "7")
+    KEEP_DAYS="$days"
+    
+    if [[ " ${SECTIONS[*]} " =~ " kernels " ]]; then
+        local kernels
+        kernels=$(prompt_input "Keep how many recent kernels?" "2")
+        KEEP_KERNELS="$kernels"
+    fi
+    
+    echo ""
+    if prompt_yes_no "Include aggressive cleanup (pip, npm, yarn caches)?" "n"; then
+        AGGRESSIVE=true
+    fi
+    
+    echo ""
+    
+    # Preview mode
+    log_info "Running preview scan..."
+    echo ""
+    DRY_RUN=true
+    
+    for section in "${SECTIONS[@]}"; do
+        case "$section" in
+            tmp) cleanup_tmp ;;
+            logs) cleanup_logs ;;
+            cache) cleanup_cache ;;
+            kernels) cleanup_kernels ;;
+            journal) cleanup_journal ;;
+            thumbnails) cleanup_thumbnails ;;
+            crash) cleanup_crash ;;
+        esac
+    done
+    
+    if [[ "$AGGRESSIVE" == "true" ]]; then
+        cleanup_aggressive
+    fi
+    
+    echo ""
+    echo -e "${BOLD}Preview Summary:${NC}"
+    echo -e "  Would clean: ${YELLOW}$TOTAL_FILES files${NC}"
+    echo -e "  Estimated space: ${YELLOW}$(human_size $TOTAL_SIZE)${NC}"
+    echo ""
+    
+    # Confirm before executing
+    if confirm_destructive "This will permanently delete the files listed above"; then
+        # Reset counters and execute
+        TOTAL_FILES=0
+        TOTAL_SIZE=0
+        DRY_RUN=false
+        
+        echo ""
+        log_info "Executing cleanup..."
+        echo ""
+        
+        for section in "${SECTIONS[@]}"; do
+            case "$section" in
+                tmp) cleanup_tmp ;;
+                logs) cleanup_logs ;;
+                cache) cleanup_cache ;;
+                kernels) cleanup_kernels ;;
+                journal) cleanup_journal ;;
+                thumbnails) cleanup_thumbnails ;;
+                crash) cleanup_crash ;;
+            esac
+        done
+        
+        if [[ "$AGGRESSIVE" == "true" ]]; then
+            cleanup_aggressive
+        fi
+        
+        echo ""
+        log_ok "Cleanup completed!"
+        echo -e "  Cleaned: ${GREEN}$TOTAL_FILES files${NC}"
+        show_disk_usage
+    else
+        log_info "Cleanup cancelled"
+    fi
+}
+
 # Parse arguments
 parse_args() {
     while [[ $# -gt 0 ]]; do
@@ -449,6 +576,19 @@ parse_args() {
                 ;;
             -x | --execute)
                 DRY_RUN=false
+                shift
+                ;;
+            -i | --interactive)
+                INTERACTIVE=true
+                shift
+                ;;
+            --no-interactive)
+                INTERACTIVE=false
+                shift
+                ;;
+            -y | --yes)
+                RSR_YES=1
+                INTERACTIVE=false
                 shift
                 ;;
             -a | --all)
@@ -486,7 +626,23 @@ parse_args() {
 }
 
 main() {
+    local original_args=("$@")
     parse_args "$@"
+
+    # Determine if interactive mode should be enabled
+    if [[ "$INTERACTIVE" == "auto" ]]; then
+        if [[ ${#original_args[@]} -eq 0 ]] && [[ -t 0 ]] && [[ -t 1 ]]; then
+            INTERACTIVE=true
+        else
+            INTERACTIVE=false
+        fi
+    fi
+
+    # Run interactive mode if enabled
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+        run_interactive
+        exit 0
+    fi
 
     echo
     echo -e "${BOLD}╔════════════════════════════════════════╗${NC}"

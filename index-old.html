@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remote Script Runner (rsr)</title>
+  <meta name="description" content="Run shell scripts remotely with a single command. Cross-platform, shell-aware script runner.">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-secondary: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-hover: #79b8ff;
+      --success: #3fb950;
+      --code-bg: #1c2128;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 code {
+      background: var(--accent);
+      color: var(--bg);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-size: 2rem;
+    }
+
+    .tagline {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      margin: 2.5rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h2:first-of-type {
+      margin-top: 0;
+    }
+
+    .command-block {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+
+    .command-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 1rem;
+      background: var(--code-bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .command-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.35rem 0.7rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .copy-btn.copied {
+      background: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+
+    .copy-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .command-code {
+      padding: 1rem;
+      overflow-x: auto;
+    }
+
+    .command-code code {
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+      font-size: 0.9rem;
+      color: var(--text);
+      white-space: pre;
+      display: block;
+    }
+
+    .command-code .comment {
+      color: var(--text-muted);
+    }
+
+    .description {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--bg);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .scripts-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .script-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+    }
+
+    .script-card h3 {
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+      color: var(--accent);
+    }
+
+    .script-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .script-card .command-block {
+      margin: 0;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .feature {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature h3 {
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .feature p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Search functionality */
+    .search-container {
+      margin: 2rem 0;
+      position: sticky;
+      top: 1rem;
+      z-index: 100;
+      background: var(--bg);
+      padding: 1rem 0;
+    }
+
+    .search-box {
+      position: relative;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.85rem 3rem 0.85rem 3rem;
+      font-size: 1rem;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+    }
+
+    .clear-search {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.25rem;
+      display: none;
+      transition: color 0.2s;
+    }
+
+    .clear-search:hover {
+      color: var(--text);
+    }
+
+    .clear-search.visible {
+      display: block;
+    }
+
+    .search-hint {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
+    .search-hint kbd {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      font-size: 0.75rem;
+    }
+
+    .search-results {
+      margin-top: 0.75rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .search-results.hidden {
+      display: none;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+      display: none;
+    }
+
+    .no-results.visible {
+      display: block;
+    }
+
+    .no-results svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* Searchable elements */
+    .searchable-section {
+      transition: opacity 0.2s;
+    }
+
+    .searchable-section.hidden {
+      display: none;
+    }
+
+    .script-card.highlight {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.1);
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      h1 code {
+        font-size: 1.5rem;
+      }
+      .command-code code {
+        font-size: 0.8rem;
+      }
+      .search-container {
+        position: relative;
+        top: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><code>rsr</code></h1>
+      <p class="tagline">Remote Script Runner — run shell scripts with a single command</p>
+    </header>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">🐚</div>
+        <h3>Shell-Aware</h3>
+        <p>Auto-detects bash, zsh, sh, fish</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🌐</div>
+        <h3>Cross-Platform</h3>
+        <p>macOS, Linux, WSL</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <h3>Zero Dependencies</h3>
+        <p>POSIX-compatible</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔒</div>
+        <h3>Inspect First</h3>
+        <p>Review scripts before running</p>
+      </div>
+    </div>
+
+    <!-- Search Box -->
+    <div class="search-container">
+      <div class="search-box">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input 
+          type="text" 
+          id="searchInput" 
+          class="search-input" 
+          placeholder="Search scripts... (health, backup, security, ssh, docker)"
+          autocomplete="off"
+          aria-label="Search scripts"
+        />
+        <button class="clear-search" id="clearSearch" aria-label="Clear search">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <p class="search-hint">Press <kbd>/</kbd> to focus · <kbd>Esc</kbd> to clear</p>
+      <div class="search-results hidden" id="searchResults"></div>
+    </div>
+
+    <!-- No Results Message -->
+    <div class="no-results" id="noResults">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+        <path d="M8 8l6 6M14 8l-6 6"/>
+      </svg>
+      <p><strong>No scripts found</strong></p>
+      <p style="font-size: 0.85rem; margin-top: 0.5rem;">Try: health, backup, setup, security, network, database</p>
+    </div>
+
+    <h2 class="searchable-section" data-section="install">🚀 Quick Install</h2>
+    <p class="description" data-keywords="install rsr local bin setup download">Install <code>rsr</code> to your local bin directory:</p>
+    <div class="command-block" data-keywords="install curl bash zsh download">
+      <div class="command-header">
+        <span class="command-label">bash / zsh</span>
+        <button class="copy-btn" onclick="copyCommand(this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="command-code">
+        <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash</code>
+      </div>
+    </div>
+
+    <h2 class="searchable-section" data-section="usage">⚡ One-Liner Usage</h2>
+    <p class="description" data-keywords="run scripts directly one-liner remote execute">Run scripts directly without installing:</p>
+    
+    <div class="command-block">
+      <div class="command-header">
+        <span class="command-label">Run a script <span class="badge">Recommended</span></span>
+        <button class="copy-btn" onclick="copyCommand(this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="command-code">
+        <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- run &lt;script-name&gt;</code>
+      </div>
+    </div>
+
+    <div class="command-block">
+      <div class="command-header">
+        <span class="command-label">List available scripts</span>
+        <button class="copy-btn" onclick="copyCommand(this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="command-code">
+        <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- list</code>
+      </div>
+    </div>
+
+    <div class="command-block">
+      <div class="command-header">
+        <span class="command-label">Show help</span>
+        <button class="copy-btn" onclick="copyCommand(this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="command-code">
+        <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- --help</code>
+      </div>
+    </div>
+
+    <h2 class="searchable-section" data-section="scripts">📦 Available Scripts</h2>
+    <div class="scripts-grid">
+      <div class="script-card" data-keywords="health monitoring cpu memory disk network status diagnostics system check">
+        <h3>system-health-check</h3>
+        <p>Check system health: CPU, memory, disk usage, network status</p>
+        <div class="command-block">
+          <div class="command-header">
+            <span class="command-label">Run with verbose output</span>
+            <button class="copy-btn" onclick="copyCommand(this)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+          <div class="command-code">
+            <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- run system-health-check -v</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="script-card" data-keywords="setup configuration server install users ssh hardening firewall security initial">
+        <h3>server-setup</h3>
+        <p>Initial server setup: users, SSH hardening, firewall, common tools</p>
+        <div class="command-block">
+          <div class="command-header">
+            <span class="command-label">Run server setup</span>
+            <button class="copy-btn" onclick="copyCommand(this)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+          <div class="command-code">
+            <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- run server-setup</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="searchable-section" data-section="inspect">🔍 Inspect Before Running</h2>
+    <p class="description" data-keywords="inspect review security audit read source code">Always review scripts before executing them:</p>
+    <div class="command-block" data-keywords="inspect view source less review security audit">
+      <div class="command-header">
+        <span class="command-label">View script source</span>
+        <button class="copy-btn" onclick="copyCommand(this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="command-code">
+        <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | less</code>
+      </div>
+    </div>
+
+    <h2 class="searchable-section" data-section="direct">📋 Direct Script URLs</h2>
+    <p class="description" data-keywords="direct url bash zsh sh fish shell specific version">Run specific shell versions directly:</p>
+    <div class="command-block" data-keywords="bash direct url script shell">
+      <div class="command-header">
+        <span class="command-label">Bash script directly</span>
+        <button class="copy-btn" onclick="copyCommand(this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="command-code">
+        <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/scripts/bash/system-health-check.sh | bash</code>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        <a href="https://github.com/codefuturist/remote-script-runner">GitHub Repository</a> · 
+        <a href="https://github.com/codefuturist/remote-script-runner/blob/main/docs/SYNTAX_GUIDE.md">Syntax Guide</a> · 
+        <a href="https://github.com/codefuturist/remote-script-runner/blob/main/docs/CHANGELOG.md">Changelog</a>
+      </p>
+      <p style="margin-top: 0.5rem;">Made with ♥ by <a href="https://github.com/codefuturist">codefuturist</a></p>
+    </footer>
+  </div>
+
+  <script>
+    // Copy command functionality
+    function copyCommand(button) {
+      const codeBlock = button.closest('.command-block').querySelector('code');
+      const text = codeBlock.textContent.trim();
+      
+      navigator.clipboard.writeText(text).then(() => {
+        const originalHTML = button.innerHTML;
+        button.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Copied!
+        `;
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+          button.innerHTML = originalHTML;
+          button.classList.remove('copied');
+        }, 2000);
+      }).catch(err => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        const originalHTML = button.innerHTML;
+        button.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Copied!
+        `;
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+          button.innerHTML = originalHTML;
+          button.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // Search functionality
+    (function() {
+      const searchInput = document.getElementById('searchInput');
+      const clearSearch = document.getElementById('clearSearch');
+      const searchResults = document.getElementById('searchResults');
+      const noResults = document.getElementById('noResults');
+      const sections = document.querySelectorAll('.searchable-section');
+      const scriptCards = document.querySelectorAll('.script-card');
+      
+      let searchTimeout;
+
+      // Perform search
+      function performSearch() {
+        const query = searchInput.value.toLowerCase().trim();
+        
+        // Show/hide clear button
+        clearSearch.classList.toggle('visible', query.length > 0);
+        
+        if (!query) {
+          // Reset to show all
+          resetSearch();
+          return;
+        }
+
+        const terms = query.split(/\s+/);
+        let visibleCount = 0;
+        const visibleSections = new Set();
+
+        // Search through script cards
+        scriptCards.forEach(card => {
+          const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
+          const description = card.querySelector('p')?.textContent.toLowerCase() || '';
+          const keywords = card.dataset.keywords?.toLowerCase() || '';
+          const combined = `${title} ${description} ${keywords}`;
+
+          const matches = terms.every(term => combined.includes(term));
+
+          if (matches) {
+            card.style.display = '';
+            card.classList.add('highlight');
+            visibleCount++;
+            
+            // Track parent section
+            let section = card;
+            while (section && !section.classList.contains('searchable-section')) {
+              section = section.previousElementSibling;
+            }
+            if (section) visibleSections.add(section);
+          } else {
+            card.style.display = 'none';
+            card.classList.remove('highlight');
+          }
+        });
+
+        // Search through other searchable elements
+        document.querySelectorAll('[data-keywords]').forEach(el => {
+          if (el.classList.contains('script-card')) return; // Already handled
+          
+          const text = el.textContent.toLowerCase();
+          const keywords = el.dataset.keywords?.toLowerCase() || '';
+          const combined = `${text} ${keywords}`;
+          
+          const matches = terms.every(term => combined.includes(term));
+          
+          if (matches) {
+            el.style.display = '';
+            visibleCount++;
+            
+            // Track parent section
+            let section = el;
+            while (section && !section.classList.contains('searchable-section')) {
+              section = section.previousElementSibling;
+            }
+            if (section) visibleSections.add(section);
+          } else {
+            el.style.display = 'none';
+          }
+        });
+
+        // Show/hide sections based on visible content
+        sections.forEach(section => {
+          if (visibleSections.has(section)) {
+            section.classList.remove('hidden');
+          } else {
+            section.classList.add('hidden');
+          }
+        });
+
+        // Update results display
+        if (visibleCount > 0) {
+          searchResults.textContent = `Found ${visibleCount} result${visibleCount !== 1 ? 's' : ''}`;
+          searchResults.classList.remove('hidden');
+          noResults.classList.remove('visible');
+        } else {
+          searchResults.classList.add('hidden');
+          noResults.classList.add('visible');
+        }
+      }
+
+      // Reset search
+      function resetSearch() {
+        searchInput.value = '';
+        clearSearch.classList.remove('visible');
+        searchResults.classList.add('hidden');
+        noResults.classList.remove('visible');
+        
+        // Show all elements
+        scriptCards.forEach(card => {
+          card.style.display = '';
+          card.classList.remove('highlight');
+        });
+        
+        document.querySelectorAll('[data-keywords]').forEach(el => {
+          el.style.display = '';
+        });
+        
+        sections.forEach(section => {
+          section.classList.remove('hidden');
+        });
+      }
+
+      // Event listeners
+      searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(performSearch, 200);
+      });
+
+      clearSearch.addEventListener('click', resetSearch);
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        // Press / to focus search
+        if (e.key === '/' && document.activeElement !== searchInput) {
+          e.preventDefault();
+          searchInput.focus();
+        }
+        
+        // Press Escape to clear search
+        if (e.key === 'Escape' && document.activeElement === searchInput) {
+          e.preventDefault();
+          resetSearch();
+          searchInput.blur();
+        }
+      });
+
+      // Initial state
+      clearSearch.classList.remove('visible');
+    })();
+  </script>
+</body>
+</html>

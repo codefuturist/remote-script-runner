@@ -13,12 +13,17 @@
 
 set -euo pipefail
 
+# Source interactive utilities if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ -f "$SCRIPT_DIR/../../lib/interactive.sh" ]] && source "$SCRIPT_DIR/../../lib/interactive.sh"
+
 # Script metadata
 SCRIPT_NAME="Network Diagnostics"
 SCRIPT_VERSION="1.0.0"
 
 # Default values
 VERBOSE=false
+INTERACTIVE=auto
 SECTIONS=()
 PING_HOSTS=""
 DNS_TEST=false
@@ -67,6 +72,8 @@ ${YELLOW}Usage:${NC}
 ${BOLD}Options:${NC}
     -h, --help              Show this help message
     -v, --verbose           Enable verbose output
+    -i, --interactive       Run in interactive mode (default when no args)
+    --no-interactive        Disable interactive mode
     -a, --all               Run all diagnostics
     -s, --section SECTION   Run specific section (can repeat)
     --ping HOSTS            Ping specific hosts (comma-separated)
@@ -148,6 +155,14 @@ parse_args() {
             -h | --help) usage ;;
             -v | --verbose)
                 VERBOSE=true
+                shift
+                ;;
+            -i | --interactive)
+                INTERACTIVE=true
+                shift
+                ;;
+            --no-interactive)
+                INTERACTIVE=false
                 shift
                 ;;
             -a | --all)
@@ -653,9 +668,119 @@ print_summary() {
     fi
 }
 
+# =============================================================================
+# Interactive Mode
+# =============================================================================
+
+run_interactive() {
+    print_interactive_header "$SCRIPT_NAME" "$SCRIPT_VERSION"
+    
+    echo ""
+    
+    # Main action selection
+    local action
+    action=$(prompt_select "What would you like to diagnose?" \
+        "Full network diagnostics" \
+        "Connectivity check (ping)" \
+        "DNS resolution test" \
+        "Port connectivity test" \
+        "Traceroute to host" \
+        "Network interfaces info" \
+        "Custom diagnostics")
+    
+    case "$action" in
+        "Full network diagnostics")
+            SECTIONS=("connectivity" "dns" "gateway" "interfaces" "services" "routing")
+            SHOW_PUBLIC_IP=true
+            ;;
+        "Connectivity check (ping)")
+            echo ""
+            log_info "Enter hosts to ping (comma-separated):"
+            PING_HOSTS=$(prompt_input "Hosts" "google.com,cloudflare.com,8.8.8.8")
+            ;;
+        "DNS resolution test")
+            DNS_TEST=true
+            ;;
+        "Port connectivity test")
+            echo ""
+            log_info "Enter host:port combinations (one per line, empty to finish):"
+            while true; do
+                local hostport
+                read -r -p "  Host:Port: " hostport
+                [[ -z "$hostport" ]] && break
+                PORT_CHECKS+=("$hostport")
+            done
+            ;;
+        "Traceroute to host")
+            echo ""
+            TRACE_HOST=$(prompt_input "Enter host for traceroute" "google.com")
+            ;;
+        "Network interfaces info")
+            SHOW_INTERFACES=true
+            SHOW_PUBLIC_IP=true
+            ;;
+        "Custom diagnostics")
+            echo ""
+            local selected
+            selected=$(prompt_multiselect "Select diagnostics to run:" \
+                "Basic connectivity test" \
+                "DNS resolution" \
+                "Default gateway check" \
+                "Network interfaces" \
+                "Listening services" \
+                "Routing table" \
+                "Public IP address" \
+                "Bandwidth test")
+            
+            [[ "$selected" == *"Basic connectivity"* ]] && SECTIONS+=("connectivity")
+            [[ "$selected" == *"DNS resolution"* ]] && DNS_TEST=true
+            [[ "$selected" == *"Default gateway"* ]] && SECTIONS+=("gateway")
+            [[ "$selected" == *"Network interfaces"* ]] && SHOW_INTERFACES=true
+            [[ "$selected" == *"Listening services"* ]] && SHOW_LISTEN=true
+            [[ "$selected" == *"Routing table"* ]] && SECTIONS+=("routing")
+            [[ "$selected" == *"Public IP"* ]] && SHOW_PUBLIC_IP=true
+            [[ "$selected" == *"Bandwidth test"* ]] && BANDWIDTH_TEST=true
+            ;;
+    esac
+    
+    # Summary
+    echo ""
+    log_info "Diagnostics configuration:"
+    [[ ${#SECTIONS[@]} -gt 0 ]] && echo -e "  ${CYAN}•${NC} Sections: ${SECTIONS[*]}"
+    [[ -n "$PING_HOSTS" ]] && echo -e "  ${CYAN}•${NC} Ping hosts: $PING_HOSTS"
+    [[ ${#PORT_CHECKS[@]} -gt 0 ]] && echo -e "  ${CYAN}•${NC} Port checks: ${PORT_CHECKS[*]}"
+    [[ -n "$TRACE_HOST" ]] && echo -e "  ${CYAN}•${NC} Traceroute: $TRACE_HOST"
+    [[ "$DNS_TEST" == "true" ]] && echo -e "  ${CYAN}•${NC} DNS test: enabled"
+    [[ "$SHOW_INTERFACES" == "true" ]] && echo -e "  ${CYAN}•${NC} Show interfaces: enabled"
+    [[ "$BANDWIDTH_TEST" == "true" ]] && echo -e "  ${CYAN}•${NC} Bandwidth test: enabled"
+    echo ""
+    
+    if prompt_yes_no "Start network diagnostics?" "y"; then
+        return 0
+    else
+        log_info "Diagnostics cancelled"
+        exit 0
+    fi
+}
+
 # Main function
 main() {
+    local original_args=("$@")
     parse_args "$@"
+
+    # Determine if interactive mode should be enabled
+    if [[ "$INTERACTIVE" == "auto" ]]; then
+        if [[ ${#original_args[@]} -eq 0 ]] && [[ -t 0 ]] && [[ -t 1 ]]; then
+            INTERACTIVE=true
+        else
+            INTERACTIVE=false
+        fi
+    fi
+
+    # Run interactive mode if enabled
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+        run_interactive
+    fi
 
     echo -e "${BOLD}$SCRIPT_NAME v$SCRIPT_VERSION${NC}"
     echo ""

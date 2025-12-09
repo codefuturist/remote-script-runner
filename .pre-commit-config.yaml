@@ -42,11 +42,43 @@ repos:
     rev: v3.8.0-1
     hooks:
       - id: shfmt
-        args: [-i, '4', -ci, -bn, -sr]
+        args: [-i, "4", -ci, -bn, -sr, -w]
         exclude: ^test/libs/
         types: [shell]
-        # Only check, don't auto-fix (use 'make format' for that)
-        # Remove -d flag if you want auto-formatting on commit
+
+  # Secret scanning (baseline maintained in repo)
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+        exclude: ^test/libs/
+
+  # Additional secret scanning with gitleaks (fast fail)
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+        args:
+          [
+            detect,
+            --source,
+            .,
+            --verbose,
+            --report-format,
+            json,
+            --report-path,
+            /tmp/gitleaks-report.json,
+          ]
+        exclude: ^test/libs/
+
+  # Semgrep for shell best practices
+  - repo: https://github.com/returntocorp/semgrep
+    rev: v1.67.0
+    hooks:
+      - id: semgrep
+        args: [--config=p/shell, --error]
+        exclude: ^test/libs/
 
   # Markdown linting
   - repo: https://github.com/igorshubovych/markdownlint-cli
@@ -61,22 +93,14 @@ repos:
     rev: v1.33.0
     hooks:
       - id: yamllint
-        args: [-d, '{extends: relaxed, rules: {line-length: disable}}']
-        exclude: ^test/libs/
-
-  # Check for secrets/credentials
-  - repo: https://github.com/Yelp/detect-secrets
-    rev: v1.4.0
-    hooks:
-      - id: detect-secrets
-        args: [--baseline, .secrets.baseline]
+        args: [-d, "{extends: relaxed, rules: {line-length: disable}}"]
         exclude: ^test/libs/
 
 # CI configuration
 ci:
-  autofix_commit_msg: 'style: auto-fix from pre-commit hooks'
+  autofix_commit_msg: "style: auto-fix from pre-commit hooks"
   autofix_prs: true
-  autoupdate_commit_msg: 'chore: update pre-commit hooks'
+  autoupdate_commit_msg: "chore: update pre-commit hooks"
   autoupdate_schedule: monthly
-  skip: [shellcheck]  # Run shellcheck in CI instead for better error reporting
+  skip: [shellcheck] # Run shellcheck in CI instead for better error reporting
 
