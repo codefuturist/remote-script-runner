@@ -456,6 +456,299 @@
       ]
     },
     {
+      "id": "usermgmt",
+      "name": "user-management",
+      "displayName": "User Management",
+      "description": "Comprehensive user management: create/delete accounts, passwords, groups, permissions, monitoring",
+      "category": "security",
+      "version": "1.0.0",
+      "author": "codefuturist",
+      "shells": {
+        "bash": "scripts/bash/user-management.sh",
+        "powershell": "scripts/powershell/UserManagement.ps1"
+      },
+      "defaultShell": "bash",
+      "subcommands": [
+        {
+          "name": "create",
+          "description": "Create new user account",
+          "options": [
+            {
+              "short": "-u",
+              "long": "--username",
+              "argument": "USER",
+              "description": "Username (required)"
+            },
+            {
+              "short": "-c",
+              "long": "--comment",
+              "argument": "TEXT",
+              "description": "Full name or comment"
+            },
+            {
+              "short": "-s",
+              "long": "--shell",
+              "argument": "SHELL",
+              "description": "Login shell"
+            },
+            {
+              "short": "-g",
+              "long": "--groups",
+              "argument": "GROUPS",
+              "description": "Additional groups (comma-separated)"
+            },
+            {
+              "long": "--generate",
+              "description": "Generate random password"
+            }
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Delete user account",
+          "options": [
+            {
+              "short": "-u",
+              "long": "--username",
+              "argument": "USER",
+              "description": "Username (required)"
+            },
+            {
+              "long": "--remove-home",
+              "description": "Remove home directory"
+            }
+          ]
+        },
+        {
+          "name": "lock",
+          "description": "Lock user account"
+        },
+        {
+          "name": "unlock",
+          "description": "Unlock user account"
+        },
+        {
+          "name": "list",
+          "description": "List user accounts",
+          "options": [
+            {
+              "short": "-a",
+              "long": "--all",
+              "description": "Show all users including system"
+            },
+            {
+              "long": "--sudo",
+              "description": "Show only sudo users"
+            }
+          ]
+        },
+        {
+          "name": "password",
+          "subcommands": [
+            {
+              "name": "reset",
+              "description": "Reset user password"
+            },
+            {
+              "name": "expire",
+              "description": "Force password change on next login"
+            },
+            {
+              "name": "generate",
+              "description": "Generate random password"
+            },
+            {
+              "name": "policy",
+              "description": "Show password policy"
+            }
+          ]
+        },
+        {
+          "name": "group",
+          "subcommands": [
+            {
+              "name": "create",
+              "description": "Create new group"
+            },
+            {
+              "name": "add",
+              "description": "Add user to group"
+            },
+            {
+              "name": "remove",
+              "description": "Remove user from group"
+            },
+            {
+              "name": "list",
+              "description": "List group members"
+            },
+            {
+              "name": "show",
+              "description": "Show user's groups"
+            }
+          ]
+        },
+        {
+          "name": "permission",
+          "subcommands": [
+            {
+              "name": "set",
+              "description": "Set file/folder permissions"
+            },
+            {
+              "name": "get",
+              "description": "Show current permissions"
+            },
+            {
+              "name": "template",
+              "description": "Apply permission template"
+            }
+          ]
+        },
+        {
+          "name": "ssh",
+          "subcommands": [
+            {
+              "name": "generate",
+              "description": "Generate SSH key pair for user"
+            },
+            {
+              "name": "add",
+              "description": "Add public key to authorized_keys"
+            },
+            {
+              "name": "remove",
+              "description": "Remove key from authorized_keys"
+            },
+            {
+              "name": "list",
+              "description": "List authorized SSH keys"
+            },
+            {
+              "name": "copy",
+              "description": "Copy SSH keys from another user"
+            },
+            {
+              "name": "validate",
+              "description": "Validate authorized_keys file"
+            },
+            {
+              "name": "fix",
+              "description": "Fix SSH directory permissions"
+            }
+          ]
+        },
+        {
+          "name": "session",
+          "subcommands": [
+            {
+              "name": "list",
+              "description": "List active sessions"
+            },
+            {
+              "name": "history",
+              "description": "Show login history"
+            },
+            {
+              "name": "failures",
+              "description": "Show failed logins"
+            }
+          ]
+        },
+        {
+          "name": "audit",
+          "description": "Run comprehensive user audit"
+        }
+      ],
+      "examples": [
+        {
+          "command": "rsr usermgmt create -u john -c \"John Doe\"",
+          "description": "Create user with full name"
+        },
+        {
+          "command": "rsr usermgmt create -u jane -g sudo,docker",
+          "description": "Create user with groups"
+        },
+        {
+          "command": "rsr usermgmt delete -u john --remove-home",
+          "description": "Delete user and home"
+        },
+        {
+          "command": "rsr usermgmt password reset -u john",
+          "description": "Reset password"
+        },
+        {
+          "command": "rsr usermgmt password generate -u jane --set",
+          "description": "Generate and set password"
+        },
+        {
+          "command": "rsr usermgmt group add -u john -g docker",
+          "description": "Add user to group"
+        },
+        {
+          "command": "rsr usermgmt list --sudo",
+          "description": "List sudo users"
+        },
+        {
+          "command": "rsr usermgmt session list",
+          "description": "Show active sessions"
+        },
+        {
+          "command": "rsr usermgmt permission set -p /var/www -m 755 -R",
+          "description": "Set permissions recursively"
+        },
+        {
+          "command": "rsr usermgmt ssh generate -u john -t ed25519",
+          "description": "Generate SSH key"
+        },
+        {
+          "command": "rsr usermgmt ssh add -u john -f ~/.ssh/id_rsa.pub",
+          "description": "Add SSH key from file"
+        },
+        {
+          "command": "rsr usermgmt ssh list -u john --fingerprints",
+          "description": "List SSH keys with fingerprints"
+        },
+        {
+          "command": "rsr usermgmt group add -u john -g Administrators",
+          "description": "Add user to Administrators group (Windows)"
+        },
+        {
+          "command": "powershell .\\rsr.ps1 usermgmt create -u john",
+          "description": "Windows: Create user via PowerShell"
+        },
+        {
+          "command": "rsr usermgmt audit",
+          "description": "Run user audit"
+        }
+      ],
+      "tags": [
+        "users",
+        "accounts",
+        "passwords",
+        "permissions",
+        "groups",
+        "security",
+        "access-control",
+        "sudo",
+        "management",
+        "sessions",
+        "ssh",
+        "ssh-keys"
+      ],
+      "platforms": {
+        "linux": ["ubuntu", "debian", "rhel", "rocky", "almalinux", "fedora", "arch"],
+        "macos": "full-support",
+        "windows": {
+          "support": "full-support",
+          "versions": ["Windows 10", "Windows 11", "Server 2019", "Server 2022", "Server 2025"],
+          "requires": ["PowerShell 5.1+"],
+          "notes": "Supports local and domain users via PowerShell"
+        }
+      },
+      "isNew": true
+    },
+    {
       "id": "update",
       "name": "system-update",
       "displayName": "System Update",
@@ -706,6 +999,170 @@
         "trace",
         "ports",
         "connectivity"
+      ]
+    },
+    {
+      "id": "ssh-server",
+      "name": "ssh-server",
+      "displayName": "SSH Server Management",
+      "description": "Complete SSH server management: install, configure, harden, monitor",
+      "category": "network",
+      "version": "1.0.0",
+      "author": "codefuturist",
+      "shells": {
+        "bash": "scripts/bash/ssh-server.sh",
+        "powershell": "scripts/powershell/SSHServer.ps1"
+      },
+      "defaultShell": "bash",
+      "subcommands": [
+        {
+          "name": "install",
+          "description": "Install SSH server"
+        },
+        {
+          "name": "start",
+          "description": "Start SSH server"
+        },
+        {
+          "name": "stop",
+          "description": "Stop SSH server"
+        },
+        {
+          "name": "restart",
+          "description": "Restart SSH server"
+        },
+        {
+          "name": "enable",
+          "description": "Enable SSH server at boot"
+        },
+        {
+          "name": "disable",
+          "description": "Disable SSH server at boot"
+        },
+        {
+          "name": "status",
+          "description": "Show SSH server status"
+        },
+        {
+          "name": "configure",
+          "description": "Interactive configuration wizard for SSH server settings"
+        },
+        {
+          "name": "config",
+          "subcommands": [
+            {
+              "name": "get",
+              "description": "Get configuration value"
+            },
+            {
+              "name": "set",
+              "description": "Set configuration value"
+            },
+            {
+              "name": "backup",
+              "description": "Backup configuration"
+            },
+            {
+              "name": "restore",
+              "description": "Restore from backup"
+            },
+            {
+              "name": "validate",
+              "description": "Validate configuration"
+            },
+            {
+              "name": "show",
+              "description": "Show full configuration"
+            }
+          ]
+        },
+        {
+          "name": "harden",
+          "description": "Apply security hardening (integrates with ssh-hardening script)"
+        },
+        {
+          "name": "audit",
+          "description": "Run security audit"
+        },
+        {
+          "name": "score",
+          "description": "Show security score (0-100)"
+        },
+        {
+          "name": "test",
+          "description": "Test SSH connection"
+        },
+        {
+          "name": "connections",
+          "description": "Show active connections"
+        },
+        {
+          "name": "logs",
+          "description": "Show SSH logs"
+        },
+        {
+          "name": "failed",
+          "description": "Show failed login attempts"
+        }
+      ],
+      "examples": [
+        {
+          "command": "rsr ssh-server status",
+          "description": "Show server status"
+        },
+        {
+          "command": "sudo rsr ssh-server install",
+          "description": "Install SSH server"
+        },
+        {
+          "command": "sudo rsr ssh-server harden",
+          "description": "Apply security hardening"
+        },
+        {
+          "command": "rsr ssh-server score",
+          "description": "Check security score"
+        },
+        {
+          "command": "sudo rsr ssh-server config set Port 2222",
+          "description": "Change SSH port"
+        },
+        {
+          "command": "rsr ssh-server test myserver.com",
+          "description": "Test connection to remote server"
+        },
+        {
+          "command": "rsr ssh-server logs 100",
+          "description": "View last 100 log lines"
+        },
+        {
+          "command": "rsr ssh-server failed",
+          "description": "Show failed login attempts"
+        }
+      ],
+      "tags": [
+        "ssh",
+        "server",
+        "sshd",
+        "configuration",
+        "security",
+        "monitoring",
+        "hardening"
+      ],
+      "platforms": {
+        "linux": ["ubuntu", "debian", "rhel", "rocky", "almalinux", "fedora", "arch"],
+        "macos": "full-support",
+        "windows": {
+          "support": "full-support",
+          "versions": ["Windows 10", "Windows 11", "Server 2019", "Server 2022", "Server 2025"],
+          "requires": ["PowerShell 5.1+"],
+          "notes": "Windows OpenSSH Server management"
+        }
+      },
+      "notes": [
+        "Most operations require root/sudo privileges",
+        "Integrates with ssh-hardening script for advanced hardening",
+        "TODO: SSH Certificate Authority support (Phase 2)",
+        "TODO: Multi-server management capabilities (Phase 2)"
       ]
     },
     {
@@ -1103,6 +1560,105 @@
         "mongodb",
         "dump",
         "maintenance"
+      ],
+      "isNew": true
+    },
+    {
+      "id": "git-sync",
+      "name": "git-auto-sync",
+      "displayName": "Git Auto-Sync",
+      "description": "Production-grade Git repository auto-sync with daemon mode, multi-repo support, Git LFS, and post-sync hooks",
+      "category": "development",
+      "version": "1.0.0",
+      "author": "codefuturist",
+      "shells": {
+        "bash": "scripts/bash/git-auto-sync.sh"
+      },
+      "defaultShell": "bash",
+      "options": [
+        {
+          "short": "-c",
+          "long": "--config",
+          "argument": "FILE",
+          "description": "Configuration file (JSON format)"
+        },
+        {
+          "short": "-d",
+          "long": "--daemon",
+          "description": "Run in daemon mode (continuous sync)"
+        },
+        {
+          "short": "-i",
+          "long": "--interval",
+          "argument": "SECONDS",
+          "description": "Sync interval for daemon mode (default: 300)"
+        },
+        {
+          "short": "-r",
+          "long": "--repo",
+          "argument": "PATH",
+          "description": "Add repository to sync (can be used multiple times)"
+        },
+        {
+          "short": "-b",
+          "long": "--branch",
+          "argument": "NAME",
+          "description": "Branch to sync (default: main)"
+        },
+        {
+          "short": "-m",
+          "long": "--mode",
+          "argument": "MODE",
+          "description": "Sync mode: safe|force|pull (default: safe)"
+        },
+        {
+          "short": "-l",
+          "long": "--lfs",
+          "description": "Enable Git LFS support"
+        },
+        {
+          "long": "--remote",
+          "argument": "NAME",
+          "description": "Remote name (default: origin)"
+        },
+        {
+          "long": "--hook",
+          "argument": "SCRIPT",
+          "description": "Post-sync hook script"
+        },
+        {
+          "short": "-v",
+          "long": "--verbose",
+          "description": "Enable debug logging"
+        }
+      ],
+      "examples": [
+        {
+          "command": "rsr git-sync -r /path/to/repo",
+          "description": "Sync single repository"
+        },
+        {
+          "command": "rsr git-sync -r /var/www/mysite -m force --hook /usr/local/bin/deploy.sh",
+          "description": "Force sync with post-sync hook"
+        },
+        {
+          "command": "rsr git-sync --daemon --config /etc/git-sync/repos.json --interval 600",
+          "description": "Run daemon with config file"
+        },
+        {
+          "command": "rsr git-sync -r /repo --lfs -v",
+          "description": "Sync with Git LFS and verbose logging"
+        }
+      ],
+      "tags": [
+        "git",
+        "sync",
+        "automation",
+        "deployment",
+        "continuous",
+        "lfs",
+        "daemon",
+        "vcs"
       ],
       "isNew": true
     }

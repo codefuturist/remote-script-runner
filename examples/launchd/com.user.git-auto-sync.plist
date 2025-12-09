@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.user.git-auto-sync</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/git-auto-sync.sh</string>
+        <string>--daemon</string>
+        <string>--config</string>
+        <string>/Users/username/.config/git-auto-sync/repos.json</string>
+        <string>--interval</string>
+        <string>300</string>
+    </array>
+    
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <key>KeepAlive</key>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+        <key>Crashed</key>
+        <true/>
+    </dict>
+    
+    <key>ProcessType</key>
+    <string>Background</string>
+    
+    <key>StandardOutPath</key>
+    <string>/tmp/git-auto-sync.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/tmp/git-auto-sync.err</string>
+    
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>LOG_LEVEL</key>
+        <string>INFO</string>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+    
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+</dict>
+</plist>

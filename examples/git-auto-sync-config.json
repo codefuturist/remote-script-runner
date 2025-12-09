@@ -1,0 +1,10 @@
+[
+  {
+    "name": "example-repo",
+    "path": "/home/user/projects/example-repo",
+    "branch": "main",
+    "remote": "origin",
+    "mode": "safe",
+    "use_lfs": false
+  }
+]
