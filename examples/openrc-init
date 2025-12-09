@@ -1,0 +1,76 @@
+#!/sbin/openrc-run
+# Git Auto-Sync OpenRC init script
+# For Alpine Linux, Gentoo, and other OpenRC systems
+# Location: /etc/init.d/git-auto-sync
+
+name="git-auto-sync"
+description="Git Auto-Sync Service - Automatic Git repository synchronization"
+
+command="/usr/local/bin/git-auto-sync.sh"
+command_args="--daemon --config /etc/git-auto-sync/config.yaml --interval ${SYNC_INTERVAL:-300}"
+command_user="${SERVICE_USER:-git-sync}"
+command_background="yes"
+pidfile="/run/${name}.pid"
+
+output_log="/var/log/${name}/${name}.log"
+error_log="/var/log/${name}/${name}.err"
+
+depend() {
+    need net
+    use dns logger
+    after firewall
+}
+
+start_pre() {
+    # Create necessary directories
+    checkpath --directory --mode 0755 --owner "${command_user}" /var/lib/git-auto-sync
+    checkpath --directory --mode 0755 --owner "${command_user}" /var/log/git-auto-sync
+    checkpath --directory --mode 0755 --owner "${command_user}" /run/git-auto-sync
+    
+    # Check if config exists
+    if [ ! -f "/etc/git-auto-sync/config.yaml" ]; then
+        eerror "Configuration file not found: /etc/git-auto-sync/config.yaml"
+        return 1
+    fi
+    
+    return 0
+}
+
+start() {
+    ebegin "Starting ${name}"
+    start-stop-daemon --start \
+        --exec "${command}" \
+        --pidfile "${pidfile}" \
+        --background \
+        --make-pidfile \
+        --user "${command_user}" \
+        --stdout "${output_log}" \
+        --stderr "${error_log}" \
+        -- ${command_args}
+    eend $?
+}
+
+stop() {
+    ebegin "Stopping ${name}"
+    start-stop-daemon --stop \
+        --exec "${command}" \
+        --pidfile "${pidfile}" \
+        --user "${command_user}" \
+        --retry "TERM/30/KILL/5"
+    eend $?
+}
+
+status() {
+    if [ -f "${pidfile}" ]; then
+        if pgrep -F "${pidfile}" >/dev/null 2>&1; then
+            einfo "${name} is running (pid: $(cat ${pidfile}))"
+            return 0
+        else
+            einfo "${name} is not running (stale pidfile)"
+            return 1
+        fi
+    else
+        einfo "${name} is not running"
+        return 3
+    fi
+}

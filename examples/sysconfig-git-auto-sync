@@ -1,0 +1,40 @@
+# Default configuration for git-auto-sync service
+# This file is sourced by the systemd service unit
+# Location: /etc/sysconfig/git-auto-sync (RHEL/CentOS/Fedora/SUSE)
+
+# Configuration file location
+CONFIG_FILE="/etc/git-auto-sync/config.yaml"
+
+# Sync interval in seconds (default: 300)
+SYNC_INTERVAL=300
+
+# Log level: DEBUG, INFO, WARN, ERROR
+LOG_LEVEL="INFO"
+
+# Enable verbose logging
+#VERBOSE="true"
+
+# Git timeout in seconds (default: 60)
+GIT_TIMEOUT=60
+
+# Retry attempts for failed operations (default: 3)
+RETRY_ATTEMPTS=3
+
+# Retry delay in seconds (default: 5)
+RETRY_DELAY=5
+
+# Quick check settings (lightweight remote checking)
+QUICK_CHECK_ENABLED="true"
+QUICK_CHECK_INTERVAL=30
+
+# Validation settings
+VALIDATION_ENABLED="true"
+MAX_VALIDATION_RETRIES=3
+ROLLBACK_ON_FAILURE="true"
+
+# Service user (for system-level installations)
+#SERVICE_USER="git-sync"
+#SERVICE_GROUP="git-sync"
+
+# Additional options to pass to git-auto-sync
+#EXTRA_OPTS=""

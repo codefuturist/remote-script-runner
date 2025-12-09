@@ -21,6 +21,86 @@ DEFAULT_LOG_LEVEL="INFO"
 # Daemon control
 DAEMON_MODE=false
 
+# =============================================================================
+# OS and Distribution Detection
+# =============================================================================
+
+# Detect OS
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    OS="linux"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    OS="macos"
+else
+    OS="unknown"
+fi
+
+# Detect Linux distribution
+DISTRO="unknown"
+DISTRO_FAMILY="unknown"
+PACKAGE_MANAGER="unknown"
+INIT_SYSTEM="unknown"
+
+if [[ "$OS" == "linux" ]]; then
+    # Detect distribution
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        DISTRO="$ID"
+        DISTRO_VERSION="${VERSION_ID:-unknown}"
+        
+        # Determine family
+        case "$ID" in
+            debian|ubuntu|linuxmint|pop|elementary)
+                DISTRO_FAMILY="debian"
+                PACKAGE_MANAGER="apt"
+                ;;
+            rhel|centos|fedora|rocky|alma|ol)
+                DISTRO_FAMILY="rhel"
+                if command -v dnf >/dev/null 2>&1; then
+                    PACKAGE_MANAGER="dnf"
+                else
+                    PACKAGE_MANAGER="yum"
+                fi
+                ;;
+            sles|opensuse*|suse)
+                DISTRO_FAMILY="suse"
+                PACKAGE_MANAGER="zypper"
+                ;;
+            arch|manjaro|endeavouros)
+                DISTRO_FAMILY="arch"
+                PACKAGE_MANAGER="pacman"
+                ;;
+            alpine)
+                DISTRO_FAMILY="alpine"
+                PACKAGE_MANAGER="apk"
+                ;;
+            gentoo)
+                DISTRO_FAMILY="gentoo"
+                PACKAGE_MANAGER="emerge"
+                ;;
+            *)
+                DISTRO_FAMILY="unknown"
+                ;;
+        esac
+    elif [ -f /etc/redhat-release ]; then
+        DISTRO_FAMILY="rhel"
+        PACKAGE_MANAGER="yum"
+    elif [ -f /etc/debian_version ]; then
+        DISTRO_FAMILY="debian"
+        PACKAGE_MANAGER="apt"
+    fi
+    
+    # Detect init system
+    if command -v systemctl >/dev/null 2>&1 && systemctl --version >/dev/null 2>&1; then
+        INIT_SYSTEM="systemd"
+    elif [ -d /etc/init.d ] && [ -f /etc/init.d/cron ]; then
+        if command -v rc-service >/dev/null 2>&1; then
+            INIT_SYSTEM="openrc"
+        else
+            INIT_SYSTEM="sysvinit"
+        fi
+    fi
+fi
+
 # Runtime directories (auto-detect user vs system level)
 if [[ $EUID -eq 0 ]]; then
     # Running as root - system level
@@ -28,14 +108,34 @@ if [[ $EUID -eq 0 ]]; then
     STATE_DIR="/var/lib/git-auto-sync"
     LOG_DIR="/var/log/git-auto-sync"
     DEFAULT_CONFIG_DIR="/etc/git-auto-sync"
-DEFAULT_CONFIG_FILE="config.yaml"
+    DEFAULT_CONFIG_FILE="config.yaml"
+    
+    # Environment file location varies by distro
+    if [[ "$DISTRO_FAMILY" == "rhel" ]] || [[ "$DISTRO_FAMILY" == "suse" ]]; then
+        ENV_FILE="/etc/sysconfig/git-auto-sync"
+    else
+        ENV_FILE="/etc/default/git-auto-sync"
+    fi
+    
+    # Service locations
+    if [[ "$INIT_SYSTEM" == "systemd" ]]; then
+        SYSTEMD_DIR="/etc/systemd/system"
+    elif [[ "$INIT_SYSTEM" == "openrc" ]]; then
+        INITD_DIR="/etc/init.d"
+    fi
 else
     # Running as user - user level
     RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.cache}/git-auto-sync"
     STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/git-auto-sync"
     LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/git-auto-sync/logs"
     DEFAULT_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/git-auto-sync"
-DEFAULT_CONFIG_FILE="config.yaml"
+    DEFAULT_CONFIG_FILE="config.yaml"
+    ENV_FILE="$DEFAULT_CONFIG_DIR/environment"
+    
+    # User service
+    if [[ "$INIT_SYSTEM" == "systemd" ]]; then
+        SYSTEMD_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
+    fi
 fi
 
 # Create directories if they don't exist
