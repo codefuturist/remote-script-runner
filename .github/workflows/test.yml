@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -76,12 +76,73 @@ jobs:
         run: |
           ./test/run_tests.sh --verbose
 
+  test-powershell:
+    name: PowerShell Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install PowerShell Core (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
+          sudo dpkg -i packages-microsoft-prod.deb
+          sudo apt-get update
+          sudo apt-get install -y powershell
+
+      - name: Install PowerShell Core (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install --cask powershell
+
+      - name: Install Pester
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Pester -Force -Scope CurrentUser -SkipPublisherCheck
+
+      - name: Run PowerShell tests
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Import-Module Pester
+
+          $config = New-PesterConfiguration
+          $config.Run.Path = 'test/powershell'
+          $config.Output.Verbosity = 'Detailed'
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputPath = 'test-results/powershell/results.xml'
+          $config.TestResult.OutputFormat = 'NUnitXml'
+
+          $result = Invoke-Pester -Configuration $config
+
+          if ($result.FailedCount -gt 0) {
+              Write-Host "❌ $($result.FailedCount) test(s) failed" -ForegroundColor Red
+              exit 1
+          } else {
+              Write-Host "✅ All $($result.PassedCount) test(s) passed" -ForegroundColor Green
+          }
+
+      - name: Upload PowerShell test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: powershell-test-results-${{ matrix.os }}
+          path: test-results
+          retention-days: 14
+
   validate:
     name: Validate Registry
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install jq
         run: sudo apt-get install -y jq

@@ -5,18 +5,14 @@ BeforeAll {
     $script:scriptPath = Join-Path $PSScriptRoot '../../scripts/powershell/Invoke-RemoteScript.ps1'
 }
 
-Describe 'Invoke-RemoteScript.ps1 - Parameter Validation' {
-    It 'Should accept ScriptName parameter with valid values' {
-        { & $script:scriptPath -ScriptName 'health-check' -WhatIf } | Should -Not -Throw
-        { & $script:scriptPath -ScriptName 'server-setup' -WhatIf } | Should -Not -Throw
+Describe 'Invoke-RemoteScript.ps1 - Script File' {
+    It 'Should exist' {
+        $script:scriptPath | Should -Exist
     }
 
-    It 'Should accept CustomUri parameter' {
-        { & $script:scriptPath -CustomUri 'https://example.com/script.sh' -WhatIf } | Should -Not -Throw
-    }
-
-    It 'Should accept Arguments parameter as array' {
-        { & $script:scriptPath -ScriptName 'health-check' -Arguments @('-v', '-s', 'cpu') -WhatIf } | Should -Not -Throw
+    It 'Should be a valid PowerShell script' {
+        $scriptContent = Get-Content $script:scriptPath -Raw
+        $scriptContent | Should -Not -BeNullOrEmpty
     }
 
     It 'Should have proper comment-based help' {
@@ -24,6 +20,32 @@ Describe 'Invoke-RemoteScript.ps1 - Parameter Validation' {
         $help.Synopsis | Should -Not -BeNullOrEmpty
         $help.Description | Should -Not -BeNullOrEmpty
         $help.Examples | Should -Not -BeNullOrEmpty
+    }
+}
+
+Describe 'Invoke-RemoteScript.ps1 - Parameters' {
+    It 'Should have ScriptName parameter' {
+        $params = (Get-Command $script:scriptPath).Parameters
+        $params.ContainsKey('ScriptName') | Should -Be $true
+    }
+
+    It 'Should have ValidateSet on ScriptName parameter' {
+        $params = (Get-Command $script:scriptPath).Parameters
+        $validateSet = $params['ScriptName'].Attributes | Where-Object { $_ -is [System.Management.Automation.ValidateSetAttribute] }
+        $validateSet | Should -Not -BeNullOrEmpty
+        $validateSet.ValidValues | Should -Contain 'health-check'
+        $validateSet.ValidValues | Should -Contain 'server-setup'
+    }
+
+    It 'Should have CustomUri parameter' {
+        $params = (Get-Command $script:scriptPath).Parameters
+        $params.ContainsKey('CustomUri') | Should -Be $true
+    }
+
+    It 'Should have Arguments parameter as string array' {
+        $params = (Get-Command $script:scriptPath).Parameters
+        $params.ContainsKey('Arguments') | Should -Be $true
+        $params['Arguments'].ParameterType.Name | Should -Match 'String\[\]'
     }
 }
 
@@ -84,10 +106,14 @@ Describe 'Invoke-RemoteScript.ps1 - Script Structure' {
         $scriptContent | Should -Match '\$baseUrl'
     }
 
-    It 'Should validate that ScriptName or CustomUri is provided' {
+    It 'Should have logic to handle ScriptName' {
         $scriptContent = Get-Content $script:scriptPath -Raw
-        # The script should have logic to ensure either ScriptName or CustomUri is used
-        $scriptContent.Length | Should -BeGreaterThan 0
+        $scriptContent | Should -Match 'ScriptName'
+    }
+
+    It 'Should have logic to handle CustomUri' {
+        $scriptContent = Get-Content $script:scriptPath -Raw
+        $scriptContent | Should -Match 'CustomUri'
     }
 }
 

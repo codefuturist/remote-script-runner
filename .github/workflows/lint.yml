@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install ShellCheck
         run: sudo apt-get install -y shellcheck
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install shfmt
         run: |
@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Check rsr syntax (POSIX sh)
         run: sh -n rsr
@@ -75,7 +75,7 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -91,4 +91,78 @@ jobs:
       - name: Validate commits
         run: |
           npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+  psscriptanalyzer:
+    name: PowerShell (PSScriptAnalyzer)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install PowerShell Core
+        run: |
+          # Install PowerShell Core on Ubuntu
+          wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb
+          sudo dpkg -i packages-microsoft-prod.deb
+          sudo apt-get update
+          sudo apt-get install -y powershell
+
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+
+      - name: Run PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Import-Module PSScriptAnalyzer
+
+          $scripts = Get-ChildItem -Path scripts/powershell -Filter '*.ps1' -File
+          $totalIssues = 0
+          $hasErrors = $false
+
+          foreach ($script in $scripts) {
+              Write-Host "Analyzing: $($script.Name)" -ForegroundColor Cyan
+
+              $results = Invoke-ScriptAnalyzer `
+                  -Path $script.FullName `
+                  -Settings .psscriptanalyzer/PSScriptAnalyzerSettings.psd1 `
+                  -Severity @('Error', 'Warning', 'Information')
+
+              if ($results) {
+                  $totalIssues += $results.Count
+
+                  foreach ($result in $results) {
+                      $color = switch ($result.Severity) {
+                          'Error'       { 'Red' }
+                          'Warning'     { 'Yellow' }
+                          'Information' { 'Cyan' }
+                          default       { 'White' }
+                      }
+
+                      Write-Host "  [$($result.Severity)] Line $($result.Line): $($result.RuleName)" -ForegroundColor $color
+                      Write-Host "    $($result.Message)" -ForegroundColor Gray
+
+                      if ($result.Severity -eq 'Error') {
+                          $hasErrors = $true
+                      }
+                  }
+              } else {
+                  Write-Host "  ✓ No issues found" -ForegroundColor Green
+              }
+              Write-Host ""
+          }
+
+          if ($totalIssues -gt 0) {
+              Write-Host "Found $totalIssues issue(s) in PowerShell scripts" -ForegroundColor Yellow
+
+              if ($hasErrors) {
+                  Write-Host "✗ Linting failed with errors" -ForegroundColor Red
+                  exit 1
+              }
+          } else {
+              Write-Host "✓ All PowerShell scripts passed linting" -ForegroundColor Green
+          }
 

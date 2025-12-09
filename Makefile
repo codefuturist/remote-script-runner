@@ -16,7 +16,7 @@
 #
 # =============================================================================
 
-.PHONY: all help lint format test test-unit test-integration validate install clean setup-hooks check
+.PHONY: all help lint format test test-unit test-integration validate install clean setup-hooks check lint-powershell test-powershell test-powershell-verbose
 
 # Default target
 all: lint test validate
@@ -37,6 +37,7 @@ TOOLS_DIR := tools
 # Files to lint/format
 SHELL_FILES := rsr $(wildcard $(SCRIPTS_DIR)/*.sh) $(wildcard $(LIB_DIR)/*.sh) $(wildcard $(TOOLS_DIR)/*.sh)
 BATS_FILES := $(wildcard $(TEST_DIR)/unit/*.bats) $(wildcard $(TEST_DIR)/integration/*.bats)
+POWERSHELL_FILES := $(wildcard scripts/powershell/*.ps1)
 
 # =============================================================================
 # Help
@@ -58,6 +59,7 @@ help:
 	@echo "  $(GREEN)test-unit$(NC)        Run only unit tests"
 	@echo "  $(GREEN)test-integration$(NC) Run only integration tests"
 	@echo "  $(GREEN)test-verbose$(NC)     Run all tests with verbose output"
+	@echo "  $(GREEN)test-powershell$(NC)  Run PowerShell tests with Pester"
 	@echo "  $(GREEN)validate$(NC)         Validate registry.json and script headers"
 	@echo "  $(GREEN)install$(NC)          Install development dependencies"
 	@echo "  $(GREEN)setup-hooks$(NC)      Install pre-commit hooks"
@@ -74,7 +76,7 @@ help:
 # Linting
 # =============================================================================
 
-lint: lint-shellcheck lint-syntax
+lint: lint-shellcheck lint-syntax lint-powershell
 	@echo "$(GREEN)✓ All linting passed$(NC)"
 
 lint-shellcheck:
@@ -95,6 +97,19 @@ lint-syntax:
 		fi; \
 	done
 	@echo "$(GREEN)✓ Syntax check passed$(NC)"
+
+lint-powershell:
+	@echo "$(BLUE)▸ Running PSScriptAnalyzer...$(NC)"
+	@if [ -n "$(POWERSHELL_FILES)" ]; then \
+		if command -v pwsh >/dev/null 2>&1; then \
+			$(TOOLS_DIR)/lint-powershell.sh || exit 1; \
+		else \
+			echo "$(YELLOW)⚠ PowerShell Core (pwsh) not installed. Install with: brew install --cask powershell$(NC)"; \
+			echo "$(YELLOW)  Skipping PowerShell linting...$(NC)"; \
+		fi; \
+	else \
+		echo "$(BLUE)  No PowerShell files to lint$(NC)"; \
+	fi
 
 # =============================================================================
 # Formatting
@@ -137,6 +152,32 @@ test-integration:
 test-verbose:
 	@echo "$(BLUE)▸ Running all tests (verbose)...$(NC)"
 	@./test/run_tests.sh --verbose
+
+test-powershell:
+	@echo "$(BLUE)▸ Running PowerShell tests...$(NC)"
+	@if [ -n "$(POWERSHELL_FILES)" ]; then \
+		if command -v pwsh >/dev/null 2>&1; then \
+			$(TOOLS_DIR)/test-powershell.sh || exit 1; \
+		else \
+			echo "$(YELLOW)⚠ PowerShell Core (pwsh) not installed. Install with: brew install --cask powershell$(NC)"; \
+			echo "$(YELLOW)  Skipping PowerShell tests...$(NC)"; \
+		fi; \
+	else \
+		echo "$(BLUE)  No PowerShell files to test$(NC)"; \
+	fi
+
+test-powershell-verbose:
+	@echo "$(BLUE)▸ Running PowerShell tests (verbose)...$(NC)"
+	@if [ -n "$(POWERSHELL_FILES)" ]; then \
+		if command -v pwsh >/dev/null 2>&1; then \
+			$(TOOLS_DIR)/test-powershell.sh --verbose || exit 1; \
+		else \
+			echo "$(YELLOW)⚠ PowerShell Core (pwsh) not installed. Install with: brew install --cask powershell$(NC)"; \
+			echo "$(YELLOW)  Skipping PowerShell tests...$(NC)"; \
+		fi; \
+	else \
+		echo "$(BLUE)  No PowerShell files to test$(NC)"; \
+	fi
 
 test-quick:
 	@echo "$(BLUE)▸ Running quick syntax check...$(NC)"

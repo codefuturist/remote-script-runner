@@ -1,8 +1,10 @@
 # Testing Guide for Remote Script Runner
 
-This directory contains the comprehensive test suite for the Remote Script Runner project using [BATS](https://github.com/bats-core/bats-core) (Bash Automated Testing System).
+This directory contains the comprehensive test suite for the Remote Script Runner project, supporting both shell scripts ([BATS](https://github.com/bats-core/bats-core)) and PowerShell scripts ([Pester](https://pester.dev)).
 
 ## Quick Start
+
+### Shell Script Tests (BATS)
 
 ```bash
 # Install BATS (macOS)
@@ -23,6 +25,24 @@ git submodule update --init --recursive
 # Run with verbose output
 ./test/run_tests.sh --verbose
 ```
+
+### PowerShell Tests (Pester)
+
+```bash
+# Install PowerShell Core (macOS)
+brew install --cask powershell
+
+# Run PowerShell tests
+make test-powershell
+
+# Or run directly
+./tools/test-powershell.sh
+
+# Verbose output
+./tools/test-powershell.sh --verbose
+```
+
+See [PowerShell Quality Guide](../docs/POWERSHELL_QUALITY.md) for detailed PowerShell testing documentation.
 
 ## Directory Structure
 
@@ -49,6 +69,9 @@ test/
 │   └── database-backup.bats
 ├── integration/        # Integration tests
 │   ├── rsr-cli.bats
+├── powershell/         # PowerShell tests (Pester)
+│   ├── Install-OpenSSH.Tests.ps1
+│   └── Invoke-RemoteScript.Tests.ps1
 │   ├── registry.bats
 │   └── common-lib.bats
 ├── fixtures/           # Test data and fixtures

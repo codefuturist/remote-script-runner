@@ -39,6 +39,15 @@ SUCCESSFUL_SYNCS=0
 FAILED_SYNCS=0
 START_TIME=""
 
+# Error recovery and validation
+declare -A REPO_VALIDATORS=()
+declare -A REPO_RETRY_COUNT=()
+declare -A REPO_LAST_ERROR=()
+declare -A REPO_VALIDATION_FAILED=()
+MAX_VALIDATION_RETRIES=3
+VALIDATION_ENABLED=true
+ROLLBACK_ON_FAILURE=true
+
 # =============================================================================
 # Color Setup
 # =============================================================================
@@ -173,6 +182,140 @@ check_internet_connection() {
 }
 
 # =============================================================================
+# Validation Functions
+# =============================================================================
+
+# Generic file validator (can be overridden with custom validators)
+validate_files() {
+    local repo_path="$1"
+    local validator="${2:-}"
+    
+    if [[ -z "$validator" ]]; then
+        log_debug "No custom validator specified, using default checks"
+        return 0
+    fi
+    
+    if [[ ! -f "$validator" ]] && [[ ! -x "$validator" ]]; then
+        log_warn "Validator not found or not executable: $validator"
+        return 0
+    fi
+    
+    log_info "Running validation: $validator"
+    
+    cd "$repo_path"
+    
+    if "$validator" "$repo_path"; then
+        log_ok "Validation passed"
+        return 0
+    else
+        log_error "Validation failed"
+        return 1
+    fi
+}
+
+# DNS zone file validator (example for DNS use case)
+validate_dns_zones() {
+    local repo_path="$1"
+    local errors=0
+    
+    log_info "Validating DNS zone files..."
+    
+    # Check for common DNS files
+    while IFS= read -r -d '' zone_file; do
+        log_debug "Checking: $zone_file"
+        
+        # Check if named-checkzone is available
+        if command -v named-checkzone >/dev/null 2>&1; then
+            local zone_name
+            zone_name=$(basename "$zone_file" .zone)
+            
+            if ! named-checkzone "$zone_name" "$zone_file" >/dev/null 2>&1; then
+                log_error "Invalid zone file: $zone_file"
+                ((errors++))
+            fi
+        else
+            # Basic syntax check if named-checkzone not available
+            if ! grep -q "SOA\|NS\|A\|AAAA" "$zone_file" 2>/dev/null; then
+                log_warn "Suspicious zone file (no common records): $zone_file"
+            fi
+        fi
+    done < <(find "$repo_path" -name "*.zone" -o -name "db.*" 2>/dev/null -print0)
+    
+    if [[ $errors -gt 0 ]]; then
+        log_error "Found $errors invalid zone file(s)"
+        return 1
+    fi
+    
+    log_ok "All DNS zones are valid"
+    return 0
+}
+
+# YAML validator
+validate_yaml_files() {
+    local repo_path="$1"
+    local errors=0
+    
+    log_info "Validating YAML files..."
+    
+    while IFS= read -r -d '' yaml_file; do
+        log_debug "Checking: $yaml_file"
+        
+        # Try python yaml validation first
+        if command -v python3 >/dev/null 2>&1; then
+            if ! python3 -c "import yaml; yaml.safe_load(open('$yaml_file'))" 2>/dev/null; then
+                log_error "Invalid YAML: $yaml_file"
+                ((errors++))
+            fi
+        elif command -v yq >/dev/null 2>&1; then
+            if ! yq eval '.' "$yaml_file" >/dev/null 2>&1; then
+                log_error "Invalid YAML: $yaml_file"
+                ((errors++))
+            fi
+        fi
+    done < <(find "$repo_path" -name "*.yaml" -o -name "*.yml" 2>/dev/null -print0)
+    
+    if [[ $errors -gt 0 ]]; then
+        log_error "Found $errors invalid YAML file(s)"
+        return 1
+    fi
+    
+    log_ok "All YAML files are valid"
+    return 0
+}
+
+# JSON validator
+validate_json_files() {
+    local repo_path="$1"
+    local errors=0
+    
+    log_info "Validating JSON files..."
+    
+    while IFS= read -r -d '' json_file; do
+        log_debug "Checking: $json_file"
+        
+        if command -v jq >/dev/null 2>&1; then
+            if ! jq empty "$json_file" 2>/dev/null; then
+                log_error "Invalid JSON: $json_file"
+                ((errors++))
+            fi
+        elif command -v python3 >/dev/null 2>&1; then
+            if ! python3 -c "import json; json.load(open('$json_file'))" 2>/dev/null; then
+                log_error "Invalid JSON: $json_file"
+                ((errors++))
+            fi
+        fi
+    done < <(find "$repo_path" -name "*.json" 2>/dev/null -print0)
+    
+    if [[ $errors -gt 0 ]]; then
+        log_error "Found $errors invalid JSON file(s)"
+        return 1
+    fi
+    
+    log_ok "All JSON files are valid"
+    return 0
+}
+
+# =============================================================================
 # Git Utilities
 # =============================================================================
 
@@ -218,6 +361,61 @@ get_repo_stats() {
     printf '{"files":%d,"size_kb":%d}' "$file_count" "$size_kb"
 }
 
+create_backup() {
+    local repo_path="$1"
+    local backup_dir="${repo_path}/.git-auto-sync-backups"
+    local timestamp
+    timestamp=$(date '+%Y%m%d-%H%M%S')
+    
+    mkdir -p "$backup_dir"
+    
+    cd "$repo_path"
+    local current_commit
+    current_commit=$(get_current_commit)
+    
+    # Store commit hash for rollback
+    echo "$current_commit" > "$backup_dir/last-good-commit-${timestamp}"
+    
+    # Keep only last 5 backups
+    ls -t "$backup_dir"/last-good-commit-* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
+    
+    log_debug "Backup created: $current_commit"
+}
+
+rollback_to_backup() {
+    local repo_path="$1"
+    local backup_dir="${repo_path}/.git-auto-sync-backups"
+    
+    if [[ ! -d "$backup_dir" ]]; then
+        log_error "No backup directory found"
+        return 1
+    fi
+    
+    cd "$repo_path"
+    
+    # Find most recent backup
+    local latest_backup
+    latest_backup=$(ls -t "$backup_dir"/last-good-commit-* 2>/dev/null | head -1)
+    
+    if [[ -z "$latest_backup" ]]; then
+        log_error "No backup found for rollback"
+        return 1
+    fi
+    
+    local backup_commit
+    backup_commit=$(cat "$latest_backup")
+    
+    log_warn "Rolling back to: $backup_commit"
+    
+    if git reset --hard "$backup_commit"; then
+        log_ok "Rollback successful"
+        return 0
+    else
+        log_error "Rollback failed"
+        return 1
+    fi
+}
+
 # =============================================================================
 # Repository Sync Functions
 # =============================================================================
@@ -230,19 +428,35 @@ sync_repository() {
     local mode="${REPO_MODES[$repo_name]:-safe}"
     local use_lfs="${REPO_LFS_ENABLED[$repo_name]:-false}"
     local post_hook="${REPO_HOOKS[$repo_name]:-}"
+    local validator="${REPO_VALIDATORS[$repo_name]:-}"
     
     log_info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     log_info "Syncing repository: ${BOLD}$repo_name${NC}"
     log_info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     log_debug "Path: $repo_path | Branch: $branch | Mode: $mode"
     
+    # Check retry count
+    local retry_count="${REPO_RETRY_COUNT[$repo_name]:-0}"
+    if [[ $retry_count -ge $MAX_VALIDATION_RETRIES ]]; then
+        log_error "Max retry attempts ($MAX_VALIDATION_RETRIES) reached for $repo_name"
+        log_error "Last error: ${REPO_LAST_ERROR[$repo_name]:-Unknown}"
+        log_warn "Manual intervention required. Fix the issue and retry."
+        return 1
+    fi
+    
     # Verify repository exists
     if ! is_git_repo "$repo_path"; then
         log_error "Not a git repository: $repo_path"
+        REPO_LAST_ERROR[$repo_name]="Not a git repository"
         return 1
     fi
     
     cd "$repo_path" || return 1
+    
+    # Create backup before sync
+    if [[ "$ROLLBACK_ON_FAILURE" == "true" ]]; then
+        create_backup "$repo_path"
+    fi
     
     # Store initial state
     local old_commit
@@ -318,8 +532,10 @@ sync_repository() {
     new_commit=$(get_current_commit)
     
     # Report changes
+    local has_changes=false
     if [ "$old_commit" != "$new_commit" ]; then
         log_success "Repository updated: $old_commit → $new_commit"
+        has_changes=true
         
         # Show commit log
         if [ "$LOG_LEVEL" = "DEBUG" ]; then
@@ -329,11 +545,74 @@ sync_repository() {
         log_info "Repository already up to date"
     fi
     
-    # Execute post-sync hook
+    # Validate repository contents if changes were made or validation previously failed
+    if [[ "$VALIDATION_ENABLED" == "true" ]] && [[ "$has_changes" == "true" || "${REPO_VALIDATION_FAILED[$repo_name]:-false}" == "true" ]]; then
+        log_info "Validating repository contents..."
+        
+        local validation_result=0
+        
+        # Run custom validator if specified
+        if [[ -n "$validator" ]]; then
+            if ! validate_files "$repo_path" "$validator"; then
+                validation_result=1
+            fi
+        else
+            # Run built-in validators based on file types
+            if ! validate_json_files "$repo_path"; then
+                validation_result=1
+            fi
+            
+            if ! validate_yaml_files "$repo_path"; then
+                validation_result=1
+            fi
+            
+            # DNS-specific validation if zone files present
+            if find "$repo_path" -name "*.zone" -o -name "db.*" 2>/dev/null | grep -q .; then
+                if ! validate_dns_zones "$repo_path"; then
+                    validation_result=1
+                fi
+            fi
+        fi
+        
+        if [[ $validation_result -ne 0 ]]; then
+            log_error "Validation failed for $repo_name"
+            REPO_VALIDATION_FAILED[$repo_name]="true"
+            REPO_LAST_ERROR[$repo_name]="Validation failed"
+            REPO_RETRY_COUNT[$repo_name]=$((retry_count + 1))
+            
+            # Rollback if enabled
+            if [[ "$ROLLBACK_ON_FAILURE" == "true" ]]; then
+                log_warn "Rolling back changes due to validation failure..."
+                if rollback_to_backup "$repo_path"; then
+                    log_ok "Rollback completed, repository restored to known good state"
+                else
+                    log_error "Rollback failed! Manual intervention required"
+                fi
+            fi
+            
+            # Check if we should retry
+            if [[ $((retry_count + 1)) -lt $MAX_VALIDATION_RETRIES ]]; then
+                log_info "Will retry on next sync cycle (attempt $((retry_count + 2))/$MAX_VALIDATION_RETRIES)"
+            else
+                log_error "Max retries reached. Manual fix required."
+            fi
+            
+            return 1
+        else
+            log_ok "Validation passed"
+            REPO_VALIDATION_FAILED[$repo_name]="false"
+            REPO_RETRY_COUNT[$repo_name]=0
+            REPO_LAST_ERROR[$repo_name]=""
+        fi
+    fi
+    
+    # Execute post-sync hook (only if validation passed)
     if [ -n "$post_hook" ] && [ -x "$post_hook" ]; then
         log_info "Executing post-sync hook: $post_hook"
         if ! "$post_hook" "$repo_name" "$repo_path" "$old_commit" "$new_commit"; then
             log_warn "Post-sync hook failed"
+            REPO_LAST_ERROR[$repo_name]="Post-sync hook failed"
+            # Don't rollback for hook failures, just warn
         fi
     fi
     
@@ -398,7 +677,7 @@ load_config_file() {
     log_info "Found $repo_count repository/repositories in configuration"
     
     for ((i=0; i<repo_count; i++)); do
-        local name path branch remote mode use_lfs post_hook
+        local name path branch remote mode use_lfs post_hook validator
         
         name=$(jq -r ".[$i].name" "$config_file")
         path=$(jq -r ".[$i].path" "$config_file")
@@ -407,9 +686,18 @@ load_config_file() {
         mode=$(jq -r ".[$i].mode // \"safe\"" "$config_file")
         use_lfs=$(jq -r ".[$i].use_lfs // false" "$config_file")
         post_hook=$(jq -r ".[$i].post_hook // \"\"" "$config_file")
+        validator=$(jq -r ".[$i].validator // \"\"" "$config_file")
         
-        add_repository "$name" "$path" "$branch" "$remote" "$mode" "$use_lfs" "$post_hook"
+        add_repository "$name" "$path" "$branch" "$remote" "$mode" "$use_lfs" "$post_hook" "$validator"
     done
+    
+    # Load global validation settings if present
+    if jq -e '.validation' "$config_file" >/dev/null 2>&1; then
+        VALIDATION_ENABLED=$(jq -r '.validation.enabled // true' "$config_file")
+        MAX_VALIDATION_RETRIES=$(jq -r '.validation.max_retries // 3' "$config_file")
+        ROLLBACK_ON_FAILURE=$(jq -r '.validation.rollback_on_failure // true' "$config_file")
+        log_debug "Validation settings: enabled=$VALIDATION_ENABLED, max_retries=$MAX_VALIDATION_RETRIES, rollback=$ROLLBACK_ON_FAILURE"
+    fi
 }
 
 add_repository() {
@@ -420,6 +708,7 @@ add_repository() {
     local mode="${5:-safe}"
     local use_lfs="${6:-false}"
     local post_hook="${7:-}"
+    local validator="${8:-}"
     
     REPOS+=("$name")
     REPO_PATHS[$name]="$path"
@@ -428,6 +717,10 @@ add_repository() {
     REPO_MODES[$name]="$mode"
     REPO_LFS_ENABLED[$name]="$use_lfs"
     REPO_HOOKS[$name]="$post_hook"
+    REPO_VALIDATORS[$name]="$validator"
+    REPO_RETRY_COUNT[$name]=0
+    REPO_LAST_ERROR[$name]=""
+    REPO_VALIDATION_FAILED[$name]="false"
     
     log_debug "Added repository: $name at $path"
 }
@@ -564,7 +857,7 @@ run_daemon() {
 show_usage() {
     cat <<EOF
 ${BOLD}Git Auto-Sync v${VERSION}${NC}
-Production-grade Git repository synchronization with advanced features
+Production-grade Git repository synchronization with validation & error recovery
 
 ${BOLD}USAGE:${NC}
     $0 [OPTIONS]
@@ -579,6 +872,7 @@ ${BOLD}OPTIONS:${NC}
     -l, --lfs               Enable Git LFS support
     --remote NAME           Remote name (default: origin)
     --hook SCRIPT           Post-sync hook script
+    --validator SCRIPT      Custom validation script
     -v, --verbose           Enable debug logging
     -h, --help              Show this help message
     --version               Show version information
@@ -588,34 +882,58 @@ ${BOLD}SYNC MODES:${NC}
     force   - Hard reset to remote, discard all local changes
     pull    - Standard git pull with fallback to reset
 
+${BOLD}VALIDATION & ERROR RECOVERY:${NC}
+    • Automatic validation of JSON, YAML, and DNS zone files
+    • Custom validator scripts for domain-specific validation
+    • Automatic rollback on validation failure
+    • Retry mechanism with configurable attempts (default: 3)
+    • Backup of last known good state
+    • Manual intervention prompts when max retries reached
+
 ${BOLD}EXAMPLES:${NC}
-    # Sync single repository
-    $0 -r /path/to/repo -b main
+    # Sync with validation
+    $0 --config repos.json
 
-    # Sync with Git LFS
-    $0 -r /path/to/repo --lfs
+    # DNS zone sync with validation
+    $0 -r /etc/bind/zones --validator /usr/local/bin/validate-dns.sh
 
-    # Daemon mode with config file
-    $0 --daemon --config repos.json --interval 600
+    # Daemon mode with automatic retry
+    $0 --daemon --config repos.json --interval 300
 
-    # Multiple repositories
-    $0 -r /path/to/repo1 -r /path/to/repo2 -m force
-
-    # Remote execution
-    curl -fsSL https://example.com/git-auto-sync.sh | bash -s -- -r /repo -d
+    # Remote execution with validation
+    curl -fsSL https://example.com/git-auto-sync.sh | bash -s -- --config /tmp/config.json
 
 ${BOLD}CONFIG FILE FORMAT:${NC}
-    [
-      {
-        "name": "my-repo",
-        "path": "/path/to/repo",
-        "branch": "main",
-        "remote": "origin",
-        "mode": "safe",
-        "use_lfs": false,
-        "post_hook": "/path/to/hook.sh"
-      }
-    ]
+    {
+      "validation": {
+        "enabled": true,
+        "max_retries": 3,
+        "rollback_on_failure": true
+      },
+      "repositories": [
+        {
+          "name": "dns-zones",
+          "path": "/etc/bind/zones",
+          "branch": "main",
+          "remote": "origin",
+          "mode": "safe",
+          "use_lfs": false,
+          "validator": "/usr/local/bin/validate-dns.sh",
+          "post_hook": "/usr/local/bin/reload-bind.sh"
+        }
+      ]
+    }
+
+${BOLD}CUSTOM VALIDATORS:${NC}
+    Validators receive the repository path as argument and should:
+    • Exit 0 if validation passes
+    • Exit 1 if validation fails
+    • Output error messages to stderr
+
+    Example validator:
+      #!/bin/bash
+      repo_path="\$1"
+      find "\$repo_path" -name "*.zone" -exec named-checkzone {} \\;
 
 ${BOLD}DOCUMENTATION:${NC}
     https://github.com/yourusername/remote-script-runner

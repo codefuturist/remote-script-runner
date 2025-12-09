@@ -234,6 +234,208 @@ A server configuration script that simulates setting up a server environment wit
 /bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/server-setup.sh)" -- -d -v -u dev nodejs python3 git
 ```
 
+### user-management.sh ✨ NEW
+
+A comprehensive cross-platform user management system with support for Linux and macOS. Covers account lifecycle, password management, groups, permissions, and session monitoring.
+
+**Full Documentation**: [`docs/USER_MANAGEMENT.md`](docs/USER_MANAGEMENT.md) | **Quick Reference**: [`docs/USER_MANAGEMENT_QUICK_REFERENCE.md`](docs/USER_MANAGEMENT_QUICK_REFERENCE.md)
+
+#### Usage
+
+```bash
+./scripts/bash/user-management.sh <subcommand> [OPTIONS]
+```
+
+#### Subcommands
+
+**Account Management:**
+- `create` - Create user account with groups, passwords, custom settings
+- `delete` - Delete user account with optional home removal
+- `lock` / `unlock` - Disable/enable user login
+- `list` - List users with filtering options
+
+**Password Management:**
+- `password reset` - Reset user password
+- `password expire` - Force password change on next login
+- `password generate` - Generate secure random passwords
+- `password policy` - View password policy settings
+
+**Group Management:**
+- `group create` - Create new group
+- `group add` - Add user to group
+- `group remove` - Remove user from group
+- `group list` - List group members
+- `group show` - Show user's groups
+
+**Permission Management:**
+- `permission set` - Set file/folder permissions and ownership
+- `permission get` - View current permissions
+- `permission template` - Apply permission templates (web, shared, private, service)
+
+**SSH Key Management:**
+- `ssh generate` - Generate SSH key pair for user
+- `ssh add` - Add public key to authorized_keys
+- `ssh remove` - Remove key from authorized_keys
+- `ssh list` - List authorized SSH keys
+- `ssh copy` - Copy SSH keys between users
+- `ssh validate` - Validate authorized_keys file
+- `ssh fix` - Fix SSH directory permissions
+
+**Session Monitoring:**
+- `session list` - List active user sessions
+- `session history` - View login history
+- `session failures` - Show failed login attempts
+
+**Audit:**
+- `audit` - Run comprehensive user security audit
+
+#### Quick Examples
+
+```bash
+# Create user with generated password
+sudo rsr usermgmt create -u john -c "John Doe" -g sudo,docker --generate
+
+# List sudo users
+rsr usermgmt list --sudo
+
+# Reset password
+sudo rsr usermgmt password reset -u john
+
+# Add user to group
+sudo rsr usermgmt group add -u john -g docker
+
+# Set web permissions
+sudo rsr usermgmt permission template -p /var/www -t web
+
+# Generate SSH key
+sudo rsr usermgmt ssh generate -u john -t ed25519
+
+# Add SSH key
+sudo rsr usermgmt ssh add -u john -f ~/.ssh/id_rsa.pub
+
+# List SSH keys
+rsr usermgmt ssh list -u john --fingerprints
+
+# View active sessions
+rsr usermgmt session list
+
+# Run audit
+sudo rsr usermgmt audit
+
+# Remote execution
+/bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/scripts/bash/user-management.sh)" -- create -u john -c "John Doe" --generate
+```
+
+#### Features
+
+✅ **Cross-Platform**: Full support for Linux, macOS, and Windows  
+✅ **Comprehensive**: Account, password, group, permission, SSH key, and session management  
+✅ **Safe**: Dry-run mode, confirmations, input validation  
+✅ **Modern**: Subcommand structure, colored output, helpful error messages  
+✅ **Scriptable**: Library functions (`lib/users.sh` and `lib/users.ps1`) for custom scripts  
+✅ **Documented**: Extensive guides and examples
+
+**Platform-Specific:**
+- **Linux/macOS**: Uses bash (`lib/users.sh`) with `useradd`, `dscl`, etc.
+- **Windows**: Uses PowerShell (`lib/users.ps1`) with `New-LocalUser`, `Get-LocalUser`, etc.
+- **Same Commands**: Identical syntax across all platforms
+
+See [User Management Guide](docs/USER_MANAGEMENT.md) for complete documentation.
+
+### ssh-server ✨ NEW
+
+Complete SSH server management with installation, configuration, hardening, and monitoring across Linux, macOS, and Windows.
+
+**Full Documentation**: [`docs/SSH_SERVER_MANAGEMENT.md`](docs/SSH_SERVER_MANAGEMENT.md)
+
+#### Usage
+
+```bash
+./scripts/bash/ssh-server.sh <subcommand> [OPTIONS]
+
+# Windows
+.\scripts\powershell\SSHServer.ps1 <subcommand> [OPTIONS]
+```
+
+#### Subcommands
+
+**Installation & Setup:**
+- `install` - Install SSH server
+- `enable` - Enable at boot
+- `start` - Start service
+
+**Service Control:**
+- `start/stop/restart` - Service control
+- `status` - Show comprehensive status
+- `enable/disable` - Boot configuration
+
+**Configuration:**
+- `config get/set` - Get/set configuration values
+- `config backup/restore` - Backup and restore
+- `config validate` - Validate syntax
+
+**Security & Hardening:**
+- `harden` - Apply security hardening (integrates with ssh-hardening script)
+- `audit` - Run security audit
+- `score` - Show security score (0-100)
+
+**Testing & Diagnostics:**
+- `test [host] [port]` - Test SSH connection
+- `connections` - Show active connections
+- `logs [lines]` - Show SSH logs
+- `failed` - Show failed login attempts
+
+#### Quick Examples
+
+```bash
+# Install and enable SSH server
+sudo rsr ssh-server install
+sudo rsr ssh-server enable
+sudo rsr ssh-server start
+
+# Check status and security score
+rsr ssh-server status
+rsr ssh-server score
+
+# Apply security hardening
+sudo rsr ssh-server harden
+
+# Change SSH port
+sudo rsr ssh-server config set Port 2222
+sudo rsr ssh-server restart
+
+# Monitor failed logins
+rsr ssh-server failed
+
+# Test connection
+rsr ssh-server test myserver.com
+
+# Windows
+.\rsr.ps1 ssh-server install
+.\rsr.ps1 ssh-server harden
+```
+
+#### Features
+
+✅ **Cross-Platform**: Full support for Linux, macOS, and Windows  
+✅ **Complete Management**: Install, configure, control, monitor SSH servers  
+✅ **Security Hardening**: Integrated with ssh-hardening script + security scoring  
+✅ **Safe Operations**: Automatic backups, validation, confirmations  
+✅ **Diagnostics**: Connection testing, log viewing, failed login tracking  
+✅ **Modern**: Subcommand structure, colored output, helpful messages
+
+**Platform-Specific:**
+- **Linux**: Package manager integration, systemd/init.d support
+- **macOS**: Built-in SSH with launchd control
+- **Windows**: OpenSSH Server via Windows Capability
+
+**Integration:**
+- Works with `rsr ssh-harden` for advanced hardening
+- Compatible with `rsr usermgmt ssh` for user key management
+- Supports Ansible, Docker, CI/CD workflows
+
+See [SSH Server Management Guide](docs/SSH_SERVER_MANAGEMENT.md) for complete documentation.
+
 ## How It Works
 
 The pattern for running scripts remotely with arguments is:
