@@ -48,6 +48,11 @@ MAX_VALIDATION_RETRIES=3
 VALIDATION_ENABLED=true
 ROLLBACK_ON_FAILURE=true
 
+# Efficient change detection
+declare -A REPO_LAST_REMOTE_HASH=()
+QUICK_CHECK_ENABLED=true
+QUICK_CHECK_INTERVAL=30
+
 # =============================================================================
 # Color Setup
 # =============================================================================
@@ -324,6 +329,41 @@ is_git_repo() {
     [ -d "$path/.git" ]
 }
 
+# Lightweight check for remote changes without fetching
+check_remote_changes() {
+    local remote="$1"
+    local branch="$2"
+    local repo_name="$3"
+    
+    log_debug "Quick-checking remote for changes: $remote/$branch"
+    
+    # Get remote hash without fetching
+    local remote_hash
+    remote_hash=$(timeout 10 git ls-remote "$remote" "refs/heads/$branch" 2>/dev/null | cut -f1)
+    
+    if [[ -z "$remote_hash" ]]; then
+        log_debug "Could not get remote hash, will do full fetch"
+        return 0  # Assume changes, do full sync
+    fi
+    
+    local last_hash="${REPO_LAST_REMOTE_HASH[$repo_name]:-}"
+    
+    if [[ -z "$last_hash" ]]; then
+        log_debug "First check for $repo_name, storing hash: ${remote_hash:0:8}"
+        REPO_LAST_REMOTE_HASH[$repo_name]="$remote_hash"
+        return 0  # First run, do full sync
+    fi
+    
+    if [[ "$remote_hash" != "$last_hash" ]]; then
+        log_info "Remote changes detected: ${last_hash:0:8} → ${remote_hash:0:8}"
+        REPO_LAST_REMOTE_HASH[$repo_name]="$remote_hash"
+        return 0  # Changes detected
+    fi
+    
+    log_debug "No remote changes detected (${remote_hash:0:8})"
+    return 1  # No changes
+}
+
 get_current_branch() {
     git rev-parse --abbrev-ref HEAD 2>/dev/null || echo ""
 }
@@ -468,7 +508,25 @@ sync_repository() {
         return 1
     fi
     
-    # Fetch with retry
+    # Quick check for changes (if enabled)
+    local skip_sync=false
+    if [[ "$QUICK_CHECK_ENABLED" == "true" ]]; then
+        if ! check_remote_changes "$remote" "$branch" "$repo_name"; then
+            log_info "No changes detected, skipping sync"
+            skip_sync=true
+        fi
+    fi
+    
+    # Skip full sync if no changes detected
+    if [[ "$skip_sync" == "true" ]]; then
+        # Update stats to show we checked
+        local stats
+        stats=$(get_repo_stats "$repo_path")
+        log_debug "Repository stats: $stats"
+        return 0
+    fi
+    
+    # Fetch with retry (only if changes detected or quick check disabled)
     log_info "Fetching from $remote..."
     if ! retry_command $DEFAULT_RETRY_ATTEMPTS $DEFAULT_RETRY_DELAY \
         timeout "$DEFAULT_GIT_TIMEOUT" git fetch --quiet "$remote" "$branch"; then
@@ -698,6 +756,13 @@ load_config_file() {
         ROLLBACK_ON_FAILURE=$(jq -r '.validation.rollback_on_failure // true' "$config_file")
         log_debug "Validation settings: enabled=$VALIDATION_ENABLED, max_retries=$MAX_VALIDATION_RETRIES, rollback=$ROLLBACK_ON_FAILURE"
     fi
+    
+    # Load quick check settings if present
+    if jq -e '.quick_check' "$config_file" >/dev/null 2>&1; then
+        QUICK_CHECK_ENABLED=$(jq -r '.quick_check.enabled // true' "$config_file")
+        QUICK_CHECK_INTERVAL=$(jq -r '.quick_check.interval // 30' "$config_file")
+        log_debug "Quick check: enabled=$QUICK_CHECK_ENABLED, interval=${QUICK_CHECK_INTERVAL}s"
+    fi
 }
 
 add_repository() {
@@ -838,15 +903,49 @@ run_daemon() {
     
     log_info "Starting daemon mode (interval: ${interval}s)"
     
+    if [[ "$QUICK_CHECK_ENABLED" == "true" ]]; then
+        log_info "Quick check enabled (lightweight check every ${QUICK_CHECK_INTERVAL}s, full sync every ${interval}s)"
+    fi
+    
     # Write PID file
     echo $$ > "$PID_FILE"
     
+    local cycle_count=0
+    local quick_checks_per_full_sync=$((interval / QUICK_CHECK_INTERVAL))
+    
     # Continuous sync loop
     while true; do
-        sync_all_repositories || log_warn "Sync cycle failed, continuing..."
+        ((cycle_count++))
         
-        log_info "Waiting ${interval}s until next sync..."
-        sleep "$interval"
+        # Determine if this is a full sync or quick check
+        if [[ "$QUICK_CHECK_ENABLED" == "true" ]] && [[ $((cycle_count % quick_checks_per_full_sync)) -ne 0 ]]; then
+            log_debug "Quick check cycle #$cycle_count"
+            # Quick checks only look for changes, no full fetch
+        else
+            log_info "Full sync cycle #$cycle_count"
+            # Temporarily disable quick check for full sync
+            local temp_quick_check="$QUICK_CHECK_ENABLED"
+            QUICK_CHECK_ENABLED="false"
+            sync_all_repositories || log_warn "Sync cycle failed, continuing..."
+            QUICK_CHECK_ENABLED="$temp_quick_check"
+            cycle_count=0  # Reset counter after full sync
+        fi
+        
+        # Always run at least the check
+        if [[ "$QUICK_CHECK_ENABLED" == "true" ]]; then
+            sync_all_repositories || log_warn "Check cycle failed, continuing..."
+        fi
+        
+        # Wait based on interval
+        local wait_time
+        if [[ "$QUICK_CHECK_ENABLED" == "true" ]]; then
+            wait_time="$QUICK_CHECK_INTERVAL"
+        else
+            wait_time="$interval"
+        fi
+        
+        log_debug "Waiting ${wait_time}s until next check..."
+        sleep "$wait_time"
     done
 }
 
@@ -890,6 +989,13 @@ ${BOLD}VALIDATION & ERROR RECOVERY:${NC}
     • Backup of last known good state
     • Manual intervention prompts when max retries reached
 
+${BOLD}EFFICIENT CHANGE DETECTION:${NC}
+    • Lightweight remote checking with git ls-remote (no fetch)
+    • Configurable quick-check interval (default: 30s)
+    • Full sync only when changes detected
+    • Minimal resource usage for frequent checks
+    • Perfect for high-frequency monitoring (every 30s)
+
 ${BOLD}EXAMPLES:${NC}
     # Sync with validation
     $0 --config repos.json
@@ -900,6 +1006,9 @@ ${BOLD}EXAMPLES:${NC}
     # Daemon mode with automatic retry
     $0 --daemon --config repos.json --interval 300
 
+    # High-frequency monitoring (checks every 30s, full sync only on changes)
+    $0 --daemon --config repos.json
+
     # Remote execution with validation
     curl -fsSL https://example.com/git-auto-sync.sh | bash -s -- --config /tmp/config.json
 
@@ -909,6 +1018,10 @@ ${BOLD}CONFIG FILE FORMAT:${NC}
         "enabled": true,
         "max_retries": 3,
         "rollback_on_failure": true
+      },
+      "quick_check": {
+        "enabled": true,
+        "interval": 30
       },
       "repositories": [
         {

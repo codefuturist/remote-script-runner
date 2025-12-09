@@ -4,6 +4,10 @@
     "max_retries": 3,
     "rollback_on_failure": true
   },
+  "quick_check": {
+    "enabled": true,
+    "interval": 30
+  },
   "repositories": [
     {
       "name": "example-repo",
