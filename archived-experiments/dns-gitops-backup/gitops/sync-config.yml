@@ -1,0 +1,19 @@
+# GitOps Sync Configuration
+# Maps repository paths to deployment locations
+
+deployments:
+  - name: traefik
+    source: /opt/gitops/iac-catalog/deployments/production/traefik
+    target: /opt/traefik
+    sync_files:
+      - traefik/traefik.yml
+      - traefik/config/*.yml
+      - docker-compose.yml
+    restart_command: 'cd /opt/traefik && docker compose restart traefik'
+    
+  - name: authentik
+    source: /opt/gitops/iac-catalog/deployments/production/authentik
+    target: /opt/gitops/iac-catalog/deployments/production/authentik
+    sync_files:
+      - docker-compose.yml
+    restart_command: 'cd /opt/gitops/iac-catalog/deployments/production/authentik && docker stack deploy -c docker-compose.yml authentik_production'

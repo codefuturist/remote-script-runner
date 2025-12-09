@@ -1,0 +1,990 @@
+[2025-12-09 14:52:49] Starting DNS sync from GitHub...
+[2025-12-09 14:52:49] Cloning repository...
+[2025-12-09 16:25:49][INFO] =
+[2025-12-09 16:25:49][INFO] DNS GitOps Sync Service Started
+[2025-12-09 16:25:49][INFO] Command: sync
+[2025-12-09 16:25:49][INFO] =
+[2025-12-09 16:25:49][INFO] Initializing DNS repository...
+[2025-12-09 16:25:49][INFO] Updating DNS repository...
+fatal: detected dubious ownership in repository at '/opt/gitops/iac-catalog'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /opt/gitops/iac-catalog
+[2025-12-09 16:25:49][ERROR] Failed to fetch from remote
+[2025-12-09 16:25:49][ERROR] Repository update failed
+[2025-12-09 16:30:43][INFO] =
+[2025-12-09 16:30:43][INFO] DNS GitOps Sync Service Started
+[2025-12-09 16:30:43][INFO] Command: sync
+[2025-12-09 16:30:43][INFO] =
+[2025-12-09 16:30:43][INFO] Initializing DNS repository...
+[2025-12-09 16:30:43][INFO] Updating DNS repository...
+From https://github.com/codefuturist/iac-catalog
+ * branch            develop    -> FETCH_HEAD
+[2025-12-09 16:30:43][INFO] Repository already up to date
+[2025-12-09 16:30:43][INFO] Validating environment...
+[2025-12-09 16:30:43][INFO] Environment validation passed
+[2025-12-09 16:30:43][INFO]   Zones directory: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones
+[2025-12-09 16:30:43][INFO]   Zone files: 2
+[2025-12-09 16:30:43][INFO]   Pi-hole config: /etc/pihole/pihole.toml
+[2025-12-09 16:30:43][INFO] Starting DNS zone synchronization...
+[2025-12-09 16:30:43][INFO] =
+[2025-12-09 16:30:43][INFO] ============================================================
+[2025-12-09 16:30:43][INFO] DNS ZONE SYNC - VALIDATION PHASE
+[2025-12-09 16:30:43][INFO] ============================================================
+[2025-12-09 16:30:43][INFO] Found 2 zone files
+[2025-12-09 16:30:43][INFO]   - pandia.io.zone
+[2025-12-09 16:30:43][INFO]   - test.local.zone
+[2025-12-09 16:30:43][INFO] ============================================================
+[2025-12-09 16:30:43][INFO] PHASE 1: PRE-VALIDATION - NO CHANGES WILL BE MADE
+[2025-12-09 16:30:43][INFO] ============================================================
+[2025-12-09 16:30:43][INFO] Pre-validating: pandia.io.zone
+[2025-12-09 16:30:43][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:30:43][INFO] Parsed 81 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:30:44][INFO] Pre-validating: test.local.zone
+[2025-12-09 16:30:44][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:30:44][INFO] Parsed 6 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:30:44][INFO] ============================================================
+[2025-12-09 16:30:44][INFO] PRE-VALIDATION RESULTS
+[2025-12-09 16:30:44][INFO] ============================================================
+[2025-12-09 16:30:44][INFO] Valid zones: 2/2
+[2025-12-09 16:30:44][INFO]   ✓ pandia.io.zone
+[2025-12-09 16:30:44][INFO]   ✓ test.local.zone
+[2025-12-09 16:30:44][INFO] ============================================================
+[2025-12-09 16:30:44][INFO] ✓ ALL ZONE FILES VALID - PROCEEDING
+[2025-12-09 16:30:44][INFO] ============================================================
+[2025-12-09 16:30:44][INFO] Successfully parsed 87 DNS records
+[2025-12-09 16:30:44][INFO] ============================================================
+[2025-12-09 16:30:44][INFO] PHASE 2: CONVERSION & FINAL VALIDATION
+[2025-12-09 16:30:44][INFO] ============================================================
+[2025-12-09 16:30:44][INFO] Converting DNS records to Pi-hole hosts format
+[2025-12-09 16:30:44][WARNING] Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:30:44][INFO] Using latest IP for traefik-public-ingress-lb.pandia.io: 192.168.2.152
+[2025-12-09 16:30:44][INFO] Converted 86 DNS records to hosts format
+[2025-12-09 16:30:44][WARNING] Found 1 duplicate hostnames
+[2025-12-09 16:30:44][WARNING] Found 1 warnings during conversion
+[2025-12-09 16:30:44][WARNING]   - Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:30:44][INFO] Successfully converted to 86 Pi-hole hosts entries
+[2025-12-09 16:30:44][INFO] ============================================================
+[2025-12-09 16:30:44][INFO] VALIDATION SUMMARY - ALL CHECKS PASSED
+[2025-12-09 16:30:44][INFO] ============================================================
+[2025-12-09 16:30:44][INFO] Zone files processed: 2
+[2025-12-09 16:30:44][INFO] DNS records parsed: 87
+[2025-12-09 16:30:44][INFO] Hosts entries generated: 86
+[2025-12-09 16:30:44][INFO] Parse warnings: 0
+[2025-12-09 16:30:44][INFO] Conversion warnings: 1
+[2025-12-09 16:30:44][INFO] Duplicate hostnames: 1
+[2025-12-09 16:30:44][WARNING] Duplicate hostnames detected:
+[2025-12-09 16:30:44][WARNING]   - traefik-public-ingress-lb.pandia.io: ['192.168.2.153', '192.168.2.152']
+[2025-12-09 16:30:44][INFO] ============================================================
+[2025-12-09 16:30:44][INFO] PHASE 3: APPLICATION - Applying validated configuration
+[2025-12-09 16:30:44][INFO] ============================================================
+[2025-12-09 16:30:44][INFO] ⚠️  All validations passed - NOW modifying destination config
+[2025-12-09 16:30:44][INFO] Updating /etc/pihole/pihole.toml with 86 hosts (dry_run=False)
+[2025-12-09 16:30:44][INFO] Created backup: /etc/pihole/pihole.toml.backup-20251209-163044
+[2025-12-09 16:30:44][WARNING] No changes detected in TOML content
+[2025-12-09 16:30:44][INFO] Successfully updated pihole.toml
+[2025-12-09 16:30:44][INFO] ============================================================
+[2025-12-09 16:30:44][INFO] ✓ DNS SYNC SUCCESSFUL
+[2025-12-09 16:30:44][INFO] ============================================================
+[2025-12-09 16:30:44][INFO] Validated configuration applied successfully
+[2025-12-09 16:30:44][INFO] ============================================================
+[2025-12-09 16:30:44][INFO] DNS sync completed successfully
+[2025-12-09 16:30:44][INFO] Restarting Pi-hole FTL service...
+[2025-12-09 16:30:44][INFO] Pi-hole FTL restarted successfully
+[2025-12-09 16:30:44][INFO] =
+[2025-12-09 16:30:44][INFO] DNS GitOps Sync Completed Successfully
+[2025-12-09 16:30:44][INFO] =
+[2025-12-09 16:36:12][INFO] =
+[2025-12-09 16:36:12][INFO] DNS GitOps Sync Service Started
+[2025-12-09 16:36:12][INFO] Command: sync
+[2025-12-09 16:36:12][INFO] =
+[2025-12-09 16:36:12][INFO] Initializing DNS repository...
+[2025-12-09 16:36:12][INFO] Updating DNS repository...
+From https://github.com/codefuturist/iac-catalog
+ * branch            develop    -> FETCH_HEAD
+[2025-12-09 16:36:13][INFO] Repository already up to date
+[2025-12-09 16:36:13][INFO] Validating environment...
+[2025-12-09 16:36:13][INFO] Environment validation passed
+[2025-12-09 16:36:13][INFO]   Zones directory: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones
+[2025-12-09 16:36:13][INFO]   Zone files: 2
+[2025-12-09 16:36:13][INFO]   Pi-hole config: /etc/pihole/pihole.toml
+[2025-12-09 16:36:13][INFO] Starting DNS zone synchronization...
+[2025-12-09 16:36:13][INFO] =
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] DNS ZONE SYNC - VALIDATION PHASE
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] Found 2 zone files
+[2025-12-09 16:36:13][INFO]   - pandia.io.zone
+[2025-12-09 16:36:13][INFO]   - test.local.zone
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] PHASE 1: PRE-VALIDATION - NO CHANGES WILL BE MADE
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] Pre-validating: pandia.io.zone
+[2025-12-09 16:36:13][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:36:13][INFO] Parsed 81 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:36:13][INFO] Pre-validating: test.local.zone
+[2025-12-09 16:36:13][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:36:13][INFO] Parsed 6 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] PRE-VALIDATION RESULTS
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] Valid zones: 2/2
+[2025-12-09 16:36:13][INFO]   ✓ pandia.io.zone
+[2025-12-09 16:36:13][INFO]   ✓ test.local.zone
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] ✓ ALL ZONE FILES VALID - PROCEEDING
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] Successfully parsed 87 DNS records
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] PHASE 2: CONVERSION & FINAL VALIDATION
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] Converting DNS records to Pi-hole hosts format
+[2025-12-09 16:36:13][WARNING] Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:36:13][INFO] Using latest IP for traefik-public-ingress-lb.pandia.io: 192.168.2.152
+[2025-12-09 16:36:13][INFO] Converted 86 DNS records to hosts format
+[2025-12-09 16:36:13][WARNING] Found 1 duplicate hostnames
+[2025-12-09 16:36:13][WARNING] Found 1 warnings during conversion
+[2025-12-09 16:36:13][WARNING]   - Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:36:13][INFO] Successfully converted to 86 Pi-hole hosts entries
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] VALIDATION SUMMARY - ALL CHECKS PASSED
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] Zone files processed: 2
+[2025-12-09 16:36:13][INFO] DNS records parsed: 87
+[2025-12-09 16:36:13][INFO] Hosts entries generated: 86
+[2025-12-09 16:36:13][INFO] Parse warnings: 0
+[2025-12-09 16:36:13][INFO] Conversion warnings: 1
+[2025-12-09 16:36:13][INFO] Duplicate hostnames: 1
+[2025-12-09 16:36:13][WARNING] Duplicate hostnames detected:
+[2025-12-09 16:36:13][WARNING]   - traefik-public-ingress-lb.pandia.io: ['192.168.2.153', '192.168.2.152']
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] PHASE 3: APPLICATION - Applying validated configuration
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] ⚠️  All validations passed - NOW modifying destination config
+[2025-12-09 16:36:13][INFO] Updating /etc/pihole/pihole.toml with 86 hosts (dry_run=False)
+[2025-12-09 16:36:13][INFO] Created backup: /etc/pihole/pihole.toml.backup-20251209-163613
+[2025-12-09 16:36:13][WARNING] No changes detected in TOML content
+[2025-12-09 16:36:13][INFO] Successfully updated pihole.toml
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] ✓ DNS SYNC SUCCESSFUL
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] Validated configuration applied successfully
+[2025-12-09 16:36:13][INFO] ============================================================
+[2025-12-09 16:36:13][INFO] DNS sync completed successfully
+[2025-12-09 16:36:13][INFO] Restarting Pi-hole FTL service...
+[2025-12-09 16:36:14][INFO] Pi-hole FTL restarted successfully
+[2025-12-09 16:36:14][INFO] =
+[2025-12-09 16:36:14][INFO] DNS GitOps Sync Completed Successfully
+[2025-12-09 16:36:14][INFO] =
+[2025-12-09 16:39:12][INFO] =
+[2025-12-09 16:39:12][INFO] DNS GitOps Sync Service Started
+[2025-12-09 16:39:12][INFO] Command: sync
+[2025-12-09 16:39:12][INFO] =
+[2025-12-09 16:39:12][INFO] Initializing DNS repository...
+[2025-12-09 16:39:12][INFO] Updating DNS repository...
+From https://github.com/codefuturist/iac-catalog
+ * branch            develop    -> FETCH_HEAD
+[2025-12-09 16:39:13][INFO] Repository already up to date
+[2025-12-09 16:39:13][INFO] Validating environment...
+[2025-12-09 16:39:13][INFO] Environment validation passed
+[2025-12-09 16:39:13][INFO]   Zones directory: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones
+[2025-12-09 16:39:13][INFO]   Zone files: 2
+[2025-12-09 16:39:13][INFO]   Pi-hole config: /etc/pihole/pihole.toml
+[2025-12-09 16:39:13][INFO] Starting DNS zone synchronization...
+[2025-12-09 16:39:13][INFO] =
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] DNS ZONE SYNC - VALIDATION PHASE
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] Found 2 zone files
+[2025-12-09 16:39:13][INFO]   - pandia.io.zone
+[2025-12-09 16:39:13][INFO]   - test.local.zone
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] PHASE 1: PRE-VALIDATION - NO CHANGES WILL BE MADE
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] Pre-validating: pandia.io.zone
+[2025-12-09 16:39:13][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:39:13][INFO] Parsed 81 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:39:13][INFO] Pre-validating: test.local.zone
+[2025-12-09 16:39:13][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:39:13][INFO] Parsed 6 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] PRE-VALIDATION RESULTS
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] Valid zones: 2/2
+[2025-12-09 16:39:13][INFO]   ✓ pandia.io.zone
+[2025-12-09 16:39:13][INFO]   ✓ test.local.zone
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] ✓ ALL ZONE FILES VALID - PROCEEDING
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] Successfully parsed 87 DNS records
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] PHASE 2: CONVERSION & FINAL VALIDATION
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] Converting DNS records to Pi-hole hosts format
+[2025-12-09 16:39:13][WARNING] Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:39:13][INFO] Using latest IP for traefik-public-ingress-lb.pandia.io: 192.168.2.152
+[2025-12-09 16:39:13][INFO] Converted 86 DNS records to hosts format
+[2025-12-09 16:39:13][WARNING] Found 1 duplicate hostnames
+[2025-12-09 16:39:13][WARNING] Found 1 warnings during conversion
+[2025-12-09 16:39:13][WARNING]   - Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:39:13][INFO] Successfully converted to 86 Pi-hole hosts entries
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] VALIDATION SUMMARY - ALL CHECKS PASSED
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] Zone files processed: 2
+[2025-12-09 16:39:13][INFO] DNS records parsed: 87
+[2025-12-09 16:39:13][INFO] Hosts entries generated: 86
+[2025-12-09 16:39:13][INFO] Parse warnings: 0
+[2025-12-09 16:39:13][INFO] Conversion warnings: 1
+[2025-12-09 16:39:13][INFO] Duplicate hostnames: 1
+[2025-12-09 16:39:13][WARNING] Duplicate hostnames detected:
+[2025-12-09 16:39:13][WARNING]   - traefik-public-ingress-lb.pandia.io: ['192.168.2.153', '192.168.2.152']
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] PHASE 3: APPLICATION - Applying validated configuration
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] ⚠️  All validations passed - NOW modifying destination config
+[2025-12-09 16:39:13][INFO] Updating /etc/pihole/pihole.toml with 86 hosts (dry_run=False)
+[2025-12-09 16:39:13][INFO] Created backup: /etc/pihole/pihole.toml.backup-20251209-163913
+[2025-12-09 16:39:13][WARNING] No changes detected in TOML content
+[2025-12-09 16:39:13][INFO] Successfully updated pihole.toml
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] ✓ DNS SYNC SUCCESSFUL
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] Validated configuration applied successfully
+[2025-12-09 16:39:13][INFO] ============================================================
+[2025-12-09 16:39:13][INFO] DNS sync completed successfully
+[2025-12-09 16:39:13][INFO] Restarting Pi-hole FTL service...
+[2025-12-09 16:39:15][INFO] Pi-hole FTL restarted successfully
+[2025-12-09 16:39:15][INFO] =
+[2025-12-09 16:39:15][INFO] DNS GitOps Sync Completed Successfully
+[2025-12-09 16:39:15][INFO] =
+[2025-12-09 16:42:13][INFO] =
+[2025-12-09 16:42:13][INFO] DNS GitOps Sync Service Started
+[2025-12-09 16:42:13][INFO] Command: sync
+[2025-12-09 16:42:13][INFO] =
+[2025-12-09 16:42:13][INFO] Initializing DNS repository...
+[2025-12-09 16:42:13][INFO] Updating DNS repository...
+From https://github.com/codefuturist/iac-catalog
+ * branch            develop    -> FETCH_HEAD
+[2025-12-09 16:42:13][INFO] Repository already up to date
+[2025-12-09 16:42:13][INFO] Validating environment...
+[2025-12-09 16:42:13][INFO] Environment validation passed
+[2025-12-09 16:42:13][INFO]   Zones directory: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones
+[2025-12-09 16:42:13][INFO]   Zone files: 2
+[2025-12-09 16:42:13][INFO]   Pi-hole config: /etc/pihole/pihole.toml
+[2025-12-09 16:42:13][INFO] Starting DNS zone synchronization...
+[2025-12-09 16:42:13][INFO] =
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] DNS ZONE SYNC - VALIDATION PHASE
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] Found 2 zone files
+[2025-12-09 16:42:13][INFO]   - pandia.io.zone
+[2025-12-09 16:42:13][INFO]   - test.local.zone
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] PHASE 1: PRE-VALIDATION - NO CHANGES WILL BE MADE
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] Pre-validating: pandia.io.zone
+[2025-12-09 16:42:13][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:42:13][INFO] Parsed 81 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:42:13][INFO] Pre-validating: test.local.zone
+[2025-12-09 16:42:13][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:42:13][INFO] Parsed 6 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] PRE-VALIDATION RESULTS
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] Valid zones: 2/2
+[2025-12-09 16:42:13][INFO]   ✓ pandia.io.zone
+[2025-12-09 16:42:13][INFO]   ✓ test.local.zone
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] ✓ ALL ZONE FILES VALID - PROCEEDING
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] Successfully parsed 87 DNS records
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] PHASE 2: CONVERSION & FINAL VALIDATION
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] Converting DNS records to Pi-hole hosts format
+[2025-12-09 16:42:13][WARNING] Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:42:13][INFO] Using latest IP for traefik-public-ingress-lb.pandia.io: 192.168.2.152
+[2025-12-09 16:42:13][INFO] Converted 86 DNS records to hosts format
+[2025-12-09 16:42:13][WARNING] Found 1 duplicate hostnames
+[2025-12-09 16:42:13][WARNING] Found 1 warnings during conversion
+[2025-12-09 16:42:13][WARNING]   - Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:42:13][INFO] Successfully converted to 86 Pi-hole hosts entries
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] VALIDATION SUMMARY - ALL CHECKS PASSED
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] Zone files processed: 2
+[2025-12-09 16:42:13][INFO] DNS records parsed: 87
+[2025-12-09 16:42:13][INFO] Hosts entries generated: 86
+[2025-12-09 16:42:13][INFO] Parse warnings: 0
+[2025-12-09 16:42:13][INFO] Conversion warnings: 1
+[2025-12-09 16:42:13][INFO] Duplicate hostnames: 1
+[2025-12-09 16:42:13][WARNING] Duplicate hostnames detected:
+[2025-12-09 16:42:13][WARNING]   - traefik-public-ingress-lb.pandia.io: ['192.168.2.153', '192.168.2.152']
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] PHASE 3: APPLICATION - Applying validated configuration
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] ⚠️  All validations passed - NOW modifying destination config
+[2025-12-09 16:42:13][INFO] Updating /etc/pihole/pihole.toml with 86 hosts (dry_run=False)
+[2025-12-09 16:42:13][INFO] Created backup: /etc/pihole/pihole.toml.backup-20251209-164213
+[2025-12-09 16:42:13][WARNING] No changes detected in TOML content
+[2025-12-09 16:42:13][INFO] Successfully updated pihole.toml
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] ✓ DNS SYNC SUCCESSFUL
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] Validated configuration applied successfully
+[2025-12-09 16:42:13][INFO] ============================================================
+[2025-12-09 16:42:13][INFO] DNS sync completed successfully
+[2025-12-09 16:42:13][INFO] Restarting Pi-hole FTL service...
+[2025-12-09 16:42:14][INFO] Pi-hole FTL restarted successfully
+[2025-12-09 16:42:14][INFO] =
+[2025-12-09 16:42:14][INFO] DNS GitOps Sync Completed Successfully
+[2025-12-09 16:42:14][INFO] =
+[2025-12-09 16:45:13][INFO] =
+[2025-12-09 16:45:13][INFO] DNS GitOps Sync Service Started
+[2025-12-09 16:45:13][INFO] Command: sync
+[2025-12-09 16:45:13][INFO] =
+[2025-12-09 16:45:13][INFO] Initializing DNS repository...
+[2025-12-09 16:45:13][INFO] Updating DNS repository...
+From https://github.com/codefuturist/iac-catalog
+ * branch            develop    -> FETCH_HEAD
+[2025-12-09 16:45:13][INFO] Repository already up to date
+[2025-12-09 16:45:13][INFO] Validating environment...
+[2025-12-09 16:45:13][INFO] Environment validation passed
+[2025-12-09 16:45:13][INFO]   Zones directory: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones
+[2025-12-09 16:45:13][INFO]   Zone files: 2
+[2025-12-09 16:45:13][INFO]   Pi-hole config: /etc/pihole/pihole.toml
+[2025-12-09 16:45:13][INFO] Starting DNS zone synchronization...
+[2025-12-09 16:45:13][INFO] =
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] DNS ZONE SYNC - VALIDATION PHASE
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] Found 2 zone files
+[2025-12-09 16:45:13][INFO]   - pandia.io.zone
+[2025-12-09 16:45:13][INFO]   - test.local.zone
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] PHASE 1: PRE-VALIDATION - NO CHANGES WILL BE MADE
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] Pre-validating: pandia.io.zone
+[2025-12-09 16:45:13][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:45:13][INFO] Parsed 81 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:45:13][INFO] Pre-validating: test.local.zone
+[2025-12-09 16:45:13][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:45:13][INFO] Parsed 6 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] PRE-VALIDATION RESULTS
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] Valid zones: 2/2
+[2025-12-09 16:45:13][INFO]   ✓ pandia.io.zone
+[2025-12-09 16:45:13][INFO]   ✓ test.local.zone
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] ✓ ALL ZONE FILES VALID - PROCEEDING
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] Successfully parsed 87 DNS records
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] PHASE 2: CONVERSION & FINAL VALIDATION
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] Converting DNS records to Pi-hole hosts format
+[2025-12-09 16:45:13][WARNING] Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:45:13][INFO] Using latest IP for traefik-public-ingress-lb.pandia.io: 192.168.2.152
+[2025-12-09 16:45:13][INFO] Converted 86 DNS records to hosts format
+[2025-12-09 16:45:13][WARNING] Found 1 duplicate hostnames
+[2025-12-09 16:45:13][WARNING] Found 1 warnings during conversion
+[2025-12-09 16:45:13][WARNING]   - Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:45:13][INFO] Successfully converted to 86 Pi-hole hosts entries
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] VALIDATION SUMMARY - ALL CHECKS PASSED
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] Zone files processed: 2
+[2025-12-09 16:45:13][INFO] DNS records parsed: 87
+[2025-12-09 16:45:13][INFO] Hosts entries generated: 86
+[2025-12-09 16:45:13][INFO] Parse warnings: 0
+[2025-12-09 16:45:13][INFO] Conversion warnings: 1
+[2025-12-09 16:45:13][INFO] Duplicate hostnames: 1
+[2025-12-09 16:45:13][WARNING] Duplicate hostnames detected:
+[2025-12-09 16:45:13][WARNING]   - traefik-public-ingress-lb.pandia.io: ['192.168.2.153', '192.168.2.152']
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] PHASE 3: APPLICATION - Applying validated configuration
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] ⚠️  All validations passed - NOW modifying destination config
+[2025-12-09 16:45:13][INFO] Updating /etc/pihole/pihole.toml with 86 hosts (dry_run=False)
+[2025-12-09 16:45:13][INFO] Created backup: /etc/pihole/pihole.toml.backup-20251209-164513
+[2025-12-09 16:45:13][WARNING] No changes detected in TOML content
+[2025-12-09 16:45:13][INFO] Successfully updated pihole.toml
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] ✓ DNS SYNC SUCCESSFUL
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:13][INFO] Validated configuration applied successfully
+[2025-12-09 16:45:13][INFO] ============================================================
+[2025-12-09 16:45:14][INFO] DNS sync completed successfully
+[2025-12-09 16:45:14][INFO] Restarting Pi-hole FTL service...
+[2025-12-09 16:45:14][INFO] Pi-hole FTL restarted successfully
+[2025-12-09 16:45:14][INFO] =
+[2025-12-09 16:45:14][INFO] DNS GitOps Sync Completed Successfully
+[2025-12-09 16:45:14][INFO] =
+[2025-12-09 16:48:13][INFO] =
+[2025-12-09 16:48:13][INFO] DNS GitOps Sync Service Started
+[2025-12-09 16:48:13][INFO] Command: sync
+[2025-12-09 16:48:13][INFO] =
+[2025-12-09 16:48:13][INFO] Initializing DNS repository...
+[2025-12-09 16:48:13][INFO] Updating DNS repository...
+From https://github.com/codefuturist/iac-catalog
+ * branch            develop    -> FETCH_HEAD
+[2025-12-09 16:48:13][INFO] Repository already up to date
+[2025-12-09 16:48:13][INFO] Validating environment...
+[2025-12-09 16:48:13][INFO] Environment validation passed
+[2025-12-09 16:48:13][INFO]   Zones directory: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones
+[2025-12-09 16:48:13][INFO]   Zone files: 2
+[2025-12-09 16:48:13][INFO]   Pi-hole config: /etc/pihole/pihole.toml
+[2025-12-09 16:48:13][INFO] Starting DNS zone synchronization...
+[2025-12-09 16:48:13][INFO] =
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] DNS ZONE SYNC - VALIDATION PHASE
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] Found 2 zone files
+[2025-12-09 16:48:14][INFO]   - pandia.io.zone
+[2025-12-09 16:48:14][INFO]   - test.local.zone
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] PHASE 1: PRE-VALIDATION - NO CHANGES WILL BE MADE
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] Pre-validating: pandia.io.zone
+[2025-12-09 16:48:14][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:48:14][INFO] Parsed 81 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:48:14][INFO] Pre-validating: test.local.zone
+[2025-12-09 16:48:14][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:48:14][INFO] Parsed 6 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] PRE-VALIDATION RESULTS
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] Valid zones: 2/2
+[2025-12-09 16:48:14][INFO]   ✓ pandia.io.zone
+[2025-12-09 16:48:14][INFO]   ✓ test.local.zone
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] ✓ ALL ZONE FILES VALID - PROCEEDING
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] Successfully parsed 87 DNS records
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] PHASE 2: CONVERSION & FINAL VALIDATION
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] Converting DNS records to Pi-hole hosts format
+[2025-12-09 16:48:14][WARNING] Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:48:14][INFO] Using latest IP for traefik-public-ingress-lb.pandia.io: 192.168.2.152
+[2025-12-09 16:48:14][INFO] Converted 86 DNS records to hosts format
+[2025-12-09 16:48:14][WARNING] Found 1 duplicate hostnames
+[2025-12-09 16:48:14][WARNING] Found 1 warnings during conversion
+[2025-12-09 16:48:14][WARNING]   - Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:48:14][INFO] Successfully converted to 86 Pi-hole hosts entries
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] VALIDATION SUMMARY - ALL CHECKS PASSED
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] Zone files processed: 2
+[2025-12-09 16:48:14][INFO] DNS records parsed: 87
+[2025-12-09 16:48:14][INFO] Hosts entries generated: 86
+[2025-12-09 16:48:14][INFO] Parse warnings: 0
+[2025-12-09 16:48:14][INFO] Conversion warnings: 1
+[2025-12-09 16:48:14][INFO] Duplicate hostnames: 1
+[2025-12-09 16:48:14][WARNING] Duplicate hostnames detected:
+[2025-12-09 16:48:14][WARNING]   - traefik-public-ingress-lb.pandia.io: ['192.168.2.153', '192.168.2.152']
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] PHASE 3: APPLICATION - Applying validated configuration
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] ⚠️  All validations passed - NOW modifying destination config
+[2025-12-09 16:48:14][INFO] Updating /etc/pihole/pihole.toml with 86 hosts (dry_run=False)
+[2025-12-09 16:48:14][INFO] Created backup: /etc/pihole/pihole.toml.backup-20251209-164814
+[2025-12-09 16:48:14][WARNING] No changes detected in TOML content
+[2025-12-09 16:48:14][INFO] Successfully updated pihole.toml
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] ✓ DNS SYNC SUCCESSFUL
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] Validated configuration applied successfully
+[2025-12-09 16:48:14][INFO] ============================================================
+[2025-12-09 16:48:14][INFO] DNS sync completed successfully
+[2025-12-09 16:48:14][INFO] Restarting Pi-hole FTL service...
+[2025-12-09 16:48:14][INFO] Pi-hole FTL restarted successfully
+[2025-12-09 16:48:14][INFO] =
+[2025-12-09 16:48:14][INFO] DNS GitOps Sync Completed Successfully
+[2025-12-09 16:48:14][INFO] =
+[2025-12-09 16:51:13][INFO] =
+[2025-12-09 16:51:13][INFO] DNS GitOps Sync Service Started
+[2025-12-09 16:51:13][INFO] Command: sync
+[2025-12-09 16:51:13][INFO] =
+[2025-12-09 16:51:13][INFO] Initializing DNS repository...
+[2025-12-09 16:51:13][INFO] Updating DNS repository...
+From https://github.com/codefuturist/iac-catalog
+ * branch            develop    -> FETCH_HEAD
+[2025-12-09 16:51:13][INFO] Repository already up to date
+[2025-12-09 16:51:13][INFO] Validating environment...
+[2025-12-09 16:51:13][INFO] Environment validation passed
+[2025-12-09 16:51:13][INFO]   Zones directory: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones
+[2025-12-09 16:51:14][INFO]   Zone files: 2
+[2025-12-09 16:51:14][INFO]   Pi-hole config: /etc/pihole/pihole.toml
+[2025-12-09 16:51:14][INFO] Starting DNS zone synchronization...
+[2025-12-09 16:51:14][INFO] =
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] DNS ZONE SYNC - VALIDATION PHASE
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] Found 2 zone files
+[2025-12-09 16:51:14][INFO]   - pandia.io.zone
+[2025-12-09 16:51:14][INFO]   - test.local.zone
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] PHASE 1: PRE-VALIDATION - NO CHANGES WILL BE MADE
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] Pre-validating: pandia.io.zone
+[2025-12-09 16:51:14][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:51:14][INFO] Parsed 81 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:51:14][INFO] Pre-validating: test.local.zone
+[2025-12-09 16:51:14][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:51:14][INFO] Parsed 6 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] PRE-VALIDATION RESULTS
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] Valid zones: 2/2
+[2025-12-09 16:51:14][INFO]   ✓ pandia.io.zone
+[2025-12-09 16:51:14][INFO]   ✓ test.local.zone
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] ✓ ALL ZONE FILES VALID - PROCEEDING
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] Successfully parsed 87 DNS records
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] PHASE 2: CONVERSION & FINAL VALIDATION
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] Converting DNS records to Pi-hole hosts format
+[2025-12-09 16:51:14][WARNING] Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:51:14][INFO] Using latest IP for traefik-public-ingress-lb.pandia.io: 192.168.2.152
+[2025-12-09 16:51:14][INFO] Converted 86 DNS records to hosts format
+[2025-12-09 16:51:14][WARNING] Found 1 duplicate hostnames
+[2025-12-09 16:51:14][WARNING] Found 1 warnings during conversion
+[2025-12-09 16:51:14][WARNING]   - Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:51:14][INFO] Successfully converted to 86 Pi-hole hosts entries
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] VALIDATION SUMMARY - ALL CHECKS PASSED
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] Zone files processed: 2
+[2025-12-09 16:51:14][INFO] DNS records parsed: 87
+[2025-12-09 16:51:14][INFO] Hosts entries generated: 86
+[2025-12-09 16:51:14][INFO] Parse warnings: 0
+[2025-12-09 16:51:14][INFO] Conversion warnings: 1
+[2025-12-09 16:51:14][INFO] Duplicate hostnames: 1
+[2025-12-09 16:51:14][WARNING] Duplicate hostnames detected:
+[2025-12-09 16:51:14][WARNING]   - traefik-public-ingress-lb.pandia.io: ['192.168.2.153', '192.168.2.152']
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] PHASE 3: APPLICATION - Applying validated configuration
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] ⚠️  All validations passed - NOW modifying destination config
+[2025-12-09 16:51:14][INFO] Updating /etc/pihole/pihole.toml with 86 hosts (dry_run=False)
+[2025-12-09 16:51:14][INFO] Created backup: /etc/pihole/pihole.toml.backup-20251209-165114
+[2025-12-09 16:51:14][WARNING] No changes detected in TOML content
+[2025-12-09 16:51:14][INFO] Successfully updated pihole.toml
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] ✓ DNS SYNC SUCCESSFUL
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] Validated configuration applied successfully
+[2025-12-09 16:51:14][INFO] ============================================================
+[2025-12-09 16:51:14][INFO] DNS sync completed successfully
+[2025-12-09 16:51:14][INFO] Restarting Pi-hole FTL service...
+[2025-12-09 16:51:15][INFO] Pi-hole FTL restarted successfully
+[2025-12-09 16:51:15][INFO] =
+[2025-12-09 16:51:15][INFO] DNS GitOps Sync Completed Successfully
+[2025-12-09 16:51:15][INFO] =
+[2025-12-09 16:54:13][INFO] =
+[2025-12-09 16:54:13][INFO] DNS GitOps Sync Service Started
+[2025-12-09 16:54:13][INFO] Command: sync
+[2025-12-09 16:54:13][INFO] =
+[2025-12-09 16:54:13][INFO] Initializing DNS repository...
+[2025-12-09 16:54:13][INFO] Updating DNS repository...
+From https://github.com/codefuturist/iac-catalog
+ * branch            develop    -> FETCH_HEAD
+[2025-12-09 16:54:14][INFO] Repository already up to date
+[2025-12-09 16:54:14][INFO] Validating environment...
+[2025-12-09 16:54:14][INFO] Environment validation passed
+[2025-12-09 16:54:14][INFO]   Zones directory: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones
+[2025-12-09 16:54:14][INFO]   Zone files: 2
+[2025-12-09 16:54:14][INFO]   Pi-hole config: /etc/pihole/pihole.toml
+[2025-12-09 16:54:14][INFO] Starting DNS zone synchronization...
+[2025-12-09 16:54:14][INFO] =
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] DNS ZONE SYNC - VALIDATION PHASE
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] Found 2 zone files
+[2025-12-09 16:54:14][INFO]   - pandia.io.zone
+[2025-12-09 16:54:14][INFO]   - test.local.zone
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] PHASE 1: PRE-VALIDATION - NO CHANGES WILL BE MADE
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] Pre-validating: pandia.io.zone
+[2025-12-09 16:54:14][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:54:14][INFO] Parsed 81 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:54:14][INFO] Pre-validating: test.local.zone
+[2025-12-09 16:54:14][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:54:14][INFO] Parsed 6 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] PRE-VALIDATION RESULTS
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] Valid zones: 2/2
+[2025-12-09 16:54:14][INFO]   ✓ pandia.io.zone
+[2025-12-09 16:54:14][INFO]   ✓ test.local.zone
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] ✓ ALL ZONE FILES VALID - PROCEEDING
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] Successfully parsed 87 DNS records
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] PHASE 2: CONVERSION & FINAL VALIDATION
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] Converting DNS records to Pi-hole hosts format
+[2025-12-09 16:54:14][WARNING] Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:54:14][INFO] Using latest IP for traefik-public-ingress-lb.pandia.io: 192.168.2.152
+[2025-12-09 16:54:14][INFO] Converted 86 DNS records to hosts format
+[2025-12-09 16:54:14][WARNING] Found 1 duplicate hostnames
+[2025-12-09 16:54:14][WARNING] Found 1 warnings during conversion
+[2025-12-09 16:54:14][WARNING]   - Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:54:14][INFO] Successfully converted to 86 Pi-hole hosts entries
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] VALIDATION SUMMARY - ALL CHECKS PASSED
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] Zone files processed: 2
+[2025-12-09 16:54:14][INFO] DNS records parsed: 87
+[2025-12-09 16:54:14][INFO] Hosts entries generated: 86
+[2025-12-09 16:54:14][INFO] Parse warnings: 0
+[2025-12-09 16:54:14][INFO] Conversion warnings: 1
+[2025-12-09 16:54:14][INFO] Duplicate hostnames: 1
+[2025-12-09 16:54:14][WARNING] Duplicate hostnames detected:
+[2025-12-09 16:54:14][WARNING]   - traefik-public-ingress-lb.pandia.io: ['192.168.2.153', '192.168.2.152']
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] PHASE 3: APPLICATION - Applying validated configuration
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] ⚠️  All validations passed - NOW modifying destination config
+[2025-12-09 16:54:14][INFO] Updating /etc/pihole/pihole.toml with 86 hosts (dry_run=False)
+[2025-12-09 16:54:14][INFO] Created backup: /etc/pihole/pihole.toml.backup-20251209-165414
+[2025-12-09 16:54:14][WARNING] No changes detected in TOML content
+[2025-12-09 16:54:14][INFO] Successfully updated pihole.toml
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] ✓ DNS SYNC SUCCESSFUL
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] Validated configuration applied successfully
+[2025-12-09 16:54:14][INFO] ============================================================
+[2025-12-09 16:54:14][INFO] DNS sync completed successfully
+[2025-12-09 16:54:14][INFO] Restarting Pi-hole FTL service...
+[2025-12-09 16:54:15][INFO] Pi-hole FTL restarted successfully
+[2025-12-09 16:54:15][INFO] =
+[2025-12-09 16:54:15][INFO] DNS GitOps Sync Completed Successfully
+[2025-12-09 16:54:15][INFO] =
+[2025-12-09 16:57:13][INFO] =
+[2025-12-09 16:57:13][INFO] DNS GitOps Sync Service Started
+[2025-12-09 16:57:13][INFO] Command: sync
+[2025-12-09 16:57:13][INFO] =
+[2025-12-09 16:57:13][INFO] Initializing DNS repository...
+[2025-12-09 16:57:13][INFO] Updating DNS repository...
+From https://github.com/codefuturist/iac-catalog
+ * branch            develop    -> FETCH_HEAD
+[2025-12-09 16:57:14][INFO] Repository already up to date
+[2025-12-09 16:57:14][INFO] Validating environment...
+[2025-12-09 16:57:14][INFO] Environment validation passed
+[2025-12-09 16:57:14][INFO]   Zones directory: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones
+[2025-12-09 16:57:14][INFO]   Zone files: 2
+[2025-12-09 16:57:14][INFO]   Pi-hole config: /etc/pihole/pihole.toml
+[2025-12-09 16:57:14][INFO] Starting DNS zone synchronization...
+[2025-12-09 16:57:14][INFO] =
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] DNS ZONE SYNC - VALIDATION PHASE
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] Found 2 zone files
+[2025-12-09 16:57:14][INFO]   - pandia.io.zone
+[2025-12-09 16:57:14][INFO]   - test.local.zone
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] PHASE 1: PRE-VALIDATION - NO CHANGES WILL BE MADE
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] Pre-validating: pandia.io.zone
+[2025-12-09 16:57:14][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:57:14][INFO] Parsed 81 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 16:57:14][INFO] Pre-validating: test.local.zone
+[2025-12-09 16:57:14][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:57:14][INFO] Parsed 6 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] PRE-VALIDATION RESULTS
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] Valid zones: 2/2
+[2025-12-09 16:57:14][INFO]   ✓ pandia.io.zone
+[2025-12-09 16:57:14][INFO]   ✓ test.local.zone
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] ✓ ALL ZONE FILES VALID - PROCEEDING
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] Successfully parsed 87 DNS records
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] PHASE 2: CONVERSION & FINAL VALIDATION
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] Converting DNS records to Pi-hole hosts format
+[2025-12-09 16:57:14][WARNING] Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:57:14][INFO] Using latest IP for traefik-public-ingress-lb.pandia.io: 192.168.2.152
+[2025-12-09 16:57:14][INFO] Converted 86 DNS records to hosts format
+[2025-12-09 16:57:14][WARNING] Found 1 duplicate hostnames
+[2025-12-09 16:57:14][WARNING] Found 1 warnings during conversion
+[2025-12-09 16:57:14][WARNING]   - Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 16:57:14][INFO] Successfully converted to 86 Pi-hole hosts entries
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] VALIDATION SUMMARY - ALL CHECKS PASSED
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] Zone files processed: 2
+[2025-12-09 16:57:14][INFO] DNS records parsed: 87
+[2025-12-09 16:57:14][INFO] Hosts entries generated: 86
+[2025-12-09 16:57:14][INFO] Parse warnings: 0
+[2025-12-09 16:57:14][INFO] Conversion warnings: 1
+[2025-12-09 16:57:14][INFO] Duplicate hostnames: 1
+[2025-12-09 16:57:14][WARNING] Duplicate hostnames detected:
+[2025-12-09 16:57:14][WARNING]   - traefik-public-ingress-lb.pandia.io: ['192.168.2.153', '192.168.2.152']
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] PHASE 3: APPLICATION - Applying validated configuration
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] ⚠️  All validations passed - NOW modifying destination config
+[2025-12-09 16:57:14][INFO] Updating /etc/pihole/pihole.toml with 86 hosts (dry_run=False)
+[2025-12-09 16:57:14][INFO] Created backup: /etc/pihole/pihole.toml.backup-20251209-165714
+[2025-12-09 16:57:14][WARNING] No changes detected in TOML content
+[2025-12-09 16:57:14][INFO] Successfully updated pihole.toml
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] ✓ DNS SYNC SUCCESSFUL
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] Validated configuration applied successfully
+[2025-12-09 16:57:14][INFO] ============================================================
+[2025-12-09 16:57:14][INFO] DNS sync completed successfully
+[2025-12-09 16:57:14][INFO] Restarting Pi-hole FTL service...
+[2025-12-09 16:57:15][INFO] Pi-hole FTL restarted successfully
+[2025-12-09 16:57:15][INFO] =
+[2025-12-09 16:57:15][INFO] DNS GitOps Sync Completed Successfully
+[2025-12-09 16:57:15][INFO] =
+[2025-12-09 17:00:14][INFO] =
+[2025-12-09 17:00:14][INFO] DNS GitOps Sync Service Started
+[2025-12-09 17:00:14][INFO] Command: sync
+[2025-12-09 17:00:14][INFO] =
+[2025-12-09 17:00:15][INFO] Initializing DNS repository...
+[2025-12-09 17:00:15][INFO] Updating DNS repository...
+From https://github.com/codefuturist/iac-catalog
+ * branch            develop    -> FETCH_HEAD
+[2025-12-09 17:00:15][INFO] Repository already up to date
+[2025-12-09 17:00:15][INFO] Validating environment...
+[2025-12-09 17:00:15][INFO] Environment validation passed
+[2025-12-09 17:00:15][INFO]   Zones directory: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones
+[2025-12-09 17:00:15][INFO]   Zone files: 2
+[2025-12-09 17:00:15][INFO]   Pi-hole config: /etc/pihole/pihole.toml
+[2025-12-09 17:00:15][INFO] Starting DNS zone synchronization...
+[2025-12-09 17:00:15][INFO] =
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] DNS ZONE SYNC - VALIDATION PHASE
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] Found 2 zone files
+[2025-12-09 17:00:15][INFO]   - pandia.io.zone
+[2025-12-09 17:00:15][INFO]   - test.local.zone
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] PHASE 1: PRE-VALIDATION - NO CHANGES WILL BE MADE
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] Pre-validating: pandia.io.zone
+[2025-12-09 17:00:15][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 17:00:15][INFO] Parsed 81 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 17:00:15][INFO] Pre-validating: test.local.zone
+[2025-12-09 17:00:15][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 17:00:15][INFO] Parsed 6 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/test.local.zone
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] PRE-VALIDATION RESULTS
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] Valid zones: 2/2
+[2025-12-09 17:00:15][INFO]   ✓ pandia.io.zone
+[2025-12-09 17:00:15][INFO]   ✓ test.local.zone
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] ✓ ALL ZONE FILES VALID - PROCEEDING
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] Successfully parsed 87 DNS records
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] PHASE 2: CONVERSION & FINAL VALIDATION
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] Converting DNS records to Pi-hole hosts format
+[2025-12-09 17:00:15][WARNING] Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 17:00:15][INFO] Using latest IP for traefik-public-ingress-lb.pandia.io: 192.168.2.152
+[2025-12-09 17:00:15][INFO] Converted 86 DNS records to hosts format
+[2025-12-09 17:00:15][WARNING] Found 1 duplicate hostnames
+[2025-12-09 17:00:15][WARNING] Found 1 warnings during conversion
+[2025-12-09 17:00:15][WARNING]   - Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 17:00:15][INFO] Successfully converted to 86 Pi-hole hosts entries
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] VALIDATION SUMMARY - ALL CHECKS PASSED
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] Zone files processed: 2
+[2025-12-09 17:00:15][INFO] DNS records parsed: 87
+[2025-12-09 17:00:15][INFO] Hosts entries generated: 86
+[2025-12-09 17:00:15][INFO] Parse warnings: 0
+[2025-12-09 17:00:15][INFO] Conversion warnings: 1
+[2025-12-09 17:00:15][INFO] Duplicate hostnames: 1
+[2025-12-09 17:00:15][WARNING] Duplicate hostnames detected:
+[2025-12-09 17:00:15][WARNING]   - traefik-public-ingress-lb.pandia.io: ['192.168.2.153', '192.168.2.152']
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] PHASE 3: APPLICATION - Applying validated configuration
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] ⚠️  All validations passed - NOW modifying destination config
+[2025-12-09 17:00:15][INFO] Updating /etc/pihole/pihole.toml with 86 hosts (dry_run=False)
+[2025-12-09 17:00:15][INFO] Created backup: /etc/pihole/pihole.toml.backup-20251209-170015
+[2025-12-09 17:00:15][WARNING] No changes detected in TOML content
+[2025-12-09 17:00:15][INFO] Successfully updated pihole.toml
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] ✓ DNS SYNC SUCCESSFUL
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] Validated configuration applied successfully
+[2025-12-09 17:00:15][INFO] ============================================================
+[2025-12-09 17:00:15][INFO] DNS sync completed successfully
+[2025-12-09 17:00:15][INFO] Restarting Pi-hole FTL service...
+[2025-12-09 17:00:16][INFO] Pi-hole FTL restarted successfully
+[2025-12-09 17:00:16][INFO] =
+[2025-12-09 17:00:16][INFO] DNS GitOps Sync Completed Successfully
+[2025-12-09 17:00:16][INFO] =
+[2025-12-09 17:02:07][INFO] =
+[2025-12-09 17:02:07][INFO] DNS GitOps Sync Service Started
+[2025-12-09 17:02:07][INFO] Command: sync
+[2025-12-09 17:02:07][INFO] =
+[2025-12-09 17:02:07][INFO] Initializing DNS repository...
+[2025-12-09 17:02:07][INFO] Updating DNS repository...
+From https://github.com/codefuturist/iac-catalog
+ * branch            develop    -> FETCH_HEAD
+   c320f2e..300e96e  develop    -> origin/develop
+[2025-12-09 17:02:08][INFO] New commits detected, updating...
+HEAD is now at 300e96e Clean up DNS test records
+[2025-12-09 17:02:08][INFO] Repository updated successfully
+[2025-12-09 17:02:08][INFO] Validating environment...
+[2025-12-09 17:02:08][INFO] Environment validation passed
+[2025-12-09 17:02:08][INFO]   Zones directory: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones
+[2025-12-09 17:02:08][INFO]   Zone files: 1
+[2025-12-09 17:02:08][INFO]   Pi-hole config: /etc/pihole/pihole.toml
+[2025-12-09 17:02:08][INFO] Starting DNS zone synchronization...
+[2025-12-09 17:02:08][INFO] =
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] DNS ZONE SYNC - VALIDATION PHASE
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] Found 1 zone files
+[2025-12-09 17:02:08][INFO]   - pandia.io.zone
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] PHASE 1: PRE-VALIDATION - NO CHANGES WILL BE MADE
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] Pre-validating: pandia.io.zone
+[2025-12-09 17:02:08][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 17:02:08][INFO] Parsed 78 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] PRE-VALIDATION RESULTS
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] Valid zones: 1/1
+[2025-12-09 17:02:08][INFO]   ✓ pandia.io.zone
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] ✓ ALL ZONE FILES VALID - PROCEEDING
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] Successfully parsed 78 DNS records
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] PHASE 2: CONVERSION & FINAL VALIDATION
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] Converting DNS records to Pi-hole hosts format
+[2025-12-09 17:02:08][WARNING] Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 17:02:08][INFO] Using latest IP for traefik-public-ingress-lb.pandia.io: 192.168.2.152
+[2025-12-09 17:02:08][INFO] Converted 77 DNS records to hosts format
+[2025-12-09 17:02:08][WARNING] Found 1 duplicate hostnames
+[2025-12-09 17:02:08][WARNING] Found 1 warnings during conversion
+[2025-12-09 17:02:08][WARNING]   - Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 17:02:08][INFO] Successfully converted to 77 Pi-hole hosts entries
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] VALIDATION SUMMARY - ALL CHECKS PASSED
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] Zone files processed: 1
+[2025-12-09 17:02:08][INFO] DNS records parsed: 78
+[2025-12-09 17:02:08][INFO] Hosts entries generated: 77
+[2025-12-09 17:02:08][INFO] Parse warnings: 0
+[2025-12-09 17:02:08][INFO] Conversion warnings: 1
+[2025-12-09 17:02:08][INFO] Duplicate hostnames: 1
+[2025-12-09 17:02:08][WARNING] Duplicate hostnames detected:
+[2025-12-09 17:02:08][WARNING]   - traefik-public-ingress-lb.pandia.io: ['192.168.2.153', '192.168.2.152']
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] PHASE 3: APPLICATION - Applying validated configuration
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] ⚠️  All validations passed - NOW modifying destination config
+[2025-12-09 17:02:08][INFO] Updating /etc/pihole/pihole.toml with 77 hosts (dry_run=False)
+[2025-12-09 17:02:08][INFO] Created backup: /etc/pihole/pihole.toml.backup-20251209-170208
+[2025-12-09 17:02:08][INFO] Successfully updated pihole.toml
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] ✓ DNS SYNC SUCCESSFUL
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:08][INFO] Validated configuration applied successfully
+[2025-12-09 17:02:08][INFO] ============================================================
+[2025-12-09 17:02:09][INFO] DNS sync completed successfully
+[2025-12-09 17:02:09][INFO] Restarting Pi-hole FTL service...
+[2025-12-09 17:02:10][INFO] Pi-hole FTL restarted successfully
+[2025-12-09 17:02:10][INFO] =
+[2025-12-09 17:02:10][INFO] DNS GitOps Sync Completed Successfully
+[2025-12-09 17:02:10][INFO] =
+[2025-12-09 17:05:08][INFO] =
+[2025-12-09 17:05:08][INFO] DNS GitOps Sync Service Started
+[2025-12-09 17:05:08][INFO] Command: sync
+[2025-12-09 17:05:08][INFO] =
+[2025-12-09 17:05:08][INFO] Initializing DNS repository...
+[2025-12-09 17:05:08][INFO] Updating DNS repository...
+From https://github.com/codefuturist/iac-catalog
+ * branch            develop    -> FETCH_HEAD
+[2025-12-09 17:05:08][INFO] Repository already up to date
+[2025-12-09 17:05:08][INFO] Validating environment...
+[2025-12-09 17:05:08][INFO] Environment validation passed
+[2025-12-09 17:05:08][INFO]   Zones directory: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones
+[2025-12-09 17:05:08][INFO]   Zone files: 1
+[2025-12-09 17:05:08][INFO]   Pi-hole config: /etc/pihole/pihole.toml
+[2025-12-09 17:05:08][INFO] Starting DNS zone synchronization...
+[2025-12-09 17:05:08][INFO] =
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] DNS ZONE SYNC - VALIDATION PHASE
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] Found 1 zone files
+[2025-12-09 17:05:08][INFO]   - pandia.io.zone
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] PHASE 1: PRE-VALIDATION - NO CHANGES WILL BE MADE
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] Pre-validating: pandia.io.zone
+[2025-12-09 17:05:08][INFO] Parsing zone file: /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 17:05:08][INFO] Parsed 78 records from /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] PRE-VALIDATION RESULTS
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] Valid zones: 1/1
+[2025-12-09 17:05:08][INFO]   ✓ pandia.io.zone
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] ✓ ALL ZONE FILES VALID - PROCEEDING
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] Successfully parsed 78 DNS records
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] PHASE 2: CONVERSION & FINAL VALIDATION
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] Converting DNS records to Pi-hole hosts format
+[2025-12-09 17:05:08][WARNING] Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 17:05:08][INFO] Using latest IP for traefik-public-ingress-lb.pandia.io: 192.168.2.152
+[2025-12-09 17:05:08][INFO] Converted 77 DNS records to hosts format
+[2025-12-09 17:05:08][WARNING] Found 1 duplicate hostnames
+[2025-12-09 17:05:08][WARNING] Found 1 warnings during conversion
+[2025-12-09 17:05:08][WARNING]   - Duplicate hostname 'traefik-public-ingress-lb.pandia.io' at /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/pandia.io.zone:51
+[2025-12-09 17:05:08][INFO] Successfully converted to 77 Pi-hole hosts entries
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] VALIDATION SUMMARY - ALL CHECKS PASSED
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] Zone files processed: 1
+[2025-12-09 17:05:08][INFO] DNS records parsed: 78
+[2025-12-09 17:05:08][INFO] Hosts entries generated: 77
+[2025-12-09 17:05:08][INFO] Parse warnings: 0
+[2025-12-09 17:05:08][INFO] Conversion warnings: 1
+[2025-12-09 17:05:08][INFO] Duplicate hostnames: 1
+[2025-12-09 17:05:08][WARNING] Duplicate hostnames detected:
+[2025-12-09 17:05:08][WARNING]   - traefik-public-ingress-lb.pandia.io: ['192.168.2.153', '192.168.2.152']
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] PHASE 3: APPLICATION - Applying validated configuration
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] ⚠️  All validations passed - NOW modifying destination config
+[2025-12-09 17:05:08][INFO] Updating /etc/pihole/pihole.toml with 77 hosts (dry_run=False)
+[2025-12-09 17:05:08][INFO] Created backup: /etc/pihole/pihole.toml.backup-20251209-170508
+[2025-12-09 17:05:08][WARNING] No changes detected in TOML content
+[2025-12-09 17:05:08][INFO] Successfully updated pihole.toml
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] ✓ DNS SYNC SUCCESSFUL
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] Validated configuration applied successfully
+[2025-12-09 17:05:08][INFO] ============================================================
+[2025-12-09 17:05:08][INFO] DNS sync completed successfully
+[2025-12-09 17:05:08][INFO] Restarting Pi-hole FTL service...
+[2025-12-09 17:05:10][INFO] Pi-hole FTL restarted successfully
+[2025-12-09 17:05:10][INFO] =
+[2025-12-09 17:05:10][INFO] DNS GitOps Sync Completed Successfully
+[2025-12-09 17:05:10][INFO] =

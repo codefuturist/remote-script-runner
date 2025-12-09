@@ -1,0 +1,42 @@
+[Unit]
+Description=DNS GitOps Sync Service
+Documentation=https://github.com/codefuturist/iac-catalog
+After=network-online.target pihole-FTL.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+
+# Environment
+Environment="DNS_REPO_URL=https://github.com/codefuturist/iac-catalog.git"
+Environment="DNS_REPO_BRANCH=develop"
+Environment="DNS_REPO_PATH=/opt/gitops/iac-catalog"
+Environment="DNS_ZONES_PATH=environments/global/configurations/dns-zones"
+Environment="PIHOLE_TOML_PATH=/etc/pihole/pihole.toml"
+Environment="DNS_CACHE_DIR=/var/cache/gitops-dns"
+Environment="DNS_LOG_FILE=/var/log/dns-sync.log"
+Environment="DNS_LOG_LEVEL=INFO"
+
+# Execution
+ExecStart=/opt/gitops/dns-sync.sh sync
+
+# Security
+NoNewPrivileges=false
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/gitops /var/log /var/run /var/cache/gitops-dns /etc/pihole /tmp
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dns-sync
+
+# Resource limits
+CPUQuota=50%
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target

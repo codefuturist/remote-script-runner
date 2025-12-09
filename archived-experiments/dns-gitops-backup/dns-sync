@@ -1,0 +1,5 @@
+# DNS Sync Service - Allow DNS sync operations without password
+root ALL=(ALL) NOPASSWD: /usr/bin/python3 /opt/gitops/sync-dns-zones.py *
+root ALL=(ALL) NOPASSWD: /bin/cp /etc/pihole/pihole.toml /etc/pihole/pihole.toml.backup-*
+root ALL=(ALL) NOPASSWD: /bin/systemctl restart pihole-FTL
+root ALL=(ALL) NOPASSWD: /bin/systemctl status pihole-FTL
