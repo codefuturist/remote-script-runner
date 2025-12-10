@@ -112,48 +112,48 @@ get_script_path() {
     case "$script_name" in
         health)
             case "$shell_type" in
-                bash) echo "scripts/bash/system-health-check.sh" ;;
-                zsh) echo "scripts/zsh/system-health-check.zsh" ;;
-                sh) echo "scripts/sh/system-health-check.sh" ;;
-                fish) echo "scripts/fish/system-health-check.fish" ;;
-                *) echo "scripts/bash/system-health-check.sh" ;;
+                bash) echo "scripts/monitoring/bash/system-health-check.sh" ;;
+                zsh) echo "scripts/monitoring/zsh/system-health-check.zsh" ;;
+                sh) echo "scripts/monitoring/sh/system-health-check.sh" ;;
+                fish) echo "scripts/monitoring/fish/system-health-check.fish" ;;
+                *) echo "scripts/monitoring/bash/system-health-check.sh" ;;
             esac
             ;;
         setup)
-            echo "scripts/bash/server-setup.sh"
+            echo "scripts/configuration/bash/server-setup.sh"
             ;;
         cleanup)
-            echo "scripts/bash/disk-cleanup.sh"
+            echo "scripts/maintenance/bash/disk-cleanup.sh"
             ;;
         ssl)
-            echo "scripts/bash/ssl-checker.sh"
+            echo "scripts/security/bash/ssl-checker.sh"
             ;;
         users)
-            echo "scripts/bash/user-audit.sh"
+            echo "scripts/security/bash/user-audit.sh"
             ;;
         update)
-            echo "scripts/bash/system-update.sh"
+            echo "scripts/maintenance/bash/system-update.sh"
             ;;
         audit)
-            echo "scripts/bash/security-audit.sh"
+            echo "scripts/security/bash/security-audit.sh"
             ;;
         netdiag)
-            echo "scripts/bash/network-diagnostics.sh"
+            echo "scripts/monitoring/bash/network-diagnostics.sh"
             ;;
         ssh-harden)
-            echo "scripts/bash/ssh-hardening.sh"
+            echo "scripts/security/bash/ssh-hardening.sh"
             ;;
         firewall)
-            echo "scripts/bash/firewall-setup.sh"
+            echo "scripts/security/bash/firewall-setup.sh"
             ;;
         backup)
-            echo "scripts/bash/config-backup.sh"
+            echo "scripts/maintenance/bash/config-backup.sh"
             ;;
         db-backup)
-            echo "scripts/bash/database-backup.sh"
+            echo "scripts/maintenance/bash/database-backup.sh"
             ;;
         docker)
-            echo "scripts/bash/docker-management.sh"
+            echo "scripts/infrastructure/bash/docker-management.sh"
             ;;
         *)
             echo ""
@@ -167,7 +167,7 @@ get_script_path() {
 
 is_local() {
     # Check if we're in the repo directory (scripts/bash exists)
-    [ -d "./scripts/bash" ] && [ -f "./scripts/bash/system-health-check.sh" ]
+    [ -d "./scripts/bash" ] && [ -f "./scripts/monitoring/bash/system-health-check.sh" ]
 }
 
 download() {

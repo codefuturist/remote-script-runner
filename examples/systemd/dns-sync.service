@@ -1,0 +1,33 @@
+[Unit]
+Description=DNS GitOps Sync Service
+Documentation=https://github.com/codefuturist/remote-script-runner
+After=network-online.target pihole-FTL.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/dns-sync sync
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dns-sync
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/etc/pihole /etc/dns-sync /var/log /var/cache/dns-sync /var/backups/dns-sync /opt/dns-sync
+
+# Resource limits
+MemoryMax=256M
+CPUQuota=50%
+TasksMax=20
+
+# Timeout for sync operations
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,53 @@
+# /etc/dns-sync/config.conf - DNS Sync Service Configuration
+#
+# This is the configuration file for dns-sync v3.0.
+# Install location: /etc/dns-sync/config.conf
+#
+# Run 'dns-sync help' for documentation.
+
+# =============================================================================
+# Git Repository Settings
+# =============================================================================
+
+# Git repository URL containing DNS zone files (required)
+# Supports HTTPS and SSH URLs
+#repo_url = https://github.com/your-org/dns-zones.git
+#repo_url = git@github.com:your-org/dns-zones.git
+
+# Branch to track (default: main)
+repo_branch = main
+
+# Local clone path
+repo_path = /opt/dns-sync/repo
+
+# Relative path to zones directory within the repository
+zones_path = zones
+
+# =============================================================================
+# Authentication
+# =============================================================================
+
+# SSH private key for git authentication (optional)
+# Required for private repositories using SSH URLs
+#ssh_key = /root/.ssh/dns-sync-key
+
+# =============================================================================
+# Pi-hole Settings
+# =============================================================================
+
+# Path to Pi-hole TOML configuration file
+pihole_toml = /etc/pihole/pihole.toml
+
+# =============================================================================
+# Storage Paths (optional - uses defaults if not set)
+# =============================================================================
+
+# Log file path
+#log_file = /var/log/dns-sync.log
+
+# Cache directory for sync status
+#cache_dir = /var/cache/dns-sync
+
+# Backup directory for rollback support
+#backup_dir = /var/backups/dns-sync
+

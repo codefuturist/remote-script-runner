@@ -1,0 +1,73 @@
+# Git Auto-Sync Configuration (YAML format)
+# This is an example configuration file showing all available options
+
+validation:
+  enabled: true
+  max_retries: 3
+  rollback_on_failure: true
+
+quick_check:
+  enabled: true
+  interval: 30  # Check every 30 seconds for changes (lightweight)
+
+repositories:
+  # Example 1: Personal dotfiles
+  - name: dotfiles
+    path: /home/user/dotfiles
+    branch: main
+    remote: origin
+    mode: safe
+    use_lfs: false
+    validator: ""
+    post_hook: ""
+
+  # Example 2: DNS zones with validation
+  - name: dns-zones
+    path: /etc/bind/zones
+    branch: main
+    remote: origin
+    mode: safe
+    use_lfs: false
+    validator: /usr/local/bin/validate-dns-zones.sh
+    post_hook: /usr/local/bin/reload-bind.sh
+
+  # Example 3: Nginx configuration
+  - name: nginx-config
+    path: /etc/nginx/sites-available
+    branch: production
+    remote: origin
+    mode: safe
+    use_lfs: false
+    validator: /usr/local/bin/validate-nginx.sh
+    post_hook: /usr/local/bin/reload-nginx.sh
+
+  # Example 4: Application configuration
+  - name: app-config
+    path: /etc/myapp/config
+    branch: main
+    remote: origin
+    mode: safe
+    use_lfs: false
+    validator: /usr/local/bin/validate-yaml.sh
+    post_hook: /usr/local/bin/restart-app.sh
+
+# Configuration options explained:
+#
+# validation:
+#   enabled: Enable/disable validation before applying changes
+#   max_retries: Number of retry attempts if validation fails
+#   rollback_on_failure: Automatically rollback to last known good state on failure
+#
+# quick_check:
+#   enabled: Use lightweight git ls-remote checks instead of full fetch
+#   interval: How often to check for changes (in seconds)
+#
+# repositories:
+#   name: Unique identifier for the repository
+#   path: Local path to the Git repository
+#   branch: Branch to sync (default: main)
+#   remote: Remote name (default: origin)
+#   mode: Sync mode - safe (recommended), force, or pull
+#   use_lfs: Enable Git LFS support for large files
+#   validator: Path to validation script (optional)
+#   post_hook: Path to post-sync hook script (optional)

@@ -37,3 +37,8 @@ venv/
 .pre-commit-cache/
 
 
+
+# Migration V2: Local directories
+!logs/.gitkeep
+tmp/
+!tmp/.gitkeep

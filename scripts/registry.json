@@ -11,10 +11,10 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/system-health-check.sh",
-        "zsh": "scripts/zsh/system-health-check.zsh",
-        "sh": "scripts/sh/system-health-check.sh",
-        "fish": "scripts/fish/system-health-check.fish"
+        "bash": "scripts/monitoring/bash/system-health-check.sh",
+        "zsh": "scripts/monitoring/zsh/system-health-check.zsh",
+        "sh": "scripts/monitoring/sh/system-health-check.sh",
+        "fish": "scripts/monitoring/fish/system-health-check.fish"
       },
       "defaultShell": "bash",
       "options": [
@@ -68,7 +68,7 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/server-setup.sh"
+        "bash": "scripts/configuration/bash/server-setup.sh"
       },
       "defaultShell": "bash",
       "options": [
@@ -123,7 +123,7 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/docker-management.sh"
+        "bash": "scripts/infrastructure/bash/docker-management.sh"
       },
       "defaultShell": "bash",
       "options": [
@@ -217,7 +217,7 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/disk-cleanup.sh"
+        "bash": "scripts/maintenance/bash/disk-cleanup.sh"
       },
       "defaultShell": "bash",
       "options": [
@@ -292,7 +292,7 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/ssl-checker.sh"
+        "bash": "scripts/security/bash/ssl-checker.sh"
       },
       "defaultShell": "bash",
       "options": [
@@ -384,7 +384,7 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/user-audit.sh"
+        "bash": "scripts/security/bash/user-audit.sh"
       },
       "defaultShell": "bash",
       "options": [
@@ -464,8 +464,8 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/user-management.sh",
-        "powershell": "scripts/powershell/UserManagement.ps1"
+        "bash": "scripts/configuration/bash/user-management.sh",
+        "powershell": "scripts/configuration/powershell/UserManagement.ps1"
       },
       "defaultShell": "bash",
       "subcommands": [
@@ -757,7 +757,7 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/system-update.sh"
+        "bash": "scripts/maintenance/bash/system-update.sh"
       },
       "defaultShell": "bash",
       "options": [
@@ -843,7 +843,7 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/security-audit.sh"
+        "bash": "scripts/security/bash/security-audit.sh"
       },
       "defaultShell": "bash",
       "options": [
@@ -925,7 +925,7 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/network-diagnostics.sh"
+        "bash": "scripts/monitoring/bash/network-diagnostics.sh"
       },
       "defaultShell": "bash",
       "options": [
@@ -1010,8 +1010,8 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/ssh-server.sh",
-        "powershell": "scripts/powershell/SSHServer.ps1"
+        "bash": "scripts/security/bash/ssh-server.sh",
+        "powershell": "scripts/security/powershell/SSHServer.ps1"
       },
       "defaultShell": "bash",
       "subcommands": [
@@ -1174,7 +1174,7 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/ssh-hardening.sh"
+        "bash": "scripts/security/bash/ssh-hardening.sh"
       },
       "defaultShell": "bash",
       "options": [
@@ -1260,7 +1260,7 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/firewall-setup.sh"
+        "bash": "scripts/security/bash/firewall-setup.sh"
       },
       "defaultShell": "bash",
       "options": [
@@ -1357,7 +1357,7 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/config-backup.sh"
+        "bash": "scripts/maintenance/bash/config-backup.sh"
       },
       "defaultShell": "bash",
       "options": [
@@ -1460,7 +1460,7 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/database-backup.sh"
+        "bash": "scripts/maintenance/bash/database-backup.sh"
       },
       "defaultShell": "bash",
       "options": [
@@ -1572,7 +1572,7 @@
       "version": "1.0.0",
       "author": "codefuturist",
       "shells": {
-        "bash": "scripts/bash/git-auto-sync.sh"
+        "bash": "scripts/data/bash/git-auto-sync.sh"
       },
       "defaultShell": "bash",
       "options": [

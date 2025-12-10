@@ -1,0 +1,7 @@
+# dev Environment Configuration
+# Extends: ../../../config/defaults/base.yaml
+
+environment: dev
+
+# Override settings for dev environment
+# Add environment-specific configuration here

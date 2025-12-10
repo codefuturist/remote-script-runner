@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://scripts.pandia.io/schemas/registry.json",
+  "title": "RSR Registry Schema",
+  "description": "Schema for validating scripts/registry.json",
+  "type": "object",
+  "required": ["version", "scripts"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "scripts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/script"
+      }
+    }
+  },
+  "$defs": {
+    "script": {
+      "type": "object",
+      "required": ["id", "name", "description", "category", "shells"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "displayName": { "type": "string" },
+        "description": { "type": "string" },
+        "category": {
+          "type": "string",
+          "enum": ["monitoring", "configuration", "infrastructure", "security", "maintenance", "network", "data", "development"]
+        },
+        "version": { "type": "string" },
+        "author": { "type": "string" },
+        "shells": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "defaultShell": { "type": "string" },
+        "options": { "type": "array" },
+        "examples": { "type": "array" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

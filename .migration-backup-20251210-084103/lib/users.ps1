@@ -1120,7 +1120,7 @@ function New-RSRSecret {
         # Generates: xK9mP2nQ8vR4!jL7@tA5yB3c
     .EXAMPLE
         New-RSRSecret -Type apikey -Prefix "sk_live_" -Length 32
-        # Generates: sk_live_mP2nQ8vR4jL7tA5yB3cW1zX6fD9h
+        # Generates: sk_live_xxxXXXxxx... (example output redacted)
     .EXAMPLE
         New-RSRSecret -Type hex -Length 64
         # Generates: 3a5f7c9e2b4d6f8a1c3e5f7b9d2e4f6a...
