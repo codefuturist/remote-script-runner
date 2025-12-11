@@ -90,7 +90,36 @@ scripts/
    - `{{DESCRIPTION}}` → Brief description
    - `{{AUTHOR}}` → Your name
 
-3. **Register in registry.json** (optional but recommended)
+3. **Register in registry.json** (REQUIRED):
+   ```json
+   {
+     "id": "my-script",
+     "name": "My Script Name",
+     "command": "my-cmd",
+     "aliases": ["my-cmd", "my-script"],
+     "description": "Brief description of what the script does",
+     "example": "rsr my-cmd --option",
+     "category": "system",
+     "subcategory": "health",
+     "path": "scripts/system/health/my-script.sh",
+     "version": "1.0.0",
+     "platforms": ["linux", "macos"],
+     "requires": ["bash 4.0+"],
+     "sudo": "optional",
+     "tags": ["monitoring", "health"]
+   }
+   ```
+
+4. **Generate code from registry**:
+   ```bash
+   make build-registry
+   ```
+   This auto-updates the `rsr` entrypoint with your new script.
+
+5. **Test the script**:
+   ```bash
+   ./rsr my-cmd --help
+   ```
 
 ## Using Scripts
 
@@ -148,12 +177,40 @@ Import-Module "$PSScriptRoot/../../../lib/powershell/RSR.psd1"
 
 The registry provides metadata for all scripts:
 - Script ID (unique identifier)
+- Command and aliases for routing
 - Display name and description
+- Example usage
 - Category and subcategory
 - File paths
 - Platform support
 - Required dependencies
 - Tags for searching
+
+### Automated Code Generation
+
+The `rsr` entrypoint script is automatically generated from `registry.json`:
+
+**What gets auto-generated:**
+- Script path mappings (`get_script_path` function)
+- Script list output (`list_scripts` function)
+- Command routing (`main` case statement)
+
+**How to update:**
+```bash
+# After modifying registry.json
+make build-registry
+
+# Preview changes without modifying files
+make build-registry-dry-run
+
+# Check if files are in sync (CI)
+make sync-check
+```
+
+**Pre-commit hook:**
+A pre-commit hook automatically checks if `registry.json` and `rsr` are in sync. If you modify `registry.json`, you must run `make build-registry` before committing.
+
+**DO NOT manually edit** the auto-generated sections in `rsr` (marked with `BEGIN AUTO-GENERATED` comments).
 
 ## Archive
 

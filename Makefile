@@ -16,7 +16,7 @@
 #
 # =============================================================================
 
-.PHONY: all help lint format test test-unit test-integration validate install clean setup-hooks check lint-powershell test-powershell test-powershell-verbose
+.PHONY: all help lint format test test-unit test-integration validate install clean setup-hooks check lint-powershell test-powershell test-powershell-verbose build-registry sync-check
 
 # Default target
 all: lint test validate
@@ -61,6 +61,8 @@ help:
 	@echo "  $(GREEN)test-verbose$(NC)     Run all tests with verbose output"
 	@echo "  $(GREEN)test-powershell$(NC)  Run PowerShell tests with Pester"
 	@echo "  $(GREEN)validate$(NC)         Validate registry.json and script headers"
+	@echo "  $(GREEN)build-registry$(NC)   Generate code from registry.json"
+	@echo "  $(GREEN)sync-check$(NC)       Check if registry and code are in sync"
 	@echo "  $(GREEN)install$(NC)          Install development dependencies"
 	@echo "  $(GREEN)setup-hooks$(NC)      Install pre-commit hooks"
 	@echo "  $(GREEN)clean$(NC)            Clean temporary files and caches"
@@ -76,7 +78,7 @@ help:
 # Linting
 # =============================================================================
 
-lint: lint-shellcheck lint-syntax lint-powershell
+lint: lint-shellcheck lint-syntax lint-powershell lint-javascript lint-markdown lint-yaml
 	@echo "$(GREEN)✓ All linting passed$(NC)"
 
 lint-shellcheck:
@@ -110,6 +112,41 @@ lint-powershell:
 	else \
 		echo "$(BLUE)  No PowerShell files to lint$(NC)"; \
 	fi
+
+lint-javascript:
+	@echo "$(BLUE)▸ Running ESLint...$(NC)"
+	@if command -v npm >/dev/null 2>&1; then \
+		npm run lint:js --silent 2>/dev/null && echo "$(GREEN)✓ ESLint passed$(NC)" || \
+		(echo "$(YELLOW)⚠ Installing ESLint...$(NC)" && npm install --silent && npm run lint:js); \
+	else \
+		echo "$(YELLOW)⚠ npm not installed. Skipping JavaScript linting$(NC)"; \
+	fi
+
+lint-markdown:
+	@echo "$(BLUE)▸ Running markdownlint...$(NC)"
+	@if command -v markdownlint >/dev/null 2>&1 || [ -f node_modules/.bin/markdownlint ]; then \
+		npm run lint:md --silent 2>/dev/null && echo "$(GREEN)✓ markdownlint passed$(NC)" || \
+		(echo "$(YELLOW)⚠ Installing markdownlint...$(NC)" && npm install --silent && npm run lint:md); \
+	else \
+		echo "$(YELLOW)⚠ markdownlint not installed. Skipping Markdown linting$(NC)"; \
+	fi
+
+lint-yaml:
+	@echo "$(BLUE)▸ Running yamllint...$(NC)"
+	@if command -v yamllint >/dev/null 2>&1; then \
+		yamllint -c .yamllint.yml . && echo "$(GREEN)✓ yamllint passed$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠ yamllint not installed. Install with: pip install yamllint$(NC)"; \
+	fi
+
+lint-json:
+	@echo "$(BLUE)▸ Checking JSON files...$(NC)"
+	@find . -name "*.json" -not -path "*/node_modules/*" -not -path "*/test/libs/*" -exec sh -c 'python3 -m json.tool {} > /dev/null || (echo "Invalid JSON: {}" && exit 1)' \; && echo "$(GREEN)✓ JSON validation passed$(NC)"
+
+lint-fix:
+	@echo "$(BLUE)▸ Auto-fixing linting issues...$(NC)"
+	@npm run lint:fix --silent || true
+	@echo "$(GREEN)✓ Auto-fix complete$(NC)"
 
 # =============================================================================
 # Formatting
@@ -196,6 +233,23 @@ validate:
 validate-strict:
 	@echo "$(BLUE)▸ Validating registry and scripts (strict mode)...$(NC)"
 	@./tools/validate.sh --strict
+
+# =============================================================================
+# Registry Building
+# =============================================================================
+
+build-registry:
+	@echo "$(BLUE)▸ Building from registry.json...$(NC)"
+	@./tools/build-registry.sh
+	@echo "$(GREEN)✓ Registry build complete$(NC)"
+
+build-registry-dry-run:
+	@echo "$(BLUE)▸ Dry-run: Building from registry.json...$(NC)"
+	@./tools/build-registry.sh --dry-run
+
+sync-check:
+	@echo "$(BLUE)▸ Checking registry sync...$(NC)"
+	@./tools/build-registry.sh --check
 
 # =============================================================================
 # Development Setup

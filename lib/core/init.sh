@@ -245,7 +245,7 @@ rsr_detect_shell() {
 }
 
 # Get package manager for current system
-# Returns: apt, yum, dnf, pacman, zypper, brew, apk, unknown
+# Returns: apt, yum, dnf, pacman, zypper, brew, apk, winget, choco, unknown
 rsr_detect_package_manager() {
     if [ -z "${_RSR_CACHED_PKG_MGR:-}" ]; then
         if rsr_has_command apt-get; then
@@ -262,6 +262,10 @@ rsr_detect_package_manager() {
             _RSR_CACHED_PKG_MGR="apk"
         elif rsr_has_command brew; then
             _RSR_CACHED_PKG_MGR="brew"
+        elif rsr_has_command winget; then
+            _RSR_CACHED_PKG_MGR="winget"
+        elif rsr_has_command choco; then
+            _RSR_CACHED_PKG_MGR="choco"
         else
             _RSR_CACHED_PKG_MGR="unknown"
         fi

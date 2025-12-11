@@ -1,0 +1,36 @@
+# bootstrap.yaml - Core tools for minimal systems
+# This profile uses ONLY simple format (no extended format)
+# so it can be parsed by the pure-shell fallback parser.
+#
+# Usage: rsr pkg install-profile bootstrap
+#
+# These packages are the absolute minimum needed for:
+# 1. The full YAML parser to work (sed, grep, awk)
+# 2. Basic system operation
+# 3. The RSR library itself
+
+name: bootstrap
+description: Core tools for minimal systems (parseable without external tools)
+version: "1.0.0"
+category: bootstrap
+
+packages:
+  - coreutils
+  - sed
+  - grep
+  - gawk
+  - curl
+  - ca-certificates
+
+platforms:
+  darwin:
+    note: macOS includes BSD versions; GNU versions available via Homebrew
+  
+  debian:
+    note: These are typically pre-installed on Debian/Ubuntu
+  
+  alpine:
+    note: Alpine may need explicit installation of these tools
+  
+  windows:
+    note: Requires Git Bash, WSL, or similar POSIX environment

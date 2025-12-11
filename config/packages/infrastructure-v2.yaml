@@ -1,0 +1,246 @@
+# infrastructure.yaml - Infrastructure, containers, cloud, and DevOps tools
+# Usage: rsr pkg install infrastructure
+#        rsr pkg install infrastructure.containers.docker
+#        rsr pkg install infrastructure.cloud.aws
+
+name: infrastructure
+description: Infrastructure, containers, cloud, and DevOps tools
+version: "2.0.0"
+category: infrastructure
+
+# Top-level packages
+packages:
+  - git
+  - curl
+  - wget
+
+groups:
+  containers:
+    docker:
+      description: Docker container platform
+      packages:
+        - name: docker
+          brew: docker
+          winget: Docker.DockerDesktop
+          choco: docker-desktop
+          apt: docker.io
+          dnf: docker
+        
+        - name: docker-compose
+          brew: docker-compose
+          winget: Docker.DockerCompose
+          choco: docker-compose
+          apt: docker-compose
+          dnf: docker-compose
+    
+    kubernetes:
+      description: Kubernetes CLI tools
+      packages:
+        - name: kubectl
+          brew: kubectl
+          winget: Kubernetes.kubectl
+          choco: kubernetes-cli
+          apt: kubectl
+          dnf: kubectl
+        
+        - name: helm
+          brew: helm
+          winget: Helm.Helm
+          choco: kubernetes-helm
+          apt: helm
+          dnf: helm
+        
+        - name: k9s
+          brew: k9s
+          winget: k9s-io.k9s
+          choco: k9s
+          apt: k9s
+        
+        - name: kubectx
+          brew: kubectx
+          winget: ahmetb.kubectx
+          apt: kubectx
+    
+    alternative:
+      description: Alternative container runtimes
+      packages:
+        - name: podman
+          brew: podman
+          winget: RedHat.Podman
+          apt: podman
+          dnf: podman
+  
+  cloud:
+    aws:
+      description: AWS CLI and tools
+      packages:
+        - name: awscli
+          brew: awscli
+          winget: Amazon.AWSCLI
+          choco: awscli
+          apt: awscli
+    
+    gcp:
+      description: Google Cloud Platform tools
+      packages:
+        - name: gcloud
+          brew: google-cloud-sdk
+    
+    azure:
+      description: Microsoft Azure tools
+      packages:
+        - name: az
+          brew: azure-cli
+          winget: Microsoft.AzureCLI
+          choco: azure-cli
+  
+  iac:
+    description: Infrastructure as Code tools
+    terraform:
+      description: Terraform infrastructure provisioning
+      packages:
+        - name: terraform
+          brew: terraform
+          winget: Hashicorp.Terraform
+          choco: terraform
+          apt: terraform
+          dnf: terraform
+    
+    ansible:
+      description: Configuration management with Ansible
+      packages:
+        - name: ansible
+          brew: ansible
+          winget: Ansible.Ansible
+          apt: ansible
+          dnf: ansible
+    
+    pulumi:
+      description: Pulumi infrastructure as code
+      packages:
+        - name: pulumi
+          brew: pulumi
+          winget: Pulumi.Pulumi
+          choco: pulumi
+  
+  databases:
+    postgresql:
+      description: PostgreSQL database client
+      packages:
+        - name: postgresql-client
+          apt: postgresql-client
+          dnf: postgresql
+          brew: libpq
+    
+    mysql:
+      description: MySQL database client
+      packages:
+        - name: mysql-client
+          apt: mysql-client
+          dnf: mysql
+          brew: mysql-client
+    
+    mongodb:
+      description: MongoDB database client
+      packages:
+        - name: mongosh
+          brew: mongosh
+          apt: mongodb-mongosh
+    
+    redis:
+      description: Redis client
+      packages:
+        - name: redis
+          brew: redis
+          apt: redis-tools
+          dnf: redis
+  
+  monitoring:
+    description: Monitoring and observability tools
+    system:
+      description: System monitoring
+      packages:
+        - htop
+        - iotop
+        - sysstat
+        - nethogs
+    
+    logs:
+      description: Log management
+      packages:
+        - name: fluentd
+          brew: fluentd
+        
+        - name: logrotate
+          apt: logrotate
+          dnf: logrotate
+  
+  networking:
+    description: Network tools and utilities
+    diagnostics:
+      description: Network diagnostic tools
+      packages:
+        - nmap
+        - tcpdump
+        - mtr
+        - iftop
+        - netcat
+        - traceroute
+        - dnsutils
+    
+    security:
+      description: Network security tools
+      packages:
+        - name: nmap
+          brew: nmap
+          apt: nmap
+        
+        - name: wireshark
+          brew: wireshark
+          apt: wireshark
+  
+  webserver:
+    nginx:
+      description: Nginx web server
+      packages:
+        - name: nginx
+          brew: nginx
+          apt: nginx
+          dnf: nginx
+        
+        - name: certbot
+          brew: certbot
+          apt: certbot
+          dnf: certbot
+    
+    apache:
+      description: Apache HTTP server
+      packages:
+        - name: httpd
+          apt: apache2
+          dnf: httpd
+          brew: httpd
+  
+  cicd:
+    description: CI/CD tools
+    jenkins:
+      description: Jenkins automation server
+      packages:
+        - name: jenkins
+          brew: jenkins
+          apt: jenkins
+    
+    githubactions:
+      description: GitHub Actions runner
+      packages:
+        - name: gh
+          brew: gh
+          winget: GitHub.cli
+          apt: gh
+
+platforms:
+  darwin:
+    note: "Many services available via Homebrew; GUI apps via Docker Desktop"
+  
+  linux:
+    note: "System package managers provide most infrastructure tools"

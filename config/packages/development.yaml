@@ -44,14 +44,57 @@ packages:
 
 optional:
   # Modern CLI tools
-  - neovim
-  - zsh
-  - fzf
-  - ripgrep
-  - fd-find
-  - bat
-  - exa
-  - tldr
+  - name: neovim
+    brew: neovim
+    winget: Neovim.Neovim
+    choco: neovim
+    apt: neovim
+    dnf: neovim
+
+  - name: zsh
+    brew: zsh
+    apt: zsh
+    dnf: zsh
+
+  - name: fzf
+    brew: fzf
+    winget: junegunn.fzf
+    choco: fzf
+    apt: fzf
+    dnf: fzf
+
+  - name: ripgrep
+    brew: ripgrep
+    winget: BurntSushi.ripgrep.MSVC
+    choco: ripgrep
+    apt: ripgrep
+    dnf: ripgrep
+
+  - name: fd
+    brew: fd
+    winget: sharkdp.fd
+    choco: fd
+    apt: fd-find
+    dnf: fd-find
+
+  - name: bat
+    brew: bat
+    winget: sharkdp.bat
+    choco: bat
+    apt: bat
+    dnf: bat
+
+  - name: exa
+    brew: exa
+    winget: ogham.exa
+    choco: exa
+    apt: exa
+
+  - name: tldr
+    brew: tldr
+    winget: tldr-pages.tlrc
+    choco: tldr
+    apt: tldr
 
 platforms:
   darwin:

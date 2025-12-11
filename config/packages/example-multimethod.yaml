@@ -1,0 +1,56 @@
+# example-multimethod.yaml - Example profile demonstrating multi-method installation
+# This profile showcases the extended package format with method-specific definitions
+#
+# Usage: rsr pkg install-profile example-multimethod
+
+name: example-multimethod
+description: Example profile demonstrating multi-method package installation
+version: "1.0.0"
+category: examples
+
+packages:
+  # Simple format (backward compatible) - uses detected package manager
+  - curl
+  - wget
+  
+  # Extended format with multiple methods - tries in order until success
+  - name: jq
+    brew: jq
+    winget: jqlang.jq
+    choco: jq
+    apt: jq
+    dnf: jq
+  
+  # Another example with cross-platform differences
+  - name: htop
+    brew: htop
+    winget: htop-dev.htop
+    apt: htop
+    dnf: htop
+  
+  # Example where package names differ
+  - name: fd
+    brew: fd
+    winget: sharkdp.fd
+    choco: fd
+    apt: fd-find
+    dnf: fd-find
+
+optional:
+  # Extended format works in optional packages too
+  - name: bat
+    brew: bat
+    winget: sharkdp.bat
+    choco: bat
+    apt: bat
+    dnf: bat
+
+platforms:
+  darwin:
+    note: "Using Homebrew for all packages"
+  
+  windows:
+    note: "Using winget (preferred) or Chocolatey as fallback"
+  
+  linux:
+    note: "Using system package manager (apt/dnf/etc)"

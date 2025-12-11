@@ -1,0 +1,94 @@
+# core.yaml - Core system tools and essentials
+# Usage: rsr pkg install core
+#        rsr pkg install core.bootstrap
+#        rsr pkg install core.minimal
+#        rsr pkg install core.runtimes.powershell
+
+name: core
+description: Core system tools and essentials
+version: "2.0.0"
+category: core
+
+# Top-level packages (installed with base profile)
+packages:
+  - curl
+  - wget
+  - git
+
+groups:
+  bootstrap:
+    description: Core tools for minimal systems (no external dependencies)
+    packages:
+      - coreutils
+      - sed
+      - grep
+      - gawk
+      - curl
+      - ca-certificates
+  
+  minimal:
+    description: Essential packages for any system
+    packages:
+      # Download utilities
+      - curl
+      - wget
+      
+      # Version control
+      - git
+      
+      # Text editor
+      - vim
+      
+      # System monitoring
+      - htop
+      
+      # JSON processor
+      - jq
+      
+      # Archive utilities
+      - unzip
+      - zip
+  
+  shell:
+    description: Shell enhancements and utilities
+    packages:
+      - zsh
+      - tmux
+      - screen
+  
+  runtimes:
+    description: Cross-platform runtime environments and shells
+    powershell:
+      description: PowerShell 7 - Modern cross-platform shell and scripting language
+      packages:
+        # PowerShell 7 stable release
+        - name: powershell
+          description: PowerShell 7 (stable)
+          brew_cask: powershell
+          winget: Microsoft.PowerShell
+          choco: powershell-core
+          apt: powershell
+          dnf: powershell
+          # Note: Linux requires Microsoft repository setup first
+          # Run: rsr setup-powershell-repo (or scripts/packages/setup-powershell-repo.sh)
+        
+        # PowerShell 7 preview release (optional)
+        - name: powershell-preview
+          description: PowerShell 7 (preview/beta)
+          brew_cask: powershell-preview
+          winget: Microsoft.PowerShell.Preview
+          choco: powershell-core --pre
+          optional: true
+
+platforms:
+  darwin:
+    note: "macOS includes BSD versions; GNU versions available via Homebrew"
+  
+  debian:
+    note: "These packages are typically pre-installed on Debian/Ubuntu"
+  
+  alpine:
+    note: "Alpine may need explicit installation of these tools"
+  
+  windows:
+    note: "Requires Git Bash, WSL, or similar POSIX environment"

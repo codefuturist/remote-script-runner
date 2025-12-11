@@ -90,9 +90,9 @@ rsr_load_module() {
             # shellcheck source=modules/packages.sh
             . "${_RSR_LIB_ROOT}/modules/packages.sh"
             ;;
-        *)
-            rsr_log_error "Unknown module: $_module"
-            return 1
+        backup|bkp)
+            # shellcheck source=modules/backup.sh
+            . "${_RSR_LIB_ROOT}/modules/backup.sh"
             ;;
     esac
 }
@@ -109,7 +109,7 @@ rsr_load_all() {
     # Interactive only if bash
     [ -n "${BASH_VERSION:-}" ] && rsr_load_module interactive
 
-    rsr_log_debug "All RSR modules loaded"
+    rsr_load_module backup
 }
 
 # =============================================================================

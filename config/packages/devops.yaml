@@ -24,26 +24,50 @@ packages:
   - cmake
 
   # Configuration management
-  - ansible
+  - name: ansible
+    brew: ansible
+    winget: Ansible.Ansible
+    apt: ansible
+    dnf: ansible
 
   # Infrastructure as Code
-  - terraform
+  - name: terraform
+    brew: terraform
+    winget: Hashicorp.Terraform
+    choco: terraform
+    apt: terraform
+    dnf: terraform
 
   # Cloud CLIs (install separately per cloud)
-  # - awscli
-  # - azure-cli
-  # - google-cloud-sdk
+  - name: awscli
+    brew: awscli
+    winget: Amazon.AWSCLI
+    choco: awscli
+    apt: awscli
 
   # CI/CD tools
-  - jenkins
+  - name: jenkins
+    brew: jenkins
+    apt: jenkins
 
   # Secrets management
-  - vault
+  - name: vault
+    brew: vault
+    winget: Hashicorp.Vault
+    choco: vault
+    apt: vault
 
 optional:
   # Additional IaC
-  - pulumi
-  - packer
+  - name: pulumi
+    brew: pulumi
+    winget: Pulumi.Pulumi
+    choco: pulumi
+
+  - name: packer
+    brew: packer
+    winget: Hashicorp.Packer
+    choco: packer
 
   # Service mesh
   - istioctl

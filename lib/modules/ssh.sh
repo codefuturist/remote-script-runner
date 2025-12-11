@@ -569,6 +569,88 @@ rsr_ssh_test_connection() {
 }
 
 # =============================================================================
+# SSH Key Distribution
+# =============================================================================
+
+# List local SSH keys
+# Usage: rsr_ssh_list_local_keys
+rsr_ssh_list_local_keys() {
+    _ssh_dir="$HOME/.ssh"
+    [ -d "$_ssh_dir" ] || return 0
+
+    find "$_ssh_dir" -type f \( -name "id_*.pub" -o -name "*.pub" \) 2>/dev/null | sort
+}
+
+# Get SSH key fingerprint
+# Usage: rsr_ssh_get_key_fingerprint "path/to/key.pub"
+rsr_ssh_get_key_fingerprint() {
+    _keyfile="$1"
+    [ -f "$_keyfile" ] || return 1
+
+    ssh-keygen -lf "$_keyfile" 2>/dev/null | awk '{print $2}'
+}
+
+# Check if SSH key file exists
+# Usage: if rsr_ssh_key_file_exists "~/.ssh/id_ed25519"; then ...
+rsr_ssh_key_file_exists() {
+    _keyfile="$1"
+    # Expand tilde
+    _keyfile="${_keyfile/#\~/$HOME}"
+    [ -f "$_keyfile" ]
+}
+
+# Copy SSH key to remote host
+# Usage: rsr_ssh_copy_key_to_host "user@host" [keyfile] [port]
+rsr_ssh_copy_key_to_host() {
+    _target="$1"
+    _keyfile="${2:-}"
+    _port="${3:-22}"
+
+    # Auto-detect key if not specified
+    if [ -z "$_keyfile" ]; then
+        for _f in "$HOME/.ssh/id_ed25519.pub" "$HOME/.ssh/id_rsa.pub" "$HOME/.ssh/id_ecdsa.pub"; do
+            if [ -f "$_f" ]; then
+                _keyfile="$_f"
+                break
+            fi
+        done
+    fi
+
+    [ -f "$_keyfile" ] || {
+        rsr_log_error "No public key found: $_keyfile"
+        return "$RSR_EXIT_NOT_FOUND"
+    }
+
+    _pubkey=$(cat "$_keyfile")
+
+    # Copy key using ssh
+    ssh -p "$_port" "$_target" "mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo '$_pubkey' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys" 2>/dev/null
+}
+
+# Test SSH key authentication
+# Usage: if rsr_ssh_test_key_auth "user@host" [keyfile] [port]; then ...
+rsr_ssh_test_key_auth() {
+    _target="$1"
+    _keyfile="${2:-}"
+    _port="${3:-22}"
+
+    _ssh_opts="-o BatchMode=yes -o ConnectTimeout=5 -o PreferredAuthentications=publickey"
+    [ -n "$_keyfile" ] && _ssh_opts="$_ssh_opts -i $_keyfile"
+
+    ssh $_ssh_opts -p "$_port" "$_target" exit 2>/dev/null
+}
+
+# Remove SSH key from remote host
+# Usage: rsr_ssh_revoke_key_from_host "user@host" "pattern" [port]
+rsr_ssh_revoke_key_from_host() {
+    _target="$1"
+    _pattern="$2"
+    _port="${3:-22}"
+
+    ssh -p "$_port" "$_target" "[ -f ~/.ssh/authorized_keys ] && grep -v '$_pattern' ~/.ssh/authorized_keys > ~/.ssh/authorized_keys.tmp && mv ~/.ssh/authorized_keys.tmp ~/.ssh/authorized_keys" 2>/dev/null
+}
+
+# =============================================================================
 # Initialization Complete
 # =============================================================================
 

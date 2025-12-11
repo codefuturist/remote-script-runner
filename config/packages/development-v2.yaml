@@ -1,0 +1,201 @@
+# development.yaml - Development tools and environments
+# Usage: rsr pkg install development
+#        rsr pkg install development.languages.python
+#        rsr pkg install development.tools.modern
+
+name: development
+description: Development tools and environments
+version: "2.0.0"
+category: development
+
+# Top-level packages (installed with base profile)
+packages:
+  - git
+  - vim
+  - curl
+
+groups:
+  essentials:
+    description: Core development tools
+    packages:
+      # Version Control
+      - git
+      - git-lfs
+      
+      # Build Tools
+      - build-essential
+      - cmake
+      - make
+      
+      # Editors
+      - vim
+      - nano
+      
+      # Shell utilities
+      - curl
+      - wget
+      - jq
+      - tree
+      - htop
+      - tmux
+      - screen
+      
+      # Network tools
+      - netcat
+      - nmap
+      
+      # File utilities
+      - rsync
+      - unzip
+      - zip
+      - tar
+  
+  languages:
+    python:
+      description: Python development environment
+      packages:
+        - name: python3
+          brew: python@3
+          apt: python3
+          dnf: python3
+        
+        - python3-pip
+        - python3-venv
+        
+        - name: python-dev
+          apt: python3-dev
+          dnf: python3-devel
+          brew: python@3
+      
+    nodejs:
+      description: Node.js development environment
+      packages:
+        - name: node
+          brew: node
+          winget: OpenJS.NodeJS
+          choco: nodejs
+          apt: nodejs
+          dnf: nodejs
+        
+        - npm
+        - yarn
+    
+    rust:
+      description: Rust development environment
+      packages:
+        - name: rustup
+          brew: rustup
+          winget: Rustlang.Rustup
+    
+    go:
+      description: Go development environment
+      packages:
+        - name: go
+          brew: go
+          winget: GoLang.Go
+          choco: golang
+          apt: golang
+          dnf: golang
+    
+    ruby:
+      description: Ruby development environment
+      packages:
+        - name: ruby
+          brew: ruby
+          winget: RubyInstallerTeam.Ruby
+          apt: ruby-full
+          dnf: ruby
+  
+  tools:
+    modern:
+      description: Modern CLI replacements and tools
+      packages:
+        - name: neovim
+          brew: neovim
+          winget: Neovim.Neovim
+          choco: neovim
+          apt: neovim
+          dnf: neovim
+        
+        - name: fzf
+          brew: fzf
+          winget: junegunn.fzf
+          choco: fzf
+          apt: fzf
+          dnf: fzf
+        
+        - name: ripgrep
+          brew: ripgrep
+          winget: BurntSushi.ripgrep.MSVC
+          choco: ripgrep
+          apt: ripgrep
+          dnf: ripgrep
+        
+        - name: fd
+          brew: fd
+          winget: sharkdp.fd
+          choco: fd
+          apt: fd-find
+          dnf: fd-find
+        
+        - name: bat
+          brew: bat
+          winget: sharkdp.bat
+          choco: bat
+          apt: bat
+          dnf: bat
+        
+        - name: exa
+          brew: exa
+          winget: ogham.exa
+          choco: exa
+          apt: exa
+        
+        - name: tldr
+          brew: tldr
+          winget: tldr-pages.tlrc
+          choco: tldr
+          apt: tldr
+    
+    editors:
+      description: Code editors and IDEs
+      packages:
+        - name: vim
+        
+        - name: neovim
+          brew: neovim
+          winget: Neovim.Neovim
+        
+        - name: emacs
+          brew: emacs
+          apt: emacs
+    
+    vcs:
+      description: Version control systems
+      packages:
+        - git
+        - git-lfs
+        - mercurial
+
+platforms:
+  darwin:
+    packages:
+      - coreutils
+      - gnu-sed
+      - grep
+      - findutils
+    skip:
+      - build-essential
+    note: "Xcode Command Line Tools provides build essentials"
+  
+  alpine:
+    packages:
+      - build-base
+    skip:
+      - build-essential
+  
+  arch:
+    packages:
+      - base-devel
+    skip:
+      - build-essential

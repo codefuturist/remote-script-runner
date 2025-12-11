@@ -38,7 +38,9 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $ScriptRoot = $PSScriptRoot
-$ScriptsPath = Join-Path $ScriptRoot "scripts\powershell"
+$ScriptsPath = Join-Path $ScriptRoot "scripts"
+$ScriptsPwshPath = Join-Path $ScriptsPath "powershell"
+$ScriptsPkgPath = Join-Path $ScriptsPath "packages"
 
 function Show-RSRHelp {
     Write-Host @"
@@ -49,14 +51,18 @@ Usage:
 
 Available scripts:
     usermgmt    User management (create, delete, password, group, ssh, session)
+    pkg         Package management (install, list, info)
     health      System health check (coming soon)
 
 Examples:
     rsr usermgmt create -u john -c "John Doe"
     rsr usermgmt list --admin
-    rsr usermgmt password reset -u john
-    rsr usermgmt ssh generate -u john -t ed25519
-    rsr usermgmt session list
+    rsr pkg                                      # Interactive wizard
+    rsr pkg -List                                # List profiles
+    rsr pkg -Profile core                        # Install profile
+    rsr pkg -Profile development.languages.python # Install group
+    rsr pkg -Interactive                         # Launch wizard
+    rsr pkg -Profile core -Force                 # No prompts
 
 Documentation:
     https://github.com/codefuturist/remote-script-runner
@@ -67,7 +73,15 @@ Documentation:
 # Main routing
 switch ($Script) {
     'usermgmt' {
-        & "$ScriptsPath\UserManagement.ps1" @Arguments
+        & "$ScriptsPwshPath\UserManagement.ps1" @Arguments
+    }
+    'pkg' {
+        # If no arguments, launch interactive wizard
+        if ($Arguments.Count -eq 0) {
+            & "$ScriptsPkgPath\Install-PackageProfile.ps1" -Interactive
+        } else {
+            & "$ScriptsPkgPath\Install-PackageProfile.ps1" @Arguments
+        }
     }
     'health' {
         Write-Host "System health check coming soon for Windows" -ForegroundColor Yellow

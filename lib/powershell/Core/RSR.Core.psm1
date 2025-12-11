@@ -1,4 +1,4 @@
-# RSR.Core.psm1 - RSR Core PowerShell Module
+P# RSR.Core.psm1 - RSR Core PowerShell Module
 # Provides: logging, platform detection, command utilities
 #
 # Usage: Import-Module RSR (loads via manifest)
@@ -326,4 +326,3 @@ Export-ModuleMember -Function @(
     'Test-RSRRoot',
     'Assert-RSRRoot'
 )
-

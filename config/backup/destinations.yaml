@@ -1,0 +1,267 @@
+# destinations.yaml - RSR Backup Destination Configurations
+# Define reusable backup destinations
+#
+# Usage in profiles:
+#   destination: !ref local-nas
+#   destination: !ref cloud-s3
+
+version: "1.0.0"
+
+# =============================================================================
+# Local Destinations
+# =============================================================================
+
+local:
+
+  # External drive
+  external-drive:
+    type: filesystem
+    path: "/Volumes/Backup"  # macOS
+    # path: "E:\\Backup"     # Windows
+    # path: "/mnt/backup"    # Linux
+    description: "External USB/Thunderbolt drive"
+    check_mount: true  # Verify mounted before backup
+
+  # Local NAS
+  nas-smb:
+    type: smb
+    host: "nas.local"
+    share: "Backups"
+    path: "/${HOSTNAME}"
+    username: "${NAS_USER}"
+    password: "${NAS_PASSWORD}"  # Use environment variable
+    description: "Local NAS via SMB"
+
+  nas-nfs:
+    type: nfs
+    host: "nas.local"
+    path: "/volume1/backups/${HOSTNAME}"
+    description: "Local NAS via NFS"
+    mount_options:
+      - "soft"
+      - "intr"
+      - "rsize=8192"
+      - "wsize=8192"
+
+  # Local server via SSH
+  backup-server:
+    type: sftp
+    host: "backup.local"
+    port: 22
+    path: "/backup/${HOSTNAME}"
+    username: "backup"
+    key_file: "~/.ssh/backup_key"
+    description: "Dedicated backup server"
+
+# =============================================================================
+# Cloud Destinations
+# =============================================================================
+
+cloud:
+
+  # Amazon S3
+  aws-s3:
+    type: s3
+    bucket: "${AWS_BACKUP_BUCKET}"
+    region: "us-east-1"
+    path: "backups/${HOSTNAME}"
+    access_key: "${AWS_ACCESS_KEY_ID}"
+    secret_key: "${AWS_SECRET_ACCESS_KEY}"
+    storage_class: "STANDARD_IA"  # Infrequent access for cost savings
+    description: "Amazon S3 storage"
+    # For restic/kopia/rclone format:
+    # restic: s3:s3.amazonaws.com/${bucket}
+    # rclone: s3:${bucket}/${path}
+    # kopia: s3 --bucket=${bucket} --region=${region}
+
+  aws-s3-glacier:
+    type: s3
+    bucket: "${AWS_BACKUP_BUCKET}"
+    region: "us-east-1"
+    path: "archive/${HOSTNAME}"
+    storage_class: "DEEP_ARCHIVE"
+    description: "Amazon Glacier Deep Archive (cheapest, slow retrieval)"
+
+  # Google Cloud Storage
+  gcs:
+    type: gcs
+    bucket: "${GCS_BACKUP_BUCKET}"
+    path: "backups/${HOSTNAME}"
+    project: "${GCP_PROJECT}"
+    credentials: "~/.config/gcloud/backup-service-account.json"
+    storage_class: "NEARLINE"
+    description: "Google Cloud Storage"
+
+  # Backblaze B2
+  backblaze-b2:
+    type: b2
+    bucket: "${B2_BUCKET}"
+    path: "backups/${HOSTNAME}"
+    account_id: "${B2_ACCOUNT_ID}"
+    app_key: "${B2_APPLICATION_KEY}"
+    description: "Backblaze B2 (cost-effective cloud storage)"
+
+  # Wasabi
+  wasabi:
+    type: s3
+    endpoint: "s3.wasabisys.com"
+    bucket: "${WASABI_BUCKET}"
+    region: "us-east-1"
+    path: "backups/${HOSTNAME}"
+    access_key: "${WASABI_ACCESS_KEY}"
+    secret_key: "${WASABI_SECRET_KEY}"
+    description: "Wasabi Hot Cloud Storage (S3-compatible)"
+
+  # Azure Blob Storage
+  azure-blob:
+    type: azure
+    account: "${AZURE_STORAGE_ACCOUNT}"
+    container: "backups"
+    path: "${HOSTNAME}"
+    access_key: "${AZURE_STORAGE_KEY}"
+    description: "Microsoft Azure Blob Storage"
+
+  # DigitalOcean Spaces
+  do-spaces:
+    type: s3
+    endpoint: "${DO_SPACES_REGION}.digitaloceanspaces.com"
+    bucket: "${DO_SPACES_BUCKET}"
+    path: "backups/${HOSTNAME}"
+    access_key: "${DO_SPACES_KEY}"
+    secret_key: "${DO_SPACES_SECRET}"
+    description: "DigitalOcean Spaces (S3-compatible)"
+
+# =============================================================================
+# Consumer Cloud Services (via rclone)
+# =============================================================================
+
+consumer:
+
+  # Google Drive
+  google-drive:
+    type: rclone_remote
+    remote_name: "gdrive"  # Configure with: rclone config
+    path: "Backups/${HOSTNAME}"
+    description: "Google Drive (personal)"
+    # Note: Configure rclone first with: rclone config
+
+  # Dropbox
+  dropbox:
+    type: rclone_remote
+    remote_name: "dropbox"
+    path: "Backups/${HOSTNAME}"
+    description: "Dropbox"
+
+  # OneDrive
+  onedrive:
+    type: rclone_remote
+    remote_name: "onedrive"
+    path: "Backups/${HOSTNAME}"
+    description: "Microsoft OneDrive"
+
+  # iCloud Drive (macOS only)
+  icloud:
+    type: filesystem
+    path: "${HOME}/Library/Mobile Documents/com~apple~CloudDocs/Backups"
+    platforms: [darwin]
+    description: "iCloud Drive"
+
+# =============================================================================
+# Self-Hosted Solutions
+# =============================================================================
+
+selfhosted:
+
+  # Minio (S3-compatible)
+  minio:
+    type: s3
+    endpoint: "http://minio.local:9000"
+    bucket: "backups"
+    path: "${HOSTNAME}"
+    access_key: "${MINIO_ACCESS_KEY}"
+    secret_key: "${MINIO_SECRET_KEY}"
+    description: "Self-hosted Minio S3"
+
+  # Restic REST Server
+  restic-rest:
+    type: rest
+    url: "https://backup.example.com:8000"
+    path: "${HOSTNAME}"
+    username: "${REST_USER}"
+    password: "${REST_PASSWORD}"
+    description: "Restic REST server"
+
+  # SFTP Server
+  sftp-server:
+    type: sftp
+    host: "sftp.example.com"
+    port: 22
+    path: "/backups/${HOSTNAME}"
+    username: "${SFTP_USER}"
+    key_file: "~/.ssh/backup_ed25519"
+    description: "Remote SFTP server"
+
+  # WebDAV
+  webdav:
+    type: webdav
+    url: "https://webdav.example.com/backups"
+    path: "${HOSTNAME}"
+    username: "${WEBDAV_USER}"
+    password: "${WEBDAV_PASSWORD}"
+    description: "WebDAV server"
+
+# =============================================================================
+# Destination Groups (for redundant backups)
+# =============================================================================
+
+groups:
+
+  # 3-2-1 backup rule: 3 copies, 2 different media, 1 offsite
+  three-two-one:
+    description: "3-2-1 backup strategy"
+    destinations:
+      - local.external-drive  # Local copy 1
+      - local.nas-smb         # Local copy 2 (different media)
+      - cloud.backblaze-b2    # Offsite copy
+    strategy: all  # Backup to all destinations
+
+  # Geographic redundancy
+  geo-redundant:
+    description: "Geographically distributed backups"
+    destinations:
+      - cloud.aws-s3        # US East
+      - cloud.gcs           # US West
+      - cloud.azure-blob    # Europe
+    strategy: all
+
+  # Cost-tiered
+  tiered-storage:
+    description: "Hot/warm/cold storage tiers"
+    tiers:
+      hot:
+        destination: local.nas-smb
+        retention: 7d
+      warm:
+        destination: cloud.aws-s3
+        retention: 30d
+      cold:
+        destination: cloud.aws-s3-glacier
+        retention: 1y
+
+# =============================================================================
+# Default Settings
+# =============================================================================
+
+defaults:
+  # Connection settings
+  timeout: 30
+  retries: 3
+  retry_delay: 5
+
+  # Bandwidth limits (0 = unlimited)
+  bandwidth_limit: 0
+
+  # For cloud storage
+  chunk_size: "64M"
+  parallel_uploads: 4
+

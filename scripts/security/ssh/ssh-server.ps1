@@ -1132,6 +1132,618 @@ function Invoke-FailedCommand {
     }
 }
 
+# =============================================================================
+# Users Command - Manage AllowUsers/AllowGroups
+# =============================================================================
+
+function Invoke-UsersCommand {
+    param([string[]]$Args)
+    
+    $action = if ($Args.Count -gt 0) { $Args[0] } else { 'list' }
+    $restArgs = if ($Args.Count -gt 1) { $Args[1..($Args.Count-1)] } else { @() }
+    
+    switch ($action) {
+        { $_ -in 'list', 'ls', '' } { Invoke-UsersListCommand }
+        'add' { Invoke-UsersAddCommand -User $restArgs[0] }
+        { $_ -in 'remove', 'rm' } { Invoke-UsersRemoveCommand -User $restArgs[0] }
+        default {
+            Write-SSHLog "Unknown action: $action" -Level Error
+            Write-SSHLog "Usage: ssh-server users [list|add|remove] USER" -Level Info
+        }
+    }
+}
+
+function Invoke-UsersListCommand {
+    Write-SSHHeader "SSH Allowed Users"
+    
+    $config = Get-SSHConfig
+    $allowUsers = $config | Where-Object { $_ -match '^\s*AllowUsers\s+(.+)' }
+    $allowGroups = $config | Where-Object { $_ -match '^\s*AllowGroups\s+(.+)' }
+    
+    if ($allowUsers) {
+        $users = ($allowUsers -split '\s+')[1..999]
+        Write-Host "AllowUsers:" -ForegroundColor White
+        foreach ($user in $users) {
+            Write-Host "  ✓ $user" -ForegroundColor Green
+        }
+        Write-Host ""
+        Write-Host "$($users.Count) user(s) can SSH to this server" -ForegroundColor DarkGray
+    } else {
+        Write-Host "AllowUsers not configured (all users allowed)" -ForegroundColor Yellow
+    }
+    
+    if ($allowGroups) {
+        Write-Host "`nAllowGroups:" -ForegroundColor White
+        $groups = ($allowGroups -split '\s+')[1..999]
+        foreach ($group in $groups) {
+            Write-Host "  ✓ $group" -ForegroundColor Green
+        }
+    }
+}
+
+function Invoke-UsersAddCommand {
+    param([string]$User)
+    
+    if (-not $User) {
+        Write-SSHLog "User is required" -Level Error
+        Write-SSHLog "Usage: ssh-server users add USER" -Level Info
+        return
+    }
+    
+    Write-SSHHeader "Add Allowed User"
+    
+    $config = Get-Content $Script:SSHDConfigPath
+    $allowUsersLine = $config | Where-Object { $_ -match '^\s*AllowUsers\s+' }
+    
+    if ($allowUsersLine) {
+        # Update existing AllowUsers
+        $newLine = "$allowUsersLine $User"
+        $config = $config -replace [regex]::Escape($allowUsersLine), $newLine
+    } else {
+        # Add new AllowUsers directive
+        $config += "AllowUsers $User"
+    }
+    
+    if (-not $Script:DryRun) {
+        Backup-SSHConfig
+        Set-Content -Path $Script:SSHDConfigPath -Value $config -Force
+        Write-SSHLog "Added '$User' to AllowUsers" -Level Success
+        Write-Host "`nRestart SSH to apply: ssh-server restart" -ForegroundColor Cyan
+    } else {
+        Write-SSHLog "[DRY RUN] Would add '$User' to AllowUsers" -Level Info
+    }
+}
+
+function Invoke-UsersRemoveCommand {
+    param([string]$User)
+    
+    if (-not $User) {
+        Write-SSHLog "User is required" -Level Error
+        Write-SSHLog "Usage: ssh-server users remove USER" -Level Info
+        return
+    }
+    
+    Write-SSHHeader "Remove Allowed User"
+    
+    $config = Get-Content $Script:SSHDConfigPath
+    $allowUsersLine = $config | Where-Object { $_ -match '^\s*AllowUsers\s+' }
+    
+    if ($allowUsersLine) {
+        $newLine = $allowUsersLine -replace "\b$User\b", "" -replace '\s+', ' '
+        $newLine = $newLine.Trim()
+        
+        if ($newLine -eq 'AllowUsers') {
+            # Remove the line if no users left
+            $config = $config | Where-Object { $_ -notmatch '^\s*AllowUsers\s+' }
+        } else {
+            $config = $config -replace [regex]::Escape($allowUsersLine), $newLine
+        }
+        
+        if (-not $Script:DryRun) {
+            Backup-SSHConfig
+            Set-Content -Path $Script:SSHDConfigPath -Value $config -Force
+            Write-SSHLog "Removed '$User' from AllowUsers" -Level Success
+            Write-Host "`nRestart SSH to apply: ssh-server restart" -ForegroundColor Cyan
+        } else {
+            Write-SSHLog "[DRY RUN] Would remove '$User' from AllowUsers" -Level Info
+        }
+    } else {
+        Write-SSHLog "AllowUsers not configured" -Level Warning
+    }
+}
+
+# =============================================================================
+# Keys Command - Manage authorized_keys
+# =============================================================================
+
+function Invoke-KeysCommand {
+    param([string[]]$Args)
+    
+    $action = if ($Args.Count -gt 0) { $Args[0] } else { 'list' }
+    $restArgs = if ($Args.Count -gt 1) { $Args[1..($Args.Count-1)] } else { @() }
+    
+    switch ($action) {
+        { $_ -in 'list', 'ls', '' } { Invoke-KeysListCommand -User $restArgs[0] }
+        'add' { Invoke-KeysAddCommand -User $restArgs[0] -KeyFile $restArgs[1] }
+        { $_ -in 'remove', 'rm' } { Invoke-KeysRemoveCommand -User $restArgs[0] -KeyFile $restArgs[1] }
+        default {
+            Write-SSHLog "Unknown action: $action" -Level Error
+            Write-SSHLog "Usage: ssh-server keys [list|add|remove] USER [KEYFILE]" -Level Info
+        }
+    }
+}
+
+function Invoke-KeysListCommand {
+    param([string]$User)
+    
+    if (-not $User) {
+        $User = $env:USERNAME
+    }
+    
+    Write-SSHHeader "Authorized Keys for '$User'"
+    
+    $userProfile = (Get-WmiObject Win32_UserAccount -Filter "Name='$User'").SID
+    if (-not $userProfile) {
+        Write-SSHLog "User '$User' not found" -Level Error
+        return
+    }
+    
+    $authorizedKeysPath = "$env:ProgramData\ssh\administrators_authorized_keys"
+    
+    if (-not (Test-Path $authorizedKeysPath)) {
+        Write-Host "No authorized keys found" -ForegroundColor DarkGray
+        Write-Host "`nAdd keys with: ssh-server keys add $User keyfile.pub" -ForegroundColor Cyan
+        return
+    }
+    
+    $keys = Get-Content $authorizedKeysPath
+    $count = 0
+    
+    foreach ($key in $keys) {
+        if ($key -match '\S' -and $key -notmatch '^#') {
+            $count++
+            
+            # Extract key info
+            if ($key -match '(\S+)\s+([A-Za-z0-9+/=]+)\s*(.*)') {
+                $type = $matches[1]
+                $comment = $matches[3]
+                
+                Write-Host "$count. " -NoNewline -ForegroundColor Cyan
+                Write-Host "$type" -NoNewline -ForegroundColor White
+                if ($comment) {
+                    Write-Host " - $comment" -ForegroundColor DarkGray
+                } else {
+                    Write-Host ""
+                }
+            }
+        }
+    }
+    
+    if ($count -eq 0) {
+        Write-Host "No authorized keys found" -ForegroundColor DarkGray
+    } else {
+        Write-Host "`n$count key(s) authorized" -ForegroundColor DarkGray
+    }
+}
+
+function Invoke-KeysAddCommand {
+    param(
+        [string]$User,
+        [string]$KeyFile
+    )
+    
+    if (-not $User -or -not $KeyFile) {
+        Write-SSHLog "User and key file are required" -Level Error
+        Write-SSHLog "Usage: ssh-server keys add USER KEYFILE.pub" -Level Info
+        return
+    }
+    
+    if (-not (Test-Path $KeyFile)) {
+        Write-SSHLog "Key file not found: $KeyFile" -Level Error
+        return
+    }
+    
+    Write-SSHHeader "Add Authorized Key"
+    
+    $authorizedKeysPath = "$env:ProgramData\ssh\administrators_authorized_keys"
+    
+    $keyContent = Get-Content $KeyFile -Raw
+    
+    if (-not $Script:DryRun) {
+        # Create file if it doesn't exist
+        if (-not (Test-Path $authorizedKeysPath)) {
+            New-Item -ItemType File -Path $authorizedKeysPath -Force | Out-Null
+        }
+        
+        # Append key
+        Add-Content -Path $authorizedKeysPath -Value $keyContent
+        
+        # Set permissions (SYSTEM and Administrators only)
+        $acl = Get-Acl $authorizedKeysPath
+        $acl.SetAccessRuleProtection($true, $false)
+        $acl.Access | ForEach-Object { $acl.RemoveAccessRule($_) } | Out-Null
+        
+        $systemRule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+            "NT AUTHORITY\SYSTEM", "FullControl", "Allow"
+        )
+        $adminRule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+            "BUILTIN\Administrators", "FullControl", "Allow"
+        )
+        
+        $acl.AddAccessRule($systemRule)
+        $acl.AddAccessRule($adminRule)
+        Set-Acl -Path $authorizedKeysPath -AclObject $acl
+        
+        Write-SSHLog "Key added to $authorizedKeysPath" -Level Success
+    } else {
+        Write-SSHLog "[DRY RUN] Would add key for user '$User'" -Level Info
+    }
+}
+
+function Invoke-KeysRemoveCommand {
+    param(
+        [string]$User,
+        [string]$KeyFile
+    )
+    
+    if (-not $User -or -not $KeyFile) {
+        Write-SSHLog "User and key file are required" -Level Error
+        Write-SSHLog "Usage: ssh-server keys remove USER KEYFILE.pub" -Level Info
+        return
+    }
+    
+    if (-not (Test-Path $KeyFile)) {
+        Write-SSHLog "Key file not found: $KeyFile" -Level Error
+        return
+    }
+    
+    Write-SSHHeader "Remove Authorized Key"
+    
+    $authorizedKeysPath = "$env:ProgramData\ssh\administrators_authorized_keys"
+    
+    if (-not (Test-Path $authorizedKeysPath)) {
+        Write-SSHLog "No authorized keys file found" -Level Warning
+        return
+    }
+    
+    $keyToRemove = Get-Content $KeyFile -Raw
+    $keys = Get-Content $authorizedKeysPath
+    $newKeys = $keys | Where-Object { $_ -ne $keyToRemove.Trim() }
+    
+    if (-not $Script:DryRun) {
+        Set-Content -Path $authorizedKeysPath -Value $newKeys -Force
+        Write-SSHLog "Key removed from $authorizedKeysPath" -Level Success
+    } else {
+        Write-SSHLog "[DRY RUN] Would remove key for user '$User'" -Level Info
+    }
+}
+
+# =============================================================================
+# Banner Command - Manage SSH banner
+# =============================================================================
+
+function Invoke-BannerCommand {
+    param([string[]]$Args)
+    
+    $action = if ($Args.Count -gt 0) { $Args[0] } else { 'show' }
+    $restArgs = if ($Args.Count -gt 1) { $Args[1..($Args.Count-1)] } else { @() }
+    
+    switch ($action) {
+        'show' { Invoke-BannerShowCommand }
+        'set' { Invoke-BannerSetCommand -File $restArgs[0] }
+        'generate' { Invoke-BannerGenerateCommand }
+        'disable' { Invoke-BannerDisableCommand }
+        default {
+            Write-SSHLog "Unknown action: $action" -Level Error
+            Write-SSHLog "Usage: ssh-server banner [show|set|generate|disable]" -Level Info
+        }
+    }
+}
+
+function Invoke-BannerShowCommand {
+    Write-SSHHeader "SSH Banner"
+    
+    $config = Get-SSHConfig
+    $bannerLine = $config | Where-Object { $_ -match '^\s*Banner\s+(.+)' }
+    
+    if ($bannerLine -and $bannerLine -notmatch '^\s*#') {
+        $bannerPath = $matches[1]
+        
+        if (Test-Path $bannerPath) {
+            Write-Host "Banner file: " -NoNewline
+            Write-Host $bannerPath -ForegroundColor Cyan
+            Write-Host "`nContent:" -ForegroundColor White
+            Write-Host ("─" * 60) -ForegroundColor DarkGray
+            Get-Content $bannerPath
+            Write-Host ("─" * 60) -ForegroundColor DarkGray
+        } else {
+            Write-SSHLog "Banner file not found: $bannerPath" -Level Error
+        }
+    } else {
+        Write-Host "Banner not configured" -ForegroundColor DarkGray
+        Write-Host "`nGenerate a banner with: ssh-server banner generate" -ForegroundColor Cyan
+    }
+}
+
+function Invoke-BannerSetCommand {
+    param([string]$File)
+    
+    if (-not $File) {
+        Write-SSHLog "File is required" -Level Error
+        Write-SSHLog "Usage: ssh-server banner set FILE" -Level Info
+        return
+    }
+    
+    if (-not (Test-Path $File)) {
+        Write-SSHLog "File not found: $File" -Level Error
+        return
+    }
+    
+    Write-SSHHeader "Set SSH Banner"
+    
+    $bannerPath = "$env:ProgramData\ssh\banner.txt"
+    
+    if (-not $Script:DryRun) {
+        Copy-Item $File $bannerPath -Force
+        
+        # Update sshd_config
+        Set-SSHConfig -Key "Banner" -Value $bannerPath
+        
+        Write-SSHLog "Banner set: $bannerPath" -Level Success
+        Write-Host "`nRestart SSH to apply: ssh-server restart" -ForegroundColor Cyan
+    } else {
+        Write-SSHLog "[DRY RUN] Would set banner from $File" -Level Info
+    }
+}
+
+function Invoke-BannerGenerateCommand {
+    Write-SSHHeader "Generate SSH Banner"
+    
+    Write-Host "Select banner template:" -ForegroundColor White
+    Write-Host "  1. Warning (security notice)" -ForegroundColor Cyan
+    Write-Host "  2. Info (system information)" -ForegroundColor Cyan
+    Write-Host "  3. Minimal (hostname only)" -ForegroundColor Cyan
+    
+    $choice = Read-Host "`nChoice [1-3]"
+    
+    $hostname = $env:COMPUTERNAME
+    
+    $banner = switch ($choice) {
+        '1' {
+            @"
+╔════════════════════════════════════════════════════════════════════╗
+║                      AUTHORIZED ACCESS ONLY                        ║
+╚════════════════════════════════════════════════════════════════════╝
+
+This system is for authorized use only. All activity is logged and
+monitored. Unauthorized access is prohibited and will be prosecuted.
+
+Hostname: $hostname
+Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+
+"@
+        }
+        '2' {
+            @"
+════════════════════════════════════════════════════════════════════
+             Welcome to $hostname
+════════════════════════════════════════════════════════════════════
+
+OS: Windows $([System.Environment]::OSVersion.Version)
+Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+
+All connections are monitored and logged.
+
+"@
+        }
+        '3' {
+            @"
+$hostname
+
+"@
+        }
+        default {
+            Write-SSHLog "Invalid choice" -Level Error
+            return
+        }
+    }
+    
+    $bannerPath = "$env:ProgramData\ssh\banner.txt"
+    
+    if (-not $Script:DryRun) {
+        Set-Content -Path $bannerPath -Value $banner -Force
+        Set-SSHConfig -Key "Banner" -Value $bannerPath
+        
+        Write-SSHLog "Banner generated: $bannerPath" -Level Success
+        Write-Host "`nPreview:" -ForegroundColor White
+        Write-Host $banner
+        Write-Host "`nRestart SSH to apply: ssh-server restart" -ForegroundColor Cyan
+    } else {
+        Write-SSHLog "[DRY RUN] Would generate banner" -Level Info
+        Write-Host $banner
+    }
+}
+
+function Invoke-BannerDisableCommand {
+    Write-SSHHeader "Disable SSH Banner"
+    
+    if (-not $Script:DryRun) {
+        $config = Get-Content $Script:SSHDConfigPath
+        $config = $config | ForEach-Object {
+            if ($_ -match '^\s*Banner\s+') {
+                "# $_"
+            } else {
+                $_
+            }
+        }
+        
+        Backup-SSHConfig
+        Set-Content -Path $Script:SSHDConfigPath -Value $config -Force
+        
+        Write-SSHLog "Banner disabled" -Level Success
+        Write-Host "`nRestart SSH to apply: ssh-server restart" -ForegroundColor Cyan
+    } else {
+        Write-SSHLog "[DRY RUN] Would disable banner" -Level Info
+    }
+}
+
+# =============================================================================
+# Logs Command - View SSH logs
+# =============================================================================
+
+function Invoke-LogsCommand {
+    param([string[]]$Args)
+    
+    Write-SSHHeader "SSH Server Logs"
+    
+    $lines = if ($Args.Count -gt 0 -and $Args[0] -match '^\d+$') { [int]$Args[0] } else { 50 }
+    
+    # Windows SSH logs to Event Viewer
+    $events = Get-WinEvent -LogName "OpenSSH/Operational" -MaxEvents $lines -ErrorAction SilentlyContinue
+    
+    if ($events) {
+        Write-Host "Latest $lines SSH events:`n" -ForegroundColor White
+        
+        foreach ($event in $events) {
+            $color = switch ($event.LevelDisplayName) {
+                'Error' { 'Red' }
+                'Warning' { 'Yellow' }
+                default { 'White' }
+            }
+            
+            Write-Host "[$($event.TimeCreated.ToString('yyyy-MM-dd HH:mm:ss'))] " -NoNewline -ForegroundColor DarkGray
+            Write-Host $event.LevelDisplayName -NoNewline -ForegroundColor $color
+            Write-Host " - $($event.Message.Split("`n")[0])" -ForegroundColor White
+        }
+    } else {
+        Write-SSHLog "No SSH logs found in Event Viewer" -Level Warning
+        Write-Host "`nEnsure OpenSSH logging is enabled" -ForegroundColor Yellow
+    }
+}
+
+# =============================================================================
+# Connections Command - Show active connections
+# =============================================================================
+
+function Invoke-ConnectionsCommand {
+    Write-SSHHeader "Active SSH Connections"
+    
+    $connections = Get-NetTCPConnection -LocalPort 22 -State Established -ErrorAction SilentlyContinue
+    
+    if ($connections) {
+        Write-Host "Active connections:`n" -ForegroundColor White
+        
+        $format = "{0,-20} {1,-20} {2,-10}"
+        Write-Host ($format -f "REMOTE ADDRESS", "LOCAL ADDRESS", "STATE") -ForegroundColor White
+        Write-Host ("─" * 60) -ForegroundColor DarkGray
+        
+        foreach ($conn in $connections) {
+            Write-Host ($format -f $conn.RemoteAddress, $conn.LocalAddress, $conn.State)
+        }
+        
+        Write-Host "`n$($connections.Count) active connection(s)" -ForegroundColor DarkGray
+    } else {
+        Write-Host "No active SSH connections" -ForegroundColor DarkGray
+    }
+}
+
+# =============================================================================
+# Audit Command - Security audit
+# =============================================================================
+
+function Invoke-AuditCommand {
+    Write-SSHHeader "SSH Security Audit"
+    
+    $issues = @()
+    $checks = 0
+    
+    function Check-Setting {
+        param(
+            [string]$Name,
+            [string]$Expected,
+            [string]$Why
+        )
+        
+        $script:checks++
+        
+        $actual = (Get-SSHConfig | Where-Object { $_ -match "^\s*$Name\s+(.+)" }) -replace ".*$Name\s+", ""
+        
+        if ($actual -eq $Expected) {
+            Write-Host "✓ " -NoNewline -ForegroundColor Green
+            Write-Host "$Name = $actual" -ForegroundColor White
+        } else {
+            Write-Host "✗ " -NoNewline -ForegroundColor Red
+            Write-Host "$Name = " -NoNewline -ForegroundColor White
+            Write-Host $actual -NoNewline -ForegroundColor Yellow
+            Write-Host " → should be " -NoNewline -ForegroundColor White
+            Write-Host $Expected -ForegroundColor Green
+            if ($Why) {
+                Write-Host "  $Why" -ForegroundColor DarkGray
+            }
+            $script:issues += $Name
+        }
+    }
+    
+    Check-Setting "PermitRootLogin" "no" "Disable root login for security"
+    Check-Setting "PasswordAuthentication" "no" "Use key-based authentication"
+    Check-Setting "PubkeyAuthentication" "yes" "Enable public key auth"
+    Check-Setting "PermitEmptyPasswords" "no" "Prevent empty passwords"
+    Check-Setting "MaxAuthTries" "3" "Limit authentication attempts"
+    
+    Write-Host ""
+    
+    if ($issues.Count -eq 0) {
+        Write-SSHLog "All security checks passed ($checks checks)" -Level Success
+    } else {
+        Write-SSHLog "$($issues.Count) issue(s) found in $checks checks" -Level Warning
+        Write-Host "`nFix with: ssh-server harden" -ForegroundColor Cyan
+    }
+}
+
+# =============================================================================
+# Test Command - Connection testing
+# =============================================================================
+
+function Invoke-TestCommand {
+    Write-SSHHeader "Test SSH Server"
+    
+    Write-Host "Testing SSH server..`n" -ForegroundColor White
+    
+    # Check service
+    $service = Get-Service -Name sshd -ErrorAction SilentlyContinue
+    if ($service -and $service.Status -eq 'Running') {
+        Write-Host "✓ Service running" -ForegroundColor Green
+    } else {
+        Write-Host "✗ Service not running" -ForegroundColor Red
+        return
+    }
+    
+    # Check port
+    $listening = Get-NetTCPConnection -LocalPort 22 -State Listen -ErrorAction SilentlyContinue
+    if ($listening) {
+        Write-Host "✓ Listening on port 22" -ForegroundColor Green
+    } else {
+        Write-Host "✗ Not listening on port 22" -ForegroundColor Red
+    }
+    
+    # Check firewall
+    $firewallRule = Get-NetFirewallRule -DisplayName "OpenSSH*" -ErrorAction SilentlyContinue
+    if ($firewallRule) {
+        Write-Host "✓ Firewall rule exists" -ForegroundColor Green
+    } else {
+        Write-Host "⚠ Firewall rule missing" -ForegroundColor Yellow
+    }
+    
+    # Check config
+    if (Test-SSHConfig) {
+        Write-Host "✓ Configuration valid" -ForegroundColor Green
+    } else {
+        Write-Host "✗ Configuration has errors" -ForegroundColor Red
+    }
+    
+    Write-Host "`nTest connection with: ssh localhost" -ForegroundColor Cyan
+}
+
 function Show-Usage {
     Write-Host @"
 $Script:ScriptName v$Script:ScriptVersion
@@ -1162,10 +1774,35 @@ Commands:
     config validate     Validate configuration
     config show         Show configuration
 
+  User Management:
+    users               Manage SSH-allowed users
+      list              List users with SSH access
+      add USER          Add user to AllowUsers
+      remove USER       Remove user from AllowUsers
+
+  Key Management:
+    keys                Manage authorized_keys
+      list [USER]       List authorized keys for user
+      add USER KEY      Add public key for user
+      remove USER KEY   Remove key from user
+
+  Banner Management:
+    banner              Manage SSH banner
+      show              Show current banner
+      set FILE          Set banner from file
+      generate          Generate standard banner
+      disable           Disable banner
+
   Security:
     harden              Apply security hardening
     score               Show security score
+    audit               Security audit
     failed              Show failed logins
+
+  Testing & Diagnostics:
+    test                Test SSH server
+    logs [N]            View SSH logs (default: 50 lines)
+    connections         Show active SSH connections
 
 Global Options:
     -h, --help          Show help
@@ -1177,7 +1814,11 @@ Examples:
     .\SSHServer.ps1 install
     .\SSHServer.ps1 status
     .\SSHServer.ps1 harden
-    .\SSHServer.ps1 config set Port 2222
+    .\SSHServer.ps1 users add myuser
+    .\SSHServer.ps1 keys list Administrator
+    .\SSHServer.ps1 banner generate
+    .\SSHServer.ps1 audit
+    .\SSHServer.ps1 logs 100
 
 "@
 }
@@ -1226,6 +1867,13 @@ function Main {
         'harden' { Invoke-HardenCommand }
         'score' { Invoke-ScoreCommand }
         'failed' { Invoke-FailedCommand }
+        'users' { Invoke-UsersCommand $filteredArgs }
+        'keys' { Invoke-KeysCommand $filteredArgs }
+        'banner' { Invoke-BannerCommand $filteredArgs }
+        'logs' { Invoke-LogsCommand $filteredArgs }
+        'connections' { Invoke-ConnectionsCommand }
+        'audit' { Invoke-AuditCommand }
+        'test' { Invoke-TestCommand }
         default {
             Write-SSHLog "Unknown command: $Command" -Level Error
             Write-Host "Run '.\SSHServer.ps1 --help' for usage"

@@ -11,24 +11,48 @@ category: containers
 
 packages:
   # Core Kubernetes CLI
-  - kubectl
+  - name: kubectl
+    brew: kubectl
+    winget: Kubernetes.kubectl
+    choco: kubernetes-cli
+    apt: kubectl
+    dnf: kubectl
 
   # Package manager for Kubernetes
-  - helm
+  - name: helm
+    brew: helm
+    winget: Helm.Helm
+    choco: kubernetes-helm
+    apt: helm
+    dnf: helm
 
 optional:
   # Context/namespace switching
-  - kubectx
-  - kubens
+  - name: kubectx
+    brew: kubectx
+    winget: ahmetb.kubectx
+    apt: kubectx
+
+  - name: kubens
+    brew: kubens
+    apt: kubens
 
   # Terminal UI
-  - k9s
+  - name: k9s
+    brew: k9s
+    winget: k9s-io.k9s
+    choco: k9s
+    apt: k9s
 
   # Log aggregation
-  - stern
+  - name: stern
+    brew: stern
+    choco: stern
 
   # Templating
-  - kustomize
+  - name: kustomize
+    brew: kustomize
+    choco: kustomize
 
   # Local clusters
   - minikube

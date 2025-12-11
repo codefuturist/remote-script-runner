@@ -10,22 +10,51 @@ version: "1.0.0"
 category: containers
 
 packages:
-  - docker
-  - docker-compose
+  - name: docker
+    brew: docker
+    winget: Docker.DockerDesktop
+    choco: docker-desktop
+    apt: docker.io
+    dnf: docker
+
+  - name: docker-compose
+    brew: docker-compose
+    winget: Docker.DockerCompose
+    choco: docker-compose
+    apt: docker-compose
+    dnf: docker-compose
 
 optional:
   # Additional Docker tools
-  - docker-buildx
+  - name: docker-buildx
+    brew: docker-buildx
+    apt: docker-buildx
+
   - containerd
 
   # Alternative container runtimes
-  - podman
-  - buildah
+  - name: podman
+    brew: podman
+    winget: RedHat.Podman
+    apt: podman
+    dnf: podman
+
+  - name: buildah
+    brew: buildah
+    apt: buildah
+    dnf: buildah
+
   - skopeo
 
   # Container inspection
-  - dive
-  - ctop
+  - name: dive
+    brew: dive
+    winget: wagoodman.dive
+    choco: dive
+
+  - name: ctop
+    brew: ctop
+    apt: ctop
 
   # Docker registry
   - docker-registry

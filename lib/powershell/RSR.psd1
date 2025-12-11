@@ -53,10 +53,12 @@
         'Core\RSR.Core.psm1',
         'Core\RSR.Validate.psm1',
         'Core\RSR.Interactive.psm1',
+        'Core\RSR.Yaml.psm1',
         'Modules\RSR.Users.psm1',
         'Modules\RSR.Docker.psm1',
-        'Modules\RSR.SSH.psm1'
-    )
+        'Modules\RSR.SSH.psm1',
+        'Modules\RSR.Packages.psm1',
+        'Modules\RSR.Backup.psm1'
 
     # Functions to export from this module, for best performance, do not use wildcards
     FunctionsToExport = @(
@@ -158,27 +160,49 @@
         'Get-RSRSSHPublicKey',
         'Add-RSRSSHAuthorizedKey',
         'Remove-RSRSSHAuthorizedKey',
-        'Get-RSRSSHAuthorizedKeys'
-    )
+        'Get-RSRSSHAuthorizedKeys',
 
-    # Cmdlets to export from this module
-    CmdletsToExport = @()
+        # YAML functions
+        'ConvertFrom-RSRYaml',
+        'Get-RSRYamlSection',
+        'Get-RSRYamlGroups',
+        'Get-RSRYamlGroupPackages',
 
-    # Variables to export from this module
-    VariablesToExport = @(
-        'RSR_VERSION',
-        'RSR_EXIT_SUCCESS',
-        'RSR_EXIT_ERROR',
-        'RSR_EXIT_USAGE',
-        'RSR_EXIT_DEPENDENCY',
-        'RSR_EXIT_PERMISSION',
-        'RSR_EXIT_NOT_FOUND',
-        'RSR_EXIT_ALREADY_EXISTS'
-    )
+        # Package functions
+        'Get-RSRPackageManager',
+        'Get-RSRAvailableMethods',
+        'Test-RSRPackageInstalled',
+        'Get-RSRPackageVersion',
+        'Install-RSRPackage',
+        'Install-RSRPackages',
+        'Get-RSRPackageProfiles',
+        'Get-RSRPackageProfileInfo',
+        'Get-RSRPackageGroups',
+        'Install-RSRPackageProfile',
+        'Install-RSRPackageGroup',
+        'Start-RSRPackageWizard',
+        'Update-RSRPackageCache',
+        'Clear-RSRPackageCache'
+        'Clear-RSRPackageCache',
 
-    # Aliases to export from this module
-    AliasesToExport = @()
-
+        # Backup functions
+        'Test-RSRBackupToolInstalled',
+        'Get-RSRBackupToolVersion',
+        'Get-RSRBackupTools',
+        'Get-RSRBackupDefaultTool',
+        'New-RSRVSSSnapshot',
+        'Remove-RSRVSSSnapshot',
+        'Get-RSRVSSSnapshots',
+        'Get-RSRFileHistoryStatus',
+        'New-RSRBackup',
+        'Get-RSRBackupList',
+        'Restore-RSRBackup',
+        'Initialize-RSRBackupRepository',
+        'Invoke-RSRBackupPrune',
+        'Get-RSRBackupProfiles',
+        'New-RSRBackupProfile',
+        'Invoke-RSRBackupProfile',
+        'New-RSRBackupScheduledTask'
     # DSC resources to export from this module
     # DscResourcesToExport = @()
 

@@ -1,0 +1,326 @@
+# profiles.yaml - RSR Backup Profile Configurations
+# Define reusable backup profiles for different use cases
+#
+# Usage:
+#   rsr backup run --profile home-daily
+#   rsr backup run --profile server-incremental
+
+version: "1.0.0"
+
+# =============================================================================
+# Profile Definitions
+# =============================================================================
+
+profiles:
+
+  # ---------------------------------------------------------------------------
+  # Home User Profiles
+  # ---------------------------------------------------------------------------
+
+  home-daily:
+    description: "Daily backup of home directory"
+    tool: restic  # Options: rsync, rclone, restic, borg, kopia
+    sources:
+      - "${HOME}"
+    destination: "/backup/home/${USER}"
+    excludes:
+      - ".cache"
+      - ".local/share/Trash"
+      - "node_modules"
+      - ".npm"
+      - "__pycache__"
+      - "*.pyc"
+      - ".DS_Store"
+      - "Thumbs.db"
+      - "*.tmp"
+      - "*.log"
+      - ".venv"
+      - "venv"
+    retention:
+      keep_daily: 7
+      keep_weekly: 4
+      keep_monthly: 6
+      keep_yearly: 1
+    options:
+      verify: true
+      prune: true
+      compression: auto
+    schedule:
+      type: daily
+      time: "02:00"
+
+  home-documents:
+    description: "Backup important documents"
+    tool: rclone
+    sources:
+      - "${HOME}/Documents"
+      - "${HOME}/Desktop"
+    destination: "gdrive:Backups/Documents"  # Google Drive via rclone
+    excludes:
+      - "*.tmp"
+      - "~$*"
+      - ".~lock.*"
+    options:
+      compression: false  # Most documents are already compressed
+    schedule:
+      type: hourly
+      interval: 4
+
+  # ---------------------------------------------------------------------------
+  # Developer Profiles
+  # ---------------------------------------------------------------------------
+
+  dev-projects:
+    description: "Backup development projects"
+    tool: borg
+    sources:
+      - "${HOME}/Developer"
+      - "${HOME}/Projects"
+      - "${HOME}/Code"
+    destination: "/backup/dev-projects"
+    excludes:
+      # Build artifacts
+      - "node_modules"
+      - "vendor"
+      - "target"
+      - "build"
+      - "dist"
+      - "out"
+      - ".gradle"
+      - ".maven"
+      # Virtual environments
+      - ".venv"
+      - "venv"
+      - "env"
+      - "__pycache__"
+      - "*.pyc"
+      # IDE
+      - ".idea"
+      - ".vscode"
+      - "*.swp"
+      - "*.swo"
+      # OS
+      - ".DS_Store"
+      - "Thumbs.db"
+      # Large files
+      - "*.iso"
+      - "*.dmg"
+      - "*.zip"
+      - "*.tar.gz"
+    retention:
+      keep_daily: 14
+      keep_weekly: 8
+      keep_monthly: 12
+    options:
+      compression: zstd
+      one_file_system: true
+
+  # ---------------------------------------------------------------------------
+  # Server Profiles
+  # ---------------------------------------------------------------------------
+
+  server-config:
+    description: "Backup server configuration"
+    tool: restic
+    sources:
+      - "/etc"
+      - "/var/spool/cron"
+      - "/root"
+    destination: "s3:backup-bucket/server-config/${HOSTNAME}"
+    excludes:
+      - "/etc/shadow"
+      - "/etc/gshadow"
+      - "*.bak"
+      - "*~"
+    retention:
+      keep_daily: 30
+      keep_weekly: 12
+      keep_monthly: 12
+      keep_yearly: 5
+    options:
+      verify: true
+      encryption: true
+    hooks:
+      pre:
+        - "dpkg --get-selections > /tmp/packages.list"
+        - "systemctl list-unit-files --state=enabled > /tmp/services.list"
+      post:
+        - "rm -f /tmp/packages.list /tmp/services.list"
+
+  server-data:
+    description: "Incremental server data backup"
+    tool: rsync
+    sources:
+      - "/var/www"
+      - "/var/lib/docker/volumes"
+      - "/home"
+    destination: "backup-server:/backup/${HOSTNAME}/data"
+    excludes:
+      - "*.log"
+      - "*.pid"
+      - "*.sock"
+      - "cache"
+      - "tmp"
+    options:
+      bandwidth_limit: "50M"
+      delete: true
+      link_dest: "/backup/${HOSTNAME}/data-latest"  # Hard link to previous
+    schedule:
+      type: daily
+      time: "03:00"
+
+  # ---------------------------------------------------------------------------
+  # Database Profiles
+  # ---------------------------------------------------------------------------
+
+  mysql-backup:
+    description: "MySQL/MariaDB database backup"
+    tool: custom
+    custom_command: |
+      mysqldump --all-databases --single-transaction --quick \
+        --lock-tables=false | gzip > ${DEST}/mysql-$(date +%Y%m%d_%H%M%S).sql.gz
+    destination: "/backup/databases/mysql"
+    retention:
+      keep_daily: 7
+      keep_weekly: 4
+    schedule:
+      type: daily
+      time: "01:00"
+
+  postgresql-backup:
+    description: "PostgreSQL database backup"
+    tool: custom
+    custom_command: |
+      pg_dumpall | gzip > ${DEST}/postgres-$(date +%Y%m%d_%H%M%S).sql.gz
+    destination: "/backup/databases/postgres"
+    retention:
+      keep_daily: 7
+      keep_weekly: 4
+    schedule:
+      type: daily
+      time: "01:30"
+
+  # ---------------------------------------------------------------------------
+  # Cloud Sync Profiles
+  # ---------------------------------------------------------------------------
+
+  cloud-s3:
+    description: "Sync to Amazon S3"
+    tool: rclone
+    sources:
+      - "/data/important"
+    destination: "s3:my-backup-bucket/important"
+    options:
+      transfers: 4
+      checkers: 8
+      bandwidth_limit: "10M"
+    retention:
+      # S3 lifecycle policy handles retention
+      enabled: false
+
+  cloud-b2:
+    description: "Sync to Backblaze B2"
+    tool: restic
+    sources:
+      - "/home"
+    destination: "b2:my-backup-bucket"
+    options:
+      compression: max
+    retention:
+      keep_daily: 7
+      keep_weekly: 4
+      keep_monthly: 12
+
+  # ---------------------------------------------------------------------------
+  # macOS Profiles
+  # ---------------------------------------------------------------------------
+
+  macos-home:
+    description: "macOS home directory backup"
+    tool: kopia
+    platforms: [darwin]
+    sources:
+      - "${HOME}/Documents"
+      - "${HOME}/Desktop"
+      - "${HOME}/Pictures"
+      - "${HOME}/Music"
+      - "${HOME}/Downloads"
+    destination: "/Volumes/Backup/kopia-repo"
+    excludes:
+      - ".DS_Store"
+      - ".Spotlight-V100"
+      - ".fseventsd"
+      - ".Trashes"
+      - "*.photoslibrary/resources"  # Photos lib caches
+      - "Library/Caches"
+      - "Library/Logs"
+    retention:
+      keep_daily: 7
+      keep_weekly: 4
+      keep_monthly: 6
+
+  # ---------------------------------------------------------------------------
+  # Windows Profiles
+  # ---------------------------------------------------------------------------
+
+  windows-user:
+    description: "Windows user data backup"
+    tool: robocopy
+    platforms: [windows]
+    sources:
+      - "${USERPROFILE}\\Documents"
+      - "${USERPROFILE}\\Desktop"
+      - "${USERPROFILE}\\Pictures"
+    destination: "D:\\Backups\\UserData"
+    excludes:
+      - "Thumbs.db"
+      - "desktop.ini"
+      - "*.tmp"
+      - "AppData\\Local\\Temp"
+    options:
+      mirror: true
+      use_vss: true  # Use Volume Shadow Copy for open files
+
+# =============================================================================
+# Profile Groups (for running multiple profiles)
+# =============================================================================
+
+groups:
+
+  full-backup:
+    description: "Complete system backup"
+    profiles:
+      - server-config
+      - server-data
+      - mysql-backup
+    run_parallel: false
+    continue_on_error: true
+
+  home-complete:
+    description: "Complete home backup"
+    profiles:
+      - home-daily
+      - home-documents
+      - dev-projects
+    run_parallel: true
+
+# =============================================================================
+# Default Settings
+# =============================================================================
+
+defaults:
+  tool: restic
+  retention:
+    keep_daily: 7
+    keep_weekly: 4
+    keep_monthly: 6
+    keep_yearly: 1
+  options:
+    verify: false
+    prune: true
+    compression: auto
+  notifications:
+    on_success: false
+    on_failure: true
+    email: ""  # Set via environment: BACKUP_NOTIFY_EMAIL
+

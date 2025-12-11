@@ -80,6 +80,16 @@ repos:
         args: [--config=p/shell, --error]
         exclude: ^test/libs/
 
+  # Registry sync check
+  - repo: local
+    hooks:
+      - id: registry-sync-check
+        name: Check registry.json sync
+        entry: tools/build-registry.sh --check
+        language: script
+        files: ^(scripts/registry\.json|rsr)$
+        pass_filenames: false
+
   # Markdown linting
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.38.0

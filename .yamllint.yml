@@ -1,0 +1,47 @@
+---
+# yamllint configuration for Remote Script Runner
+# https://yamllint.readthedocs.io/
+
+extends: default
+
+rules:
+  line-length:
+    max: 120
+    level: warning
+  
+  indentation:
+    spaces: 2
+    indent-sequences: true
+    check-multi-line-strings: false
+  
+  comments:
+    min-spaces-from-content: 1
+  
+  comments-indentation: {}
+  
+  document-start: disable
+  
+  truthy:
+    allowed-values: ['true', 'false', 'yes', 'no']
+    check-keys: false
+  
+  brackets:
+    min-spaces-inside: 0
+    max-spaces-inside: 0
+  
+  braces:
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+  
+  empty-lines:
+    max: 2
+  
+  key-duplicates: enable
+  
+  new-line-at-end-of-file: enable
+  
+  trailing-spaces: enable
+  
+  quoted-strings:
+    quote-type: any
+    required: only-when-needed

@@ -47,6 +47,11 @@ CHECK_REBOOT=false
 REBOOT_IF_NEEDED=false
 DRY_RUN=false
 OUTPUT_FORMAT="text"
+INCLUDE_FLATPAK=false
+INCLUDE_SNAP=false
+INCLUDE_FIRMWARE=false
+INCLUDE_LANGUAGE_PKGS=false
+LANGUAGE_MANAGERS=()
 
 # Package manager detection
 PKG_MANAGER=""
@@ -101,10 +106,19 @@ ${BOLD}Options:${NC}
     --reboot-if-needed      Auto reboot if needed (requires --yes)
     -d, --dry-run           Show what would be updated
     --json                  Output in JSON format
+    --flatpak               Include Flatpak updates
+    --snap                  Include Snap updates
+    --firmware              Include firmware updates (fwupd)
+    --lang                  Include language package managers
+    --lang-only MANAGER     Only update specific language manager (pip,npm,cargo,gem)
 
 ${BOLD}Supported Package Managers:${NC}
     apt (Debian/Ubuntu), yum/dnf (RHEL/CentOS/Fedora),
     pacman (Arch), zypper (openSUSE), apk (Alpine)
+
+${BOLD}Extended Updates:${NC}
+    Flatpak, Snap, Firmware (fwupd)
+    Language Managers: pip, npm, cargo, gem
 
 ${BOLD}Examples:${NC}
     ${DIM}# Check for updates${NC}
@@ -218,6 +232,26 @@ parse_args() {
             --json)
                 OUTPUT_FORMAT="json"
                 shift
+                ;;
+            --flatpak)
+                INCLUDE_FLATPAK=true
+                shift
+                ;;
+            --snap)
+                INCLUDE_SNAP=true
+                shift
+                ;;
+            --firmware)
+                INCLUDE_FIRMWARE=true
+                shift
+                ;;
+            --lang)
+                INCLUDE_LANGUAGE_PKGS=true
+                shift
+                ;;
+            --lang-only)
+                LANGUAGE_MANAGERS+=("$2")
+                shift 2
                 ;;
             -*)
                 log_error "Unknown option: $1"
@@ -604,6 +638,27 @@ perform_update() {
         perform_full_update "$confirm_flag" "$dry_flag" "$exclude_args"
     fi
 
+    # Extended updates
+    if [[ "$INCLUDE_FLATPAK" == "true" ]]; then
+        echo ""
+        update_flatpak
+    fi
+
+    if [[ "$INCLUDE_SNAP" == "true" ]]; then
+        echo ""
+        update_snap
+    fi
+
+    if [[ "$INCLUDE_FIRMWARE" == "true" ]]; then
+        echo ""
+        update_firmware
+    fi
+
+    if [[ "$INCLUDE_LANGUAGE_PKGS" == "true" ]] || [[ ${#LANGUAGE_MANAGERS[@]} -gt 0 ]]; then
+        echo ""
+        update_language_managers
+    fi
+
     if [[ "$DRY_RUN" != "true" ]]; then
         echo ""
         log_ok "Update completed successfully"
@@ -703,7 +758,8 @@ run_interactive() {
     local action
     action=$(prompt_select "What would you like to do?" \
         "View available updates" \
-        "Install all updates" \
+        "Install all updates (comprehensive)" \
+        "Install system updates only" \
         "Install security updates only" \
         "View changelogs" \
         "Check if reboot is required")
@@ -713,11 +769,39 @@ run_interactive() {
             list_available_updates
             check_security_updates
             echo ""
+
+            # Check for additional update sources
+            if command -v flatpak &> /dev/null; then
+                echo ""
+                local flatpak_count
+                flatpak_count=$(flatpak remote-ls --updates 2> /dev/null | wc -l)
+                if [[ "$flatpak_count" -gt 0 ]]; then
+                    log_info "Flatpak: $flatpak_count update(s) available"
+                fi
+            fi
+
+            if command -v snap &> /dev/null; then
+                local snap_updates
+                snap_updates=$(snap refresh --list 2> /dev/null | tail -n +2 | wc -l)
+                if [[ "$snap_updates" -gt 0 ]]; then
+                    log_info "Snap: $snap_updates update(s) available"
+                fi
+            fi
+
+            echo ""
             if prompt_yes_no "Would you like to install updates now?" "n"; then
                 interactive_install_updates
             fi
             ;;
-        "Install all updates")
+        "Install all updates (comprehensive)")
+            # Enable all update sources
+            command -v flatpak &> /dev/null && INCLUDE_FLATPAK=true
+            command -v snap &> /dev/null && INCLUDE_SNAP=true
+            command -v fwupdmgr &> /dev/null && INCLUDE_FIRMWARE=true
+            INCLUDE_LANGUAGE_PKGS=true
+            interactive_install_updates
+            ;;
+        "Install system updates only")
             interactive_install_updates
             ;;
         "Install security updates only")
@@ -735,6 +819,292 @@ run_interactive() {
             check_reboot_required
             ;;
     esac
+}
+
+# =============================================================================
+# Extended Update Functions
+# =============================================================================
+
+# Update Flatpak packages
+update_flatpak() {
+    if ! command -v flatpak &> /dev/null; then
+        log_debug "Flatpak not installed, skipping"
+        return 0
+    fi
+
+    log_info "Checking Flatpak updates..."
+
+    local updates
+    updates=$(flatpak remote-ls --updates 2> /dev/null | wc -l)
+
+    if [[ "$updates" -eq 0 ]]; then
+        log_ok "Flatpak: No updates available"
+        return 0
+    fi
+
+    log_info "Flatpak: $updates update(s) available"
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        flatpak remote-ls --updates 2> /dev/null
+        return 0
+    fi
+
+    local confirm_flag=""
+    [[ "$AUTO_YES" == "true" ]] && confirm_flag="-y"
+
+    flatpak update $confirm_flag 2>&1 || {
+        log_warn "Flatpak update failed"
+        return 1
+    }
+
+    log_ok "Flatpak updates completed"
+}
+
+# Update Snap packages
+update_snap() {
+    if ! command -v snap &> /dev/null; then
+        log_debug "Snap not installed, skipping"
+        return 0
+    fi
+
+    log_info "Checking Snap updates..."
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        snap refresh --list 2> /dev/null || log_ok "Snap: No updates available"
+        return 0
+    fi
+
+    if [[ $EUID -ne 0 ]]; then
+        sudo snap refresh 2>&1 || {
+            log_warn "Snap update failed"
+            return 1
+        }
+    else
+        snap refresh 2>&1 || {
+            log_warn "Snap update failed"
+            return 1
+        }
+    fi
+
+    log_ok "Snap updates completed"
+}
+
+# Update firmware via fwupd
+update_firmware() {
+    if ! command -v fwupdmgr &> /dev/null; then
+        log_debug "fwupd not installed, skipping firmware updates"
+        return 0
+    fi
+
+    log_info "Checking firmware updates..."
+
+    # Refresh metadata
+    if [[ $EUID -ne 0 ]]; then
+        sudo fwupdmgr refresh --force > /dev/null 2>&1 || true
+    else
+        fwupdmgr refresh --force > /dev/null 2>&1 || true
+    fi
+
+    local updates
+    updates=$(fwupdmgr get-updates 2> /dev/null | grep -c "Update Version" || echo "0")
+
+    if [[ "$updates" -eq 0 ]]; then
+        log_ok "Firmware: No updates available"
+        return 0
+    fi
+
+    log_warn "Firmware: $updates update(s) available"
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        fwupdmgr get-updates 2> /dev/null
+        return 0
+    fi
+
+    echo ""
+    log_warn "Firmware updates may require a reboot"
+
+    if [[ "$AUTO_YES" != "true" ]]; then
+        if ! prompt_yes_no "Install firmware updates?" "n"; then
+            log_info "Firmware updates skipped"
+            return 0
+        fi
+    fi
+
+    if [[ $EUID -ne 0 ]]; then
+        sudo fwupdmgr update -y 2>&1 || {
+            log_warn "Firmware update failed"
+            return 1
+        }
+    else
+        fwupdmgr update -y 2>&1 || {
+            log_warn "Firmware update failed"
+            return 1
+        }
+    fi
+
+    log_ok "Firmware updates completed"
+}
+
+# Update Python packages (pip)
+update_pip() {
+    if ! command -v pip3 &> /dev/null && ! command -v pip &> /dev/null; then
+        log_debug "pip not installed, skipping"
+        return 0
+    fi
+
+    local pip_cmd="pip3"
+    command -v pip3 &> /dev/null || pip_cmd="pip"
+
+    log_info "Checking pip packages..."
+
+    local outdated
+    outdated=$($pip_cmd list --outdated --format=columns 2> /dev/null | tail -n +3 | wc -l)
+
+    if [[ "$outdated" -eq 0 ]]; then
+        log_ok "pip: No updates available"
+        return 0
+    fi
+
+    log_info "pip: $outdated package(s) can be updated"
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        $pip_cmd list --outdated 2> /dev/null
+        return 0
+    fi
+
+    # Update pip itself first
+    $pip_cmd install --upgrade pip > /dev/null 2>&1 || true
+
+    # Get list of outdated packages
+    local packages
+    packages=$($pip_cmd list --outdated --format=freeze 2> /dev/null | cut -d= -f1)
+
+    if [[ -n "$packages" ]]; then
+        echo "$packages" | while read -r pkg; do
+            [[ -z "$pkg" ]] && continue
+            log_debug "Updating $pkg..."
+            $pip_cmd install --upgrade "$pkg" > /dev/null 2>&1 || log_warn "Failed to update $pkg"
+        done
+    fi
+
+    log_ok "pip updates completed"
+}
+
+# Update npm packages
+update_npm() {
+    if ! command -v npm &> /dev/null; then
+        log_debug "npm not installed, skipping"
+        return 0
+    fi
+
+    log_info "Checking global npm packages..."
+
+    local outdated
+    outdated=$(npm outdated -g --depth=0 2> /dev/null | tail -n +2 | wc -l)
+
+    if [[ "$outdated" -eq 0 ]]; then
+        log_ok "npm: No updates available"
+        return 0
+    fi
+
+    log_info "npm: $outdated package(s) can be updated"
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        npm outdated -g --depth=0 2> /dev/null
+        return 0
+    fi
+
+    npm update -g > /dev/null 2>&1 || {
+        log_warn "npm update failed"
+        return 1
+    }
+
+    log_ok "npm updates completed"
+}
+
+# Update Rust packages (cargo)
+update_cargo() {
+    if ! command -v cargo &> /dev/null; then
+        log_debug "cargo not installed, skipping"
+        return 0
+    fi
+
+    # Check for cargo-install-update
+    if ! command -v cargo-install-update &> /dev/null; then
+        log_debug "cargo-install-update not found, skipping cargo updates"
+        log_info "Hint: Install with 'cargo install cargo-update'"
+        return 0
+    fi
+
+    log_info "Checking cargo packages..."
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        cargo install-update --list 2> /dev/null
+        return 0
+    fi
+
+    cargo install-update --all > /dev/null 2>&1 || {
+        log_warn "cargo update failed"
+        return 1
+    }
+
+    log_ok "cargo updates completed"
+}
+
+# Update Ruby gems
+update_gem() {
+    if ! command -v gem &> /dev/null; then
+        log_debug "gem not installed, skipping"
+        return 0
+    fi
+
+    log_info "Checking Ruby gems..."
+
+    local outdated
+    outdated=$(gem outdated 2> /dev/null | wc -l)
+
+    if [[ "$outdated" -eq 0 ]]; then
+        log_ok "gem: No updates available"
+        return 0
+    fi
+
+    log_info "gem: $outdated gem(s) can be updated"
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        gem outdated 2> /dev/null
+        return 0
+    fi
+
+    gem update > /dev/null 2>&1 || {
+        log_warn "gem update failed"
+        return 1
+    }
+
+    log_ok "gem updates completed"
+}
+
+# Update all language package managers
+update_language_managers() {
+    if [[ ${#LANGUAGE_MANAGERS[@]} -gt 0 ]]; then
+        # Update only specified managers
+        for mgr in "${LANGUAGE_MANAGERS[@]}"; do
+            case "$mgr" in
+                pip) update_pip ;;
+                npm) update_npm ;;
+                cargo) update_cargo ;;
+                gem) update_gem ;;
+                *)
+                    log_warn "Unknown language manager: $mgr"
+                    ;;
+            esac
+        done
+    else
+        # Update all available
+        update_pip
+        update_npm
+        update_cargo
+        update_gem
+    fi
 }
 
 interactive_install_updates() {

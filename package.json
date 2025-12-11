@@ -4,16 +4,30 @@
   "private": true,
   "description": "Development dependencies for code quality tools",
   "scripts": {
+    "lint": "npm run lint:js && npm run lint:md && npm run lint:yaml",
+    "lint:js": "eslint '**/*.js' --ignore-path .gitignore",
+    "lint:md": "markdownlint '**/*.md' --ignore node_modules --ignore test/libs",
+    "lint:yaml": "yamllint -c .yamllint.yml .",
+    "lint:shell": "find scripts lib -name '*.sh' -not -path '*/test/*' -exec shellcheck -x {} +",
+    "lint:powershell": "pwsh -NoProfile -Command \"Invoke-ScriptAnalyzer -Path scripts -Recurse -Settings .psscriptanalyzer/PSScriptAnalyzerSettings.psd1\"",
     "lint:commits": "commitlint --from HEAD~1 --to HEAD --verbose",
-    "prepare": "husky install || true"
+    "lint:fix": "npm run lint:js -- --fix && npm run lint:md -- --fix",
+    "format": "npm run format:shell",
+    "format:shell": "find scripts lib -name '*.sh' -not -path '*/test/*' -exec shfmt -i 4 -ci -bn -sr -w {} +",
+    "prepare": "husky install || true",
+    "test": "echo 'Run: make test' && exit 0"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
-    "husky": "^8.0.3"
+    "eslint": "^8.56.0",
+    "husky": "^8.0.3",
+    "markdownlint-cli": "^0.38.0",
+    "yamllint": "^1.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
   }
 }
+
 

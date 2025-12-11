@@ -123,11 +123,29 @@ get_script_path() {
     # This section is auto-generated from scripts/registry.json
     # DO NOT EDIT MANUALLY - Run: make build-registry
     case "$script_name" in
-        audit)
-            echo "scripts/security/audit/security-audit.sh"
+        health)
+            echo "scripts/system/health/system-health-check.sh"
+            ;;
+        setup)
+            echo "scripts/users/setup/server-setup.sh"
+            ;;
+        cleanup)
+            echo "scripts/system/cleanup/disk-cleanup.sh"
+            ;;
+        ssl)
+            echo "scripts/security/certificates/ssl-checker.sh"
             ;;
         users)
             echo "scripts/security/audit/user-audit.sh"
+            ;;
+        update)
+            echo "scripts/system/updates/system-update.sh"
+            ;;
+        audit)
+            echo "scripts/security/audit/security-audit.sh"
+            ;;
+        netdiag)
+            echo "scripts/network/diagnostics/network-diagnostics.sh"
             ;;
         ssh-harden)
             echo "scripts/security/hardening/ssh-hardening.sh"
@@ -135,80 +153,35 @@ get_script_path() {
         firewall)
             echo "scripts/security/hardening/firewall-setup.sh"
             ;;
-        ssl)
-            echo "scripts/security/certificates/ssl-checker.sh"
-            ;;
-        ssh-server)
-            echo "scripts/security/ssh/ssh-server.sh"
-            ;;
-        ssh-keys)
-            echo "scripts/security/ssh/ssh-keys.sh"
-            ;;
-        ssh-config)
-            echo "scripts/security/ssh/ssh-config.sh"
-            ;;
-        health)
-            echo "scripts/system/health/system-health-check.sh"
-            ;;
-        update)
-            echo "scripts/system/updates/system-update.sh"
-            ;;
-        cleanup)
-            echo "scripts/system/cleanup/disk-cleanup.sh"
-            ;;
-        detect-distro)
-            echo "scripts/system/info/detect-distro.sh"
-            ;;
-        user-mgmt)
-            echo "scripts/users/management/user-management.sh"
-            ;;
-        setup)
-            echo "scripts/users/setup/server-setup.sh"
-            ;;
-        netdiag)
-            echo "scripts/network/diagnostics/network-diagnostics.sh"
-            ;;
-        dns-sync)
-            echo "scripts/network/dns/dns-sync.sh"
-            ;;
-        docker)
-            echo "scripts/containers/docker/docker-management.sh"
+        backup)
+            echo "scripts/backup/config/config-backup.sh"
             ;;
         db-backup)
             echo "scripts/backup/database/database-backup.sh"
             ;;
-        backup)
-            echo "scripts/backup/config/config-backup.sh"
+        docker)
+            echo "scripts/containers/docker/docker-management.sh"
+            ;;
+        ssh-keys)
+            echo "scripts/security/ssh/ssh-keys.sh"
+            ;;
+        ssh-server)
+            echo "scripts/security/ssh/ssh-server.sh"
+            ;;
+        user-mgmt)
+            echo "scripts/users/management/user-management.sh"
+            ;;
+        detect-distro)
+            echo "scripts/system/info/detect-distro.sh"
+            ;;
+        dns-sync)
+            echo "scripts/network/dns/dns-sync.sh"
             ;;
         git-sync)
             echo "scripts/backup/git/git-auto-sync.sh"
             ;;
         install-pkgs)
             echo "scripts/system/packages/install-packages.sh"
-            ;;
-        backup)
-            echo "scripts/backup/tools/backup-unified.sh"
-            ;;
-        rsync-backup)
-            echo "scripts/backup/tools/rsync-backup.sh"
-            ;;
-        rclone-backup)
-            echo "scripts/backup/tools/rclone-backup.sh"
-            ;;
-        restic-backup)
-            echo "scripts/backup/tools/restic-backup.sh"
-            ;;
-        borg-backup)
-            echo "scripts/backup/tools/borg-backup.sh"
-            ;;
-        kopia-backup)
-            echo "scripts/backup/tools/kopia-backup.sh"
-            ;;
-        timemachine)
-            echo "scripts/backup/tools/timemachine-backup.sh"
-            ;;
-        win-backup)
-            echo "scripts/backup/tools/windows-backup.ps1"
             ;;
         *)
             echo ""
@@ -300,94 +273,72 @@ list_scripts() {
     # --- BEGIN AUTO-GENERATED: SCRIPT_LIST ---
     # This section is auto-generated from scripts/registry.json
     # DO NOT EDIT MANUALLY - Run: make build-registry
-    printf "  \${GREEN}audit\${NC}      Security Audit\n"
-    printf "              Comprehensive security audit: ports, logins, SUID files, permissions\n"
-    printf "              \${DIM}rsr audit\${NC}\n\n"
-    printf "  \${GREEN}users\${NC}      User Audit\n"
-    printf "              Audit user accounts, sudo access, and login history\n"
-    printf "              \${DIM}rsr users\${NC}\n\n"
-    printf "  \${GREEN}ssh-harden\${NC}      SSH Hardening\n"
-    printf "              Harden SSH: disable root, enforce keys, configure fail2ban\n"
-    printf "              \${DIM}rsr ssh-harden\${NC}\n\n"
-    printf "  \${GREEN}firewall\${NC}      Firewall Setup\n"
-    printf "              Configure firewall with ufw/iptables/firewalld presets\n"
-    printf "              \${DIM}rsr firewall\${NC}\n\n"
-    printf "  \${GREEN}ssl\${NC}      SSL Certificate Checker\n"
-    printf "              Check SSL certificate expiry, chain validity, and ciphers\n"
-    printf "              \${DIM}rsr ssl example.com\${NC}\n\n"
-    printf "  \${GREEN}ssh-server\${NC}      SSH Server Management\n"
-    printf "              Complete SSH server management: install, configure, monitor\n"
-    printf "              \${DIM}rsr ssh-server status\${NC}\n\n"
-    printf "  \${GREEN}ssh-keys\${NC}      SSH Key Management\n"
-    printf "              Generate, distribute, and manage SSH keys across hosts\n"
-    printf "              \${DIM}rsr ssh-keys generate\${NC}\n\n"
-    printf "  \${GREEN}ssh-config\${NC}      SSH Client Configuration\n"
-    printf "              Manage SSH client configuration, hosts, tunnels, and best practices\n"
-    printf "              \${DIM}rsr ssh-config init\${NC}\n\n"
-    printf "  \${GREEN}health\${NC}      System Health Check\n"
-    printf "              Check system health: CPU, memory, disk, network status\n"
-    printf "              \${DIM}rsr health -a\${NC}\n\n"
-    printf "  \${GREEN}update\${NC}      System Update\n"
-    printf "              Update system packages, security patches, and kernel\n"
-    printf "              \${DIM}rsr update\${NC}\n\n"
-    printf "  \${GREEN}cleanup\${NC}      Disk Cleanup\n"
-    printf "              Clean temp files, old logs, package cache, and old kernels\n"
-    printf "              \${DIM}rsr cleanup --dry-run\${NC}\n\n"
-    printf "  \${GREEN}detect-distro\${NC}      Detect Distribution\n"
-    printf "              Detect Linux distribution, package manager, and init system\n"
-    printf "              \${DIM}rsr detect-distro\${NC}\n\n"
-    printf "  \${GREEN}user-mgmt\${NC}      User Management\n"
-    printf "              Comprehensive user management: create, delete, passwords, groups\n"
-    printf "              \${DIM}rsr user-mgmt create john\${NC}\n\n"
-    printf "  \${GREEN}setup\${NC}      Server Setup\n"
-    printf "              Initial server setup: users, SSH hardening, firewall, tools\n"
-    printf "              \${DIM}rsr setup -d -u admin\${NC}\n\n"
-    printf "  \${GREEN}netdiag\${NC}      Network Diagnostics\n"
-    printf "              Diagnose network: connectivity, DNS, latency, port checks\n"
-    printf "              \${DIM}rsr netdiag\${NC}\n\n"
-    printf "  \${GREEN}dns-sync\${NC}      DNS Zone Sync\n"
-    printf "              Sync DNS zones from git repository\n"
-    printf "              \${DIM}rsr dns-sync\${NC}\n\n"
-    printf "  \${GREEN}docker\${NC}      Docker Management\n"
-    printf "              Docker installation, container management, and cleanup\n"
-    printf "              \${DIM}rsr docker status\${NC}\n\n"
-    printf "  \${GREEN}db-backup\${NC}      Database Backup\n"
-    printf "              Backup MySQL, PostgreSQL, MongoDB databases\n"
-    printf "              \${DIM}rsr db-backup\${NC}\n\n"
-    printf "  \${GREEN}backup\${NC}      Config Backup\n"
-    printf "              Backup system and application configuration files\n"
-    printf "              \${DIM}rsr backup\${NC}\n\n"
-    printf "  \${GREEN}git-sync\${NC}      Git Auto Sync\n"
-    printf "              Production-grade git repository auto-sync daemon\n"
-    printf "              \${DIM}rsr git-sync start\${NC}\n\n"
-    printf "  \${GREEN}install-pkgs\${NC}      Install Packages\n"
-    printf "              Install packages from predefined profiles with cross-platform support\n"
-    printf "              \${DIM}rsr install-pkgs web-server\${NC}\n\n"
-    printf "  \${GREEN}backup\${NC}      Unified Backup\n"
-    printf "              Unified backup system supporting rsync, rclone, restic, borg, kopia, Time Machine\n"
-    printf "              \${DIM}rsr backup run --source /home --dest /backup --tool restic\${NC}\n\n"
-    printf "  \${GREEN}rsync-backup\${NC}      Rsync Backup\n"
-    printf "              Fast incremental backup using rsync with hard links support\n"
-    printf "              \${DIM}rsr rsync-backup /home /backup/home\${NC}\n\n"
-    printf "  \${GREEN}rclone-backup\${NC}      Rclone Backup\n"
-    printf "              Cloud backup using rclone (40+ cloud providers)\n"
-    printf "              \${DIM}rsr rclone-backup sync /home s3:mybucket/backup\${NC}\n\n"
-    printf "  \${GREEN}restic-backup\${NC}      Restic Backup\n"
-    printf "              Fast, secure, deduplicated backup with restic\n"
-    printf "              \${DIM}rsr restic-backup backup -r /backup/repo /home\${NC}\n\n"
-    printf "  \${GREEN}borg-backup\${NC}      Borg Backup\n"
-    printf "              Deduplicating archiver with compression and encryption\n"
-    printf "              \${DIM}rsr borg-backup create -r /backup/borg -a daily /home\${NC}\n\n"
-    printf "  \${GREEN}kopia-backup\${NC}      Kopia Backup\n"
-    printf "              Fast, encrypted, deduplicated backup with Kopia\n"
-    printf "              \${DIM}rsr kopia-backup snapshot /home\${NC}\n\n"
-    printf "  \${GREEN}timemachine\${NC}      Time Machine Backup\n"
-    printf "              macOS Time Machine backup management\n"
-    printf "              \${DIM}rsr timemachine status\${NC}\n\n"
-    printf "  \${GREEN}win-backup\${NC}      Windows Backup\n"
-    printf "              Windows backup with VSS, File History, and robocopy\n"
-    printf "              \${DIM}rsr win-backup status\${NC}\n\n"
+    printf "              User setup, profile config, package installation\n"
+    printf "              ${DIM}rsr setup -d -u admin -p production nginx${NC}\n\n"
+
+    printf "  ${GREEN}cleanup${NC}     Disk cleanup and maintenance\n"
+    printf "              ${DIM}rsr cleanup --dry-run${NC}\n\n"
+
+    printf "  ${GREEN}ssl${NC}         SSL certificate checker\n"
+    printf "              ${DIM}rsr ssl example.com${NC}\n\n"
+
+    printf "  ${GREEN}users${NC}       User account audit\n"
+    printf "              ${DIM}rsr users${NC}\n\n"
+
+    printf "  ${GREEN}update${NC}      System package updates\n"
+    printf "              ${DIM}rsr update${NC}\n\n"
+
+    printf "  ${GREEN}audit${NC}       Security audit\n"
+    printf "              ${DIM}rsr audit${NC}\n\n"
+
+    printf "  ${GREEN}netdiag${NC}     Network diagnostics\n"
+    printf "              ${DIM}rsr netdiag${NC}\n\n"
+
+    printf "  ${GREEN}ssh-harden${NC}  SSH hardening\n"
+    printf "              ${DIM}rsr ssh-harden${NC}\n\n"
+
+    printf "  ${GREEN}firewall${NC}    Firewall setup\n"
+    printf "              ${DIM}rsr firewall${NC}\n\n"
+
+    printf "  ${GREEN}backup${NC}      Configuration backup\n"
+    printf "              ${DIM}rsr backup${NC}\n\n"
+
+    printf "  ${GREEN}db-backup${NC}   Database backup\n"
+    printf "              ${DIM}rsr db-backup${NC}\n\n"
+
+    printf "  ${GREEN}docker${NC}      Docker management\n"
+    printf "              Install Docker, manage containers and images\n"
+    printf "              ${DIM}rsr docker install engine${NC}\n"
+    printf "              ${DIM}rsr docker status${NC}\n"
+    printf "              ${DIM}rsr docker ps${NC}\n\n"
+
+    printf "  ${GREEN}ssh-keys${NC}    SSH key management\n"
+    printf "              Generate, distribute, and manage SSH keys\n"
+    printf "              ${DIM}rsr ssh-keys generate${NC}\n"
+    printf "              ${DIM}rsr ssh-keys copy admin@server.com${NC}\n\n"
+
+    printf "  ${GREEN}ssh-server${NC}  SSH server management\n"
+    printf "              ${DIM}rsr ssh-server status${NC}\n\n"
+
+    printf "  ${GREEN}user-mgmt${NC}   User management\n"
+    printf "              ${DIM}rsr user-mgmt create john${NC}\n\n"
+
+    printf "  ${GREEN}detect-distro${NC} Detect distribution\n"
+    printf "              ${DIM}rsr detect-distro${NC}\n\n"
+
+    printf "  ${GREEN}dns-sync${NC}    DNS zone sync\n"
+    printf "              ${DIM}rsr dns-sync${NC}\n\n"
+
+    printf "  ${GREEN}git-sync${NC}    Git auto sync\n"
+    printf "              ${DIM}rsr git-sync start${NC}\n\n"
+
+    printf "  ${GREEN}install-pkgs${NC} Install packages\n"
+    printf "              ${DIM}rsr install-pkgs web-server${NC}\n\n"
+
     # --- END AUTO-GENERATED: SCRIPT_LIST ---
+    printf "  ${GREEN}self-update${NC} Update rsr to latest version\n"
+    printf "              ${DIM}rsr self-update${NC}\n"
+    printf "              ${DIM}rsr self-update --check${NC}\n"
     printf "              ${DIM}rsr self-update --force${NC}\n\n"
 
     printf "  ${GREEN}menu${NC}        Interactive menu\n"
@@ -910,9 +861,6 @@ main() {
     COMMAND="$1"
     shift
 
-    # --- BEGIN AUTO-GENERATED: COMMAND_ROUTING ---
-    # This section is auto-generated from scripts/registry.json
-    # DO NOT EDIT MANUALLY - Run: make build-registry
     case "$COMMAND" in
         menu | interactive)
             run_menu
@@ -920,11 +868,32 @@ main() {
         self-update | upgrade)
             self_update "$@"
             ;;
-        audit | security-audit)
-            run_script "audit" "$@"
+        health | health-check | system-health-check)
+            run_script "health" "$@"
+            ;;
+        setup | server-setup)
+            run_script "setup" "$@"
+            ;;
+        cleanup | disk-cleanup)
+            run_script "cleanup" "$@"
+            ;;
+        ssl | ssl-checker | ssl-check)
+    # --- BEGIN AUTO-GENERATED: COMMAND_ROUTING ---
+    # This section is auto-generated from scripts/registry.json
+    # DO NOT EDIT MANUALLY - Run: make build-registry
+            run_script "ssl" "$@"
             ;;
         users | user-audit)
             run_script "users" "$@"
+            ;;
+        update | system-update)
+            run_script "update" "$@"
+            ;;
+        audit | security-audit)
+            run_script "audit" "$@"
+            ;;
+        netdiag | network-diagnostics)
+            run_script "netdiag" "$@"
             ;;
         ssh-harden | ssh-hardening)
             run_script "ssh-harden" "$@"
@@ -932,50 +901,29 @@ main() {
         firewall | firewall-setup)
             run_script "firewall" "$@"
             ;;
-        ssl | ssl-checker | ssl-check)
-            run_script "ssl" "$@"
-            ;;
-        ssh-server)
-            run_script "ssh-server" "$@"
-            ;;
-        ssh-keys)
-            run_script "ssh-keys" "$@"
-            ;;
-        ssh-config)
-            run_script "ssh-config" "$@"
-            ;;
-        health | health-check | system-health-check)
-            run_script "health" "$@"
-            ;;
-        update | system-update)
-            run_script "update" "$@"
-            ;;
-        cleanup | disk-cleanup)
-            run_script "cleanup" "$@"
-            ;;
-        detect-distro)
-            run_script "detect-distro" "$@"
-            ;;
-        user-mgmt | user-management)
-            run_script "user-mgmt" "$@"
-            ;;
-        setup | server-setup)
-            run_script "setup" "$@"
-            ;;
-        netdiag | network-diagnostics)
-            run_script "netdiag" "$@"
-            ;;
-        dns-sync)
-            run_script "dns-sync" "$@"
-            ;;
-        docker | docker-management)
-            run_script "docker" "$@"
+        backup | config-backup)
+            run_script "backup" "$@"
             ;;
         db-backup | database-backup)
             run_script "db-backup" "$@"
             ;;
-        backup | config-backup)
-            run_script "backup" "$@"
+        docker | docker-management)
+            run_script "docker" "$@"
+            ;;
+        ssh-keys)
+            run_script "ssh-keys" "$@"
+            ;;
+        ssh-server)
+            run_script "ssh-server" "$@"
+            ;;
+        user-mgmt | user-management)
+            run_script "user-mgmt" "$@"
+            ;;
+        detect-distro)
+            run_script "detect-distro" "$@"
+            ;;
+        dns-sync)
+            run_script "dns-sync" "$@"
             ;;
         git-sync | git-auto-sync)
             run_script "git-sync" "$@"
@@ -983,31 +931,10 @@ main() {
         install-pkgs | install-packages)
             run_script "install-pkgs" "$@"
             ;;
-        backup | backup-unified | bkp)
-            run_script "backup" "$@"
-            ;;
-        rsync-backup | rsync-bkp)
-            run_script "rsync-backup" "$@"
-            ;;
-        rclone-backup | cloud-backup)
-            run_script "rclone-backup" "$@"
-            ;;
-        restic-backup | restic-bkp)
-            run_script "restic-backup" "$@"
-            ;;
-        borg-backup | borg-bkp)
-            run_script "borg-backup" "$@"
-            ;;
-        kopia-backup | kopia-bkp)
-            run_script "kopia-backup" "$@"
-            ;;
-        timemachine | tm-backup)
-            run_script "timemachine" "$@"
-            ;;
-        win-backup | windows-backup | wbadmin-backup)
-            run_script "win-backup" "$@"
-            ;;
+        list | ls)
         # --- END AUTO-GENERATED: COMMAND_ROUTING ---
+            list_scripts
+            ;;
         *)
             log_error "Unknown command: $COMMAND"
             echo
