@@ -1,4 +1,6 @@
 #!/bin/sh
+set -e
+set -o noglob
 # rsr - Remote Script Runner
 # Universal entry point for running scripts locally or remotely
 # POSIX-compatible for maximum portability
@@ -9,7 +11,7 @@
 # Note: This script is self-contained for remote execution via curl.
 #       Shared utilities are available in lib/common.sh for other scripts.
 
-set -eu
+# set -eu # old
 
 # ============================================================================
 # Configuration
@@ -304,7 +306,7 @@ list_scripts() {
 self_update() {
     local force=0
     local check_only=0
-    
+
     # Parse flags
     while [ $# -gt 0 ]; do
         case "$1" in
@@ -346,10 +348,10 @@ EOF
                 ;;
         esac
     done
-    
+
     # Get current version
     local current_version="$SCRIPT_VERSION"
-    
+
     # Find installation path
     local install_path
     if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/rsr" ]; then
@@ -357,14 +359,14 @@ EOF
     else
         install_path="$(command -v rsr 2>/dev/null)" || install_path="$HOME/.local/bin/rsr"
     fi
-    
+
     # Check if rsr is actually installed
     if [ ! -f "$install_path" ]; then
         log_error "rsr is not installed at: $install_path"
         log_info "Install using: curl -fsSL $REPO_BASE_URL/install.sh | bash"
         return 1
     fi
-    
+
     # Fetch remote version
     log_info "Checking for updates..."
     local remote_version
@@ -376,13 +378,13 @@ EOF
         log_error "Neither curl nor wget is available"
         return 1
     fi
-    
+
     if [ -z "$remote_version" ]; then
         log_error "Failed to fetch remote version"
         log_info "Check your internet connection or try again later"
         return 1
     fi
-    
+
     # Compare versions (skip if force)
     if [ "$force" = "0" ]; then
         if [ "$current_version" = "$remote_version" ]; then
@@ -390,7 +392,7 @@ EOF
             return 0
         fi
     fi
-    
+
     # If check-only mode, show info and exit
     if [ "$check_only" = "1" ]; then
         if [ "$current_version" != "$remote_version" ]; then
@@ -401,17 +403,17 @@ EOF
         fi
         return 0
     fi
-    
+
     # Perform update
     if [ "$force" = "1" ]; then
         log_info "Forcing update to v$remote_version..."
     else
         log_info "Updating from v$current_version to v$remote_version..."
     fi
-    
+
     # Create temporary file
     local temp_file="${install_path}.new.$$"
-    
+
     # Download new version
     if command -v curl >/dev/null 2>&1; then
         if ! curl -fsSL "$REPO_BASE_URL/rsr" -o "$temp_file" 2>/dev/null; then
@@ -426,14 +428,14 @@ EOF
             return 1
         fi
     fi
-    
+
     # Verify download
     if [ ! -s "$temp_file" ]; then
         log_error "Downloaded file is empty or invalid"
         rm -f "$temp_file"
         return 1
     fi
-    
+
     # Check if we can write to installation directory
     if ! touch "$install_path.test" 2>/dev/null; then
         log_error "Cannot write to installation directory"
@@ -442,14 +444,14 @@ EOF
         return 1
     fi
     rm -f "$install_path.test"
-    
+
     # Backup current version
     if ! cp "$install_path" "${install_path}.backup"; then
         log_error "Failed to create backup"
         rm -f "$temp_file"
         return 1
     fi
-    
+
     # Replace with new version
     if ! mv "$temp_file" "$install_path"; then
         log_error "Failed to replace installation"
@@ -457,10 +459,10 @@ EOF
         mv "${install_path}.backup" "$install_path"
         return 1
     fi
-    
+
     # Set executable permissions
     chmod +x "$install_path"
-    
+
     # Validate the new installation by running a basic test
     if ! "$install_path" --version >/dev/null 2>&1; then
         log_error "New version failed validation test!"
@@ -474,7 +476,7 @@ EOF
         fi
         return 1
     fi
-    
+
     # Success
     if [ "$force" = "1" ]; then
         log_ok "Updated successfully to v$remote_version"
@@ -483,7 +485,7 @@ EOF
     fi
     log_info "Backup saved to: ${install_path}.backup"
     printf "${DIM}If issues occur, restore with: mv ${install_path}.backup $install_path${NC}\n"
-    
+
     return 0
 }
 
@@ -535,7 +537,7 @@ run_menu() {
         show_menu
         printf "\n${BOLD}Enter your choice:${NC} "
         read -r choice
-        
+
         case "$choice" in
             1)
                 echo
@@ -649,7 +651,7 @@ run_menu() {
                 log_error "Invalid choice: $choice"
                 ;;
         esac
-        
+
         # Wait for user to press Enter before continuing
         if [ "$choice" != "q" ] && [ "$choice" != "Q" ] && [ -n "$choice" ]; then
             echo
