@@ -24,14 +24,19 @@
 #   curl -fsSL https://scripts.pandia.io/rsr | sh -s -- docker cleanup
 #
 
-set -euo pipefail
+set -eo pipefail
 
-# ============================================================================
-# Load RSR Library
-# ============================================================================
+# =============================================================================
+# Configuration
+# =============================================================================
 
-SCRIPT_NAME="docker-management"
-SCRIPT_VERSION="1.0.0"
+# Script directory detection
+SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
+if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+else
+    SCRIPT_DIR=""
+fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RSR_LIB_DIR="${SCRIPT_DIR}/../../../lib"
 

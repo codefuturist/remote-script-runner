@@ -57,8 +57,8 @@ _find_scripts_root() {
 }
 
 # Determine script and root directories
-if [[ -n "${BASH_SOURCE[0]:-}" ]]; then
-    RSR_COMMON_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
+if [[ -n "${BASH_SOURCE[0]:-}" ]] && [[ "${BASH_SOURCE[0]}" != "bash" ]] && [[ "${BASH_SOURCE[0]}" != "sh" ]] && [[ "${BASH_SOURCE[0]}" != "-bash" ]] && [[ "${BASH_SOURCE[0]}" != "-sh" ]]; then
+    RSR_COMMON_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)/$(basename "${BASH_SOURCE[0]}")"
     RSR_SCRIPTS_ROOT="$(dirname "$RSR_COMMON_FILE")"
 else
     RSR_SCRIPTS_ROOT="$(_find_scripts_root)"

@@ -22,10 +22,13 @@
 # Determine library root directory
 if [ -n "${RSR_LIB_DIR:-}" ]; then
     _RSR_LIB_ROOT="$RSR_LIB_DIR"
-elif [ -n "${BASH_SOURCE:-}" ]; then
-    _RSR_LIB_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 else
-    _RSR_LIB_ROOT="$(cd "$(dirname "$0")" 2>/dev/null && pwd)" || _RSR_LIB_ROOT="./lib"
+    _script_source="${BASH_SOURCE[0]:-${0:-}}"
+    if [ -n "${_script_source}" ] && [ "${_script_source}" != "sh" ] && [ "${_script_source}" != "bash" ] && [ "${_script_source}" != "-sh" ] && [ "${_script_source}" != "-bash" ]; then
+        _RSR_LIB_ROOT="$(cd "$(dirname "${_script_source}")" 2>/dev/null && pwd)" || _RSR_LIB_ROOT="./lib"
+    else
+        _RSR_LIB_ROOT="$(cd "$(dirname "$0")" 2>/dev/null && pwd)" || _RSR_LIB_ROOT="./lib"
+    fi
 fi
 
 # Export for modules (only if not already set)

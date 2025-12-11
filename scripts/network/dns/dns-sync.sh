@@ -20,7 +20,7 @@
 # Usage: dns-sync [command] [options]
 # Run 'dns-sync help' for full documentation
 
-set -euo pipefail
+set -eo pipefail
 
 # =============================================================================
 # Constants
@@ -28,7 +28,13 @@ set -euo pipefail
 
 readonly VERSION="4.0.0"
 readonly SCRIPT_NAME="${0##*/}"
-readonly SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/${SCRIPT_NAME}"
+SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
+if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+else
+    SCRIPT_DIR=""
+fi
+readonly SCRIPT_PATH="${SCRIPT_DIR}/${SCRIPT_NAME}"
 readonly SCRIPT_URL="https://github.com/codefuturist/remote-script-runner"
 
 # Exit codes

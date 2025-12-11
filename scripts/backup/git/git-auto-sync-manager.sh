@@ -3,10 +3,15 @@
 # Part of Remote Script Runner collection
 # Usage: curl -fsSL https://example.com/git-auto-sync-manager.sh | bash
 
-set -euo pipefail
+set -eo pipefail
 
 VERSION="1.0.0"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
+if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+else
+    SCRIPT_DIR=""
+fi
 LIB_DIR="${SCRIPT_DIR}/../../lib"
 
 # Source libraries if available

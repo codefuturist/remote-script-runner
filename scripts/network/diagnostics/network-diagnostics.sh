@@ -11,13 +11,18 @@
 # @shells       bash
 # =============================================================================
 
-set -euo pipefail
+set -eo pipefail
 
 # =============================================================================
 # Load RSR Library
 # =============================================================================
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
+if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+else
+    SCRIPT_DIR=""
+fi
 RSR_LIB_DIR="${SCRIPT_DIR}/../../../lib"
 
 if [[ -f "$RSR_LIB_DIR/rsr-lib.sh" ]]; then

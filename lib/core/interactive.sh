@@ -22,7 +22,12 @@ _RSR_CORE_INTERACTIVE_LOADED=1
 
 # Ensure core init is loaded
 if [[ -z "${_RSR_CORE_INIT_LOADED:-}" ]]; then
-    _script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    _script_source="${BASH_SOURCE[0]:-${0:-}}"
+    if [[ -n "${_script_source}" && "${_script_source}" != "bash" && "${_script_source}" != "-bash" ]]; then
+        _script_dir="$(cd "$(dirname "${_script_source}")" 2>/dev/null && pwd)" || _script_dir="./lib/core"
+    else
+        _script_dir="./lib/core"
+    fi
     source "${_script_dir}/init.sh" 2>/dev/null || source "./lib/core/init.sh" 2>/dev/null || {
         echo "ERROR: RSR core/init.sh must be sourced first" >&2
         return 1
