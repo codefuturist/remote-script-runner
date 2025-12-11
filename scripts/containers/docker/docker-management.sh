@@ -1,4 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/sh
+set -e
+set -o noglob
 #
 # Docker Management Script
 # Remote Script Runner - Docker Operations
