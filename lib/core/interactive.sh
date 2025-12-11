@@ -509,6 +509,18 @@ print_interactive_header() {
 }
 
 # =============================================================================
+# Backward Compatibility Aliases
+# =============================================================================
+
+# Provide backward compatibility for scripts using old function names
+prompt_select() { rsr_prompt_select "$@"; }
+prompt_multiselect() { rsr_prompt_multiselect "$@"; }
+prompt_input() { rsr_prompt_input "$@"; }
+prompt_password() { rsr_prompt_password "$@"; }
+prompt_password_confirm() { rsr_prompt_password_confirm "$@"; }
+prompt_confirm() { rsr_prompt_confirm "$@"; }
+
+# =============================================================================
 # Initialization Complete
 # =============================================================================
 
