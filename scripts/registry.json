@@ -1,1666 +1,276 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "1.0.0",
+  "$schema": "./registry.schema.json",
+  "version": "2.0.0",
+  "description": "RSR Script Registry - Developer-friendly organization",
+  "categories": {
+    "security": {
+      "name": "Security",
+      "description": "Security auditing, hardening, and compliance scripts",
+      "subcategories": ["audit", "hardening", "certificates", "ssh"]
+    },
+    "system": {
+      "name": "System",
+      "description": "System health, updates, cleanup, and information scripts",
+      "subcategories": ["health", "updates", "cleanup", "info"]
+    },
+    "users": {
+      "name": "Users",
+      "description": "User and account management scripts",
+      "subcategories": ["management", "setup"]
+    },
+    "network": {
+      "name": "Network",
+      "description": "Network diagnostics and DNS management scripts",
+      "subcategories": ["diagnostics", "dns"]
+    },
+    "containers": {
+      "name": "Containers",
+      "description": "Container orchestration and management scripts",
+      "subcategories": ["docker", "compose"]
+    },
+    "backup": {
+      "name": "Backup",
+      "description": "Database, configuration, and git backup scripts",
+      "subcategories": ["database", "config", "git"]
+    }
+  },
   "scripts": [
     {
-      "id": "health",
-      "name": "system-health-check",
-      "displayName": "System Health Check",
-      "description": "Check system health: CPU, memory, disk usage, network status",
-      "category": "monitoring",
-      "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/monitoring/bash/system-health-check.sh",
-        "zsh": "scripts/monitoring/zsh/system-health-check.zsh",
-        "sh": "scripts/monitoring/sh/system-health-check.sh",
-        "fish": "scripts/monitoring/fish/system-health-check.fish"
-      },
-      "defaultShell": "bash",
-      "options": [
-        {
-          "short": "-a",
-          "long": "--all",
-          "description": "Run all health checks"
-        },
-        {
-          "short": "-v",
-          "long": "--verbose",
-          "description": "Enable verbose output"
-        },
-        {
-          "short": "-s",
-          "long": "--check",
-          "argument": "CHECK",
-          "description": "Run specific check (cpu, memory, disk, network, services, uptime)"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr health -a",
-          "description": "Run all health checks"
-        },
-        {
-          "command": "rsr health -v -s cpu -s memory",
-          "description": "Check CPU and memory with verbose output"
-        },
-        {
-          "command": "rsr health -s disk",
-          "description": "Check disk usage only"
-        }
-      ],
-      "tags": [
-        "cpu",
-        "memory",
-        "disk",
-        "network",
-        "monitoring",
-        "system",
-        "diagnostics"
-      ]
-    },
-    {
-      "id": "setup",
-      "name": "server-setup",
-      "displayName": "Server Setup",
-      "description": "Initial server setup: users, SSH hardening, firewall, common tools",
-      "category": "configuration",
-      "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/configuration/bash/server-setup.sh"
-      },
-      "defaultShell": "bash",
-      "options": [
-        {
-          "short": "-d",
-          "long": "--dry-run",
-          "description": "Show what would be done without making changes"
-        },
-        {
-          "short": "-u",
-          "long": "--user",
-          "argument": "USERNAME",
-          "description": "Create a new user"
-        },
-        {
-          "short": "-p",
-          "long": "--profile",
-          "argument": "PROFILE",
-          "description": "Use configuration profile (development, production)"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr setup -d",
-          "description": "Dry run to preview changes"
-        },
-        {
-          "command": "rsr setup -u admin -p production",
-          "description": "Create admin user with production profile"
-        },
-        {
-          "command": "rsr setup -d nginx docker",
-          "description": "Preview nginx and docker installation"
-        }
-      ],
-      "tags": [
-        "server",
-        "setup",
-        "ssh",
-        "firewall",
-        "users",
-        "configuration",
-        "hardening"
-      ]
-    },
-    {
-      "id": "docker",
-      "name": "docker-management",
-      "displayName": "Docker Management",
-      "description": "Install Docker Engine, manage containers, images, volumes, networks, and system operations",
-      "category": "infrastructure",
-      "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/infrastructure/bash/docker-management.sh"
-      },
-      "defaultShell": "bash",
-      "options": [
-        {
-          "command": "install engine",
-          "description": "Install Docker Engine"
-        },
-        {
-          "command": "status",
-          "description": "Show Docker status and system information"
-        },
-        {
-          "command": "ps",
-          "description": "List running containers"
-        },
-        {
-          "command": "ps all",
-          "description": "List all containers (including stopped)"
-        },
-        {
-          "command": "images",
-          "description": "List Docker images"
-        },
-        {
-          "command": "df",
-          "description": "Show Docker disk usage"
-        },
-        {
-          "command": "cleanup",
-          "description": "Remove unused resources"
-        },
-        {
-          "command": "cleanup all",
-          "description": "Aggressively remove all unused resources"
-        },
-        {
-          "command": "start",
-          "description": "Start Docker daemon"
-        },
-        {
-          "command": "stop",
-          "description": "Stop Docker daemon"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr docker install engine",
-          "description": "Install Docker Engine"
-        },
-        {
-          "command": "rsr docker status",
-          "description": "Check Docker status"
-        },
-        {
-          "command": "rsr docker ps",
-          "description": "List running containers"
-        },
-        {
-          "command": "rsr docker cleanup",
-          "description": "Clean up unused Docker resources"
-        }
-      ],
-      "tags": [
-        "docker",
-        "containers",
-        "images",
-        "infrastructure",
-        "devops",
-        "installation",
-        "management"
-      ],
-      "platforms": {
-        "linux": [
-          "ubuntu",
-          "debian",
-          "rhel",
-          "rocky",
-          "almalinux",
-          "fedora",
-          "arch"
-        ],
-        "macos": "manual"
-      }
-    },
-    {
-      "id": "cleanup",
-      "name": "disk-cleanup",
-      "displayName": "Disk Cleanup",
-      "description": "Clean temporary files, old logs, package cache, and old kernels",
-      "category": "maintenance",
-      "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/maintenance/bash/disk-cleanup.sh"
-      },
-      "defaultShell": "bash",
-      "options": [
-        {
-          "short": "-a",
-          "long": "--all",
-          "description": "Run all cleanup tasks"
-        },
-        {
-          "short": "-d",
-          "long": "--dry-run",
-          "description": "Show what would be deleted (default)"
-        },
-        {
-          "short": "-x",
-          "long": "--execute",
-          "description": "Actually perform deletions"
-        },
-        {
-          "short": "-s",
-          "long": "--section",
-          "argument": "SECTION",
-          "description": "Run specific section (tmp, cache, logs, kernels, journal, thumbnails)"
-        },
-        {
-          "short": "-v",
-          "long": "--verbose",
-          "description": "Verbose output"
-        },
-        {
-          "long": "--older-than",
-          "argument": "DAYS",
-          "description": "Only remove files older than N days (default: 7)"
-        },
-        {
-          "long": "--keep-kernels",
-          "argument": "N",
-          "description": "Keep N most recent kernels (default: 2)"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr cleanup -d -a",
-          "description": "Dry run all cleanup tasks"
-        },
-        {
-          "command": "rsr cleanup -x -s cache -s logs",
-          "description": "Execute cache and log cleanup"
-        },
-        {
-          "command": "sudo rsr cleanup -x -s kernels",
-          "description": "Clean old kernels"
-        }
-      ],
-      "tags": [
-        "disk",
-        "cleanup",
-        "temp",
-        "logs",
-        "cache",
-        "kernels",
-        "maintenance",
-        "storage"
-      ]
-    },
-    {
-      "id": "ssl",
-      "name": "ssl-checker",
-      "displayName": "SSL Certificate Checker",
-      "description": "Check SSL certificate expiry, chain validity, and cipher suites",
+      "id": "security-audit",
+      "name": "Security Audit",
+      "description": "Comprehensive security audit: ports, logins, SUID files, permissions",
       "category": "security",
+      "subcategory": "audit",
+      "path": "security/audit/security-audit.sh",
       "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/security/bash/ssl-checker.sh"
-      },
-      "defaultShell": "bash",
-      "options": [
-        {
-          "short": "-d",
-          "long": "--domain",
-          "argument": "DOMAIN",
-          "description": "Check specific domain (can repeat)"
-        },
-        {
-          "short": "-f",
-          "long": "--file",
-          "argument": "FILE",
-          "description": "Read domains from file"
-        },
-        {
-          "short": "-w",
-          "long": "--warn",
-          "argument": "DAYS",
-          "description": "Warning threshold days (default: 30)"
-        },
-        {
-          "short": "-c",
-          "long": "--critical",
-          "argument": "DAYS",
-          "description": "Critical threshold days (default: 7)"
-        },
-        {
-          "short": "-C",
-          "long": "--chain",
-          "description": "Validate certificate chain"
-        },
-        {
-          "short": "-S",
-          "long": "--ciphers",
-          "description": "Check for weak cipher suites"
-        },
-        {
-          "short": "-a",
-          "long": "--all",
-          "description": "Run all checks (chain + ciphers)"
-        },
-        {
-          "short": "-v",
-          "long": "--verbose",
-          "description": "Show detailed certificate info"
-        },
-        {
-          "short": "-o",
-          "long": "--output",
-          "argument": "FORMAT",
-          "description": "Output format: text, json"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr ssl example.com",
-          "description": "Check single domain"
-        },
-        {
-          "command": "rsr ssl -d example.com -d api.example.com",
-          "description": "Check multiple domains"
-        },
-        {
-          "command": "rsr ssl -a example.com",
-          "description": "Run all checks including chain/ciphers"
-        },
-        {
-          "command": "rsr ssl -f domains.txt -w 60",
-          "description": "Check from file, warn at 60 days"
-        }
-      ],
-      "tags": [
-        "ssl",
-        "tls",
-        "certificate",
-        "security",
-        "expiry",
-        "https",
-        "cipher"
-      ]
+      "platforms": ["linux", "macos"],
+      "requires": ["bash 4.0+"],
+      "sudo": "optional",
+      "tags": ["security", "audit", "compliance", "hardening"]
     },
     {
-      "id": "users",
-      "name": "user-audit",
-      "displayName": "User Audit",
-      "description": "Audit user accounts, sudo access, login history, and orphaned files",
+      "id": "user-audit",
+      "name": "User Audit",
+      "description": "Audit user accounts, sudo access, and login history",
       "category": "security",
+      "subcategory": "audit",
+      "path": "security/audit/user-audit.sh",
       "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/security/bash/user-audit.sh"
-      },
-      "defaultShell": "bash",
-      "options": [
-        {
-          "short": "-a",
-          "long": "--all",
-          "description": "Run all audit checks"
-        },
-        {
-          "short": "-s",
-          "long": "--section",
-          "argument": "SECTION",
-          "description": "Run specific section (accounts, sudo, passwords, logins, ssh, orphans)"
-        },
-        {
-          "short": "-u",
-          "long": "--user",
-          "argument": "USER",
-          "description": "Audit specific user only"
-        },
-        {
-          "long": "--sudo-only",
-          "description": "Show only users with sudo access"
-        },
-        {
-          "long": "--expired",
-          "description": "Show only expired/expiring accounts"
-        },
-        {
-          "long": "--orphans",
-          "description": "Find files with no owner"
-        },
-        {
-          "long": "--ssh-keys",
-          "description": "Audit SSH authorized keys"
-        },
-        {
-          "short": "-v",
-          "long": "--verbose",
-          "description": "Enable verbose output"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr users -a",
-          "description": "Full user audit"
-        },
-        {
-          "command": "rsr users -s sudo -s passwords",
-          "description": "Check sudo and password status"
-        },
-        {
-          "command": "rsr users --sudo-only",
-          "description": "List only sudo users"
-        },
-        {
-          "command": "sudo rsr users --orphans",
-          "description": "Find orphaned files"
-        }
-      ],
-      "tags": [
-        "users",
-        "accounts",
-        "sudo",
-        "security",
-        "audit",
-        "login",
-        "permissions"
-      ]
+      "platforms": ["linux", "macos"],
+      "requires": ["bash 4.0+"],
+      "sudo": "optional",
+      "tags": ["users", "audit", "security", "accounts"]
     },
     {
-      "id": "usermgmt",
-      "name": "user-management",
-      "displayName": "User Management",
-      "description": "Comprehensive user management: create/delete accounts, passwords, groups, permissions, monitoring",
+      "id": "ssh-hardening",
+      "name": "SSH Hardening",
+      "description": "Harden SSH: disable root, enforce keys, configure fail2ban",
       "category": "security",
+      "subcategory": "hardening",
+      "path": "security/hardening/ssh-hardening.sh",
       "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/configuration/bash/user-management.sh",
-        "powershell": "scripts/configuration/powershell/UserManagement.ps1"
-      },
-      "defaultShell": "bash",
-      "subcommands": [
-        {
-          "name": "create",
-          "description": "Create new user account",
-          "options": [
-            {
-              "short": "-u",
-              "long": "--username",
-              "argument": "USER",
-              "description": "Username (required)"
-            },
-            {
-              "short": "-c",
-              "long": "--comment",
-              "argument": "TEXT",
-              "description": "Full name or comment"
-            },
-            {
-              "short": "-s",
-              "long": "--shell",
-              "argument": "SHELL",
-              "description": "Login shell"
-            },
-            {
-              "short": "-g",
-              "long": "--groups",
-              "argument": "GROUPS",
-              "description": "Additional groups (comma-separated)"
-            },
-            {
-              "long": "--generate",
-              "description": "Generate random password"
-            }
-          ]
-        },
-        {
-          "name": "delete",
-          "description": "Delete user account",
-          "options": [
-            {
-              "short": "-u",
-              "long": "--username",
-              "argument": "USER",
-              "description": "Username (required)"
-            },
-            {
-              "long": "--remove-home",
-              "description": "Remove home directory"
-            }
-          ]
-        },
-        {
-          "name": "lock",
-          "description": "Lock user account"
-        },
-        {
-          "name": "unlock",
-          "description": "Unlock user account"
-        },
-        {
-          "name": "list",
-          "description": "List user accounts",
-          "options": [
-            {
-              "short": "-a",
-              "long": "--all",
-              "description": "Show all users including system"
-            },
-            {
-              "long": "--sudo",
-              "description": "Show only sudo users"
-            }
-          ]
-        },
-        {
-          "name": "password",
-          "subcommands": [
-            {
-              "name": "reset",
-              "description": "Reset user password"
-            },
-            {
-              "name": "expire",
-              "description": "Force password change on next login"
-            },
-            {
-              "name": "generate",
-              "description": "Generate random password"
-            },
-            {
-              "name": "policy",
-              "description": "Show password policy"
-            }
-          ]
-        },
-        {
-          "name": "group",
-          "subcommands": [
-            {
-              "name": "create",
-              "description": "Create new group"
-            },
-            {
-              "name": "add",
-              "description": "Add user to group"
-            },
-            {
-              "name": "remove",
-              "description": "Remove user from group"
-            },
-            {
-              "name": "list",
-              "description": "List group members"
-            },
-            {
-              "name": "show",
-              "description": "Show user's groups"
-            }
-          ]
-        },
-        {
-          "name": "permission",
-          "subcommands": [
-            {
-              "name": "set",
-              "description": "Set file/folder permissions"
-            },
-            {
-              "name": "get",
-              "description": "Show current permissions"
-            },
-            {
-              "name": "template",
-              "description": "Apply permission template"
-            }
-          ]
-        },
-        {
-          "name": "ssh",
-          "subcommands": [
-            {
-              "name": "generate",
-              "description": "Generate SSH key pair for user"
-            },
-            {
-              "name": "add",
-              "description": "Add public key to authorized_keys"
-            },
-            {
-              "name": "remove",
-              "description": "Remove key from authorized_keys"
-            },
-            {
-              "name": "list",
-              "description": "List authorized SSH keys"
-            },
-            {
-              "name": "copy",
-              "description": "Copy SSH keys from another user"
-            },
-            {
-              "name": "validate",
-              "description": "Validate authorized_keys file"
-            },
-            {
-              "name": "fix",
-              "description": "Fix SSH directory permissions"
-            }
-          ]
-        },
-        {
-          "name": "session",
-          "subcommands": [
-            {
-              "name": "list",
-              "description": "List active sessions"
-            },
-            {
-              "name": "history",
-              "description": "Show login history"
-            },
-            {
-              "name": "failures",
-              "description": "Show failed logins"
-            }
-          ]
-        },
-        {
-          "name": "audit",
-          "description": "Run comprehensive user audit"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr usermgmt create -u john -c \"John Doe\"",
-          "description": "Create user with full name"
-        },
-        {
-          "command": "rsr usermgmt create -u jane -g sudo,docker",
-          "description": "Create user with groups"
-        },
-        {
-          "command": "rsr usermgmt delete -u john --remove-home",
-          "description": "Delete user and home"
-        },
-        {
-          "command": "rsr usermgmt password reset -u john",
-          "description": "Reset password"
-        },
-        {
-          "command": "rsr usermgmt password generate -u jane --set",
-          "description": "Generate and set password"
-        },
-        {
-          "command": "rsr usermgmt group add -u john -g docker",
-          "description": "Add user to group"
-        },
-        {
-          "command": "rsr usermgmt list --sudo",
-          "description": "List sudo users"
-        },
-        {
-          "command": "rsr usermgmt session list",
-          "description": "Show active sessions"
-        },
-        {
-          "command": "rsr usermgmt permission set -p /var/www -m 755 -R",
-          "description": "Set permissions recursively"
-        },
-        {
-          "command": "rsr usermgmt ssh generate -u john -t ed25519",
-          "description": "Generate SSH key"
-        },
-        {
-          "command": "rsr usermgmt ssh add -u john -f ~/.ssh/id_rsa.pub",
-          "description": "Add SSH key from file"
-        },
-        {
-          "command": "rsr usermgmt ssh list -u john --fingerprints",
-          "description": "List SSH keys with fingerprints"
-        },
-        {
-          "command": "rsr usermgmt group add -u john -g Administrators",
-          "description": "Add user to Administrators group (Windows)"
-        },
-        {
-          "command": "powershell .\\rsr.ps1 usermgmt create -u john",
-          "description": "Windows: Create user via PowerShell"
-        },
-        {
-          "command": "rsr usermgmt audit",
-          "description": "Run user audit"
-        }
-      ],
-      "tags": [
-        "users",
-        "accounts",
-        "passwords",
-        "permissions",
-        "groups",
-        "security",
-        "access-control",
-        "sudo",
-        "management",
-        "sessions",
-        "ssh",
-        "ssh-keys"
-      ],
-      "platforms": {
-        "linux": ["ubuntu", "debian", "rhel", "rocky", "almalinux", "fedora", "arch"],
-        "macos": "full-support",
-        "windows": {
-          "support": "full-support",
-          "versions": ["Windows 10", "Windows 11", "Server 2019", "Server 2022", "Server 2025"],
-          "requires": ["PowerShell 5.1+"],
-          "notes": "Supports local and domain users via PowerShell"
-        }
-      },
-      "isNew": true
+      "platforms": ["linux", "macos"],
+      "requires": ["bash 4.0+", "sshd"],
+      "sudo": "required",
+      "tags": ["ssh", "security", "hardening"]
     },
     {
-      "id": "update",
-      "name": "system-update",
-      "displayName": "System Update",
-      "description": "Update system packages, security patches, and kernel",
-      "category": "maintenance",
-      "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/maintenance/bash/system-update.sh"
-      },
-      "defaultShell": "bash",
-      "options": [
-        {
-          "short": "-c",
-          "long": "--check",
-          "description": "Check for available updates only"
-        },
-        {
-          "short": "-l",
-          "long": "--list",
-          "description": "List available updates with details"
-        },
-        {
-          "short": "-a",
-          "long": "--all",
-          "description": "Install all available updates"
-        },
-        {
-          "long": "--security",
-          "description": "Install security updates only"
-        },
-        {
-          "short": "-e",
-          "long": "--exclude",
-          "argument": "PKG",
-          "description": "Exclude package(s) from update"
-        },
-        {
-          "short": "-y",
-          "long": "--yes",
-          "description": "Automatic yes to prompts"
-        },
-        {
-          "long": "--reboot-required",
-          "description": "Check if reboot is needed"
-        },
-        {
-          "short": "-d",
-          "long": "--dry-run",
-          "description": "Show what would be updated"
-        },
-        {
-          "short": "-v",
-          "long": "--verbose",
-          "description": "Enable verbose output"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr update -c",
-          "description": "Check for updates"
-        },
-        {
-          "command": "rsr update -l",
-          "description": "List available updates"
-        },
-        {
-          "command": "sudo rsr update -a -y",
-          "description": "Install all updates non-interactive"
-        },
-        {
-          "command": "sudo rsr update --security -y",
-          "description": "Security updates only"
-        }
-      ],
-      "tags": [
-        "update",
-        "packages",
-        "security",
-        "patches",
-        "kernel",
-        "upgrade",
-        "maintenance"
-      ]
-    },
-    {
-      "id": "audit",
-      "name": "security-audit",
-      "displayName": "Security Audit",
-      "description": "Audit system security: open ports, logins, SUID files, permissions",
+      "id": "firewall-setup",
+      "name": "Firewall Setup",
+      "description": "Configure firewall with ufw/iptables/firewalld presets",
       "category": "security",
+      "subcategory": "hardening",
+      "path": "security/hardening/firewall-setup.sh",
       "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/security/bash/security-audit.sh"
-      },
-      "defaultShell": "bash",
-      "options": [
-        {
-          "short": "-a",
-          "long": "--all",
-          "description": "Run all security checks"
-        },
-        {
-          "short": "-s",
-          "long": "--section",
-          "argument": "SECTION",
-          "description": "Run specific section (ports, auth, files, users, network, ssh, updates, processes, kernel)"
-        },
-        {
-          "long": "--severity",
-          "argument": "LEVEL",
-          "description": "Show only issues at level (critical, high, medium, low)"
-        },
-        {
-          "long": "--quick",
-          "description": "Quick scan (skip slow checks)"
-        },
-        {
-          "long": "--deep",
-          "description": "Deep scan (more thorough)"
-        },
-        {
-          "short": "-r",
-          "long": "--report",
-          "argument": "FILE",
-          "description": "Generate report to file"
-        },
-        {
-          "long": "--format",
-          "argument": "FMT",
-          "description": "Report format: text, json, html"
-        },
-        {
-          "short": "-v",
-          "long": "--verbose",
-          "description": "Enable verbose output"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr audit -a",
-          "description": "Full security audit"
-        },
-        {
-          "command": "rsr audit -s ports -s auth",
-          "description": "Check ports and authentication"
-        },
-        {
-          "command": "rsr audit --quick",
-          "description": "Quick scan"
-        },
-        {
-          "command": "sudo rsr audit -a --deep",
-          "description": "Deep thorough scan"
-        }
-      ],
-      "tags": [
-        "security",
-        "audit",
-        "ports",
-        "suid",
-        "permissions",
-        "logins",
-        "hardening"
-      ]
+      "platforms": ["linux"],
+      "requires": ["bash 4.0+", "ufw|iptables|firewalld"],
+      "sudo": "required",
+      "tags": ["firewall", "security", "network"]
     },
     {
-      "id": "netdiag",
-      "name": "network-diagnostics",
-      "displayName": "Network Diagnostics",
-      "description": "Diagnose network: connectivity, DNS, latency, port checks",
-      "category": "network",
+      "id": "ssl-checker",
+      "name": "SSL Certificate Checker",
+      "description": "Check SSL certificate expiry, chain validity, and ciphers",
+      "category": "security",
+      "subcategory": "certificates",
+      "path": "security/certificates/ssl-checker.sh",
       "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/monitoring/bash/network-diagnostics.sh"
-      },
-      "defaultShell": "bash",
-      "options": [
-        {
-          "short": "-a",
-          "long": "--all",
-          "description": "Run all diagnostics"
-        },
-        {
-          "short": "-s",
-          "long": "--section",
-          "argument": "SECTION",
-          "description": "Run specific section (connectivity, dns, gateway, interfaces, services, routing)"
-        },
-        {
-          "long": "--ping",
-          "argument": "HOSTS",
-          "description": "Ping specific hosts (comma-separated)"
-        },
-        {
-          "long": "--dns",
-          "description": "Test DNS resolution"
-        },
-        {
-          "long": "--trace",
-          "argument": "HOST",
-          "description": "Traceroute to host"
-        },
-        {
-          "long": "--port",
-          "argument": "HOST:PORT",
-          "description": "Test port connectivity"
-        },
-        {
-          "long": "--interfaces",
-          "description": "Show network interfaces"
-        },
-        {
-          "long": "--public-ip",
-          "description": "Show public IP address"
-        },
-        {
-          "short": "-v",
-          "long": "--verbose",
-          "description": "Enable verbose output"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr netdiag -a",
-          "description": "Full diagnostics"
-        },
-        {
-          "command": "rsr netdiag --ping google.com,cloudflare.com",
-          "description": "Ping specific hosts"
-        },
-        {
-          "command": "rsr netdiag --port example.com:443",
-          "description": "Test port connectivity"
-        },
-        {
-          "command": "rsr netdiag --interfaces --public-ip",
-          "description": "Show interface and public IP"
-        }
-      ],
-      "tags": [
-        "network",
-        "diagnostics",
-        "ping",
-        "dns",
-        "trace",
-        "ports",
-        "connectivity"
-      ]
+      "platforms": ["linux", "macos"],
+      "requires": ["bash 4.0+", "openssl"],
+      "sudo": "none",
+      "tags": ["ssl", "tls", "certificates", "security"]
     },
     {
       "id": "ssh-server",
-      "name": "ssh-server",
-      "displayName": "SSH Server Management",
-      "description": "Complete SSH server management: install, configure, harden, monitor",
+      "name": "SSH Server Management",
+      "description": "Complete SSH server management: install, configure, monitor",
+      "category": "security",
+      "subcategory": "ssh",
+      "path": "security/ssh/ssh-server.sh",
+      "powershell": "security/ssh/ssh-server.ps1",
+      "version": "1.0.0",
+      "platforms": ["linux", "macos", "windows"],
+      "requires": ["bash 4.0+|PowerShell 5.1+"],
+      "sudo": "required",
+      "tags": ["ssh", "server", "management"]
+    },
+    {
+      "id": "system-health",
+      "name": "System Health Check",
+      "description": "Check system health: CPU, memory, disk, network status",
+      "category": "system",
+      "subcategory": "health",
+      "path": "system/health/system-health-check.sh",
+      "version": "1.0.0",
+      "platforms": ["linux", "macos"],
+      "requires": ["bash 4.0+"],
+      "sudo": "none",
+      "tags": ["health", "monitoring", "system", "diagnostics"]
+    },
+    {
+      "id": "system-update",
+      "name": "System Update",
+      "description": "Update system packages, security patches, and kernel",
+      "category": "system",
+      "subcategory": "updates",
+      "path": "system/updates/system-update.sh",
+      "version": "1.0.0",
+      "platforms": ["linux"],
+      "requires": ["bash 4.0+", "apt|yum|dnf|pacman"],
+      "sudo": "required",
+      "tags": ["update", "packages", "security", "maintenance"]
+    },
+    {
+      "id": "disk-cleanup",
+      "name": "Disk Cleanup",
+      "description": "Clean temp files, old logs, package cache, and old kernels",
+      "category": "system",
+      "subcategory": "cleanup",
+      "path": "system/cleanup/disk-cleanup.sh",
+      "version": "1.0.0",
+      "platforms": ["linux", "macos"],
+      "requires": ["bash 4.0+"],
+      "sudo": "optional",
+      "tags": ["cleanup", "disk", "maintenance", "storage"]
+    },
+    {
+      "id": "detect-distro",
+      "name": "Detect Distribution",
+      "description": "Detect Linux distribution, package manager, and init system",
+      "category": "system",
+      "subcategory": "info",
+      "path": "system/info/detect-distro.sh",
+      "version": "1.0.0",
+      "platforms": ["linux", "macos"],
+      "requires": ["bash 4.0+"],
+      "sudo": "none",
+      "tags": ["distro", "detection", "system", "info"]
+    },
+    {
+      "id": "user-management",
+      "name": "User Management",
+      "description": "Comprehensive user management: create, delete, passwords, groups",
+      "category": "users",
+      "subcategory": "management",
+      "path": "users/management/user-management.sh",
+      "powershell": "users/management/user-management.ps1",
+      "version": "1.0.0",
+      "platforms": ["linux", "macos", "windows"],
+      "requires": ["bash 4.0+|PowerShell 5.1+"],
+      "sudo": "required",
+      "tags": ["users", "accounts", "passwords", "groups"]
+    },
+    {
+      "id": "server-setup",
+      "name": "Server Setup",
+      "description": "Initial server setup: users, SSH hardening, firewall, tools",
+      "category": "users",
+      "subcategory": "setup",
+      "path": "users/setup/server-setup.sh",
+      "version": "1.0.0",
+      "platforms": ["linux"],
+      "requires": ["bash 4.0+"],
+      "sudo": "required",
+      "tags": ["setup", "server", "initialization"]
+    },
+    {
+      "id": "network-diagnostics",
+      "name": "Network Diagnostics",
+      "description": "Diagnose network: connectivity, DNS, latency, port checks",
       "category": "network",
+      "subcategory": "diagnostics",
+      "path": "network/diagnostics/network-diagnostics.sh",
       "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/security/bash/ssh-server.sh",
-        "powershell": "scripts/security/powershell/SSHServer.ps1"
-      },
-      "defaultShell": "bash",
-      "subcommands": [
-        {
-          "name": "install",
-          "description": "Install SSH server"
-        },
-        {
-          "name": "start",
-          "description": "Start SSH server"
-        },
-        {
-          "name": "stop",
-          "description": "Stop SSH server"
-        },
-        {
-          "name": "restart",
-          "description": "Restart SSH server"
-        },
-        {
-          "name": "enable",
-          "description": "Enable SSH server at boot"
-        },
-        {
-          "name": "disable",
-          "description": "Disable SSH server at boot"
-        },
-        {
-          "name": "status",
-          "description": "Show SSH server status"
-        },
-        {
-          "name": "configure",
-          "description": "Interactive configuration wizard for SSH server settings"
-        },
-        {
-          "name": "config",
-          "subcommands": [
-            {
-              "name": "get",
-              "description": "Get configuration value"
-            },
-            {
-              "name": "set",
-              "description": "Set configuration value"
-            },
-            {
-              "name": "backup",
-              "description": "Backup configuration"
-            },
-            {
-              "name": "restore",
-              "description": "Restore from backup"
-            },
-            {
-              "name": "validate",
-              "description": "Validate configuration"
-            },
-            {
-              "name": "show",
-              "description": "Show full configuration"
-            }
-          ]
-        },
-        {
-          "name": "harden",
-          "description": "Apply security hardening (integrates with ssh-hardening script)"
-        },
-        {
-          "name": "audit",
-          "description": "Run security audit"
-        },
-        {
-          "name": "score",
-          "description": "Show security score (0-100)"
-        },
-        {
-          "name": "test",
-          "description": "Test SSH connection"
-        },
-        {
-          "name": "connections",
-          "description": "Show active connections"
-        },
-        {
-          "name": "logs",
-          "description": "Show SSH logs"
-        },
-        {
-          "name": "failed",
-          "description": "Show failed login attempts"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr ssh-server status",
-          "description": "Show server status"
-        },
-        {
-          "command": "sudo rsr ssh-server install",
-          "description": "Install SSH server"
-        },
-        {
-          "command": "sudo rsr ssh-server harden",
-          "description": "Apply security hardening"
-        },
-        {
-          "command": "rsr ssh-server score",
-          "description": "Check security score"
-        },
-        {
-          "command": "sudo rsr ssh-server config set Port 2222",
-          "description": "Change SSH port"
-        },
-        {
-          "command": "rsr ssh-server test myserver.com",
-          "description": "Test connection to remote server"
-        },
-        {
-          "command": "rsr ssh-server logs 100",
-          "description": "View last 100 log lines"
-        },
-        {
-          "command": "rsr ssh-server failed",
-          "description": "Show failed login attempts"
-        }
-      ],
-      "tags": [
-        "ssh",
-        "server",
-        "sshd",
-        "configuration",
-        "security",
-        "monitoring",
-        "hardening"
-      ],
-      "platforms": {
-        "linux": ["ubuntu", "debian", "rhel", "rocky", "almalinux", "fedora", "arch"],
-        "macos": "full-support",
-        "windows": {
-          "support": "full-support",
-          "versions": ["Windows 10", "Windows 11", "Server 2019", "Server 2022", "Server 2025"],
-          "requires": ["PowerShell 5.1+"],
-          "notes": "Windows OpenSSH Server management"
-        }
-      },
-      "notes": [
-        "Most operations require root/sudo privileges",
-        "Integrates with ssh-hardening script for advanced hardening",
-        "TODO: SSH Certificate Authority support (Phase 2)",
-        "TODO: Multi-server management capabilities (Phase 2)"
-      ]
+      "platforms": ["linux", "macos"],
+      "requires": ["bash 4.0+"],
+      "sudo": "none",
+      "tags": ["network", "diagnostics", "dns", "connectivity"]
     },
     {
-      "id": "ssh-harden",
-      "name": "ssh-hardening",
-      "displayName": "SSH Hardening",
-      "description": "Harden SSH: disable root login, enforce keys, configure fail2ban",
-      "category": "security",
+      "id": "dns-sync",
+      "name": "DNS Zone Sync",
+      "description": "Sync DNS zones from git repository",
+      "category": "network",
+      "subcategory": "dns",
+      "path": "network/dns/dns-sync.sh",
       "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/security/bash/ssh-hardening.sh"
-      },
-      "defaultShell": "bash",
-      "options": [
-        {
-          "short": "-a",
-          "long": "--all",
-          "description": "Apply all hardening measures"
-        },
-        {
-          "short": "-d",
-          "long": "--dry-run",
-          "description": "Show changes without applying"
-        },
-        {
-          "long": "--status",
-          "description": "Show current SSH configuration status"
-        },
-        {
-          "long": "--no-root",
-          "description": "Disable root login"
-        },
-        {
-          "long": "--key-only",
-          "description": "Disable password authentication"
-        },
-        {
-          "short": "-p",
-          "long": "--port",
-          "argument": "PORT",
-          "description": "Change SSH port"
-        },
-        {
-          "long": "--fail2ban",
-          "description": "Install and configure fail2ban"
-        },
-        {
-          "long": "--strong-crypto",
-          "description": "Apply strong cipher/MAC/Kex settings"
-        },
-        {
-          "long": "--rollback",
-          "description": "Rollback to previous configuration"
-        },
-        {
-          "short": "-v",
-          "long": "--verbose",
-          "description": "Enable verbose output"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr ssh-harden --status",
-          "description": "Show current config status"
-        },
-        {
-          "command": "rsr ssh-harden -a -d",
-          "description": "Dry run all hardening"
-        },
-        {
-          "command": "sudo rsr ssh-harden --no-root --key-only",
-          "description": "Disable root and passwords"
-        },
-        {
-          "command": "sudo rsr ssh-harden --fail2ban",
-          "description": "Install fail2ban"
-        }
-      ],
-      "tags": [
-        "ssh",
-        "security",
-        "hardening",
-        "fail2ban",
-        "keys",
-        "authentication"
-      ]
+      "platforms": ["linux"],
+      "requires": ["bash 4.0+", "git"],
+      "sudo": "optional",
+      "tags": ["dns", "sync", "gitops"]
     },
     {
-      "id": "firewall",
-      "name": "firewall-setup",
-      "displayName": "Firewall Setup",
-      "description": "Configure firewall with ufw/iptables/firewalld presets",
-      "category": "security",
+      "id": "docker-management",
+      "name": "Docker Management",
+      "description": "Docker installation, container management, and cleanup",
+      "category": "containers",
+      "subcategory": "docker",
+      "path": "containers/docker/docker-management.sh",
       "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/security/bash/firewall-setup.sh"
-      },
-      "defaultShell": "bash",
-      "options": [
-        {
-          "short": "-p",
-          "long": "--preset",
-          "argument": "PRESET",
-          "description": "Apply preset profile (minimal, web, database, docker, mail)"
-        },
-        {
-          "short": "-a",
-          "long": "--allow",
-          "argument": "PORT[/PROTO]",
-          "description": "Allow port (e.g., 3000/tcp)"
-        },
-        {
-          "short": "-D",
-          "long": "--deny",
-          "argument": "PORT[/PROTO]",
-          "description": "Deny port"
-        },
-        {
-          "long": "--allow-from",
-          "argument": "IP",
-          "description": "Allow from IP/CIDR"
-        },
-        {
-          "long": "--rate-limit",
-          "argument": "PORT",
-          "description": "Enable rate limiting on port"
-        },
-        {
-          "long": "--status",
-          "description": "Show current status and rules"
-        },
-        {
-          "long": "--enable",
-          "description": "Enable firewall"
-        },
-        {
-          "long": "--disable",
-          "description": "Disable firewall"
-        },
-        {
-          "long": "--backup",
-          "argument": "FILE",
-          "description": "Backup current rules"
-        },
-        {
-          "short": "-d",
-          "long": "--dry-run",
-          "description": "Show what would be configured"
-        },
-        {
-          "short": "-v",
-          "long": "--verbose",
-          "description": "Enable verbose output"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr firewall --status",
-          "description": "Show current status"
-        },
-        {
-          "command": "rsr firewall -p web -d",
-          "description": "Dry run web preset"
-        },
-        {
-          "command": "sudo rsr firewall -p minimal",
-          "description": "Apply minimal preset"
-        },
-        {
-          "command": "sudo rsr firewall -a 8080/tcp",
-          "description": "Allow port 8080"
-        }
-      ],
-      "tags": [
-        "firewall",
-        "ufw",
-        "iptables",
-        "firewalld",
-        "security",
-        "network",
-        "ports"
-      ]
+      "platforms": ["linux", "macos"],
+      "requires": ["bash 4.0+"],
+      "sudo": "optional",
+      "tags": ["docker", "containers", "management"]
     },
     {
-      "id": "backup",
-      "name": "config-backup",
-      "displayName": "Configuration Backup",
-      "description": "Backup system configs: /etc, crontabs, packages, databases",
-      "category": "maintenance",
+      "id": "database-backup",
+      "name": "Database Backup",
+      "description": "Backup MySQL, PostgreSQL, MongoDB databases",
+      "category": "backup",
+      "subcategory": "database",
+      "path": "backup/database/database-backup.sh",
       "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/maintenance/bash/config-backup.sh"
-      },
-      "defaultShell": "bash",
-      "options": [
-        {
-          "short": "-a",
-          "long": "--all",
-          "description": "Backup everything"
-        },
-        {
-          "short": "-s",
-          "long": "--section",
-          "argument": "SECTION",
-          "description": "Backup specific section (etc, packages, crontabs, systemd, ssh, nginx, apache, database)"
-        },
-        {
-          "short": "-o",
-          "long": "--output",
-          "argument": "DIR",
-          "description": "Output directory (default: /var/backups/rsr)"
-        },
-        {
-          "long": "--compress",
-          "argument": "METHOD",
-          "description": "Compression: gzip, xz, none (default: gzip)"
-        },
-        {
-          "long": "--encrypt",
-          "description": "Encrypt with GPG"
-        },
-        {
-          "long": "--gpg-key",
-          "argument": "KEY",
-          "description": "GPG key ID for encryption"
-        },
-        {
-          "long": "--upload",
-          "argument": "DEST",
-          "description": "Upload to remote (s3://, rsync://, scp://)"
-        },
-        {
-          "long": "--retention",
-          "argument": "N",
-          "description": "Keep N most recent backups (default: 7)"
-        },
-        {
-          "long": "--list",
-          "description": "List existing backups"
-        },
-        {
-          "long": "--restore",
-          "argument": "FILE",
-          "description": "Restore from backup file"
-        },
-        {
-          "short": "-d",
-          "long": "--dry-run",
-          "description": "Show what would be backed up"
-        },
-        {
-          "short": "-v",
-          "long": "--verbose",
-          "description": "Enable verbose output"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr backup -a -d",
-          "description": "Dry run full backup"
-        },
-        {
-          "command": "sudo rsr backup -a",
-          "description": "Full backup"
-        },
-        {
-          "command": "sudo rsr backup -s etc -s packages",
-          "description": "Backup etc and packages"
-        },
-        {
-          "command": "rsr backup --list",
-          "description": "List existing backups"
-        }
-      ],
-      "tags": [
-        "backup",
-        "config",
-        "etc",
-        "crontab",
-        "packages",
-        "restore",
-        "maintenance"
-      ],
-      "isNew": true
+      "platforms": ["linux", "macos"],
+      "requires": ["bash 4.0+"],
+      "sudo": "optional",
+      "tags": ["backup", "database", "mysql", "postgresql"]
     },
     {
-      "id": "db-backup",
-      "name": "database-backup",
-      "displayName": "Database Backup",
-      "description": "Backup MySQL/PostgreSQL databases with compression and encryption",
-      "category": "maintenance",
+      "id": "config-backup",
+      "name": "Config Backup",
+      "description": "Backup system and application configuration files",
+      "category": "backup",
+      "subcategory": "config",
+      "path": "backup/config/config-backup.sh",
       "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/maintenance/bash/database-backup.sh"
-      },
-      "defaultShell": "bash",
-      "options": [
-        {
-          "long": "--mysql",
-          "description": "Backup MySQL/MariaDB"
-        },
-        {
-          "long": "--postgresql",
-          "description": "Backup PostgreSQL"
-        },
-        {
-          "long": "--mongodb",
-          "description": "Backup MongoDB"
-        },
-        {
-          "long": "--auto",
-          "description": "Auto-detect databases"
-        },
-        {
-          "short": "-d",
-          "long": "--database",
-          "argument": "DB",
-          "description": "Backup specific database"
-        },
-        {
-          "short": "-A",
-          "long": "--all-databases",
-          "description": "Backup all databases"
-        },
-        {
-          "long": "--schema-only",
-          "description": "Dump schema only"
-        },
-        {
-          "long": "--compress",
-          "argument": "METHOD",
-          "description": "Compression: gzip, xz, lz4 (default: gzip)"
-        },
-        {
-          "long": "--encrypt",
-          "description": "Encrypt with GPG"
-        },
-        {
-          "long": "--upload",
-          "argument": "DEST",
-          "description": "Upload to remote storage"
-        },
-        {
-          "long": "--retention",
-          "argument": "N",
-          "description": "Keep N most recent backups (default: 7)"
-        },
-        {
-          "long": "--list",
-          "description": "List existing backups"
-        },
-        {
-          "long": "--restore",
-          "argument": "FILE",
-          "description": "Restore from backup"
-        },
-        {
-          "long": "--dry-run",
-          "description": "Show what would be done"
-        },
-        {
-          "short": "-v",
-          "long": "--verbose",
-          "description": "Enable verbose output"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr db-backup --mysql -A",
-          "description": "Backup all MySQL databases"
-        },
-        {
-          "command": "rsr db-backup --postgresql -d myapp",
-          "description": "Backup specific PostgreSQL DB"
-        },
-        {
-          "command": "rsr db-backup --auto -A",
-          "description": "Auto-detect and backup all"
-        },
-        {
-          "command": "rsr db-backup --list",
-          "description": "List existing backups"
-        }
-      ],
-      "tags": [
-        "database",
-        "backup",
-        "mysql",
-        "mariadb",
-        "postgresql",
-        "mongodb",
-        "dump",
-        "maintenance"
-      ],
-      "isNew": true
+      "platforms": ["linux", "macos"],
+      "requires": ["bash 4.0+"],
+      "sudo": "optional",
+      "tags": ["backup", "config", "system"]
     },
     {
-      "id": "git-sync",
-      "name": "git-auto-sync",
-      "displayName": "Git Auto-Sync",
-      "description": "Production-grade Git repository auto-sync with daemon mode, multi-repo support, Git LFS, and post-sync hooks",
-      "category": "development",
+      "id": "git-auto-sync",
+      "name": "Git Auto Sync",
+      "description": "Production-grade git repository auto-sync daemon",
+      "category": "backup",
+      "subcategory": "git",
+      "path": "backup/git/git-auto-sync.sh",
       "version": "1.0.0",
-      "author": "codefuturist",
-      "shells": {
-        "bash": "scripts/data/bash/git-auto-sync.sh"
-      },
-      "defaultShell": "bash",
-      "options": [
-        {
-          "short": "-c",
-          "long": "--config",
-          "argument": "FILE",
-          "description": "Configuration file (JSON format)"
-        },
-        {
-          "short": "-d",
-          "long": "--daemon",
-          "description": "Run in daemon mode (continuous sync)"
-        },
-        {
-          "short": "-i",
-          "long": "--interval",
-          "argument": "SECONDS",
-          "description": "Sync interval for daemon mode (default: 300)"
-        },
-        {
-          "short": "-r",
-          "long": "--repo",
-          "argument": "PATH",
-          "description": "Add repository to sync (can be used multiple times)"
-        },
-        {
-          "short": "-b",
-          "long": "--branch",
-          "argument": "NAME",
-          "description": "Branch to sync (default: main)"
-        },
-        {
-          "short": "-m",
-          "long": "--mode",
-          "argument": "MODE",
-          "description": "Sync mode: safe|force|pull (default: safe)"
-        },
-        {
-          "short": "-l",
-          "long": "--lfs",
-          "description": "Enable Git LFS support"
-        },
-        {
-          "long": "--remote",
-          "argument": "NAME",
-          "description": "Remote name (default: origin)"
-        },
-        {
-          "long": "--hook",
-          "argument": "SCRIPT",
-          "description": "Post-sync hook script"
-        },
-        {
-          "short": "-v",
-          "long": "--verbose",
-          "description": "Enable debug logging"
-        }
-      ],
-      "examples": [
-        {
-          "command": "rsr git-sync -r /path/to/repo",
-          "description": "Sync single repository"
-        },
-        {
-          "command": "rsr git-sync -r /var/www/mysite -m force --hook /usr/local/bin/deploy.sh",
-          "description": "Force sync with post-sync hook"
-        },
-        {
-          "command": "rsr git-sync --daemon --config /etc/git-sync/repos.json --interval 600",
-          "description": "Run daemon with config file"
-        },
-        {
-          "command": "rsr git-sync -r /repo --lfs -v",
-          "description": "Sync with Git LFS and verbose logging"
-        }
-      ],
-      "tags": [
-        "git",
-        "sync",
-        "automation",
-        "deployment",
-        "continuous",
-        "lfs",
-        "daemon",
-        "vcs"
-      ],
-      "isNew": true
+      "platforms": ["linux", "macos"],
+      "requires": ["bash 4.0+", "git"],
+      "sudo": "optional",
+      "tags": ["git", "sync", "backup", "automation"]
     }
   ]
 }
+

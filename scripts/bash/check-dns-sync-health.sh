@@ -1,1 +1,0 @@
-../monitoring/bash/check-dns-sync-health.sh
