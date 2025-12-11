@@ -38,6 +38,9 @@ jobs:
           cp rsr.ps1 _site/
           cp install.sh _site/
           cp recover.sh _site/
+          # Copy registry.json (needed by index.html)
+          mkdir -p _site/scripts
+          cp scripts/registry.json _site/scripts/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
