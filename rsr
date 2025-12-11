@@ -16,7 +16,12 @@ set -eu
 # ============================================================================
 
 # Try to read version from VERSION file (local), fallback to hardcoded
-SCRIPT_DIR="$(cd "$(dirname "$0")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
+# Handle both local execution and piped execution (where $0 may be sh/bash)
+if [ -n "${0:-}" ] && [ "$0" != "sh" ] && [ "$0" != "bash" ] && [ "$0" != "-sh" ] && [ "$0" != "-bash" ]; then
+    SCRIPT_DIR="$(cd "$(dirname "$0")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+else
+    SCRIPT_DIR=""
+fi
 if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/VERSION" ]; then
     SCRIPT_VERSION=$(tr -d '[:space:]' < "$SCRIPT_DIR/VERSION")
 else
