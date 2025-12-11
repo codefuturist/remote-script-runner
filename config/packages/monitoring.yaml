@@ -1,0 +1,78 @@
+# monitoring.yaml - System monitoring tools
+# Usage: rsr pkg install-profile monitoring
+#
+# System monitoring and performance analysis tools.
+# Essential for server administration and debugging.
+
+name: monitoring
+description: System monitoring and performance tools
+version: "1.0.0"
+category: monitoring
+
+packages:
+  # Process monitoring
+  - htop
+  - iotop
+  - atop
+
+  # Network monitoring
+  - iftop
+  - nethogs
+  - nload
+
+  # System info
+  - sysstat
+  - lsof
+  - strace
+
+  # Log tools
+  - logwatch
+  - multitail
+
+optional:
+  # Advanced monitoring
+  - glances
+  - nmon
+  - dstat
+  - bmon
+
+  # Disk monitoring
+  - iotop
+  - ncdu
+
+  # Network analysis
+  - tcpdump
+  - wireshark-cli
+  - mtr
+
+  # Prometheus/Grafana stack
+  - prometheus-node-exporter
+
+platforms:
+  darwin:
+    packages:
+      - htop
+      - iftop
+      - lsof
+      - mtr
+      - ncdu
+    skip:
+      - iotop
+      - atop
+      - nethogs
+      - sysstat
+      - logwatch
+      - multitail
+    note: "Some Linux-specific tools not available on macOS"
+
+  alpine:
+    packages:
+      - htop
+      - iotop
+      - lsof
+      - strace
+    skip:
+      - atop
+      - nethogs
+      - sysstat
+

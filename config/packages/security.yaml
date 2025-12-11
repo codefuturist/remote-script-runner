@@ -1,0 +1,91 @@
+# security.yaml - Security and hardening tools
+# Usage: rsr pkg install-profile security
+#
+# Security tools for system hardening and auditing.
+# Includes firewall, intrusion prevention, and scanning tools.
+
+name: security
+description: Security tools and hardening utilities
+version: "1.0.0"
+category: security
+
+packages:
+  # Firewall
+  - ufw
+  - iptables
+
+  # Intrusion prevention
+  - fail2ban
+
+  # Security scanning
+  - clamav
+  - rkhunter
+  - chkrootkit
+
+  # SSL/TLS
+  - openssl
+  - ca-certificates
+
+  # Audit tools
+  - auditd
+  - lynis
+
+optional:
+  # Advanced security
+  - aide
+  - tripwire
+  - ossec-hids
+
+  # Network security
+  - suricata
+  - snort
+
+  # Password tools
+  - pwgen
+  - apg
+
+  # Encryption
+  - gnupg
+  - cryptsetup
+
+platforms:
+  darwin:
+    packages:
+      - openssl
+      - lynis
+      - gnupg
+      - pwgen
+    skip:
+      - ufw
+      - iptables
+      - fail2ban
+      - auditd
+      - clamav
+      - rkhunter
+      - chkrootkit
+    note: "macOS has built-in firewall (pf). Use 'sudo pfctl' for management."
+
+  debian:
+    packages:
+      - ufw
+      - fail2ban
+      - clamav
+      - clamav-daemon
+      - rkhunter
+      - chkrootkit
+      - auditd
+      - lynis
+
+  rhel:
+    packages:
+      - firewalld
+      - fail2ban
+      - clamav
+      - clamav-update
+      - rkhunter
+      - audit
+      - lynis
+    skip:
+      - ufw
+      - chkrootkit
+

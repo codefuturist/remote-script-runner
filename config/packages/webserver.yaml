@@ -1,0 +1,60 @@
+# webserver.yaml - Web server packages
+# Usage: rsr pkg install-profile webserver
+#
+# Web server and related tools.
+# Includes nginx, SSL utilities, and common web tools.
+
+name: webserver
+description: Web server with SSL and common utilities
+version: "1.0.0"
+category: infrastructure
+
+packages:
+  # Web Server
+  - nginx
+
+  # SSL/TLS
+  - certbot
+  - openssl
+
+  # Utilities
+  - curl
+  - wget
+  - logrotate
+
+optional:
+  # Alternative web servers
+  - httpd
+  - caddy
+
+  # PHP support
+  - php-fpm
+
+  # Caching
+  - varnish
+  - memcached
+
+  # Let's Encrypt plugins
+  - python3-certbot-nginx
+  - python3-certbot-apache
+
+platforms:
+  darwin:
+    packages:
+      - nginx
+      - openssl
+    homebrew_casks: []
+    note: "Use 'brew services start nginx' to run"
+
+  debian:
+    packages:
+      - nginx
+      - certbot
+      - python3-certbot-nginx
+
+  rhel:
+    packages:
+      - nginx
+      - certbot
+      - python3-certbot-nginx
+

@@ -10,8 +10,8 @@
     },
     "system": {
       "name": "System",
-      "description": "System health, updates, cleanup, and information scripts",
-      "subcategories": ["health", "updates", "cleanup", "info"]
+      "description": "System health, updates, cleanup, packages, and information scripts",
+      "subcategories": ["health", "updates", "cleanup", "info", "packages"]
     },
     "users": {
       "name": "Users",
@@ -270,6 +270,19 @@
       "requires": ["bash 4.0+", "git"],
       "sudo": "optional",
       "tags": ["git", "sync", "backup", "automation"]
+    },
+    {
+      "id": "install-packages",
+      "name": "Install Packages",
+      "description": "Install packages from predefined profiles with cross-platform support",
+      "category": "system",
+      "subcategory": "packages",
+      "path": "system/packages/install-packages.sh",
+      "version": "1.0.0",
+      "platforms": ["linux", "macos"],
+      "requires": ["bash 4.0+"],
+      "sudo": "optional",
+      "tags": ["packages", "dependencies", "installation", "profiles"]
     }
   ]
 }

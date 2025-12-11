@@ -1,0 +1,78 @@
+# development.yaml - Development tools and utilities
+# Usage: rsr pkg install-profile development
+#
+# Essential development tools for software engineers.
+# Includes build tools, editors, and common CLI utilities.
+
+name: development
+description: Essential development tools for software engineers
+version: "1.0.0"
+category: development
+
+packages:
+  # Version Control
+  - git
+  - git-lfs
+
+  # Build Tools
+  - build-essential
+  - cmake
+  - make
+
+  # Editors
+  - vim
+  - nano
+
+  # Shell utilities
+  - curl
+  - wget
+  - jq
+  - tree
+  - htop
+  - tmux
+  - screen
+
+  # Network tools
+  - netcat
+  - nmap
+
+  # File utilities
+  - rsync
+  - unzip
+  - zip
+  - tar
+
+optional:
+  # Modern CLI tools
+  - neovim
+  - zsh
+  - fzf
+  - ripgrep
+  - fd-find
+  - bat
+  - exa
+  - tldr
+
+platforms:
+  darwin:
+    packages:
+      - coreutils
+      - gnu-sed
+      - grep
+      - findutils
+    skip:
+      - build-essential
+    note: "Xcode Command Line Tools provides build essentials"
+
+  alpine:
+    packages:
+      - build-base
+    skip:
+      - build-essential
+
+  arch:
+    packages:
+      - base-devel
+    skip:
+      - build-essential
+

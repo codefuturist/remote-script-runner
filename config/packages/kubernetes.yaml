@@ -1,0 +1,77 @@
+# kubernetes.yaml - Kubernetes CLI tools
+# Usage: rsr pkg install-profile kubernetes
+#
+# Kubernetes command-line tools and utilities.
+# For cluster deployment, see cloud provider documentation.
+
+name: kubernetes
+description: Kubernetes CLI tools and utilities
+version: "1.0.0"
+category: containers
+
+packages:
+  # Core Kubernetes CLI
+  - kubectl
+
+  # Package manager for Kubernetes
+  - helm
+
+optional:
+  # Context/namespace switching
+  - kubectx
+  - kubens
+
+  # Terminal UI
+  - k9s
+
+  # Log aggregation
+  - stern
+
+  # Templating
+  - kustomize
+
+  # Local clusters
+  - minikube
+  - kind
+
+  # Security
+  - kubesec
+  - trivy
+
+  # GitOps
+  - argocd
+  - flux
+
+platforms:
+  darwin:
+    packages:
+      - kubectl
+      - helm
+      - kubectx
+      - k9s
+      - stern
+      - kustomize
+      - minikube
+      - kind
+    note: "All tools available via Homebrew"
+
+  linux:
+    note: |
+      Install kubectl: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      Install helm: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+    packages:
+      - kubectl
+      - helm
+
+# Installation scripts for tools not in package managers
+install_scripts:
+  kubectl: |
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+  helm: |
+    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+  k9s: |
+    curl -sS https://webinstall.dev/k9s | bash
+

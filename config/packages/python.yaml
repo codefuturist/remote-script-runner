@@ -1,0 +1,80 @@
+# python.yaml - Python development environment
+# Usage: rsr pkg install-profile python
+#
+# Python development environment with common tools.
+# Includes pip, venv, and popular development packages.
+
+name: python
+description: Python development environment
+version: "1.0.0"
+category: languages
+
+packages:
+  # Python core
+  - python3
+  - python3-pip
+  - python3-venv
+  - python-dev
+
+optional:
+  # Additional Python packages
+  - python3-setuptools
+  - python3-wheel
+
+  # Version management
+  - pipx
+
+  # Virtual environment tools (install via pip)
+  # - virtualenv
+  # - pipenv
+  # - poetry
+
+# Packages to install via pip
+pip_packages:
+  - virtualenv
+  - pipenv
+  - poetry
+  - black
+  - flake8
+  - mypy
+  - pytest
+  - ipython
+  - jupyter
+
+platforms:
+  darwin:
+    packages:
+      - python@3
+      - pipx
+    skip:
+      - python3
+      - python3-pip
+      - python3-venv
+      - python-dev
+    note: "Python 3 installed via Homebrew"
+
+  debian:
+    packages:
+      - python3
+      - python3-pip
+      - python3-venv
+      - python3-dev
+
+  rhel:
+    packages:
+      - python3
+      - python3-pip
+      - python3-devel
+    skip:
+      - python3-venv
+      - python-dev
+
+  alpine:
+    packages:
+      - python3
+      - py3-pip
+      - python3-dev
+    skip:
+      - python3-pip
+      - python3-venv
+

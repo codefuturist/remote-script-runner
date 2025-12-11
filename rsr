@@ -119,49 +119,43 @@ get_script_path() {
 
     case "$script_name" in
         health)
-            case "$shell_type" in
-                bash) echo "scripts/monitoring/bash/system-health-check.sh" ;;
-                zsh) echo "scripts/monitoring/zsh/system-health-check.zsh" ;;
-                sh) echo "scripts/monitoring/sh/system-health-check.sh" ;;
-                fish) echo "scripts/monitoring/fish/system-health-check.fish" ;;
-                *) echo "scripts/monitoring/bash/system-health-check.sh" ;;
-            esac
+            echo "scripts/system/health/system-health-check.sh"
             ;;
         setup)
-            echo "scripts/configuration/bash/server-setup.sh"
+            echo "scripts/users/setup/server-setup.sh"
             ;;
         cleanup)
-            echo "scripts/maintenance/bash/disk-cleanup.sh"
+            echo "scripts/system/cleanup/disk-cleanup.sh"
             ;;
         ssl)
-            echo "scripts/security/bash/ssl-checker.sh"
+            echo "scripts/security/certificates/ssl-checker.sh"
             ;;
         users)
-            echo "scripts/security/bash/user-audit.sh"
+            echo "scripts/security/audit/user-audit.sh"
             ;;
         update)
-            echo "scripts/maintenance/bash/system-update.sh"
+            echo "scripts/system/updates/system-update.sh"
             ;;
         audit)
-            echo "scripts/security/bash/security-audit.sh"
+            echo "scripts/security/audit/security-audit.sh"
             ;;
         netdiag)
-            echo "scripts/monitoring/bash/network-diagnostics.sh"
+            echo "scripts/network/diagnostics/network-diagnostics.sh"
             ;;
         ssh-harden)
-            echo "scripts/security/bash/ssh-hardening.sh"
+            echo "scripts/security/hardening/ssh-hardening.sh"
             ;;
         firewall)
-            echo "scripts/security/bash/firewall-setup.sh"
+            echo "scripts/security/hardening/firewall-setup.sh"
             ;;
         backup)
-            echo "scripts/maintenance/bash/config-backup.sh"
+            echo "scripts/backup/config/config-backup.sh"
             ;;
         db-backup)
-            echo "scripts/maintenance/bash/database-backup.sh"
+            echo "scripts/backup/database/database-backup.sh"
             ;;
         docker)
-            echo "scripts/infrastructure/bash/docker-management.sh"
+            echo "scripts/containers/docker/docker-management.sh"
             ;;
         *)
             echo ""
@@ -174,8 +168,8 @@ get_script_path() {
 # ============================================================================
 
 is_local() {
-    # Check if we're in the repo directory (scripts/bash exists)
-    [ -d "./scripts/bash" ] && [ -f "./scripts/monitoring/bash/system-health-check.sh" ]
+    # Check if we're in the repo directory (scripts dir exists with expected structure)
+    [ -d "./scripts" ] && [ -f "./scripts/system/health/system-health-check.sh" ]
 }
 
 download() {

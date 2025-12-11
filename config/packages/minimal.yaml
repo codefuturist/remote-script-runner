@@ -1,0 +1,39 @@
+# minimal.yaml - Minimal essential packages
+# Usage: rsr pkg install-profile minimal
+#
+# The absolute minimum set of tools for any system.
+# Safe to install on any platform.
+
+name: minimal
+description: Minimal essential packages for any system
+version: "1.0.0"
+category: essentials
+
+packages:
+  # Download utilities
+  - curl
+  - wget
+
+  # Version control
+  - git
+
+  # Text editor
+  - vim
+
+  # System monitoring
+  - htop
+
+  # JSON processor
+  - jq
+
+  # Archive utilities
+  - unzip
+  - zip
+
+# Platform-specific notes
+platforms:
+  darwin:
+    note: "All packages available via Homebrew"
+  alpine:
+    note: "Use 'apk add' for installation"
+

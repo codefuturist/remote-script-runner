@@ -1,0 +1,60 @@
+# database.yaml - Database servers and clients
+# Usage: rsr pkg install-profile database
+#
+# Database client tools (safe to install).
+# Optional section includes servers (install only if needed).
+
+name: database
+description: Database clients and server tools
+version: "1.0.0"
+category: data
+
+packages:
+  # Database Clients (safe to install)
+  - mysql-client
+  - postgresql-client
+  - redis-tools
+  - sqlite3
+
+optional:
+  # Database Servers (install only if needed)
+  - mysql-server
+  - postgresql
+  - redis-server
+  - mongodb
+  - mariadb-server
+
+  # GUI tools
+  - pgadmin4
+
+  # Backup tools
+  - percona-xtrabackup
+  - pg-dump
+
+platforms:
+  darwin:
+    packages:
+      - mysql-client
+      - libpq
+      - redis
+      - sqlite
+    skip:
+      - mysql-client
+      - postgresql-client
+      - redis-tools
+    note: "Use 'brew services' to manage database servers"
+
+  debian:
+    packages:
+      - default-mysql-client
+      - postgresql-client
+      - redis-tools
+      - sqlite3
+
+  rhel:
+    packages:
+      - mysql
+      - postgresql
+      - redis
+      - sqlite
+

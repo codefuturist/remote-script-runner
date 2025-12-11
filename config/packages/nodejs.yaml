@@ -1,0 +1,66 @@
+# nodejs.yaml - Node.js development environment
+# Usage: rsr pkg install-profile nodejs
+#
+# Node.js development environment with npm/yarn.
+# Consider using nvm for version management.
+
+name: nodejs
+description: Node.js development environment
+version: "1.0.0"
+category: languages
+
+packages:
+  # Node.js core
+  - nodejs
+  - npm
+
+optional:
+  # Package managers
+  - yarn
+  - pnpm
+
+# Packages to install via npm
+npm_packages:
+  - typescript
+  - eslint
+  - prettier
+  - nodemon
+  - pm2
+  - ts-node
+  - jest
+
+platforms:
+  darwin:
+    packages:
+      - node
+      - yarn
+    skip:
+      - nodejs
+      - npm
+    note: "Consider using 'nvm' for Node.js version management"
+
+  debian:
+    note: "For latest Node.js, use NodeSource: curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -"
+    packages:
+      - nodejs
+      - npm
+
+  rhel:
+    note: "For latest Node.js, use NodeSource: curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -"
+    packages:
+      - nodejs
+      - npm
+
+  alpine:
+    packages:
+      - nodejs
+      - npm
+      - yarn
+
+# Version management recommendation
+version_manager:
+  name: nvm
+  url: https://github.com/nvm-sh/nvm
+  install: "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash"
+  note: "nvm allows installing multiple Node.js versions"
+

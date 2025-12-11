@@ -1,0 +1,135 @@
+# server.yaml - Complete server setup
+# Usage: rsr pkg install-profile server
+#
+# Comprehensive server setup with essential tools.
+# Combines minimal, security, and monitoring profiles.
+
+name: server
+description: Complete server setup with essential tools
+version: "1.0.0"
+category: infrastructure
+
+# Include other profiles
+includes:
+  - minimal
+  - security
+  - monitoring
+
+packages:
+  # System utilities
+  - sudo
+  - openssh-server
+  - rsync
+  - logrotate
+  - cron
+
+  # Networking
+  - net-tools
+  - dnsutils
+  - traceroute
+  - mtr
+  - iproute2
+
+  # Compression
+  - gzip
+  - bzip2
+  - xz-utils
+  - p7zip
+
+  # Process management
+  - supervisor
+
+  # System info
+  - lshw
+  - dmidecode
+
+optional:
+  # Web-based management
+  - cockpit
+  - webmin
+
+  # Configuration management
+  - ansible
+
+  # Backup tools
+  - borgbackup
+  - restic
+
+platforms:
+  darwin:
+    skip:
+      - sudo
+      - openssh-server
+      - cron
+      - net-tools
+      - iproute2
+      - supervisor
+      - lshw
+      - dmidecode
+    note: "macOS has built-in equivalents for most server tools"
+
+  debian:
+    packages:
+      - sudo
+      - openssh-server
+      - rsync
+      - logrotate
+      - cron
+      - net-tools
+      - dnsutils
+      - traceroute
+      - mtr-tiny
+      - iproute2
+      - gzip
+      - bzip2
+      - xz-utils
+      - p7zip-full
+      - supervisor
+      - lshw
+
+  rhel:
+    packages:
+      - sudo
+      - openssh-server
+      - rsync
+      - logrotate
+      - cronie
+      - net-tools
+      - bind-utils
+      - traceroute
+      - mtr
+      - iproute
+      - gzip
+      - bzip2
+      - xz
+      - p7zip
+      - supervisor
+      - lshw
+    skip:
+      - cron
+      - dnsutils
+      - xz-utils
+
+  alpine:
+    packages:
+      - sudo
+      - openssh
+      - rsync
+      - logrotate
+      - dcron
+      - net-tools
+      - bind-tools
+      - mtr
+      - iproute2
+      - gzip
+      - bzip2
+      - xz
+      - p7zip
+      - supervisor
+    skip:
+      - cron
+      - dnsutils
+      - xz-utils
+      - lshw
+      - dmidecode
+

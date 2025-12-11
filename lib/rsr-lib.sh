@@ -83,6 +83,10 @@ rsr_load_module() {
             # shellcheck source=modules/ssh.sh
             . "${_RSR_LIB_ROOT}/modules/ssh.sh"
             ;;
+        packages|pkg)
+            # shellcheck source=modules/packages.sh
+            . "${_RSR_LIB_ROOT}/modules/packages.sh"
+            ;;
         *)
             rsr_log_error "Unknown module: $_module"
             return 1
@@ -97,6 +101,7 @@ rsr_load_all() {
     rsr_load_module users
     rsr_load_module docker
     rsr_load_module ssh
+    rsr_load_module packages
 
     # Interactive only if bash
     [ -n "${BASH_VERSION:-}" ] && rsr_load_module interactive

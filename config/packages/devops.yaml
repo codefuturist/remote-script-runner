@@ -1,0 +1,92 @@
+# devops.yaml - DevOps and CI/CD tools
+# Usage: rsr pkg install-profile devops
+#
+# DevOps tools for automation, CI/CD, and infrastructure management.
+# Combines development, containers, and cloud tools.
+
+name: devops
+description: DevOps and CI/CD automation tools
+version: "1.0.0"
+category: devops
+
+# Include other profiles
+includes:
+  - development
+  - docker
+
+packages:
+  # Version control
+  - git
+  - git-lfs
+
+  # Build tools
+  - make
+  - cmake
+
+  # Configuration management
+  - ansible
+
+  # Infrastructure as Code
+  - terraform
+
+  # Cloud CLIs (install separately per cloud)
+  # - awscli
+  # - azure-cli
+  # - google-cloud-sdk
+
+  # CI/CD tools
+  - jenkins
+
+  # Secrets management
+  - vault
+
+optional:
+  # Additional IaC
+  - pulumi
+  - packer
+
+  # Service mesh
+  - istioctl
+  - linkerd
+
+  # Monitoring
+  - prometheus
+  - grafana
+
+  # Log management
+  - filebeat
+  - fluentd
+
+platforms:
+  darwin:
+    packages:
+      - git
+      - git-lfs
+      - make
+      - ansible
+      - terraform
+      - vault
+    homebrew_casks:
+      - docker
+    note: "Cloud CLIs available via Homebrew: awscli, azure-cli, google-cloud-sdk"
+
+  linux:
+    note: |
+      Terraform: https://learn.hashicorp.com/tutorials/terraform/install-cli
+      Ansible: pip install ansible
+      Cloud CLIs: Install per provider documentation
+
+install_scripts:
+  terraform: |
+    curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+    sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+    sudo apt-get update && sudo apt-get install terraform
+
+  ansible: |
+    pip3 install ansible
+
+  awscli: |
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    unzip awscliv2.zip
+    sudo ./aws/install
+

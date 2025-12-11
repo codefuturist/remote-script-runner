@@ -1,0 +1,123 @@
+ru# network.yaml - Network administration tools
+# Usage: rsr pkg install-profile network
+#
+# Network diagnostics, analysis, and administration tools.
+# Essential for network troubleshooting and monitoring.
+
+name: network
+description: Network administration and diagnostic tools
+version: "1.0.0"
+category: network
+
+packages:
+  # DNS tools
+  - dnsutils
+  - bind-utils
+
+  # Network diagnostics
+  - traceroute
+  - mtr
+  - ping
+  - netcat
+  - nmap
+
+  # Traffic analysis
+  - tcpdump
+  - iftop
+  - nethogs
+
+  # Connection tools
+  - curl
+  - wget
+  - telnet
+  - openssh-client
+
+  # IP utilities
+  - iproute2
+  - net-tools
+  - iputils-ping
+
+optional:
+  # Advanced analysis
+  - wireshark-cli
+  - tshark
+  - ngrep
+
+  # VPN tools
+  - openvpn
+  - wireguard
+
+  # Proxy tools
+  - proxychains
+  - socat
+
+  # Bandwidth testing
+  - iperf3
+  - speedtest-cli
+
+  # SSL/TLS tools
+  - openssl
+  - sslyze
+
+platforms:
+  darwin:
+    packages:
+      - mtr
+      - nmap
+      - tcpdump
+      - curl
+      - wget
+      - netcat
+      - iperf3
+      - openssl
+    skip:
+      - dnsutils
+      - bind-utils
+      - iproute2
+      - net-tools
+      - iputils-ping
+      - iftop
+      - nethogs
+    note: "macOS includes many network tools by default"
+
+  debian:
+    packages:
+      - dnsutils
+      - traceroute
+      - mtr-tiny
+      - iputils-ping
+      - netcat-openbsd
+      - nmap
+      - tcpdump
+      - iftop
+      - nethogs
+      - curl
+      - wget
+      - telnet
+      - openssh-client
+      - iproute2
+      - net-tools
+
+  rhel:
+    packages:
+      - bind-utils
+      - traceroute
+      - mtr
+      - iputils
+      - nmap-ncat
+      - nmap
+      - tcpdump
+      - iftop
+      - nethogs
+      - curl
+      - wget
+      - telnet
+      - openssh-clients
+      - iproute
+      - net-tools
+    skip:
+      - dnsutils
+      - iputils-ping
+      - netcat
+      - openssh-client
+
