@@ -37,6 +37,10 @@ jobs:
           cp install.sh _site/
           cp recover.sh _site/
           
+          # Copy scripts directory and lib for remote execution
+          cp -r scripts _site/
+          cp -r lib _site/
+          
       - name: Setup Pages
         uses: actions/configure-pages@v5
         
