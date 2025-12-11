@@ -717,12 +717,12 @@
             </p>
             <div class="code-block">
               <button class="copy-btn" onclick="copy(this)">Copy</button>
-              <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s</code>
+              <code>sh -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr)"</code>
             </div>
             <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem;">Or run specific command:</p>
             <div class="code-block">
               <button class="copy-btn" onclick="copy(this)">Copy</button>
-              <code>curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- health -a</code>
+              <code>sh -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr)" -- health -a</code>
             </div>
           </div>
         </div>
