@@ -1,90 +1,377 @@
- # docker.yaml - Docker and container tools
-# Usage: rsr pkg install-profile docker
-#
-# Docker container platform and related tools.
-# Note: On macOS, Docker Desktop is recommended.
+# docker.yaml - Docker and container development tools
+# Usage: rsr pkg install docker
+#        rsr pkg install docker.desktop
+#        rsr pkg install docker.cli
+#        rsr pkg install docker.compose
+#        rsr pkg install docker.alternatives
 
 name: docker
-description: Docker container platform and tools
-version: "1.0.0"
+description: Docker and container development tools
+version: "2.0.0"
 category: containers
 
 packages:
-  - name: docker
-    brew: docker
-    winget: Docker.DockerDesktop
-    choco: docker-desktop
-    apt: docker.io
-    dnf: docker
+  - git
+  - curl
 
-  - name: docker-compose
-    brew: docker-compose
-    winget: Docker.DockerCompose
-    choco: docker-compose
-    apt: docker-compose
-    dnf: docker-compose
+groups:
+  desktop:
+    description: Docker Desktop and alternatives
+    packages:
+      - name: docker-desktop
+        description: Docker Desktop (macOS/Windows/Linux - recommended)
+        brew_cask: docker
+        winget: Docker.DockerDesktop
+        choco: docker-desktop
+        script_macos: brew install --cask docker
+        script_windows: winget install Docker.DockerDesktop
+        script_linux: |
+          # Docker Desktop for Linux (Ubuntu/Debian)
+          # First set up Docker apt repository, then download and install DEB
+          # Download from: https://docs.docker.com/desktop/release-notes/
+          wget https://desktop.docker.com/linux/main/amd64/docker-desktop-amd64.deb
+          sudo apt-get update
+          sudo apt-get install -y ./docker-desktop-amd64.deb
+        apt_deb: docker-desktop-amd64.deb
+        download_url: https://desktop.docker.com/linux/main/amd64/docker-desktop-amd64.deb
 
-optional:
-  # Additional Docker tools
-  - name: docker-buildx
-    brew: docker-buildx
-    apt: docker-buildx
+      - name: docker-desktop-linux
+        description: Docker Desktop for Linux (requires Ubuntu 22.04/24.04 or Debian)
+        script: |
+          # Prerequisites: Set up Docker apt repository first
+          # Install gnome-terminal if not using GNOME
+          sudo apt install -y gnome-terminal
+          # Download and install Docker Desktop
+          wget -O docker-desktop-amd64.deb https://desktop.docker.com/linux/main/amd64/docker-desktop-amd64.deb
+          sudo apt-get update
+          sudo apt-get install -y ./docker-desktop-amd64.deb
+          # Start Docker Desktop
+          systemctl --user start docker-desktop
+        systemd_user_start: systemctl --user start docker-desktop
+        systemd_user_enable: systemctl --user enable docker-desktop
+        systemd_user_stop: systemctl --user stop docker-desktop
 
-  - containerd
+      - name: orbstack
+        description: OrbStack - Fast Docker Desktop alternative for macOS
+        brew_cask: orbstack
+        script_macos: brew install --cask orbstack
 
-  # Alternative container runtimes
-  - name: podman
-    brew: podman
-    winget: RedHat.Podman
-    apt: podman
-    dnf: podman
+      - name: rancher-desktop
+        description: Rancher Desktop - Open-source Docker Desktop alternative
+        brew_cask: rancher
+        winget: suse.RancherDesktop
+        choco: rancher-desktop
 
-  - name: buildah
-    brew: buildah
-    apt: buildah
-    dnf: buildah
+      - name: colima
+        description: Colima - Container runtime for macOS (lightweight)
+        brew: colima
+        script_macos: brew install colima
 
-  - skopeo
+  cli:
+    description: Docker CLI and engine (Linux or via Desktop)
+    packages:
+      - name: docker-ce
+        description: Docker Community Edition (full install via official apt repo)
+        apt: docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        dnf: docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        script: curl -fsSL https://get.docker.com | sh
+        script_test: curl -fsSL https://test.docker.com | sh
+        apt_repo_setup: |
+          # Add Docker official GPG key and repository (Ubuntu/Debian)
+          sudo apt update
+          sudo apt install -y ca-certificates curl
+          sudo install -m 0755 -d /etc/apt/keyrings
+          sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+          sudo chmod a+r /etc/apt/keyrings/docker.asc
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo ${UBUNTU_CODENAME:-$VERSION_CODENAME}) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt update
+          sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-  # Container inspection
-  - name: dive
-    brew: dive
-    winget: wagoodman.dive
-    choco: dive
+      - name: docker-cli
+        description: Docker command-line interface only
+        brew: docker
+        apt: docker-ce-cli
+        dnf: docker-ce-cli
 
-  - name: ctop
-    brew: ctop
-    apt: ctop
+      - name: docker-io
+        description: Docker from distro repositories (may be older)
+        apt: docker.io
+        dnf: docker
 
-  # Docker registry
-  - docker-registry
+      - name: containerd
+        description: Container runtime
+        brew: containerd
+        apt: containerd.io
+        dnf: containerd.io
+
+  compose:
+    description: Docker Compose for multi-container applications
+    packages:
+      - name: docker-compose
+        description: Docker Compose v2 (plugin)
+        brew: docker-compose
+        apt: docker-compose-plugin
+        dnf: docker-compose-plugin
+
+      - name: docker-compose-standalone
+        description: Docker Compose standalone binary
+        winget: Docker.DockerCompose
+        choco: docker-compose
+        script: |
+          COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name | cut -d '"' -f 4)
+          sudo curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+  buildx:
+    description: Docker Buildx for advanced builds
+    packages:
+      - name: docker-buildx
+        description: Docker Buildx plugin (multi-platform builds)
+        brew: docker-buildx
+        apt: docker-buildx-plugin
+        dnf: docker-buildx-plugin
+
+      - name: buildkit
+        description: BuildKit - next-generation build backend
+        brew: buildkit
+        apt: buildkit
+
+  alternatives:
+    description: Alternative container runtimes
+    packages:
+      - name: podman
+        description: Podman - daemonless container engine
+        brew: podman
+        winget: RedHat.Podman
+        choco: podman
+        apt: podman
+        dnf: podman
+
+      - name: podman-desktop
+        description: Podman Desktop - GUI for Podman
+        brew_cask: podman-desktop
+        winget: RedHat.Podman-Desktop
+        choco: podman-desktop
+
+      - name: buildah
+        description: Buildah - build OCI images
+        brew: buildah
+        apt: buildah
+        dnf: buildah
+
+      - name: skopeo
+        description: Skopeo - container image operations
+        brew: skopeo
+        apt: skopeo
+        dnf: skopeo
+
+      - name: nerdctl
+        description: containerd CLI (Docker-compatible)
+        brew: nerdctl
+        script: curl -sSL https://github.com/containerd/nerdctl/releases/latest/download/nerdctl-full-linux-amd64.tar.gz | sudo tar -xz -C /usr/local
+
+  tools:
+    description: Container development and debugging tools
+    packages:
+      - name: dive
+        description: Explore Docker image layers
+        brew: dive
+        winget: wagoodman.dive
+        choco: dive
+        script: |
+          wget https://github.com/wagoodman/dive/releases/latest/download/dive_linux_amd64.deb
+          sudo dpkg -i dive_linux_amd64.deb
+
+      - name: ctop
+        description: Top-like interface for containers
+        brew: ctop
+        apt: ctop
+        script: sudo wget https://github.com/bcicen/ctop/releases/latest/download/ctop-linux-amd64 -O /usr/local/bin/ctop && sudo chmod +x /usr/local/bin/ctop
+
+      - name: lazydocker
+        description: Terminal UI for Docker
+        brew: lazydocker
+        winget: jesseduffield.lazydocker
+        choco: lazydocker
+        script: curl https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash
+
+      - name: dockle
+        description: Container image linter
+        brew: dockle
+        winget: goodwithtech.dockle
+        script: |
+          VERSION=$(curl -s https://api.github.com/repos/goodwithtech/dockle/releases/latest | grep tag_name | cut -d '"' -f 4 | sed 's/v//')
+          curl -L -o dockle.deb https://github.com/goodwithtech/dockle/releases/download/v${VERSION}/dockle_${VERSION}_Linux-64bit.deb
+          sudo dpkg -i dockle.deb
+
+      - name: trivy
+        description: Container vulnerability scanner
+        brew: trivy
+        winget: aquasecurity.trivy
+        apt: trivy
+        script: curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: hadolint
+        description: Dockerfile linter
+        brew: hadolint
+        winget: hadolint.hadolint
+        choco: hadolint
+        apt: hadolint
+        script: wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 && chmod +x /usr/local/bin/hadolint
+
+  registry:
+    description: Container registry tools
+    packages:
+      - name: docker-registry
+        description: Docker Registry v2
+        apt: docker-registry
+        dnf: docker-distribution
+
+      - name: crane
+        description: Tool for interacting with container registries
+        brew: crane
+        script: go install github.com/google/go-containerregistry/cmd/crane@latest
+
+      - name: regctl
+        description: Registry client (regclient)
+        brew: regclient
+        script: curl -L https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64 > regctl && chmod +x regctl && sudo mv regctl /usr/local/bin/
+
+  development:
+    description: Container development workflow tools
+    packages:
+      - name: docker-slim
+        description: Minify and secure Docker images
+        brew: docker-slim
+        script: curl -sL https://raw.githubusercontent.com/docker-slim/docker-slim/master/scripts/install-dockerslim.sh | sudo -E bash -
+
+      - name: act
+        description: Run GitHub Actions locally using Docker
+        brew: act
+        winget: nektos.act
+        choco: act
+        script: curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+
+      - name: testcontainers
+        description: Testcontainers for integration testing
+        optional: true
+
+      - name: docker-credential-helpers
+        description: Docker credential helpers
+        brew: docker-credential-helper
+        apt: golang-docker-credential-helpers
 
 platforms:
   darwin:
-    note: "Install Docker Desktop from https://docker.com/products/docker-desktop"
-    homebrew_casks:
-      - docker
-    skip:
-      - docker
-      - docker-compose
+    note: "Docker Desktop or OrbStack recommended for macOS; Colima is a lightweight alternative"
+    docker_desktop: brew install --cask docker
 
-  linux:
+  windows:
+    note: "Docker Desktop recommended; requires WSL2 or Hyper-V"
+    docker_desktop: winget install Docker.DockerDesktop
+
+  ubuntu:
+    note: "Docker Desktop available for Ubuntu 22.04, 24.04. Docker Engine via official apt repo."
+    supported_versions: ["22.04", "24.04", "24.10", "25.04"]
+    docker_engine:
+      repo_setup: |
+        sudo apt-get update
+        sudo apt-get install -y ca-certificates curl
+        sudo install -m 0755 -d /etc/apt/keyrings
+        sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+        sudo chmod a+r /etc/apt/keyrings/docker.asc
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo ${UBUNTU_CODENAME:-$VERSION_CODENAME}) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt-get update
+      install: sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      convenience_script: curl -fsSL https://get.docker.com | sh
+    docker_desktop:
+      prereq: sudo apt install -y gnome-terminal
+      download: https://desktop.docker.com/linux/main/amd64/docker-desktop-amd64.deb
+      install: sudo apt-get install -y ./docker-desktop-amd64.deb
+      start: systemctl --user start docker-desktop
+      enable: systemctl --user enable docker-desktop
     post_install:
       - "sudo systemctl enable docker"
       - "sudo systemctl start docker"
       - "sudo usermod -aG docker $USER"
-    note: "Log out and back in for group changes to take effect"
 
   debian:
-    packages:
-      - docker.io
-      - docker-compose
+    note: "Docker Desktop available for Debian. Docker Engine via official apt repo."
+    supported_versions: ["bullseye", "bookworm", "trixie"]
+    docker_engine:
+      repo_setup: |
+        sudo apt-get update
+        sudo apt-get install -y ca-certificates curl
+        sudo install -m 0755 -d /etc/apt/keyrings
+        sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+        sudo chmod a+r /etc/apt/keyrings/docker.asc
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt-get update
+      install: sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      convenience_script: curl -fsSL https://get.docker.com | sh
+    docker_desktop:
+      prereq: sudo apt install -y gnome-terminal
+      download: https://desktop.docker.com/linux/main/amd64/docker-desktop-amd64.deb
+      install: sudo apt-get install -y ./docker-desktop-amd64.deb
+      start: systemctl --user start docker-desktop
+    post_install:
+      - "sudo systemctl enable docker"
+      - "sudo systemctl start docker"
+      - "sudo usermod -aG docker $USER"
+
+  fedora:
+    note: "Docker Desktop available for Fedora. Docker Engine via official dnf repo."
+    supported_versions: ["39", "40", "41"]
+    docker_engine:
+      repo_setup: |
+        sudo dnf -y install dnf-plugins-core
+        sudo dnf-3 config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+      install: sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      convenience_script: curl -fsSL https://get.docker.com | sh
+    docker_desktop:
+      download: https://desktop.docker.com/linux/main/amd64/docker-desktop-x86_64.rpm
+      install: sudo dnf install -y ./docker-desktop-x86_64.rpm
+      start: systemctl --user start docker-desktop
+    post_install:
+      - "sudo systemctl enable docker"
+      - "sudo systemctl start docker"
+      - "sudo usermod -aG docker $USER"
 
   rhel:
-    note: "Add Docker repo first: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
-    packages:
-      - docker-ce
-      - docker-ce-cli
-      - containerd.io
-      - docker-compose-plugin
+    note: "Docker Engine available via official repo. Docker Desktop requires subscription for RHEL."
+    supported_versions: ["8", "9"]
+    docker_engine:
+      repo_setup: |
+        sudo dnf -y install dnf-plugins-core
+        sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+      install: sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      convenience_script: curl -fsSL https://get.docker.com | sh
+    alternative: "Consider Podman which is included in RHEL by default"
+    podman: sudo dnf install -y podman podman-docker
+    post_install:
+      - "sudo systemctl enable docker"
+      - "sudo systemctl start docker"
+      - "sudo usermod -aG docker $USER"
+
+  arch:
+    note: "Docker available from official repos. Docker Desktop not officially supported."
+    docker_engine:
+      install: sudo pacman -S docker docker-compose docker-buildx
+    docker_desktop:
+      aur: docker-desktop
+      note: "Available via AUR but not officially supported by Docker"
+    alternative: "Podman is well-supported on Arch"
+    podman: sudo pacman -S podman podman-compose buildah
+    post_install:
+      - "sudo systemctl enable docker"
+      - "sudo systemctl start docker"
+      - "sudo usermod -aG docker $USER"
+
+# Post-installation steps (all Linux)
+post_install_linux:
+  enable_service: sudo systemctl enable docker
+  start_service: sudo systemctl start docker
+  add_user_to_group: sudo usermod -aG docker $USER
+  apply_group: newgrp docker
+  verify: docker run hello-world
 

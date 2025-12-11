@@ -1,60 +1,712 @@
-# database.yaml - Database servers and clients
+# database.yaml - Database servers, clients, and developer tools
 # Usage: rsr pkg install-profile database
-#
-# Database client tools (safe to install).
-# Optional section includes servers (install only if needed).
+#        rsr pkg install database.clients
+#        rsr pkg install database.servers
+#        rsr pkg install database.gui-tools
+#        rsr pkg install database.dev-tools
 
 name: database
-description: Database clients and server tools
-version: "1.0.0"
+description: Database clients, servers, GUI tools, and developer utilities
+version: "2.0.0"
 category: data
 
 packages:
-  # Database Clients (safe to install)
-  - mysql-client
-  - postgresql-client
-  - redis-tools
-  - sqlite3
+  - curl
+  - wget
 
-optional:
-  # Database Servers (install only if needed)
-  - mysql-server
-  - postgresql
-  - redis-server
-  - mongodb
-  - mariadb-server
+groups:
+  # ============================================================================
+  # SQL DATABASE CLIENTS
+  # ============================================================================
+  clients:
+    description: Database command-line client tools
+    packages:
+      - name: mysql-client
+        description: MySQL/MariaDB command-line client
+        brew: mysql-client
+        winget: Oracle.MySQL
+        choco: mysql-cli
+        apt: default-mysql-client
+        dnf: mysql
+        pacman: mariadb-clients
 
-  # GUI tools
-  - pgadmin4
+      - name: postgresql-client
+        description: PostgreSQL client tools (psql, pg_dump, etc.)
+        brew: libpq
+        winget: PostgreSQL.PostgreSQL
+        choco: postgresql
+        apt: postgresql-client
+        dnf: postgresql
+        pacman: postgresql
 
-  # Backup tools
-  - percona-xtrabackup
-  - pg-dump
+      - name: sqlite3
+        description: SQLite database command-line interface
+        brew: sqlite
+        winget: SQLite.SQLite
+        choco: sqlite
+        scoop: sqlite
+        apt: sqlite3
+        dnf: sqlite
+        pacman: sqlite
+        apk: sqlite
+
+      - name: sqlcmd
+        description: Microsoft SQL Server command-line tool
+        brew: sqlcmd
+        winget: Microsoft.Sqlcmd
+        choco: sqlserver-cmdlineutils
+        apt: mssql-tools
+        dnf: mssql-tools
+
+      - name: oracle-instantclient
+        description: Oracle Instant Client with SQL*Plus
+        brew: instantclient-sqlplus
+        choco: oracle-instantclient
+        apt: oracle-instantclient-sqlplus
+
+  # ============================================================================
+  # NOSQL DATABASE CLIENTS
+  # ============================================================================
+  nosql-clients:
+    description: NoSQL database command-line clients
+    packages:
+      - name: redis-cli
+        description: Redis command-line interface
+        brew: redis
+        winget: Redis.Redis
+        choco: redis-64
+        apt: redis-tools
+        dnf: redis
+        pacman: redis
+
+      - name: mongosh
+        description: MongoDB Shell (modern CLI)
+        brew: mongosh
+        winget: MongoDB.Shell
+        choco: mongodb-shell
+        apt: mongodb-mongosh
+        dnf: mongodb-mongosh
+        npm: mongosh
+
+      - name: cqlsh
+        description: Cassandra Query Language Shell
+        pip: cqlsh
+        apt: cassandra
+
+      - name: influx-cli
+        description: InfluxDB CLI client
+        brew: influxdb-cli
+        winget: InfluxData.influx
+        choco: influxdb2-cli
+        apt: influxdb2-cli
+        script: curl -sL https://repos.influxdata.com/influxdb2-cli/influx_latest_linux_amd64.tar.gz | tar xz && sudo mv influx /usr/local/bin/
+
+      - name: etcdctl
+        description: etcd CLI client
+        brew: etcd
+        apt: etcd-client
+        dnf: etcd
+        pacman: etcd
+
+  # ============================================================================
+  # SQL DATABASE SERVERS
+  # ============================================================================
+  servers:
+    description: SQL database server implementations
+    packages:
+      - name: postgresql
+        description: PostgreSQL advanced relational database
+        brew: postgresql@16
+        winget: PostgreSQL.PostgreSQL
+        choco: postgresql
+        apt: postgresql
+        dnf: postgresql-server
+        pacman: postgresql
+
+      - name: mysql-server
+        description: MySQL database server
+        brew: mysql
+        winget: Oracle.MySQL
+        choco: mysql
+        apt: mysql-server
+        dnf: mysql-server
+        pacman: mysql
+
+      - name: mariadb-server
+        description: MariaDB relational database (MySQL fork)
+        brew: mariadb
+        winget: MariaDB.Server
+        choco: mariadb
+        apt: mariadb-server
+        dnf: mariadb-server
+        pacman: mariadb
+
+      - name: sqlite
+        description: SQLite embedded database library
+        brew: sqlite
+        winget: SQLite.SQLite
+        choco: sqlite
+        apt: sqlite3
+        dnf: sqlite
+        pacman: sqlite
+
+      - name: cockroachdb
+        description: CockroachDB distributed SQL database
+        brew: cockroach
+        winget: Cockroach.CockroachDB
+        script: curl https://binaries.cockroachdb.com/cockroach-latest.linux-amd64.tgz | tar xz && sudo cp cockroach-*/cockroach /usr/local/bin/
+
+      - name: tidb
+        description: TiDB distributed SQL database
+        brew: tidb
+        script: curl --proto '=https' --tlsv1.2 -sSf https://tiup-mirrors.pingcap.com/install.sh | sh
+
+  # ============================================================================
+  # NOSQL DATABASE SERVERS
+  # ============================================================================
+  nosql-servers:
+    description: NoSQL database server implementations
+    packages:
+      - name: redis-server
+        description: Redis in-memory data store
+        brew: redis
+        winget: Redis.Redis
+        choco: redis-64
+        apt: redis-server
+        dnf: redis
+        pacman: redis
+        snap: redis
+
+      - name: mongodb
+        description: MongoDB document database
+        brew: mongodb-community
+        winget: MongoDB.Server
+        choco: mongodb
+        apt: mongodb-org
+        dnf: mongodb-org
+
+      - name: cassandra
+        description: Apache Cassandra wide-column store
+        brew: cassandra
+        apt: cassandra
+        dnf: cassandra
+
+      - name: influxdb
+        description: InfluxDB time-series database
+        brew: influxdb
+        winget: InfluxData.InfluxDB
+        choco: influxdb2
+        apt: influxdb2
+        dnf: influxdb2
+
+      - name: neo4j
+        description: Neo4j graph database
+        brew: neo4j
+        winget: Neo4j.Neo4jDesktop
+        choco: neo4j-community
+        apt: neo4j
+
+      - name: elasticsearch
+        description: Elasticsearch search and analytics engine
+        brew: elasticsearch
+        winget: Elastic.Elasticsearch
+        choco: elasticsearch
+        apt: elasticsearch
+        dnf: elasticsearch
+
+      - name: memcached
+        description: Memcached distributed memory caching
+        brew: memcached
+        choco: memcached
+        apt: memcached
+        dnf: memcached
+        pacman: memcached
+
+      - name: rethinkdb
+        description: RethinkDB realtime document database
+        brew: rethinkdb
+        apt: rethinkdb
+
+      - name: couchdb
+        description: Apache CouchDB document database
+        brew: couchdb
+        apt: couchdb
+        dnf: couchdb
+        snap: couchdb
+
+      - name: arangodb
+        description: ArangoDB multi-model database
+        brew: arangodb
+        choco: arangodb
+        apt: arangodb3
+
+  # ============================================================================
+  # GUI DATABASE MANAGEMENT TOOLS
+  # ============================================================================
+  gui-tools:
+    description: Graphical database management and administration tools
+    packages:
+      # Universal/Multi-database
+      - name: dbeaver
+        description: Universal database tool (supports 80+ databases)
+        brew: dbeaver-community
+        winget: dbeaver.dbeaver
+        choco: dbeaver
+        flatpak: io.dbeaver.DBeaverCommunity
+        snap: dbeaver-ce
+
+      - name: dbeaver-ee
+        description: DBeaver Enterprise Edition (commercial)
+        brew: dbeaver-enterprise
+        winget: dbeaver.dbeaver.enterprise
+        choco: dbeaver-ee
+
+      - name: datagrip
+        description: JetBrains DataGrip IDE for databases
+        brew: datagrip
+        winget: JetBrains.DataGrip
+        choco: datagrip
+        flatpak: com.jetbrains.DataGrip
+        snap: datagrip
+
+      - name: azure-data-studio
+        description: Microsoft Azure Data Studio (SQL Server, PostgreSQL)
+        brew: azure-data-studio
+        winget: Microsoft.AzureDataStudio
+        choco: azure-data-studio
+
+      - name: beekeeper-studio
+        description: Modern SQL editor and database manager
+        brew: beekeeper-studio
+        winget: beekeeper-studio.beekeeper-studio
+        choco: beekeeper-studio
+        flatpak: io.beekeeperstudio.Studio
+        snap: beekeeper-studio
+        apt: beekeeper-studio
+
+      - name: tableplus
+        description: Modern native database management tool
+        brew: tableplus
+        winget: TablePlus.TablePlus
+        choco: tableplus
+
+      - name: dbgate
+        description: Cross-platform database manager (open source)
+        brew: dbgate
+        winget: JanProchazka.dbgate
+        choco: dbgate
+        flatpak: org.dbgate.DbGate
+        snap: dbgate
+        npm: dbgate
+
+      - name: heidisql
+        description: HeidiSQL for MySQL, MariaDB, SQL Server, PostgreSQL
+        winget: HeidiSQL.HeidiSQL
+        choco: heidisql
+
+      - name: sqlitebrowser
+        description: DB Browser for SQLite
+        brew: db-browser-for-sqlite
+        winget: DBBrowserForSQLite.DBBrowserForSQLite
+        choco: sqlitebrowser
+        apt: sqlitebrowser
+        dnf: sqlitebrowser
+        flatpak: org.sqlitebrowser.sqlitebrowser
+        pacman: sqlitebrowser
+
+      - name: sqlitestudio
+        description: SQLiteStudio database manager
+        brew: sqlitestudio
+        winget: sqlitestudio.sqlitestudio
+        choco: sqlitestudio
+
+      - name: adminer
+        description: Adminer web-based database management (single PHP file)
+        brew: adminer
+        apt: adminer
+        script: curl -L https://www.adminer.org/latest.php -o adminer.php
+
+      # PostgreSQL-specific
+      - name: pgadmin4
+        description: PostgreSQL administration and management GUI
+        brew: pgadmin4
+        winget: pgAdmin.pgAdmin4
+        choco: pgadmin4
+        apt: pgadmin4
+        dnf: pgadmin4
+        flatpak: org.pgadmin.pgadmin4
+        pip: pgadmin4
+
+      - name: postico
+        description: Postico - Modern PostgreSQL client for macOS
+        brew: postico
+
+      # MySQL/MariaDB-specific
+      - name: mysql-workbench
+        description: MySQL Workbench visual database design tool
+        brew: mysqlworkbench
+        winget: Oracle.MySQLWorkbench
+        choco: mysql.workbench
+        apt: mysql-workbench
+        dnf: mysql-workbench-community
+        flatpak: org.mysql.Workbench
+        snap: mysql-workbench-community
+
+      - name: sequel-pro
+        description: Sequel Pro MySQL management for macOS
+        brew: sequel-pro
+
+      - name: sequel-ace
+        description: Sequel Ace - MySQL/MariaDB database management (macOS)
+        brew: sequel-ace
+        mas: "1518036000"
+
+      # MongoDB-specific
+      - name: mongodb-compass
+        description: MongoDB Compass GUI for exploring and manipulating data
+        brew: mongodb-compass
+        winget: MongoDB.Compass.Full
+        choco: mongodb-compass
+        apt: mongodb-compass
+        dnf: mongodb-compass
+
+      - name: robo3t
+        description: Robo 3T (formerly Robomongo) - MongoDB GUI
+        brew: robo-3t
+        winget: 3TSoftwareLabs.Robo3T
+        choco: robo3t
+
+      # Redis-specific
+      - name: redisinsight
+        description: RedisInsight - Redis GUI by Redis Labs
+        brew: redisinsight
+        winget: Redis.RedisInsight
+        choco: redisinsight
+        flatpak: com.redis.RedisInsight
+        snap: redisinsight
+
+      - name: another-redis-desktop-manager
+        description: Another Redis Desktop Manager (ARDM)
+        brew: another-redis-desktop-manager
+        winget: AnotherRedisDesktopManager.AnotherRedisDesktopManager
+        choco: another-redis-desktop-manager
+        flatpak: io.github.AnotherRedisDesktopManager
+        snap: another-redis-desktop-manager
+
+      - name: resp-app
+        description: RESP.app (Redis GUI, formerly Redis Desktop Manager)
+        brew: resp-app
+        winget: resp.app
+        choco: redis-desktop-manager
+        snap: redis-desktop-manager
+
+  # ============================================================================
+  # DATABASE DEVELOPER TOOLS
+  # ============================================================================
+  dev-tools:
+    description: Database development and productivity tools
+    packages:
+      # Query and SQL tools
+      - name: usql
+        description: Universal SQL CLI supporting multiple databases
+        brew: usql
+        go: github.com/xo/usql@latest
+        script: go install github.com/xo/usql@latest
+
+      - name: mycli
+        description: MySQL CLI with auto-completion and syntax highlighting
+        brew: mycli
+        apt: mycli
+        dnf: mycli
+        pip: mycli
+        pacman: mycli
+
+      - name: pgcli
+        description: PostgreSQL CLI with auto-completion and syntax highlighting
+        brew: pgcli
+        apt: pgcli
+        dnf: pgcli
+        pip: pgcli
+        pacman: pgcli
+
+      - name: litecli
+        description: SQLite CLI with auto-completion and syntax highlighting
+        brew: litecli
+        pip: litecli
+        apt: litecli
+        pacman: litecli
+
+      - name: iredis
+        description: Redis CLI with auto-completion and syntax highlighting
+        brew: iredis
+        pip: iredis
+
+      - name: sqlfluff
+        description: SQL linter and auto-formatter
+        brew: sqlfluff
+        pip: sqlfluff
+
+      - name: sqlparse
+        description: SQL parser and formatter library
+        pip: sqlparse
+        apt: python3-sqlparse
+
+      - name: sqlfmt
+        description: SQL formatter (opinionated)
+        pip: shandy-sqlfmt
+        brew: sqlfmt
+
+      # Schema and migration tools
+      - name: flyway
+        description: Flyway database migration tool
+        brew: flyway
+        winget: Redgate.Flyway.CLI
+        choco: flyway.commandline
+        script: curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/latest/flyway-commandline-latest.tar.gz | tar xz
+
+      - name: liquibase
+        description: Liquibase database schema change management
+        brew: liquibase
+        winget: Liquibase.Liquibase
+        choco: liquibase
+        apt: liquibase
+        snap: liquibase
+
+      - name: dbmate
+        description: Lightweight database migration tool
+        brew: dbmate
+        go: github.com/amacneil/dbmate@latest
+        script: curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 && chmod +x /usr/local/bin/dbmate
+
+      - name: goose
+        description: Database migration tool written in Go
+        brew: goose
+        go: github.com/pressly/goose/v3/cmd/goose@latest
+
+      - name: sqitch
+        description: Sqitch database change management
+        brew: sqitch
+        apt: sqitch
+        cpan: App::Sqitch
+
+      - name: atlas
+        description: Atlas - modern database schema management
+        brew: ariga/tap/atlas
+        script: curl -sSf https://atlasgo.sh | sh
+
+      - name: schemacrawler
+        description: Database schema discovery and comprehension tool
+        brew: schemacrawler
+        choco: schemacrawler
+        script: curl -L https://github.com/schemacrawler/SchemaCrawler/releases/latest/download/schemacrawler.tar.gz | tar xz
+
+      # Data generation and testing
+      - name: faker
+        description: Faker - generate fake data for testing
+        pip: faker
+        npm: @faker-js/faker
+
+      - name: synth
+        description: Synth - declarative test data generation
+        brew: getsynth/synth/synth
+        cargo: synth
+        script: curl --proto '=https' --tlsv1.2 -sSL https://getsynth.com/install | sh
+
+      - name: pgloader
+        description: PostgreSQL data loader with transformation
+        brew: pgloader
+        apt: pgloader
+        dnf: pgloader
+
+      # Performance and profiling
+      - name: pghero
+        description: PostgreSQL performance dashboard
+        brew: pghero
+        gem: pghero
+
+      - name: pgbadger
+        description: PostgreSQL log analyzer
+        brew: pgbadger
+        apt: pgbadger
+        dnf: pgbadger
+        cpan: App::PgBadger
+
+      - name: mysqltuner
+        description: MySQL performance tuning script
+        brew: mysqltuner
+        apt: mysqltuner
+        script: curl -L https://raw.githubusercontent.com/major/MySQLTuner-perl/master/mysqltuner.pl -o mysqltuner.pl && chmod +x mysqltuner.pl
+
+      - name: pt-query-digest
+        description: Percona Toolkit query analyzer
+        brew: percona-toolkit
+        apt: percona-toolkit
+        dnf: percona-toolkit
+
+      # ORM and query builders
+      - name: prisma
+        description: Prisma ORM and database toolkit
+        npm: prisma
+        brew: prisma
+
+      - name: drizzle-kit
+        description: Drizzle ORM migration toolkit
+        npm: drizzle-kit
+
+      - name: sqlx-cli
+        description: SQLx CLI for compile-time SQL checking (Rust)
+        cargo: sqlx-cli
+        brew: sqlx-cli
+
+      - name: diesel-cli
+        description: Diesel ORM CLI for Rust
+        cargo: diesel_cli
+        brew: diesel
+
+  # ============================================================================
+  # DATABASE BACKUP AND RECOVERY
+  # ============================================================================
+  backup:
+    description: Database backup and recovery tools
+    packages:
+      - name: percona-xtrabackup
+        description: Hot backup tool for MySQL/MariaDB
+        apt: percona-xtrabackup-80
+        dnf: percona-xtrabackup
+
+      - name: mariadb-backup
+        description: MariaDB backup tool
+        brew: mariadb
+        apt: mariadb-backup
+        dnf: mariadb-backup
+
+      - name: pgbackrest
+        description: PostgreSQL reliable backup and restore
+        brew: pgbackrest
+        apt: pgbackrest
+        dnf: pgbackrest
+
+      - name: barman
+        description: Barman - backup and recovery manager for PostgreSQL
+        brew: barman
+        apt: barman
+        pip: barman
+
+      - name: wal-g
+        description: Archival and restoration tool for PostgreSQL, MySQL, etc.
+        brew: wal-g
+        apt: wal-g
+        script: curl -L https://github.com/wal-g/wal-g/releases/latest/download/wal-g-pg-ubuntu-20.04-amd64.tar.gz | tar xz && sudo mv wal-g-pg-ubuntu-20.04-amd64 /usr/local/bin/wal-g
+
+      - name: pg-dump
+        description: PostgreSQL backup utility (included with client)
+        brew: libpq
+        apt: postgresql-client
+        dnf: postgresql
+
+      - name: mydumper
+        description: High-performance MySQL backup tool
+        brew: mydumper
+        apt: mydumper
+        dnf: mydumper
+
+      - name: mongodb-database-tools
+        description: MongoDB backup tools (mongodump, mongorestore)
+        brew: mongodb-database-tools
+        winget: MongoDB.DatabaseTools
+        choco: mongodb-database-tools
+        apt: mongodb-database-tools
+
+  # ============================================================================
+  # DATABASE MONITORING AND OBSERVABILITY
+  # ============================================================================
+  monitoring:
+    description: Database monitoring and observability tools
+    packages:
+      - name: prometheus-postgres-exporter
+        description: PostgreSQL metrics exporter for Prometheus
+        brew: postgres_exporter
+        apt: prometheus-postgres-exporter
+        script: curl -L https://github.com/prometheus-community/postgres_exporter/releases/latest/download/postgres_exporter-linux-amd64.tar.gz | tar xz
+
+      - name: prometheus-mysql-exporter
+        description: MySQL metrics exporter for Prometheus
+        brew: mysqld_exporter
+        apt: prometheus-mysqld-exporter
+        script: curl -L https://github.com/prometheus/mysqld_exporter/releases/latest/download/mysqld_exporter-linux-amd64.tar.gz | tar xz
+
+      - name: prometheus-redis-exporter
+        description: Redis metrics exporter for Prometheus
+        brew: redis_exporter
+        apt: prometheus-redis-exporter
+        script: curl -L https://github.com/oliver006/redis_exporter/releases/latest/download/redis_exporter-linux-amd64.tar.gz | tar xz
+
+      - name: prometheus-mongodb-exporter
+        description: MongoDB metrics exporter for Prometheus
+        script: curl -L https://github.com/percona/mongodb_exporter/releases/latest/download/mongodb_exporter-linux-amd64.tar.gz | tar xz
+
+      - name: pgwatch2
+        description: PostgreSQL metrics dashboard
+        brew: pgwatch2
+        script: curl -L https://github.com/cybertec-postgresql/pgwatch2/releases/latest/download/pgwatch2_linux_amd64.tar.gz | tar xz
+
+      - name: percona-monitoring-plugins
+        description: Percona MySQL monitoring plugins
+        apt: percona-monitoring-plugins
+        dnf: percona-monitoring-plugins
+
+  # ============================================================================
+  # DATABASE REPLICATION AND CLUSTERING
+  # ============================================================================
+  replication:
+    description: Database replication and high-availability tools
+    packages:
+      - name: repmgr
+        description: Replication Manager for PostgreSQL
+        brew: repmgr
+        apt: repmgr
+        dnf: repmgr
+
+      - name: patroni
+        description: PostgreSQL HA cluster management
+        pip: patroni
+        apt: patroni
+
+      - name: pgpool2
+        description: PostgreSQL connection pooling and load balancing
+        brew: pgpool-ii
+        apt: pgpool2
+        dnf: pgpool-II
+
+      - name: pgbouncer
+        description: Lightweight PostgreSQL connection pooler
+        brew: pgbouncer
+        apt: pgbouncer
+        dnf: pgbouncer
+        pacman: pgbouncer
+
+      - name: proxysql
+        description: High-performance MySQL proxy
+        brew: proxysql
+        apt: proxysql2
+        dnf: proxysql2
+
+      - name: orchestrator
+        description: MySQL replication topology manager
+        script: curl -L https://github.com/openark/orchestrator/releases/latest/download/orchestrator-linux-amd64.tar.gz | tar xz
+
+      - name: vitess
+        description: Vitess - MySQL clustering and horizontal scaling
+        brew: vitess
+        script: curl -sL https://get.vitess.io/install | sh
 
 platforms:
   darwin:
-    packages:
-      - mysql-client
-      - libpq
-      - redis
-      - sqlite
-    skip:
-      - mysql-client
-      - postgresql-client
-      - redis-tools
     note: "Use 'brew services' to manage database servers"
 
-  debian:
-    packages:
-      - default-mysql-client
-      - postgresql-client
-      - redis-tools
-      - sqlite3
+  linux:
+    note: "Use 'systemctl' to manage database services"
 
-  rhel:
-    packages:
-      - mysql
-      - postgresql
-      - redis
-      - sqlite
+  windows:
+    note: "Most database servers available via installers; use Docker for others"
 

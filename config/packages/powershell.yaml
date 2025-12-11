@@ -1,0 +1,252 @@
+# powershell.yaml - PowerShell development environment
+# Usage: rsr pkg install powershell
+#        rsr pkg install powershell.core
+#        rsr pkg install powershell.modules
+#        rsr pkg install powershell.dev-tools
+
+name: powershell
+description: PowerShell development environment and tools
+version: "2.0.0"
+category: languages
+
+packages:
+  - git
+  - curl
+
+groups:
+  core:
+    description: PowerShell runtime versions
+    packages:
+      - name: powershell
+        description: PowerShell 7 (LTS - recommended)
+        brew_cask: powershell
+        winget: Microsoft.PowerShell
+        choco: powershell-core
+        apt: powershell
+        dnf: powershell
+        script: |
+          # Ubuntu/Debian
+          wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
+          sudo dpkg -i packages-microsoft-prod.deb
+          sudo apt-get update && sudo apt-get install -y powershell
+        script_macos: brew install --cask powershell
+        script_windows: winget install Microsoft.PowerShell
+
+      - name: powershell-preview
+        description: PowerShell 7 Preview (latest features)
+        brew_cask: powershell-preview
+        winget: Microsoft.PowerShell.Preview
+        choco: powershell-core --pre
+
+      - name: powershell-lts
+        description: PowerShell 7 LTS (long-term support)
+        winget: Microsoft.PowerShell.LTS
+        choco: powershell-core --version=7.4.0
+
+  modules:
+    description: Essential PowerShell modules
+    packages:
+      - name: posh-git
+        description: Git integration for PowerShell prompt
+        pwsh_module: posh-git
+
+      - name: oh-my-posh
+        description: Prompt theme engine for PowerShell
+        brew: oh-my-posh
+        winget: JanDeDobbeleer.OhMyPosh
+        choco: oh-my-posh
+        scoop: oh-my-posh
+        pwsh_module: oh-my-posh
+
+      - name: terminal-icons
+        description: File and folder icons in terminal
+        pwsh_module: Terminal-Icons
+
+      - name: psreadline
+        description: Command line editing experience
+        pwsh_module: PSReadLine
+
+      - name: z
+        description: Directory jumper (z command)
+        pwsh_module: z
+
+      - name: psfzf
+        description: PSFzf - fuzzy finder integration
+        pwsh_module: PSFzf
+
+      - name: powershell-yaml
+        description: YAML parsing module
+        pwsh_module: powershell-yaml
+
+      - name: importexcel
+        description: Excel import/export without Excel
+        pwsh_module: ImportExcel
+
+      - name: platyps
+        description: Write PowerShell help in Markdown
+        pwsh_module: platyPS
+
+  dev-tools:
+    description: PowerShell development tools
+    packages:
+      - name: psscriptanalyzer
+        description: Static code analysis for PowerShell
+        pwsh_module: PSScriptAnalyzer
+
+      - name: pester
+        description: PowerShell testing framework
+        pwsh_module: Pester
+
+      - name: plaster
+        description: Template-based scaffolding
+        pwsh_module: Plaster
+
+      - name: invokebuild
+        description: Build automation in PowerShell
+        pwsh_module: InvokeBuild
+
+      - name: psake
+        description: Build automation tool
+        pwsh_module: psake
+
+      - name: buildhelpers
+        description: Build system helpers
+        pwsh_module: BuildHelpers
+
+      - name: modulebuilder
+        description: Module building tool
+        pwsh_module: ModuleBuilder
+
+      - name: powershellget
+        description: Package manager for PowerShell modules
+        pwsh_module: PowerShellGet
+
+      - name: psresourceget
+        description: Next-gen PowerShell resource manager
+        pwsh_module: Microsoft.PowerShell.PSResourceGet
+
+  cloud-tools:
+    description: Cloud management modules
+    packages:
+      - name: az
+        description: Azure PowerShell module
+        pwsh_module: Az
+        brew: azure-cli
+        winget: Microsoft.AzureCLI
+
+      - name: aws-tools
+        description: AWS Tools for PowerShell
+        pwsh_module: AWS.Tools.Installer
+
+      - name: vmware-powercli
+        description: VMware vSphere PowerCLI
+        pwsh_module: VMware.PowerCLI
+
+      - name: microsoftgraph
+        description: Microsoft Graph PowerShell SDK
+        pwsh_module: Microsoft.Graph
+
+      - name: exchangeonline
+        description: Exchange Online Management
+        pwsh_module: ExchangeOnlineManagement
+
+      - name: msonline
+        description: Microsoft Online (Azure AD v1)
+        pwsh_module: MSOnline
+
+      - name: azuread
+        description: Azure Active Directory module
+        pwsh_module: AzureAD
+
+  devops-tools:
+    description: DevOps and automation modules
+    packages:
+      - name: psdocker
+        description: Docker integration
+        pwsh_module: Docker
+
+      - name: kubernetes
+        description: Kubernetes cmdlets
+        pwsh_module: Kubernetes
+
+      - name: psslack
+        description: Slack integration
+        pwsh_module: PSSlack
+
+      - name: psteams
+        description: Microsoft Teams integration
+        pwsh_module: PSTeams
+
+      - name: jenkins
+        description: Jenkins automation
+        pwsh_module: Jenkins
+
+      - name: posh-ssh
+        description: SSH sessions from PowerShell
+        pwsh_module: Posh-SSH
+
+      - name: secretmanagement
+        description: Secret management abstraction
+        pwsh_module: Microsoft.PowerShell.SecretManagement
+
+      - name: secretstore
+        description: Local secret store
+        pwsh_module: Microsoft.PowerShell.SecretStore
+
+  utility-modules:
+    description: General utility modules
+    packages:
+      - name: pswindowsupdate
+        description: Windows Update management
+        pwsh_module: PSWindowsUpdate
+
+      - name: carbon
+        description: DevOps automation for Windows
+        pwsh_module: Carbon
+
+      - name: dbatools
+        description: SQL Server database administration
+        pwsh_module: dbatools
+
+      - name: sqlserver
+        description: SQL Server PowerShell module
+        pwsh_module: SqlServer
+
+      - name: activedirectory
+        description: Active Directory cmdlets (Windows only)
+        pwsh_module: ActiveDirectory
+
+      - name: threadjob
+        description: Thread-based background jobs
+        pwsh_module: ThreadJob
+
+      - name: pshttp
+        description: HTTP utilities
+        pwsh_module: PSHttp
+
+  editors:
+    description: Editor extensions and LSP
+    packages:
+      - name: powershell-editor-services
+        description: PowerShell language server (for VS Code, etc.)
+        pwsh_module: PowerShellEditorServices
+
+      - name: vscode-powershell
+        description: VS Code PowerShell extension
+        vscode: ms-vscode.powershell
+
+platforms:
+  darwin:
+    note: "Install via Homebrew cask; most modules work cross-platform"
+
+  linux:
+    note: "Requires Microsoft repository setup; see https://docs.microsoft.com/powershell/scripting/install/installing-powershell-on-linux"
+
+  windows:
+    note: "PowerShell 7 runs alongside Windows PowerShell 5.1; both can coexist"
+
+# Module installation commands
+install_hints:
+  module: "Install-Module -Name {name} -Scope CurrentUser -Force"
+  module_prerelease: "Install-Module -Name {name} -Scope CurrentUser -Force -AllowPrerelease"
+  update: "Update-Module -Name {name}"

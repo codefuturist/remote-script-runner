@@ -1,0 +1,163 @@
+# media.yaml - Media processing and content creation tools
+# Usage: rsr pkg install media
+#        rsr pkg install media.video
+#        rsr pkg install media.image
+
+name: media
+description: Media processing and content creation tools
+version: "2.0.0"
+category: media
+
+packages:
+  - curl
+  - wget
+
+groups:
+  video:
+    description: Video processing and management
+    packages:
+      - name: ffmpeg
+        description: Video and audio converter/processor
+        brew: ffmpeg
+        winget: BtbN.FFmpeg
+        choco: ffmpeg
+        apt: ffmpeg
+        dnf: ffmpeg
+
+      - name: yt-dlp
+        description: YouTube and video platform downloader
+        brew: yt-dlp
+        winget: yt-dlp.yt-dlp
+        choco: yt-dlp
+        apt: yt-dlp
+        dnf: yt-dlp
+
+      - name: handbrake-cli
+        description: Video transcoder
+        brew: handbrake
+        winget: HandBrake.HandBrake
+        choco: handbrake
+        apt: handbrake-cli
+
+      - name: mpv
+        description: Video player
+        brew: mpv
+        winget: mpv.net
+        choco: mpv.net
+        apt: mpv
+        dnf: mpv
+
+      - name: mediainfo
+        description: Display technical info about media files
+        brew: mediainfo
+        winget: MediaArea.MediaInfo
+        choco: mediainfo-cli
+        apt: mediainfo
+        dnf: mediainfo
+
+  image:
+    description: Image processing and manipulation
+    packages:
+      - name: imagemagick
+        description: Image manipulation tool
+        brew: imagemagick
+        winget: ImageMagick.ImageMagick
+        choco: imagemagick
+        apt: imagemagick
+        dnf: ImageMagick
+
+      - name: graphicsmagick
+        description: Fast image processing alternative to ImageMagick
+        brew: graphicsmagick
+        winget: GraphicsMagick.GraphicsMagick
+        apt: graphicsmagick
+        dnf: GraphicsMagick
+
+      - name: exiftool
+        description: Read and write EXIF metadata
+        brew: exiftool
+        winget: Phil.ExifTool
+        choco: exiftool
+        apt: libimage-exiftool-perl
+        dnf: perl-Image-ExifTool
+
+      - name: optipng
+        description: PNG optimizer
+        brew: optipng
+        apt: optipng
+        dnf: optipng
+
+      - name: jpegoptim
+        description: JPEG optimizer
+        brew: jpegoptim
+        apt: jpegoptim
+        dnf: jpegoptim
+
+      - name: pngquant
+        description: PNG quantizer and converter
+        brew: pngquant
+        winget: pngquant.pngquant
+        apt: pngquant
+        dnf: pngquant
+
+      - name: webp
+        description: WebP image format converter
+        brew: webp
+        winget: ImageMagick.ImageMagick
+        apt: webp
+        dnf: libwebp-tools
+
+  audio:
+    description: Audio processing and conversion
+    packages:
+      - name: sox
+        description: Sound eXchange - audio processor
+        brew: sox
+        winget: sox.sox
+        apt: sox
+        dnf: sox
+
+      - name: lame
+        description: MP3 encoder
+        brew: lame
+        winget: lameenc.lame
+        apt: lame
+        dnf: lame
+
+      - name: opus-tools
+        description: Opus audio codec tools
+        brew: opus-tools
+        apt: opus-tools
+        dnf: opus-tools
+
+      - name: flac
+        description: FLAC audio codec
+        brew: flac
+        winget: Xiph.FLAC
+        choco: flac
+        apt: flac
+        dnf: flac
+
+      - name: libvorbis
+        description: Ogg Vorbis codec
+        brew: libvorbis
+        apt: vorbis-tools
+        dnf: libvorbis
+
+      - name: audacity
+        description: Audio editor
+        brew: audacity
+        winget: AudacityTeam.Audacity
+        choco: audacity
+        apt: audacity
+        dnf: audacity
+
+platforms:
+  darwin:
+    note: "Most tools available via Homebrew; some via cask"
+
+  linux:
+    note: "All tools available via system package managers"
+
+  windows:
+    note: "Most tools require manual installation or WSL; some have native Windows support"

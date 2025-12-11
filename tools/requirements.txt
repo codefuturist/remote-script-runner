@@ -1,0 +1,12 @@
+# This project uses UV for dependency management
+# Install UV: https://docs.astral.sh/uv/
+#
+# Quick start:
+#   curl -LsSf https://astral.sh/uv/install.sh | sh
+#   uv run tools/verify_packages.py
+#
+# Dependencies are managed in pyproject.toml
+# This file is kept for backwards compatibility only.
+
+requests>=2.31.0
+PyYAML>=6.0

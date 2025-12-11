@@ -1,60 +1,116 @@
 # webserver.yaml - Web server packages
 # Usage: rsr pkg install-profile webserver
-#
-# Web server and related tools.
-# Includes nginx, SSL utilities, and common web tools.
+#        rsr pkg install webserver.servers
+#        rsr pkg install webserver.ssl-certs
 
 name: webserver
 description: Web server with SSL and common utilities
-version: "1.0.0"
+version: "2.0.0"
 category: infrastructure
 
 packages:
-  # Web Server
-  - nginx
-
-  # SSL/TLS
-  - certbot
-  - openssl
-
-  # Utilities
   - curl
   - wget
-  - logrotate
 
-optional:
-  # Alternative web servers
-  - httpd
-  - caddy
+groups:
+  servers:
+    description: Web server implementations
+    packages:
+      - name: nginx
+        description: High-performance web server
+        brew: nginx
+        apt: nginx
+        dnf: nginx
 
-  # PHP support
-  - php-fpm
+      - name: caddy
+        description: Modern web server with automatic HTTPS
+        brew: caddy
+        winget: Caddy.Caddy
+        choco: caddy
+        apt: caddy
+        dnf: caddy
 
-  # Caching
-  - varnish
-  - memcached
+      - name: httpd
+        description: Apache HTTP Server
+        brew: httpd
+        apt: apache2
+        dnf: httpd
 
-  # Let's Encrypt plugins
-  - python3-certbot-nginx
-  - python3-certbot-apache
+  ssl-certs:
+    description: SSL/TLS certificate management
+    packages:
+      - name: certbot
+        description: Let's Encrypt client
+        brew: certbot
+        apt: certbot
+        dnf: certbot
+
+      - name: openssl
+        description: SSL/TLS toolkit
+        brew: openssl
+        apt: openssl
+        dnf: openssl
+
+      - name: acme.sh
+        description: ACME client for Let's Encrypt
+        brew: acme.sh
+        script: curl https://get.acme.sh | sh -s email=my-email@example.com
+
+  caching:
+    description: Web caching and acceleration
+    packages:
+      - name: varnish
+        description: Web application accelerator
+        brew: varnish
+        apt: varnish
+        dnf: varnish
+
+      - name: memcached
+        description: In-memory data structure store
+        brew: memcached
+        apt: memcached
+        dnf: memcached
+
+  php:
+    description: PHP support
+    packages:
+      - name: php-fpm
+        description: PHP FastCGI Process Manager
+        brew: php
+        apt: php-fpm
+        dnf: php-fpm
+
+      - name: php
+        description: PHP programming language
+        brew: php
+        apt: php
+        dnf: php
+
+  plugins:
+    description: Certbot plugins
+    packages:
+      - name: python3-certbot-nginx
+        description: Nginx plugin for Certbot
+        apt: python3-certbot-nginx
+        dnf: python3-certbot-nginx
+
+      - name: python3-certbot-apache
+        description: Apache plugin for Certbot
+        apt: python3-certbot-apache
+        dnf: python3-certbot-apache
+
+      - name: logrotate
+        description: Rotate log files
+        apt: logrotate
+        dnf: logrotate
 
 platforms:
   darwin:
-    packages:
-      - nginx
-      - openssl
-    homebrew_casks: []
     note: "Use 'brew services start nginx' to run"
 
   debian:
-    packages:
-      - nginx
-      - certbot
-      - python3-certbot-nginx
+    note: "Use 'systemctl start nginx' to run"
 
   rhel:
-    packages:
-      - nginx
-      - certbot
-      - python3-certbot-nginx
+    note: "Use 'systemctl start nginx' to run"
 

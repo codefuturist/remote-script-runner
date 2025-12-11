@@ -1,0 +1,121 @@
+name: Package Verification
+
+on:
+  pull_request:
+    paths:
+      - config/packages/**/*.yaml
+      - config/packages/**/*.yml
+      - tools/verify_packages.py
+      - tools/package_validators/**
+      - tools/pyproject.toml
+      - tools/uv.lock
+  schedule:
+    - cron: 0 0 * * 0  # Weekly on Sunday at midnight UTC
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Verify packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          uv run tools/verify_packages.py --format markdown > verification-report.md
+          cat verification-report.md
+
+      - name: Check for failures
+        id: check-failures
+        run: |
+          uv run tools/verify_packages.py --ci --format json > verification-report.json
+
+          # Extract counts from JSON
+          NOT_FOUND=$(jq '.summary.not_found' verification-report.json)
+          ERRORS=$(jq '.summary.errors' verification-report.json)
+
+          echo "not_found=$NOT_FOUND" >> $GITHUB_OUTPUT
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+
+          if [ "$NOT_FOUND" -gt "0" ] || [ "$ERRORS" -gt "0" ]; then
+            echo "❌ Package verification failed"
+            exit 1
+          else
+            echo "✅ All packages verified successfully"
+          fi
+
+      - name: Upload verification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-verification-report
+          path: |
+            verification-report.md
+            verification-report.json
+            tools/cache/package_cache.json
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Read markdown report
+            let report = '';
+            try {
+              report = fs.readFileSync('verification-report.md', 'utf8');
+            } catch (error) {
+              report = '⚠️ Could not generate verification report';
+            }
+
+            // Add summary header
+            const notFound = ${{ steps.check-failures.outputs.not_found || 0 }};
+            const errors = ${{ steps.check-failures.outputs.errors || 0 }};
+
+            let summary = '';
+            if (notFound > 0 || errors > 0) {
+              summary = '## ❌ Package Verification Failed\n\n';
+              summary += `Found ${notFound} packages not found and ${errors} errors.\n\n`;
+            } else {
+              summary = '## ✅ Package Verification Passed\n\n';
+              summary += 'All packages verified successfully!\n\n';
+            }
+
+            const comment = summary + report;
+
+            // Create or update comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Package Verification')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }

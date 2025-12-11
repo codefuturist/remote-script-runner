@@ -25,37 +25,37 @@ groups:
       - gawk
       - curl
       - ca-certificates
-  
+
   minimal:
     description: Essential packages for any system
     packages:
       # Download utilities
       - curl
       - wget
-      
+
       # Version control
       - git
-      
+
       # Text editor
       - vim
-      
+
       # System monitoring
       - htop
-      
+
       # JSON processor
       - jq
-      
+
       # Archive utilities
       - unzip
       - zip
-  
+
   shell:
     description: Shell enhancements and utilities
     packages:
       - zsh
       - tmux
       - screen
-  
+
   runtimes:
     description: Cross-platform runtime environments and shells
     powershell:
@@ -71,7 +71,7 @@ groups:
           dnf: powershell
           # Note: Linux requires Microsoft repository setup first
           # Run: rsr setup-powershell-repo (or scripts/packages/setup-powershell-repo.sh)
-        
+
         # PowerShell 7 preview release (optional)
         - name: powershell-preview
           description: PowerShell 7 (preview/beta)
@@ -80,15 +80,106 @@ groups:
           choco: powershell-core --pre
           optional: true
 
+  compression:
+    description: Compression and archive tools
+    packages:
+      - name: gzip
+        description: GNU gzip compression
+        apt: gzip
+        dnf: gzip
+
+      - name: bzip2
+        description: Bzip2 compression
+        brew: bzip2
+        apt: bzip2
+        dnf: bzip2
+
+      - name: xz
+        description: XZ compression
+        brew: xz
+        apt: xz-utils
+        dnf: xz
+
+      - name: zstd
+        description: Zstandard compression
+        brew: zstd
+        winget: Facebook.Zstandard
+        apt: zstandard
+        dnf: zstd
+
+      - name: pigz
+        description: Parallel gzip compression
+        brew: pigz
+        apt: pigz
+        dnf: pigz
+
+      - name: zip
+        description: ZIP archive tool
+        brew: zip
+        apt: zip
+        dnf: zip
+
+      - name: unzip
+        description: ZIP archive extractor
+        brew: unzip
+        apt: unzip
+        dnf: unzip
+
+      - name: tar
+        description: TAR archive tool
+        apt: tar
+        dnf: tar
+
+  text-processing:
+    description: Advanced text processing and data transformation
+    packages:
+      - name: yq
+        description: YAML/JSON query processor
+        brew: yq
+        winget: mikefarah.yq
+        choco: yq
+        apt: yq
+        dnf: yq
+
+      - name: miller
+        description: Miller data processing tool (mlr)
+        brew: miller
+        winget: johnkerl.miller
+        apt: miller
+        dnf: miller
+
+      - name: jq
+        description: JSON query processor
+        brew: jq
+        winget: jqlang.jq
+        choco: jq
+        apt: jq
+        dnf: jq
+
+      - name: grep
+        description: Text search tool
+        apt: grep
+        dnf: grep
+
+      - name: sed
+        description: Stream editor
+        apt: sed
+        dnf: sed
+
+      - name: awk
+        description: Pattern scanning and processing
+        apt: gawk
+        dnf: gawk
+
 platforms:
   darwin:
     note: "macOS includes BSD versions; GNU versions available via Homebrew"
-  
+
   debian:
     note: "These packages are typically pre-installed on Debian/Ubuntu"
-  
+
   alpine:
     note: "Alpine may need explicit installation of these tools"
-  
+
   windows:
     note: "Requires Git Bash, WSL, or similar POSIX environment"

@@ -1,0 +1,132 @@
+# mobile.yaml - Mobile development tools and SDKs
+# Usage: rsr pkg install mobile
+#        rsr pkg install mobile.cross-platform
+#        rsr pkg install mobile.ios
+
+name: mobile
+description: Mobile development tools and SDKs
+version: "2.0.0"
+category: development
+
+packages:
+  - git
+  - curl
+
+groups:
+  cross-platform:
+    description: Cross-platform mobile development frameworks
+    packages:
+      - name: flutter
+        description: Flutter mobile development framework
+        brew: flutter
+        winget: Google.Flutter
+        choco: flutter
+        apt: flutter
+
+      - name: react-native-cli
+        description: React Native CLI
+        brew: react-native-cli
+        winget: Meta.ReactNative
+        apt: react-native
+
+      - name: expo-cli
+        description: Expo CLI for React Native development
+        brew: expo-cli
+        winget: Expo.ExpoGo
+
+      - name: cordova
+        description: Apache Cordova cross-platform development
+        brew: cordova
+        winget: Apache.Cordova
+        apt: cordova
+
+  ios:
+    description: iOS development tools (macOS only)
+    packages:
+      - name: cocoapods
+        description: Dependency manager for Swift and Objective-C projects
+        brew: cocoapods
+        apt: ruby-cocoapods
+
+      - name: fastlane
+        description: Automate iOS and Android app deployment
+        brew: fastlane
+        winget: fastlane.fastlane
+        apt: fastlane
+
+      - name: swiftlint
+        description: Swift code linter
+        brew: swiftlint
+        winget: realm.swiftlint
+        choco: swiftlint
+        apt: swiftlint
+
+      - name: xcodegen
+        description: Generate Xcode projects from specification
+        brew: xcodegen
+
+      - name: carthage
+        description: Decentralized dependency manager for Cocoa
+        brew: carthage
+        apt: carthage
+
+  android:
+    description: Android development tools
+    packages:
+      - name: android-studio
+        description: Android IDE (includes Android SDK)
+        brew: android-studio
+        winget: Google.AndroidStudio
+        choco: android-studio
+
+      - name: android-sdk
+        description: Android SDK tools
+        brew: android-sdk
+
+      - name: gradle
+        description: Build system for Android (included with Studio)
+        brew: gradle
+        winget: Gradle.Gradle
+        choco: gradle
+        apt: gradle
+        dnf: gradle
+
+      - name: adb
+        description: Android Debug Bridge
+        brew: android-platform-tools
+        apt: adb
+        dnf: android-tools
+
+      - name: androidx-studio
+        description: AndroidX compatibility libraries
+        optional: true
+
+  testing:
+    description: Mobile app testing tools
+    packages:
+      - name: detox
+        description: Mobile testing automation
+        brew: detox-cli
+
+      - name: appium
+        description: Mobile app automation framework
+        brew: appium
+        winget: appium.appium
+
+      - name: xctest
+        description: iOS unit testing (included with Xcode)
+        optional: true
+
+      - name: espresso
+        description: Android testing framework
+        optional: true
+
+platforms:
+  darwin:
+    note: "Full iOS development support; Android requires Android Studio"
+
+  linux:
+    note: "Flutter and Android development supported; iOS development requires remote build"
+
+  windows:
+    note: "Android development supported; iOS development requires remote build or WSL"

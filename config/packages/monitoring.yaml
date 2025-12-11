@@ -1,78 +1,156 @@
 # monitoring.yaml - System monitoring tools
 # Usage: rsr pkg install-profile monitoring
-#
-# System monitoring and performance analysis tools.
-# Essential for server administration and debugging.
+#        rsr pkg install monitoring.process
+#        rsr pkg install monitoring.network
 
 name: monitoring
 description: System monitoring and performance tools
-version: "1.0.0"
+version: "2.0.0"
 category: monitoring
 
 packages:
-  # Process monitoring
-  - htop
-  - iotop
-  - atop
+  - curl
+  - wget
 
-  # Network monitoring
-  - iftop
-  - nethogs
-  - nload
+groups:
+  process:
+    description: Process and resource monitoring
+    packages:
+      - name: htop
+        description: Interactive process viewer
+        brew: htop
+        apt: htop
+        dnf: htop
 
-  # System info
-  - sysstat
-  - lsof
-  - strace
+      - name: iotop
+        description: Monitor I/O activity
+        brew: iotop
+        apt: iotop
+        dnf: iotop
 
-  # Log tools
-  - logwatch
-  - multitail
+      - name: atop
+        description: Advanced system and process monitor
+        apt: atop
+        dnf: atop
 
-optional:
-  # Advanced monitoring
-  - glances
-  - nmon
-  - dstat
-  - bmon
+      - name: glances
+        description: System monitoring tool (curses/Flask)
+        brew: glances
+        apt: glances
+        dnf: glances
 
-  # Disk monitoring
-  - iotop
-  - ncdu
+      - name: nmon
+        description: System monitor for Linux and AIX
+        apt: nmon
+        dnf: nmon
 
-  # Network analysis
-  - tcpdump
-  - wireshark-cli
-  - mtr
+  system-info:
+    description: System information and debugging
+    packages:
+      - name: sysstat
+        description: Linux system performance utilities
+        apt: sysstat
+        dnf: sysstat
 
-  # Prometheus/Grafana stack
-  - prometheus-node-exporter
+      - name: lsof
+        description: List open files
+        brew: lsof
+        apt: lsof
+        dnf: lsof
+
+      - name: strace
+        description: System call tracer
+        brew: strace
+        apt: strace
+        dnf: strace
+
+      - name: dstat
+        description: Versatile resource stat tool
+        apt: dstat
+        dnf: dstat
+
+  network:
+    description: Network monitoring and analysis
+    packages:
+      - name: iftop
+        description: Display bandwidth by interface
+        apt: iftop
+        dnf: iftop
+
+      - name: nethogs
+        description: Show network usage per process
+        apt: nethogs
+        dnf: nethogs
+
+      - name: nload
+        description: Real-time network traffic monitor
+        apt: nload
+        dnf: nload
+
+      - name: mtr
+        description: Network diagnostic tool
+        brew: mtr
+        apt: mtr
+        dnf: mtr
+
+      - name: tcpdump
+        description: Network packet analyzer
+        brew: tcpdump
+        apt: tcpdump
+        dnf: tcpdump
+
+      - name: wireshark
+        description: Network protocol analyzer
+        brew: wireshark
+        winget: WiresharkFoundation.Wireshark
+        choco: wireshark
+        apt: wireshark-cli
+        dnf: wireshark
+
+      - name: bmon
+        description: Bandwidth monitor
+        apt: bmon
+        dnf: bmon
+
+  disk:
+    description: Disk and storage monitoring
+    packages:
+      - name: ncdu
+        description: Disk usage analyzer
+        brew: ncdu
+        apt: ncdu
+        dnf: ncdu
+
+      - name: du
+        description: Disk usage (UNIX standard)
+        apt: coreutils
+        dnf: coreutils
+
+  logs:
+    description: Log monitoring tools
+    packages:
+      - name: logwatch
+        description: Log analyzer and reporter
+        apt: logwatch
+        dnf: logwatch
+
+      - name: multitail
+        description: Tail multiple logs
+        apt: multitail
+        dnf: multitail
+
+  exporters:
+    description: Monitoring exporters and collectors
+    packages:
+      - name: prometheus-node-exporter
+        description: Prometheus hardware and OS metrics
+        apt: prometheus-node-exporter
+        dnf: node_exporter
 
 platforms:
   darwin:
-    packages:
-      - htop
-      - iftop
-      - lsof
-      - mtr
-      - ncdu
-    skip:
-      - iotop
-      - atop
-      - nethogs
-      - sysstat
-      - logwatch
-      - multitail
     note: "Some Linux-specific tools not available on macOS"
 
-  alpine:
-    packages:
-      - htop
-      - iotop
-      - lsof
-      - strace
-    skip:
-      - atop
-      - nethogs
-      - sysstat
+  linux:
+    note: "All tools available via system package managers"
 

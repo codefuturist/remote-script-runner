@@ -1,101 +1,431 @@
-# kubernetes.yaml - Kubernetes CLI tools
+# kubernetes.yaml - Kubernetes CLI tools and developer utilities
 # Usage: rsr pkg install-profile kubernetes
-#
-# Kubernetes command-line tools and utilities.
-# For cluster deployment, see cloud provider documentation.
+#        rsr pkg install kubernetes.core
+#        rsr pkg install kubernetes.dev-tools
+#        rsr pkg install kubernetes.debugging
+#        rsr pkg install kubernetes.security
 
 name: kubernetes
-description: Kubernetes CLI tools and utilities
-version: "1.0.0"
+description: Kubernetes CLI tools and developer utilities
+version: "2.0.0"
 category: containers
 
 packages:
-  # Core Kubernetes CLI
-  - name: kubectl
-    brew: kubectl
-    winget: Kubernetes.kubectl
-    choco: kubernetes-cli
-    apt: kubectl
-    dnf: kubectl
+  - curl
+  - wget
 
-  # Package manager for Kubernetes
-  - name: helm
-    brew: helm
-    winget: Helm.Helm
-    choco: kubernetes-helm
-    apt: helm
-    dnf: helm
+groups:
+  core:
+    description: Core Kubernetes tools
+    packages:
+      - name: kubectl
+        description: Kubernetes command-line interface
+        brew: kubectl
+        winget: Kubernetes.kubectl
+        choco: kubernetes-cli
+        apt: kubectl
+        dnf: kubectl
+        script: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 
-optional:
-  # Context/namespace switching
-  - name: kubectx
-    brew: kubectx
-    winget: ahmetb.kubectx
-    apt: kubectx
+      - name: helm
+        description: Kubernetes package manager
+        brew: helm
+        winget: Helm.Helm
+        choco: kubernetes-helm
+        apt: helm
+        dnf: helm
+        script: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-  - name: kubens
-    brew: kubens
-    apt: kubens
+      - name: krew
+        description: kubectl plugin manager
+        brew: krew
+        script: |
+          (set -x; cd "$(mktemp -d)" && OS="$(uname | tr '[:upper:]' '[:lower:]')" && ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/aarch64/arm64/')" && KREW="krew-${OS}_${ARCH}" && curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" && tar zxvf "${KREW}.tar.gz" && ./${KREW} install krew)
 
-  # Terminal UI
-  - name: k9s
-    brew: k9s
-    winget: k9s-io.k9s
-    choco: k9s
-    apt: k9s
+  context:
+    description: Context and namespace management
+    packages:
+      - name: kubectx
+        description: Switch Kubernetes contexts easily
+        brew: kubectx
+        winget: ahmetb.kubectx
+        choco: kubectx
+        apt: kubectx
+        krew: ctx
 
-  # Log aggregation
-  - name: stern
-    brew: stern
-    choco: stern
+      - name: kubens
+        description: Switch Kubernetes namespaces easily
+        brew: kubens
+        apt: kubens
+        krew: ns
 
-  # Templating
-  - name: kustomize
-    brew: kustomize
-    choco: kustomize
+      - name: kubie
+        description: Context/namespace switcher with shell isolation
+        brew: kubie
+        cargo: kubie
+        script: curl -sSL https://github.com/sbstp/kubie/releases/latest/download/kubie-linux-amd64 -o /usr/local/bin/kubie && chmod +x /usr/local/bin/kubie
 
-  # Local clusters
-  - minikube
-  - kind
+  ui:
+    description: Terminal user interfaces and dashboards
+    packages:
+      - name: k9s
+        description: Kubernetes terminal UI
+        brew: k9s
+        winget: k9s-io.k9s
+        choco: k9s
+        apt: k9s
+        script: curl -sS https://webinstall.dev/k9s | bash
 
-  # Security
-  - kubesec
-  - trivy
+      - name: stern
+        description: Multi-pod log viewer
+        brew: stern
+        choco: stern
+        krew: stern
 
-  # GitOps
-  - argocd
-  - flux
+      - name: lens
+        description: Kubernetes IDE (GUI)
+        brew_cask: lens
+        winget: Mirantis.Lens
+        choco: lens
+
+      - name: octant
+        description: Web-based Kubernetes dashboard
+        brew: octant
+        choco: octant
+
+      - name: headlamp
+        description: Modern Kubernetes dashboard
+        brew_cask: headlamp
+        winget: kinvolk.headlamp
+
+  dev-tools:
+    description: Development and productivity tools
+    packages:
+      - name: skaffold
+        description: Local Kubernetes development workflow
+        brew: skaffold
+        winget: Google.Skaffold
+        choco: skaffold
+        script: curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && sudo install skaffold /usr/local/bin/
+
+      - name: tilt
+        description: Multi-service development environment
+        brew: tilt
+        winget: Tilt.Tilt
+        script: curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
+
+      - name: telepresence
+        description: Local development connected to remote cluster
+        brew: telepresence
+        winget: Telepresence.Telepresence
+        script: curl -fL https://app.getambassador.io/download/tel2/linux/amd64/latest/telepresence -o /usr/local/bin/telepresence && chmod +x /usr/local/bin/telepresence
+
+      - name: devspace
+        description: Cloud-native development tool
+        brew: devspace
+        winget: loft-sh.devspace
+        npm: devspace
+        script: curl -s -L https://github.com/loft-sh/devspace/releases/latest/download/devspace-linux-amd64 -o /usr/local/bin/devspace && chmod +x /usr/local/bin/devspace
+
+      - name: garden
+        description: Development orchestrator for Kubernetes
+        brew: garden-cli
+        npm: garden
+        script: curl -sL https://get.garden.io/install.sh | bash
+
+      - name: draft
+        description: Streamline Kubernetes development
+        brew: draft
+        script: curl -fsSL https://raw.githubusercontent.com/Azure/draft/main/scripts/install.sh | bash
+
+  templating:
+    description: Manifest templating and generation
+    packages:
+      - name: kustomize
+        description: Kubernetes customization tool
+        brew: kustomize
+        choco: kustomize
+        script: curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+
+      - name: jsonnet
+        description: Data templating language
+        brew: jsonnet
+        apt: jsonnet
+
+      - name: yq
+        description: YAML processor
+        brew: yq
+        winget: MikeFarah.yq
+        choco: yq
+        apt: yq
+
+      - name: kubeconform
+        description: Kubernetes manifest validator
+        brew: kubeconform
+        script: go install github.com/yannh/kubeconform/cmd/kubeconform@latest
+
+      - name: kubeval
+        description: Validate Kubernetes YAML against schemas
+        brew: kubeval
+        script: curl -L https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz | tar xz && sudo mv kubeval /usr/local/bin
+
+      - name: kompose
+        description: Convert Docker Compose to Kubernetes
+        brew: kompose
+        choco: kubernetes-kompose
+        script: curl -L https://github.com/kubernetes/kompose/releases/latest/download/kompose-linux-amd64 -o kompose && chmod +x kompose && sudo mv kompose /usr/local/bin/
+
+  debugging:
+    description: Debugging and troubleshooting tools
+    packages:
+      - name: kubectl-debug
+        description: Debug pods with ephemeral containers
+        krew: debug
+
+      - name: kubectl-neat
+        description: Clean up verbose kubectl output
+        krew: neat
+        brew: kubectl-neat
+
+      - name: kubectl-tree
+        description: Show object ownership hierarchy
+        krew: tree
+
+      - name: kubectl-images
+        description: Show container images in pods
+        krew: images
+
+      - name: kubectl-pod-lens
+        description: Show pod info with resource usage
+        krew: pod-lens
+
+      - name: kubectl-whoami
+        description: Show current user/serviceaccount
+        krew: whoami
+
+      - name: kubectl-df-pv
+        description: Show PVC disk usage
+        krew: df-pv
+
+      - name: kubectl-node-shell
+        description: Spawn shell into node
+        krew: node-shell
+
+      - name: kubeshark
+        description: API traffic viewer (like Wireshark for K8s)
+        brew: kubeshark
+        script: sh <(curl -Ls https://kubeshark.co/install)
+
+      - name: inspektor-gadget
+        description: eBPF-based debugging tools
+        brew: inspektor-gadget
+        krew: gadget
+
+  networking:
+    description: Networking tools and service mesh
+    packages:
+      - name: istioctl
+        description: Istio service mesh CLI
+        brew: istioctl
+        script: curl -L https://istio.io/downloadIstio | sh -
+
+      - name: linkerd
+        description: Linkerd service mesh CLI
+        brew: linkerd
+        script: curl --proto '=https' --tlsv1.2 -sSfL https://run.linkerd.io/install | sh
+
+      - name: cilium-cli
+        description: Cilium CNI CLI
+        brew: cilium-cli
+        script: curl -L --remote-name-all https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-amd64.tar.gz && tar xzvf cilium-linux-amd64.tar.gz && sudo mv cilium /usr/local/bin
+
+      - name: kubectl-sniff
+        description: Packet capture for pods
+        krew: sniff
+
+      - name: kubectl-capture
+        description: Traffic capture for debugging
+        krew: capture
+
+  local:
+    description: Local Kubernetes clusters
+    packages:
+      - name: minikube
+        description: Local Kubernetes cluster
+        brew: minikube
+        winget: Kubernetes.minikube
+        choco: minikube
+        script: curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+      - name: kind
+        description: Kubernetes in Docker
+        brew: kind
+        choco: kind
+        script: curl -Lo ./kind https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64 && chmod +x ./kind && sudo mv ./kind /usr/local/bin/kind
+
+      - name: k3d
+        description: K3s in Docker (lightweight)
+        brew: k3d
+        winget: k3d-io.k3d
+        choco: k3d
+        script: curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
+      - name: k3s
+        description: Lightweight Kubernetes distribution
+        script: curl -sfL https://get.k3s.io | sh -
+
+      - name: microk8s
+        description: Lightweight Kubernetes from Canonical
+        snap: microk8s
+
+      - name: vcluster
+        description: Virtual Kubernetes clusters
+        brew: vcluster
+        script: curl -L -o vcluster "https://github.com/loft-sh/vcluster/releases/latest/download/vcluster-linux-amd64" && sudo install -c -m 0755 vcluster /usr/local/bin
+
+  security:
+    description: Security scanning and policy
+    packages:
+      - name: trivy
+        description: Vulnerability and config scanner
+        brew: trivy
+        apt: trivy
+        dnf: trivy
+        script: curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: kubescape
+        description: Kubernetes security scanner (NSA/CISA)
+        brew: kubescape
+        script: curl -s https://raw.githubusercontent.com/kubescape/kubescape/master/install.sh | /bin/bash
+
+      - name: kube-bench
+        description: CIS Kubernetes benchmark checker
+        brew: kube-bench
+        script: curl -L https://github.com/aquasecurity/kube-bench/releases/latest/download/kube-bench_linux_amd64.tar.gz | tar xz && sudo mv kube-bench /usr/local/bin
+
+      - name: kube-hunter
+        description: Hunt for security weaknesses
+        pip: kube-hunter
+
+      - name: kubesec
+        description: Security risk analysis for manifests
+        brew: kubesec
+        script: curl -sSL https://github.com/controlplaneio/kubesec/releases/latest/download/kubesec_linux_amd64.tar.gz | tar xz && sudo mv kubesec /usr/local/bin
+
+      - name: polaris
+        description: Best practices validation
+        brew: polaris
+        script: curl -L https://github.com/FairwindsOps/polaris/releases/latest/download/polaris_linux_amd64.tar.gz | tar xz && sudo mv polaris /usr/local/bin
+
+      - name: kubeaudit
+        description: Audit clusters for security concerns
+        brew: kubeaudit
+        script: curl -sSL https://github.com/Shopify/kubeaudit/releases/latest/download/kubeaudit_linux_amd64.tar.gz | tar xz && sudo mv kubeaudit /usr/local/bin
+
+  policy:
+    description: Policy engines and admission control
+    packages:
+      - name: opa
+        description: Open Policy Agent
+        brew: opa
+        choco: opa
+        script: curl -L -o opa https://openpolicyagent.org/downloads/latest/opa_linux_amd64_static && chmod 755 opa && sudo mv opa /usr/local/bin
+
+      - name: conftest
+        description: Test configuration files with OPA
+        brew: conftest
+        script: curl -sSL https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_Linux_x86_64.tar.gz | tar xz && sudo mv conftest /usr/local/bin
+
+      - name: kyverno
+        description: Kubernetes native policy management
+        brew: kyverno
+        krew: kyverno
+        script: curl -LO https://github.com/kyverno/kyverno/releases/latest/download/kyverno-cli_linux_x86_64.tar.gz && tar xzf kyverno-cli_linux_x86_64.tar.gz && sudo mv kyverno /usr/local/bin
+
+      - name: datree
+        description: Prevent Kubernetes misconfigurations
+        brew: datree
+        script: curl https://get.datree.io | /bin/bash
+
+  gitops:
+    description: GitOps tools
+    packages:
+      - name: argocd
+        description: GitOps continuous deployment
+        brew: argocd
+        script: curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64 && chmod +x argocd && sudo mv argocd /usr/local/bin
+
+      - name: flux
+        description: GitOps toolkit for Kubernetes
+        brew: fluxcd/tap/flux
+        script: curl -s https://fluxcd.io/install.sh | sudo bash
+
+      - name: argo-rollouts
+        description: Progressive delivery controller
+        brew: argoproj/tap/kubectl-argo-rollouts
+        krew: argo-rollouts
+
+  backup:
+    description: Backup and disaster recovery
+    packages:
+      - name: velero
+        description: Backup and migrate Kubernetes resources
+        brew: velero
+        choco: velero
+        script: curl -L https://github.com/vmware-tanzu/velero/releases/latest/download/velero-linux-amd64.tar.gz | tar xz && sudo mv velero-*/velero /usr/local/bin
+
+      - name: kasten-k10
+        description: Kubernetes data management (commercial)
+        optional: true
+
+  cost:
+    description: Cost management and optimization
+    packages:
+      - name: kubecost
+        description: Kubernetes cost monitoring
+        brew: kubecost
+        script: curl -sSL https://raw.githubusercontent.com/kubecost/kubectl-cost/main/scripts/install-kubectl-cost.sh | sh
+        krew: cost
+
+      - name: kubectl-view-allocations
+        description: View resource allocations
+        krew: view-allocations
+
+      - name: kube-capacity
+        description: Show cluster capacity and usage
+        brew: robscott/tap/kube-capacity
+        krew: resource-capacity
+
+  secrets:
+    description: Secrets management
+    packages:
+      - name: kubeseal
+        description: Sealed Secrets encryption
+        brew: kubeseal
+        script: curl -sSL https://github.com/bitnami-labs/sealed-secrets/releases/latest/download/kubeseal-linux-amd64 -o kubeseal && chmod +x kubeseal && sudo mv kubeseal /usr/local/bin
+
+      - name: sops
+        description: Secrets operations for Kubernetes
+        brew: sops
+        apt: sops
+
+      - name: vault
+        description: HashiCorp Vault for secrets
+        brew: vault
+        apt: vault
+        dnf: vault
+
+      - name: external-secrets
+        description: External Secrets Operator CLI
+        brew: external-secrets
 
 platforms:
   darwin:
-    packages:
-      - kubectl
-      - helm
-      - kubectx
-      - k9s
-      - stern
-      - kustomize
-      - minikube
-      - kind
-    note: "All tools available via Homebrew"
+    note: "All tools available via Homebrew; many also via krew plugin manager"
 
   linux:
-    note: |
-      Install kubectl: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-      Install helm: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-    packages:
-      - kubectl
-      - helm
+    note: "Most tools available via curl scripts; use krew for kubectl plugins"
 
-# Installation scripts for tools not in package managers
-install_scripts:
-  kubectl: |
-    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-    sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-
-  helm: |
-    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
-  k9s: |
-    curl -sS https://webinstall.dev/k9s | bash
+  windows:
+    note: "Available via winget/choco; some tools require WSL"
 

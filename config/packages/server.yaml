@@ -1,135 +1,165 @@
 # server.yaml - Complete server setup
 # Usage: rsr pkg install-profile server
+#        rsr pkg install server.system
+#        rsr pkg install server.networking
 #
-# Comprehensive server setup with essential tools.
-# Combines minimal, security, and monitoring profiles.
+# Includes: minimal, security, monitoring profiles
 
 name: server
 description: Complete server setup with essential tools
-version: "1.0.0"
+version: "2.0.0"
 category: infrastructure
 
-# Include other profiles
 includes:
   - minimal
   - security
   - monitoring
 
 packages:
-  # System utilities
-  - sudo
-  - openssh-server
-  - rsync
-  - logrotate
-  - cron
+  - curl
+  - wget
 
-  # Networking
-  - net-tools
-  - dnsutils
-  - traceroute
-  - mtr
-  - iproute2
+groups:
+  system:
+    description: Core system utilities
+    packages:
+      - name: sudo
+        description: Execute commands as another user
+        apt: sudo
+        dnf: sudo
 
-  # Compression
-  - gzip
-  - bzip2
-  - xz-utils
-  - p7zip
+      - name: openssh-server
+        description: OpenSSH server
+        apt: openssh-server
+        dnf: openssh-server
 
-  # Process management
-  - supervisor
+      - name: logrotate
+        description: Log rotation utility
+        apt: logrotate
+        dnf: logrotate
 
-  # System info
-  - lshw
-  - dmidecode
+      - name: cron
+        description: Cron job scheduler
+        apt: cron
+        dnf: cronie
 
-optional:
-  # Web-based management
-  - cockpit
-  - webmin
+      - name: lshw
+        description: List hardware information
+        apt: lshw
+        dnf: lshw
 
-  # Configuration management
-  - ansible
+      - name: dmidecode
+        description: BIOS/DMI decoder
+        apt: dmidecode
+        dnf: dmidecode
 
-  # Backup tools
-  - borgbackup
-  - restic
+  networking:
+    description: Network administration tools
+    packages:
+      - name: net-tools
+        description: Network utilities
+        apt: net-tools
+        dnf: net-tools
+
+      - name: dnsutils
+        description: DNS utilities
+        apt: dnsutils
+        dnf: bind-utils
+
+      - name: traceroute
+        description: Trace route to host
+        apt: traceroute
+        dnf: traceroute
+
+      - name: mtr
+        description: Network diagnostic tool
+        apt: mtr-tiny
+        dnf: mtr
+
+      - name: iproute2
+        description: Advanced IP utilities
+        apt: iproute2
+        dnf: iproute
+
+  compression:
+    description: Compression tools
+    packages:
+      - name: gzip
+        description: GNU zip
+        apt: gzip
+        dnf: gzip
+
+      - name: bzip2
+        description: Bzip2 compression
+        apt: bzip2
+        dnf: bzip2
+
+      - name: xz-utils
+        description: XZ compression utilities
+        apt: xz-utils
+        dnf: xz
+
+      - name: p7zip
+        description: 7-Zip compression
+        apt: p7zip-full
+        dnf: p7zip
+
+  process-management:
+    description: Process supervision
+    packages:
+      - name: supervisor
+        description: Process control system
+        apt: supervisor
+        dnf: supervisor
+
+  utilities:
+    description: Utility tools
+    packages:
+      - name: rsync
+        description: Fast incremental file transfer
+        apt: rsync
+        dnf: rsync
+
+  management:
+    description: Server management interfaces
+    packages:
+      - name: cockpit
+        description: Web-based system management
+        apt: cockpit
+        dnf: cockpit
+
+      - name: webmin
+        description: Web-based system management
+        apt: webmin
+
+      - name: ansible
+        description: Configuration management
+        apt: ansible
+        dnf: ansible
+
+  backup:
+    description: Backup and archival tools
+    packages:
+      - name: restic
+        description: Fast and secure backup
+        apt: restic
+        dnf: restic
+
+      - name: borgbackup
+        description: Deduplicating backup program
+        apt: borgbackup
+        dnf: borgbackup
 
 platforms:
   darwin:
-    skip:
-      - sudo
-      - openssh-server
-      - cron
-      - net-tools
-      - iproute2
-      - supervisor
-      - lshw
-      - dmidecode
     note: "macOS has built-in equivalents for most server tools"
 
   debian:
-    packages:
-      - sudo
-      - openssh-server
-      - rsync
-      - logrotate
-      - cron
-      - net-tools
-      - dnsutils
-      - traceroute
-      - mtr-tiny
-      - iproute2
-      - gzip
-      - bzip2
-      - xz-utils
-      - p7zip-full
-      - supervisor
-      - lshw
+    note: "All tools available via apt"
 
   rhel:
-    packages:
-      - sudo
-      - openssh-server
-      - rsync
-      - logrotate
-      - cronie
-      - net-tools
-      - bind-utils
-      - traceroute
-      - mtr
-      - iproute
-      - gzip
-      - bzip2
-      - xz
-      - p7zip
-      - supervisor
-      - lshw
-    skip:
-      - cron
-      - dnsutils
-      - xz-utils
+    note: "Most tools available via dnf; use cronie instead of cron"
 
   alpine:
-    packages:
-      - sudo
-      - openssh
-      - rsync
-      - logrotate
-      - dcron
-      - net-tools
-      - bind-tools
-      - mtr
-      - iproute2
-      - gzip
-      - bzip2
-      - xz
-      - p7zip
-      - supervisor
-    skip:
-      - cron
-      - dnsutils
-      - xz-utils
-      - lshw
-      - dmidecode
+    note: "Use dcron for cron functionality"
 

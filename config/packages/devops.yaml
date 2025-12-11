@@ -1,116 +1,150 @@
 # devops.yaml - DevOps and CI/CD tools
 # Usage: rsr pkg install-profile devops
+#        rsr pkg install devops.iac
+#        rsr pkg install devops.cicd
 #
-# DevOps tools for automation, CI/CD, and infrastructure management.
-# Combines development, containers, and cloud tools.
+# Includes: development, docker profiles
 
 name: devops
 description: DevOps and CI/CD automation tools
-version: "1.0.0"
+version: "2.0.0"
 category: devops
 
-# Include other profiles
 includes:
   - development
   - docker
 
 packages:
-  # Version control
-  - git
-  - git-lfs
+  - curl
+  - wget
 
-  # Build tools
-  - make
-  - cmake
+groups:
+  configuration:
+    description: Configuration management
+    packages:
+      - name: ansible
+        description: Infrastructure automation
+        brew: ansible
+        winget: Ansible.Ansible
+        apt: ansible
+        dnf: ansible
+        pip: ansible
 
-  # Configuration management
-  - name: ansible
-    brew: ansible
-    winget: Ansible.Ansible
-    apt: ansible
-    dnf: ansible
+  iac:
+    description: Infrastructure as Code tools
+    packages:
+      - name: terraform
+        description: Infrastructure as Code
+        brew: terraform
+        winget: Hashicorp.Terraform
+        choco: terraform
+        apt: terraform
+        dnf: terraform
+        script: curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - && sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && sudo apt-get update && sudo apt-get install terraform
 
-  # Infrastructure as Code
-  - name: terraform
-    brew: terraform
-    winget: Hashicorp.Terraform
-    choco: terraform
-    apt: terraform
-    dnf: terraform
+      - name: pulumi
+        description: Infrastructure as Code (Python/Go/TS)
+        brew: pulumi
+        winget: Pulumi.Pulumi
+        choco: pulumi
 
-  # Cloud CLIs (install separately per cloud)
-  - name: awscli
-    brew: awscli
-    winget: Amazon.AWSCLI
-    choco: awscli
-    apt: awscli
+      - name: packer
+        description: Image builder
+        brew: packer
+        winget: Hashicorp.Packer
+        choco: packer
 
-  # CI/CD tools
-  - name: jenkins
-    brew: jenkins
-    apt: jenkins
+  cicd:
+    description: CI/CD and automation
+    packages:
+      - name: jenkins
+        description: Continuous integration server
+        brew: jenkins
+        apt: jenkins
 
-  # Secrets management
-  - name: vault
-    brew: vault
-    winget: Hashicorp.Vault
-    choco: vault
-    apt: vault
+      - name: gitlab-runner
+        description: GitLab CI runner
+        apt: gitlab-runner
+        dnf: gitlab-runner
 
-optional:
-  # Additional IaC
-  - name: pulumi
-    brew: pulumi
-    winget: Pulumi.Pulumi
-    choco: pulumi
+  secrets:
+    description: Secrets management
+    packages:
+      - name: vault
+        description: Secrets and encryption management
+        brew: vault
+        winget: Hashicorp.Vault
+        choco: vault
+        apt: vault
+        dnf: vault
 
-  - name: packer
-    brew: packer
-    winget: Hashicorp.Packer
-    choco: packer
+  cloud:
+    description: Cloud CLI tools
+    packages:
+      - name: awscli
+        description: AWS command-line interface
+        brew: awscli
+        winget: Amazon.AWSCLI
+        choco: awscli
+        apt: awscli
+        pip: awscli
 
-  # Service mesh
-  - istioctl
-  - linkerd
+      - name: azure-cli
+        description: Azure command-line interface
+        brew: azure-cli
+        winget: Microsoft.AzureCLI
+        choco: azure-cli
+        apt: azure-cli
 
-  # Monitoring
-  - prometheus
-  - grafana
+      - name: google-cloud-sdk
+        description: Google Cloud SDK
+        brew: google-cloud-sdk
+        winget: Google.CloudSDK
+        apt: google-cloud-sdk
 
-  # Log management
-  - filebeat
-  - fluentd
+  service-mesh:
+    description: Service mesh tools
+    packages:
+      - name: istioctl
+        description: Istio service mesh
+        brew: istioctl
+
+      - name: linkerd
+        description: Linkerd service mesh
+        brew: linkerd
+
+  monitoring:
+    description: Monitoring and observability
+    packages:
+      - name: prometheus
+        description: Metrics collection and alerting
+        brew: prometheus
+        apt: prometheus
+        dnf: prometheus
+
+      - name: grafana
+        description: Metrics visualization
+        brew: grafana
+        apt: grafana
+        dnf: grafana
+
+  logging:
+    description: Log collection and management
+    packages:
+      - name: filebeat
+        description: Log shipper
+        apt: filebeat
+        dnf: filebeat
+
+      - name: fluentd
+        description: Log aggregation engine
+        apt: fluentd
+        dnf: fluentd
 
 platforms:
   darwin:
-    packages:
-      - git
-      - git-lfs
-      - make
-      - ansible
-      - terraform
-      - vault
-    homebrew_casks:
-      - docker
     note: "Cloud CLIs available via Homebrew: awscli, azure-cli, google-cloud-sdk"
 
   linux:
-    note: |
-      Terraform: https://learn.hashicorp.com/tutorials/terraform/install-cli
-      Ansible: pip install ansible
-      Cloud CLIs: Install per provider documentation
-
-install_scripts:
-  terraform: |
-    curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-    sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-    sudo apt-get update && sudo apt-get install terraform
-
-  ansible: |
-    pip3 install ansible
-
-  awscli: |
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-    unzip awscliv2.zip
-    sudo ./aws/install
+    note: "Most tools available via system package managers; Terraform and Ansible via pip as fallback"
 

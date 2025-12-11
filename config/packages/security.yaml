@@ -1,91 +1,150 @@
 # security.yaml - Security and hardening tools
 # Usage: rsr pkg install-profile security
-#
-# Security tools for system hardening and auditing.
-# Includes firewall, intrusion prevention, and scanning tools.
+#        rsr pkg install security.firewall
+#        rsr pkg install security.scanning
 
 name: security
 description: Security tools and hardening utilities
-version: "1.0.0"
+version: "2.0.0"
 category: security
 
 packages:
-  # Firewall
-  - ufw
-  - iptables
+  - curl
+  - wget
 
-  # Intrusion prevention
-  - fail2ban
+groups:
+  firewall:
+    description: Firewall and access control
+    packages:
+      - name: ufw
+        description: Uncomplicated Firewall
+        apt: ufw
 
-  # Security scanning
-  - clamav
-  - rkhunter
-  - chkrootkit
+      - name: firewalld
+        description: Dynamic firewall (RHEL/Fedora)
+        dnf: firewalld
 
-  # SSL/TLS
-  - openssl
-  - ca-certificates
+      - name: iptables
+        description: Legacy firewall (packet filtering)
+        apt: iptables
+        dnf: iptables
 
-  # Audit tools
-  - auditd
-  - lynis
+  intrusion-prevention:
+    description: Intrusion detection and prevention
+    packages:
+      - name: fail2ban
+        description: Ban suspicious IP addresses
+        brew: fail2ban
+        apt: fail2ban
+        dnf: fail2ban
 
-optional:
-  # Advanced security
-  - aide
-  - tripwire
-  - ossec-hids
+      - name: suricata
+        description: IDS/IPS and NSM engine
+        apt: suricata
+        dnf: suricata
 
-  # Network security
-  - suricata
-  - snort
+      - name: snort
+        description: Network intrusion detection system
+        apt: snort
+        dnf: snort
 
-  # Password tools
-  - pwgen
-  - apg
+  scanning:
+    description: Security scanning and vulnerability detection
+    packages:
+      - name: clamav
+        description: Antivirus engine
+        brew: clamav
+        apt: clamav
+        dnf: clamav
 
-  # Encryption
-  - gnupg
-  - cryptsetup
+      - name: rkhunter
+        description: Rootkit hunter
+        apt: rkhunter
+        dnf: rkhunter
+
+      - name: chkrootkit
+        description: Check for rootkits
+        apt: chkrootkit
+
+      - name: aide
+        description: Advanced Intrusion Detection Environment
+        apt: aide
+        dnf: aide
+
+      - name: tripwire
+        description: File integrity checker
+        apt: tripwire
+        dnf: tripwire
+
+      - name: ossec-hids
+        description: OSSEC Host-based IDS
+        apt: ossec-hids
+
+  ssl-tls:
+    description: SSL/TLS management
+    packages:
+      - name: openssl
+        description: SSL/TLS toolkit
+        brew: openssl
+        apt: openssl
+        dnf: openssl
+
+      - name: ca-certificates
+        description: Common CA certificates
+        apt: ca-certificates
+        dnf: ca-certificates
+
+  audit:
+    description: System auditing and logging
+    packages:
+      - name: auditd
+        description: Linux audit daemon
+        apt: auditd
+        dnf: audit
+
+      - name: lynis
+        description: Security auditing tool
+        brew: lynis
+        apt: lynis
+        dnf: lynis
+
+  password:
+    description: Password generation and management
+    packages:
+      - name: pwgen
+        description: Password generator
+        brew: pwgen
+        apt: pwgen
+        dnf: pwgen
+
+      - name: apg
+        description: Another Password Generator
+        apt: apg
+        dnf: apg
+
+  encryption:
+    description: Encryption and key management
+    packages:
+      - name: gnupg
+        description: GNU Privacy Guard
+        brew: gnupg
+        winget: GnuPG.GnuPG
+        choco: gpg4win
+        apt: gnupg
+        dnf: gnupg
+
+      - name: cryptsetup
+        description: LUKS disk encryption
+        apt: cryptsetup
+        dnf: cryptsetup
 
 platforms:
   darwin:
-    packages:
-      - openssl
-      - lynis
-      - gnupg
-      - pwgen
-    skip:
-      - ufw
-      - iptables
-      - fail2ban
-      - auditd
-      - clamav
-      - rkhunter
-      - chkrootkit
     note: "macOS has built-in firewall (pf). Use 'sudo pfctl' for management."
 
   debian:
-    packages:
-      - ufw
-      - fail2ban
-      - clamav
-      - clamav-daemon
-      - rkhunter
-      - chkrootkit
-      - auditd
-      - lynis
+    note: "UFW recommended for easy firewall management"
 
   rhel:
-    packages:
-      - firewalld
-      - fail2ban
-      - clamav
-      - clamav-update
-      - rkhunter
-      - audit
-      - lynis
-    skip:
-      - ufw
-      - chkrootkit
+    note: "Use firewalld for firewall management"
 

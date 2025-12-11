@@ -1,123 +1,816 @@
-ru# network.yaml - Network administration tools
+# network.yaml - Network administration tools
 # Usage: rsr pkg install-profile network
-#
-# Network diagnostics, analysis, and administration tools.
-# Essential for network troubleshooting and monitoring.
+#        rsr pkg install network.dns
+#        rsr pkg install network.diagnostics
 
 name: network
 description: Network administration and diagnostic tools
-version: "1.0.0"
+version: "2.0.0"
 category: network
 
 packages:
-  # DNS tools
-  - dnsutils
-  - bind-utils
-
-  # Network diagnostics
-  - traceroute
-  - mtr
-  - ping
-  - netcat
-  - nmap
-
-  # Traffic analysis
-  - tcpdump
-  - iftop
-  - nethogs
-
-  # Connection tools
   - curl
   - wget
-  - telnet
-  - openssh-client
 
-  # IP utilities
-  - iproute2
-  - net-tools
-  - iputils-ping
+groups:
+  dns:
+    description: DNS tools and utilities
+    packages:
+      - name: dnsutils
+        description: DNS utilities (dig, nslookup, host)
+        apt: dnsutils
+        dnf: bind-utils
 
-optional:
-  # Advanced analysis
-  - wireshark-cli
-  - tshark
-  - ngrep
+      - name: bind-utils
+        description: BIND DNS utilities
+        dnf: bind-utils
+        apt: dnsutils
 
-  # VPN tools
-  - openvpn
-  - wireguard
+  diagnostics:
+    description: Network diagnostic tools
+    packages:
+      - name: traceroute
+        description: Trace network path to host
+        brew: traceroute
+        apt: traceroute
+        dnf: traceroute
 
-  # Proxy tools
-  - proxychains
-  - socat
+      - name: mtr
+        description: Network diagnostic tool (traceroute + ping)
+        brew: mtr
+        apt: mtr
+        dnf: mtr
 
-  # Bandwidth testing
-  - iperf3
-  - speedtest-cli
+      - name: ping
+        description: ICMP echo request (UNIX standard)
+        apt: iputils-ping
+        dnf: iputils
 
-  # SSL/TLS tools
-  - openssl
-  - sslyze
+      - name: netcat
+        description: Network Swiss-army knife
+        brew: netcat
+        apt: netcat-openbsd
+        dnf: ncat
+
+      - name: nmap
+        description: Network mapper and port scanner
+        brew: nmap
+        winget: Insecure.Nmap
+        choco: nmap
+        apt: nmap
+        dnf: nmap
+
+  traffic-analysis:
+    description: Network traffic analysis
+    packages:
+      - name: tcpdump
+        description: Network packet capture
+        brew: tcpdump
+        apt: tcpdump
+        dnf: tcpdump
+
+      - name: iftop
+        description: Display bandwidth by interface
+        apt: iftop
+        dnf: iftop
+
+      - name: nethogs
+        description: Show network usage per process
+        apt: nethogs
+        dnf: nethogs
+
+      - name: wireshark
+        description: Network protocol analyzer
+        brew: wireshark
+        winget: WiresharkFoundation.Wireshark
+        choco: wireshark
+        apt: wireshark-cli
+        dnf: wireshark
+
+      - name: tshark
+        description: Wireshark's command-line interface
+        apt: wireshark-cli
+        dnf: wireshark
+
+      - name: ngrep
+        description: Network grep
+        apt: ngrep
+        dnf: ngrep
+
+  connection-tools:
+    description: Connection and transfer tools
+    packages:
+      - name: telnet
+        description: Telnet client
+        apt: telnet
+        dnf: telnet
+
+      - name: openssh-client
+        description: SSH client
+        brew: openssh
+        apt: openssh-client
+        dnf: openssh-clients
+
+  ip-utilities:
+    description: IP and routing utilities
+    packages:
+      - name: iproute2
+        description: Advanced routing and network utilities
+        apt: iproute2
+        dnf: iproute
+
+      - name: net-tools
+        description: Network utilities (ifconfig, netstat, etc.)
+        apt: net-tools
+        dnf: net-tools
+
+      - name: iputils
+        description: IP utilities
+        apt: iputils-ping
+        dnf: iputils
+
+  vpn-tools:
+    description: VPN and tunneling tools
+    packages:
+      - name: openvpn
+        description: OpenVPN client
+        brew: openvpn
+        winget: OpenVPN.OpenVPN
+        choco: openvpn
+        apt: openvpn
+        dnf: openvpn
+
+      - name: wireguard
+        description: WireGuard VPN
+        brew: wireguard-tools
+        winget: WireGuard.WireGuard
+        choco: wireguard
+        apt: wireguard
+        dnf: wireguard-tools
+
+  proxy-tools:
+    description: Proxy and tunneling utilities
+    packages:
+      - name: proxychains
+        description: Hook libc calls and route through SOCKS
+        apt: proxychains4
+        dnf: proxychains-ng
+
+      - name: socat
+        description: Bidirectional data relay
+        brew: socat
+        apt: socat
+        dnf: socat
+
+  performance:
+    description: Network performance testing
+    packages:
+      - name: iperf3
+        description: Network throughput testing
+        brew: iperf3
+        winget: esnet.iperf3
+        choco: iperf3
+        apt: iperf3
+        dnf: iperf3
+
+      - name: speedtest-cli
+        description: Speedtest command-line interface
+        brew: speedtest-cli
+        apt: speedtest-cli
+
+  security:
+    description: Network security and SSL/TLS tools
+    packages:
+      - name: openssl
+        description: SSL/TLS toolkit
+        brew: openssl
+        apt: openssl
+        dnf: openssl
+
+      - name: sslyze
+        description: Fast and comprehensive SSL scanner
+        apt: sslyze
+        dnf: sslyze
+
+  # ============================================================================
+  # NETWORK FILE SHARING CLIENTS
+  # ============================================================================
+  file-sharing:
+    description: Network file sharing clients (SMB, NFS, SFTP, WebDAV)
+    packages:
+      # SMB/CIFS (Windows shares)
+      - name: samba-client
+        description: Samba SMB/CIFS client tools (smbclient)
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: samba
+        apt: smbclient
+        dnf: samba-client
+        pacman: smbclient
+        apk: samba-client
+
+      - name: cifs-utils
+        description: CIFS mount utilities for Linux
+        recommended:
+          linux: apt
+        apt: cifs-utils
+        dnf: cifs-utils
+        pacman: cifs-utils
+        apk: cifs-utils
+
+      - name: smbnetfs
+        description: FUSE-based SMB network filesystem
+        apt: smbnetfs
+        dnf: smbnetfs
+        pacman: smbnetfs
+
+      # NFS
+      - name: nfs-common
+        description: NFS client support
+        recommended:
+          linux: apt
+        apt: nfs-common
+        dnf: nfs-utils
+        pacman: nfs-utils
+        apk: nfs-utils
+
+      - name: nfs-utils
+        description: NFS utilities (mount.nfs, showmount, etc.)
+        apt: nfs-common
+        dnf: nfs-utils
+        pacman: nfs-utils
+        apk: nfs-utils
+
+      # SFTP/SSH file transfer
+      - name: sshfs
+        description: SSHFS - mount remote filesystems over SSH
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: sshfs
+        winget: SSHFS-Win.SSHFS-Win
+        choco: sshfs
+        apt: sshfs
+        dnf: fuse-sshfs
+        pacman: sshfs
+        apk: sshfs
+
+      - name: sftp
+        description: SFTP client (included with OpenSSH)
+        brew: openssh
+        apt: openssh-client
+        dnf: openssh-clients
+        pacman: openssh
+        note: "Included with openssh-client package"
+
+      # WebDAV
+      - name: davfs2
+        description: WebDAV filesystem driver for Linux
+        recommended:
+          linux: apt
+        apt: davfs2
+        dnf: davfs2
+        pacman: davfs2
+
+      - name: cadaver
+        description: WebDAV command-line client
+        brew: cadaver
+        apt: cadaver
+        dnf: cadaver
+        pacman: cadaver
+
+      # FTP clients
+      - name: lftp
+        description: Sophisticated FTP/HTTP/SFTP client
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: lftp
+        apt: lftp
+        dnf: lftp
+        pacman: lftp
+        apk: lftp
+
+      - name: ncftp
+        description: NcFTP - enhanced FTP client
+        brew: ncftp
+        apt: ncftp
+        dnf: ncftp
+        pacman: ncftp
+
+      - name: curlftpfs
+        description: FUSE-based FTP filesystem
+        apt: curlftpfs
+        dnf: curlftpfs
+        pacman: curlftpfs
+
+      # AFP (Apple Filing Protocol)
+      - name: afpfs-ng
+        description: AFP filesystem client for Linux
+        apt: afpfs-ng
+        pacman: afpfs-ng
+        note: "For connecting to macOS/Apple shares from Linux"
+
+      - name: netatalk
+        description: AFP server and client for Unix
+        brew: netatalk
+        apt: netatalk
+        dnf: netatalk
+        pacman: netatalk
+
+      # FUSE filesystem tools
+      - name: fuse
+        description: Filesystem in Userspace
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: macfuse
+        apt: fuse3
+        dnf: fuse3
+        pacman: fuse3
+        apk: fuse3
+
+      - name: macfuse
+        description: macFUSE - FUSE for macOS
+        recommended:
+          darwin: brew
+        brew: macfuse
+        note: "Required for SSHFS and other FUSE filesystems on macOS"
+
+      - name: winfsp
+        description: WinFsp - Windows File System Proxy
+        recommended:
+          windows: winget
+        winget: WinFsp.WinFsp
+        choco: winfsp
+        note: "Required for SSHFS and other FUSE filesystems on Windows"
+
+      # GUI file sharing clients
+      - name: filezilla
+        description: FileZilla - FTP/SFTP/FTPS client
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: filezilla
+        winget: TimKosse.FileZilla.Client
+        choco: filezilla
+        apt: filezilla
+        dnf: filezilla
+        pacman: filezilla
+        flatpak: org.filezillaproject.Filezilla
+        snap: filezilla
+
+      - name: cyberduck
+        description: Cyberduck - FTP/SFTP/WebDAV/S3/Azure client
+        recommended:
+          darwin: brew
+          windows: winget
+        brew: cyberduck
+        winget: Cyberduck.Cyberduck
+        choco: cyberduck
+        mas: "409222199"
+
+      - name: transmit
+        description: Transmit - macOS file transfer app
+        recommended:
+          darwin: brew
+        brew: transmit
+        mas: "1436522307"
+
+      - name: forklift
+        description: ForkLift - dual-pane file manager for macOS
+        brew: forklift
+        mas: "412448059"
+
+      - name: mountain-duck
+        description: Mountain Duck - mount cloud storage as disk
+        brew: mountain-duck
+        winget: iterate.MountainDuck
+        choco: mountain-duck
+
+      - name: raidrive
+        description: RaiDrive - mount cloud storage on Windows
+        winget: OpenBoxLab.RaiDrive
+        choco: raidrive
+
+      - name: gigolo
+        description: Gigolo - GVFS frontend for GNOME
+        apt: gigolo
+        dnf: gigolo
+        pacman: gigolo
+        flatpak: org.xfce.Gigolo
+
+      # Network browser/discovery
+      - name: avahi
+        description: Avahi - mDNS/DNS-SD service discovery
+        recommended:
+          linux: apt
+        apt: avahi-utils
+        dnf: avahi-tools
+        pacman: avahi
+        apk: avahi-tools
+
+      - name: nss-mdns
+        description: NSS module for mDNS name resolution
+        apt: libnss-mdns
+        dnf: nss-mdns
+        pacman: nss-mdns
+
+      # Cloud storage mount tools
+      - name: rclone
+        description: Rclone - mount cloud storage as filesystem
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: rclone
+        winget: Rclone.Rclone
+        choco: rclone
+        apt: rclone
+        dnf: rclone
+        pacman: rclone
+        snap: rclone
+        script: curl https://rclone.org/install.sh | sudo bash
+
+      - name: s3fs
+        description: S3FS - mount S3 buckets via FUSE
+        brew: s3fs
+        apt: s3fs
+        dnf: s3fs-fuse
+        pacman: s3fs-fuse
+
+      - name: gcsfuse
+        description: GCSFuse - mount Google Cloud Storage
+        brew: gcsfuse
+        apt: gcsfuse
+        script: echo "deb https://packages.cloud.google.com/apt gcsfuse-buster main" | sudo tee /etc/apt/sources.list.d/gcsfuse.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && sudo apt update && sudo apt install -y gcsfuse
+
+      - name: blobfuse2
+        description: BlobFuse2 - mount Azure Blob Storage
+        apt: blobfuse2
+        dnf: blobfuse2
+        script: curl -sL https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -o packages-microsoft-prod.deb && sudo dpkg -i packages-microsoft-prod.deb && sudo apt update && sudo apt install -y blobfuse2
+
+      # Network manager integrations
+      - name: gvfs
+        description: GNOME Virtual Filesystem (SMB, SFTP, WebDAV support)
+        recommended:
+          linux: apt
+        apt: gvfs
+        dnf: gvfs
+        pacman: gvfs
+
+      - name: gvfs-smb
+        description: GVFS SMB/CIFS backend
+        apt: gvfs-backends
+        dnf: gvfs-smb
+        pacman: gvfs-smb
+
+      - name: gvfs-nfs
+        description: GVFS NFS backend
+        apt: gvfs-backends
+        dnf: gvfs-nfs
+        pacman: gvfs-nfs
+
+      - name: kio-extras
+        description: KDE KIO plugins (SMB, SFTP, NFS support)
+        apt: kio-extras
+        dnf: kio-extras
+        pacman: kio-extras
+
+  # ============================================================================
+  # VIRTUAL FILE SYSTEM (VFS) TOOLS
+  # ============================================================================
+  vfs:
+    description: Virtual file system tools and FUSE-based filesystems
+    packages:
+      # Core FUSE implementations
+      - name: fuse3
+        description: FUSE 3 - Filesystem in Userspace (Linux)
+        recommended:
+          linux: apt
+        apt: fuse3
+        dnf: fuse3
+        pacman: fuse3
+        apk: fuse3
+
+      - name: fuse2
+        description: FUSE 2 - legacy Filesystem in Userspace
+        apt: fuse
+        dnf: fuse
+        pacman: fuse2
+        apk: fuse
+
+      - name: macfuse
+        description: macFUSE - FUSE implementation for macOS
+        recommended:
+          darwin: brew
+        brew: macfuse
+        note: "Required for SSHFS, NTFS-3G, and other FUSE filesystems on macOS"
+
+      - name: winfsp
+        description: WinFsp - Windows File System Proxy (FUSE for Windows)
+        recommended:
+          windows: winget
+        winget: WinFsp.WinFsp
+        choco: winfsp
+        note: "Required for SSHFS and other FUSE-like filesystems on Windows"
+
+      - name: dokany
+        description: Dokany - user mode file system library for Windows
+        winget: Dokan.Dokany
+        choco: dokany
+        note: "Alternative to WinFsp for Windows virtual filesystems"
+
+      # Remote filesystem mounts
+      - name: sshfs
+        description: SSHFS - mount remote filesystems over SSH
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: sshfs
+        winget: SSHFS-Win.SSHFS-Win
+        choco: sshfs
+        apt: sshfs
+        dnf: fuse-sshfs
+        pacman: sshfs
+        apk: sshfs
+
+      - name: rclone-mount
+        description: Rclone mount - mount cloud storage via FUSE
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: rclone
+        winget: Rclone.Rclone
+        choco: rclone
+        apt: rclone
+        dnf: rclone
+        pacman: rclone
+        note: "Use 'rclone mount' command after installing rclone"
+
+      - name: juicefs
+        description: JuiceFS - distributed POSIX file system for cloud
+        recommended:
+          darwin: brew
+          linux: script
+        brew: juicefs
+        apt: juicefs
+        script: curl -sSL https://d.juicefs.com/install | sh -
+
+      - name: seaweedfs
+        description: SeaweedFS - distributed file system with FUSE mount
+        brew: seaweedfs
+        script: curl -sL https://github.com/seaweedfs/seaweedfs/releases/latest/download/linux_amd64.tar.gz | tar xz
+
+      # Encrypted filesystems
+      - name: gocryptfs
+        description: gocryptfs - encrypted overlay filesystem
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: gocryptfs
+        apt: gocryptfs
+        dnf: gocryptfs
+        pacman: gocryptfs
+        go: github.com/rfjakob/gocryptfs@latest
+
+      - name: cryfs
+        description: CryFS - encrypted filesystem for cloud storage
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: cryfs
+        apt: cryfs
+        dnf: cryfs
+        pacman: cryfs
+        flatpak: org.cryfs.cryfs
+
+      - name: encfs
+        description: EncFS - encrypted pass-through filesystem
+        brew: encfs
+        apt: encfs
+        dnf: fuse-encfs
+        pacman: encfs
+
+      - name: securefs
+        description: SecureFS - transparent encryption filesystem
+        brew: securefs
+        apt: securefs
+        script: curl -sL https://github.com/netheril96/securefs/releases/latest/download/securefs-linux-amd64 -o /usr/local/bin/securefs && chmod +x /usr/local/bin/securefs
+
+      - name: cryptomator
+        description: Cryptomator - encrypted vaults for cloud storage (GUI)
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: flatpak
+        brew: cryptomator
+        winget: Cryptomator.Cryptomator
+        choco: cryptomator
+        flatpak: org.cryptomator.Cryptomator
+        apt: cryptomator
+        pacman: cryptomator
+        snap: cryptomator
+
+      - name: veracrypt
+        description: VeraCrypt - disk encryption with virtual volumes
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: veracrypt
+        winget: IDRIX.VeraCrypt
+        choco: veracrypt
+        apt: veracrypt
+        dnf: veracrypt
+        pacman: veracrypt
+        flatpak: com.veracrypt.VeraCrypt
+
+      # Archive/container filesystems
+      - name: archivemount
+        description: ArchiveMount - mount archives as filesystems
+        brew: archivemount
+        apt: archivemount
+        dnf: archivemount
+        pacman: archivemount
+
+      - name: fuse-zip
+        description: FUSE-ZIP - mount ZIP archives as filesystems
+        apt: fuse-zip
+        dnf: fuse-zip
+        pacman: fuse-zip
+
+      - name: ratarmount
+        description: Ratarmount - mount tar/gz/bz2/xz archives via FUSE
+        pip: ratarmount
+        apt: ratarmount
+        script: pip install ratarmount
+
+      - name: squashfuse
+        description: SquashFUSE - mount SquashFS archives
+        brew: squashfuse
+        apt: squashfuse
+        dnf: squashfuse
+        pacman: squashfuse
+
+      - name: apfs-fuse
+        description: APFS FUSE - mount Apple APFS volumes on Linux
+        apt: apfs-fuse
+        pacman: apfs-fuse
+        script: git clone https://github.com/sgan81/apfs-fuse && cd apfs-fuse && mkdir build && cd build && cmake .. && make && sudo make install
+
+      - name: hfsfuse
+        description: HFS FUSE - mount HFS/HFS+ volumes on Linux
+        apt: hfsprogs
+        pacman: hfsprogs
+
+      - name: ntfs-3g
+        description: NTFS-3G - read/write NTFS filesystem driver
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: ntfs-3g-mac
+        apt: ntfs-3g
+        dnf: ntfs-3g
+        pacman: ntfs-3g
+        apk: ntfs-3g
+
+      - name: exfat-fuse
+        description: exFAT FUSE - mount exFAT filesystems
+        apt: exfat-fuse
+        dnf: exfatprogs
+        pacman: exfatprogs
+
+      # Overlay and union filesystems
+      - name: unionfs-fuse
+        description: UnionFS FUSE - stackable unification filesystem
+        apt: unionfs-fuse
+        dnf: fuse-unionfs
+        pacman: unionfs-fuse
+
+      - name: mergerfs
+        description: MergerFS - union filesystem for pooling drives
+        recommended:
+          linux: apt
+        apt: mergerfs
+        dnf: mergerfs
+        pacman: mergerfs
+        script: curl -sL https://github.com/trapexit/mergerfs/releases/latest/download/mergerfs_amd64.deb -o mergerfs.deb && sudo dpkg -i mergerfs.deb
+
+      - name: overlayfs-tools
+        description: OverlayFS utilities
+        apt: overlayroot
+        pacman: overlayfs-tools
+
+      # Special purpose VFS
+      - name: bindfs
+        description: BindFS - mount directories with altered permissions
+        brew: bindfs
+        apt: bindfs
+        dnf: bindfs
+        pacman: bindfs
+
+      - name: dislocker
+        description: Dislocker - read BitLocker encrypted volumes
+        brew: dislocker
+        apt: dislocker
+        dnf: dislocker
+        pacman: dislocker
+
+      - name: httpdirfs
+        description: HTTPDirFS - mount HTTP directory listings
+        apt: httpdirfs
+        pacman: httpdirfs
+        script: git clone https://github.com/fangfufu/httpdirfs && cd httpdirfs && make && sudo make install
+
+      - name: gitfs
+        description: GitFS - mount Git repositories as filesystems
+        pip: gitfs
+        apt: gitfs
+        script: pip install gitfs
+
+      - name: hubicfuse
+        description: HubiC FUSE - mount OVH hubiC cloud storage
+        apt: hubicfuse
+        script: git clone https://github.com/TurboGit/hubicfuse && cd hubicfuse && mkdir build && cd build && cmake .. && make && sudo make install
+
+      - name: ifuse
+        description: iFUSE - mount iOS devices via FUSE
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: ifuse
+        apt: ifuse
+        dnf: ifuse
+        pacman: ifuse
+
+      - name: android-file-transfer
+        description: Android File Transfer - mount Android devices (MTP)
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: android-file-transfer
+        apt: android-file-transfer
+        dnf: android-file-transfer
+        pacman: android-file-transfer
+        flatpak: io.github.nickvision.cavalier
+
+      - name: jmtpfs
+        description: JMTPFS - mount MTP devices via FUSE
+        apt: jmtpfs
+        dnf: jmtpfs
+        pacman: jmtpfs
+
+      - name: go-mtpfs
+        description: Go-MTPFS - simple MTP FUSE filesystem
+        brew: go-mtpfs
+        apt: go-mtpfs
+        go: github.com/hanwen/go-mtpfs@latest
+
+      # Memory and tmpfs
+      - name: tmpfs
+        description: tmpfs - temporary filesystem in RAM (kernel built-in)
+        note: "Built into Linux kernel. Mount with: mount -t tmpfs tmpfs /mount/point"
+
+      - name: ramfs
+        description: ramfs - RAM-based filesystem (kernel built-in)
+        note: "Built into Linux kernel. Mount with: mount -t ramfs ramfs /mount/point"
+
+      # FUSE development
+      - name: libfuse
+        description: libfuse - FUSE library for developing filesystems
+        apt: libfuse3-dev
+        dnf: fuse3-devel
+        pacman: fuse3
+        brew: libfuse
+
+      - name: fuse-python
+        description: Python bindings for FUSE
+        pip: fusepy
+        apt: python3-fuse
+
+      - name: fuse-go
+        description: Go FUSE library
+        go: bazil.org/fuse@latest
+        note: "Import with: go get bazil.org/fuse"
+
+      - name: fuse-rust
+        description: Rust FUSE library (fuser)
+        cargo: fuser
+        note: "Add to Cargo.toml: fuser = \"0.14\""
 
 platforms:
   darwin:
-    packages:
-      - mtr
-      - nmap
-      - tcpdump
-      - curl
-      - wget
-      - netcat
-      - iperf3
-      - openssl
-    skip:
-      - dnsutils
-      - bind-utils
-      - iproute2
-      - net-tools
-      - iputils-ping
-      - iftop
-      - nethogs
     note: "macOS includes many network tools by default"
 
   debian:
-    packages:
-      - dnsutils
-      - traceroute
-      - mtr-tiny
-      - iputils-ping
-      - netcat-openbsd
-      - nmap
-      - tcpdump
-      - iftop
-      - nethogs
-      - curl
-      - wget
-      - telnet
-      - openssh-client
-      - iproute2
-      - net-tools
+    note: "All tools available via apt"
 
   rhel:
-    packages:
-      - bind-utils
-      - traceroute
-      - mtr
-      - iputils
-      - nmap-ncat
-      - nmap
-      - tcpdump
-      - iftop
-      - nethogs
-      - curl
-      - wget
-      - telnet
-      - openssh-clients
-      - iproute
-      - net-tools
-    skip:
-      - dnsutils
-      - iputils-ping
-      - netcat
-      - openssh-client
+    note: "Most tools available via dnf; some may need EPEL"
 

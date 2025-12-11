@@ -1,0 +1,150 @@
+# ai-ml.yaml - AI and Machine Learning development tools
+# Usage: rsr pkg install ai-ml
+#        rsr pkg install ai-ml.runtimes
+#        rsr pkg install ai-ml.tools
+
+name: ai-ml
+description: AI and Machine Learning development tools and runtimes
+version: "2.0.0"
+category: development
+
+packages:
+  - git
+  - curl
+  - wget
+
+groups:
+  runtimes:
+    description: Python distribution environments for ML/Data Science
+    packages:
+      - name: anaconda
+        description: Full Anaconda distribution with 250+ packages
+        brew: anaconda
+        winget: Anaconda.Anaconda3
+        choco: anaconda3
+        script: curl -O https://repo.anaconda.com/archive/Anaconda3-latest-Linux-x86_64.sh && bash Anaconda3-latest-Linux-x86_64.sh
+        script_macos: curl -O https://repo.anaconda.com/archive/Anaconda3-latest-MacOSX-arm64.sh && bash Anaconda3-latest-MacOSX-arm64.sh
+        script_windows: winget install Anaconda.Anaconda3
+
+      - name: miniconda
+        description: Minimal Python distribution with conda package manager
+        brew: miniconda
+        winget: Anaconda.Miniconda3
+        choco: miniconda3
+        script: curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && bash Miniconda3-latest-Linux-x86_64.sh
+        script_macos: curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh && bash Miniconda3-latest-MacOSX-arm64.sh
+        script_windows: winget install Anaconda.Miniconda3
+
+      - name: miniforge
+        description: Community-driven minimal conda installer (conda-forge default)
+        brew: miniforge
+        winget: CondaForge.Miniforge3
+        choco: miniforge3
+        script: curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh && bash Miniforge3-Linux-x86_64.sh
+        script_macos: curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh && bash Miniforge3-MacOSX-arm64.sh
+
+      - name: mamba
+        description: Fast conda alternative (drop-in replacement)
+        brew: mamba
+        winget: conda-forge.mamba
+        choco: mamba
+        conda: mamba
+        script: curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh && bash Mambaforge-Linux-x86_64.sh
+        script_macos: curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-MacOSX-arm64.sh && bash Mambaforge-MacOSX-arm64.sh
+
+      - name: micromamba
+        description: Lightweight standalone conda alternative (no base environment)
+        brew: micromamba
+        winget: mamba-org.micromamba
+        choco: micromamba
+        script: curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
+        script_macos: curl -Ls https://micro.mamba.pm/api/micromamba/osx-arm64/latest | tar -xvj bin/micromamba
+
+  tools:
+    description: ML/AI development and experimentation tools
+    packages:
+      - name: jupyter
+        description: Jupyter notebook environment
+        brew: jupyter
+        apt: python3-jupyter
+        dnf: python3-jupyter
+
+      - name: jupyterlab
+        description: Next generation Jupyter notebook
+        brew: jupyterlab
+        apt: jupyter-lab
+
+      - name: ollama
+        description: Local LLM runtime
+        brew: ollama
+        winget: Ollama.Ollama
+        choco: ollama
+
+      - name: huggingface-cli
+        description: Hugging Face CLI tools
+        optional: true
+
+      - name: openai-cli
+        description: OpenAI CLI tools
+        optional: true
+
+      - name: mlflow
+        description: MLOps platform and experiment tracking
+        brew: mlflow
+        apt: mlflow
+
+      - name: dvc
+        description: Data Version Control
+        brew: dvc
+        winget: IterativeAI.DVC
+        apt: dvc
+        dnf: dvc
+
+      - name: wandb
+        description: Weights & Biases experiment tracking
+        brew: wandb
+        apt: wandb
+
+  gpu:
+    description: GPU acceleration and CUDA tools
+    packages:
+      - name: nvidia-container-toolkit
+        description: NVIDIA Container Runtime
+        apt: nvidia-container-toolkit
+        dnf: nvidia-container-toolkit
+
+      - name: cuda-toolkit
+        description: NVIDIA CUDA Toolkit
+        optional: true
+
+      - name: cudnn
+        description: NVIDIA cuDNN
+        optional: true
+
+      - name: tensorrt
+        description: NVIDIA TensorRT inference library
+        optional: true
+
+optional:
+  # Large/optional frameworks
+  - name: tensorflow
+    description: TensorFlow ML framework
+    optional: true
+
+  - name: pytorch
+    description: PyTorch ML framework
+    optional: true
+
+  - name: scikit-learn
+    description: Scikit-learn ML library
+    optional: true
+
+platforms:
+  darwin:
+    note: "Conda environments work well on macOS; GPU tools require Apple Silicon or external GPU setup"
+
+  linux:
+    note: "Full GPU support; NVIDIA CUDA available on systems with NVIDIA GPUs"
+
+  windows:
+    note: "Conda environments recommended; GPU support requires WSL2 with NVIDIA CUDA"

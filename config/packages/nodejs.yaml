@@ -1,66 +1,258 @@
 # nodejs.yaml - Node.js development environment
-# Usage: rsr pkg install-profile nodejs
-#
-# Node.js development environment with npm/yarn.
-# Consider using nvm for version management.
+# Usage: rsr pkg install nodejs
+#        rsr pkg install nodejs.runtime
+#        rsr pkg install nodejs.package-managers
+#        rsr pkg install nodejs.dev-tools
 
 name: nodejs
 description: Node.js development environment
-version: "1.0.0"
+version: "2.0.0"
 category: languages
 
 packages:
-  # Node.js core
-  - nodejs
-  - npm
+  - git
+  - curl
 
-optional:
-  # Package managers
-  - yarn
-  - pnpm
+groups:
+  runtime:
+    description: Node.js runtime and core tools
+    packages:
+      - name: node
+        description: Node.js JavaScript runtime
+        brew: node
+        winget: OpenJS.NodeJS.LTS
+        choco: nodejs-lts
+        apt: nodejs
+        dnf: nodejs
+        script: curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && sudo apt-get install -y nodejs
 
-# Packages to install via npm
-npm_packages:
-  - typescript
-  - eslint
-  - prettier
-  - nodemon
-  - pm2
-  - ts-node
-  - jest
+      - name: node-current
+        description: Node.js (current/latest version)
+        brew: node
+        winget: OpenJS.NodeJS
+        choco: nodejs
+
+      - name: npm
+        description: Node Package Manager (included with Node.js)
+        brew: npm
+        apt: npm
+        dnf: npm
+
+  version-managers:
+    description: Node.js version management tools
+    packages:
+      - name: nvm
+        description: Node Version Manager
+        brew: nvm
+        pacman: nvm
+        script: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+        script_wget: wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+
+      - name: fnm
+        description: Fast Node Manager (Rust-based, faster than nvm)
+        brew: fnm
+        winget: Schniz.fnm
+        choco: fnm
+        cargo: fnm
+        scoop: fnm
+        script: curl -fsSL https://fnm.vercel.app/install | bash
+
+      - name: n
+        description: Simple Node.js version management
+        brew: n
+        npm: n
+        script: curl -L https://bit.ly/n-install | bash
+
+      - name: volta
+        description: JavaScript tool manager (manages Node, npm, yarn versions)
+        brew: volta
+        winget: Volta.Volta
+        choco: volta
+        script: curl https://get.volta.sh | bash
+        script_windows: winget install Volta.Volta
+
+  package-managers:
+    description: Alternative package managers
+    packages:
+      - name: yarn
+        description: Yarn package manager (classic v1)
+        brew: yarn
+        winget: Yarn.Yarn
+        choco: yarn
+        apt: yarn
+        npm: yarn
+
+      - name: pnpm
+        description: Fast, disk space efficient package manager
+        brew: pnpm
+        winget: pnpm.pnpm
+        choco: pnpm
+        npm: pnpm
+        script: curl -fsSL https://get.pnpm.io/install.sh | sh
+        script_windows: iwr https://get.pnpm.io/install.ps1 -useb | iex
+
+      - name: bun
+        description: All-in-one JavaScript runtime and package manager
+        brew: bun
+        winget: Oven-sh.Bun
+        npm: bun
+        script: curl -fsSL https://bun.sh/install | bash
+        script_windows: powershell -c "irm bun.sh/install.ps1 | iex"
+
+      - name: corepack
+        description: Zero-runtime-dependency package manager manager
+        npm: corepack
+
+  dev-tools:
+    description: Development and build tools
+    packages:
+      - name: typescript
+        description: TypeScript compiler
+        brew: typescript
+        npm: typescript
+
+      - name: ts-node
+        description: TypeScript execution engine for Node.js
+        npm: ts-node
+
+      - name: tsx
+        description: TypeScript execute - faster alternative to ts-node
+        npm: tsx
+
+      - name: esbuild
+        description: Extremely fast JavaScript bundler
+        brew: esbuild
+        npm: esbuild
+
+      - name: swc
+        description: Super-fast TypeScript/JavaScript compiler
+        brew: swc
+        npm: "@swc/cli @swc/core"
+
+      - name: vite
+        description: Next generation frontend build tool
+        npm: vite
+
+      - name: webpack
+        description: Module bundler
+        npm: webpack webpack-cli
+
+      - name: rollup
+        description: JavaScript module bundler
+        npm: rollup
+
+      - name: turbo
+        description: Turborepo - high-performance monorepo build system
+        brew: turbo
+        npm: turbo
+
+  linting-formatting:
+    description: Code quality and formatting tools
+    packages:
+      - name: eslint
+        description: JavaScript/TypeScript linter
+        npm: eslint
+
+      - name: prettier
+        description: Code formatter
+        brew: prettier
+        npm: prettier
+
+      - name: biome
+        description: Fast formatter and linter (Prettier + ESLint alternative)
+        brew: biome
+        npm: "@biomejs/biome"
+
+      - name: oxlint
+        description: Blazing fast JavaScript linter
+        brew: oxlint
+        npm: oxlint
+
+  testing:
+    description: Testing frameworks and tools
+    packages:
+      - name: jest
+        description: JavaScript testing framework
+        npm: jest
+
+      - name: vitest
+        description: Vite-native testing framework
+        npm: vitest
+
+      - name: mocha
+        description: Feature-rich JavaScript test framework
+        npm: mocha
+
+      - name: playwright
+        description: Browser automation and testing
+        npm: playwright
+
+      - name: cypress
+        description: E2E testing framework
+        npm: cypress
+
+      - name: puppeteer
+        description: Headless Chrome automation
+        npm: puppeteer
+
+  process-managers:
+    description: Process and application managers
+    packages:
+      - name: pm2
+        description: Production process manager
+        npm: pm2
+
+      - name: nodemon
+        description: Auto-restart on file changes
+        npm: nodemon
+
+      - name: concurrently
+        description: Run multiple commands concurrently
+        npm: concurrently
+
+      - name: forever
+        description: Simple CLI tool for ensuring scripts run continuously
+        npm: forever
+
+  cli-tools:
+    description: Useful CLI utilities
+    packages:
+      - name: npx
+        description: Execute npm packages (included with npm)
+        optional: true
+
+      - name: npm-check-updates
+        description: Upgrade package.json dependencies
+        npm: npm-check-updates
+
+      - name: depcheck
+        description: Check for unused dependencies
+        npm: depcheck
+
+      - name: license-checker
+        description: Check licenses of dependencies
+        npm: license-checker
+
+      - name: http-server
+        description: Simple static HTTP server
+        npm: http-server
+
+      - name: serve
+        description: Static file serving
+        npm: serve
+
+      - name: tldr
+        description: Simplified man pages
+        brew: tldr
+        npm: tldr
 
 platforms:
   darwin:
-    packages:
-      - node
-      - yarn
-    skip:
-      - nodejs
-      - npm
-    note: "Consider using 'nvm' for Node.js version management"
+    note: "Homebrew recommended; use nvm/fnm for version management"
 
-  debian:
-    note: "For latest Node.js, use NodeSource: curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -"
-    packages:
-      - nodejs
-      - npm
+  linux:
+    note: "NodeSource provides latest versions: https://github.com/nodesource/distributions"
 
-  rhel:
-    note: "For latest Node.js, use NodeSource: curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -"
-    packages:
-      - nodejs
-      - npm
-
-  alpine:
-    packages:
-      - nodejs
-      - npm
-      - yarn
-
-# Version management recommendation
-version_manager:
-  name: nvm
-  url: https://github.com/nvm-sh/nvm
-  install: "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash"
-  note: "nvm allows installing multiple Node.js versions"
+  windows:
+    note: "Use fnm or volta for version management; nvm-windows is also available"
 

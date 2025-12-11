@@ -1,0 +1,1508 @@
+# productivity.yaml - Developer productivity and workflow tools
+# Usage: rsr pkg install productivity
+#        rsr pkg install productivity.cli-tools
+#        rsr pkg install productivity.api-testing
+
+name: productivity
+description: Developer productivity tools and CLI utilities
+version: "2.0.0"
+category: productivity
+
+# Top-level packages
+packages:
+  - git
+  - curl
+
+groups:
+  cli-tools:
+    description: Modern CLI tools for improved developer workflow
+    packages:
+      - name: lazygit
+        brew: lazygit
+        winget: jesseduffield.lazygit
+        choco: lazygit
+        apt: lazygit
+        dnf: lazygit
+
+      - name: gh
+        description: GitHub CLI
+        brew: gh
+        winget: GitHub.cli
+        choco: gh
+        apt: gh
+        dnf: gh
+
+      - name: act
+        description: Run GitHub Actions locally
+        brew: act
+        winget: nektos.act
+        choco: act
+        apt: act
+
+      - name: direnv
+        description: Environment variable management
+        brew: direnv
+        winget: direnv.direnv
+        choco: direnv
+        apt: direnv
+        dnf: direnv
+
+      - name: starship
+        description: Modern shell prompt
+        brew: starship
+        winget: Starship.Starship
+        choco: starship
+        apt: starship
+        dnf: starship
+
+      - name: ripgrep
+        description: Fast grep alternative
+        brew: ripgrep
+        winget: BurntSushi.ripgrep.MSVC
+        choco: ripgrep
+        apt: ripgrep
+        dnf: ripgrep
+
+      - name: fd
+        description: Fast find alternative
+        brew: fd
+        winget: sharkdp.fd
+        choco: fd
+        apt: fd-find
+        dnf: fd-find
+
+      - name: fzf
+        description: Fuzzy finder
+        brew: fzf
+        winget: junegunn.fzf
+        choco: fzf
+        apt: fzf
+        dnf: fzf
+
+  api-testing:
+    description: API testing and load generation tools
+    packages:
+      - name: httpie
+        description: Modern HTTP client
+        brew: httpie
+        winget: httpie.httpie
+        choco: httpie
+        apt: httpie
+        dnf: httpie
+
+      - name: grpcurl
+        description: gRPC testing tool
+        brew: grpcurl
+        winget: fullstorydev.grpcurl
+        choco: grpcurl
+        apt: grpcurl
+
+      - name: k6
+        description: Modern load testing tool
+        brew: k6
+        winget: loadimpact.k6
+        choco: k6
+        apt: k6
+
+      - name: hey
+        description: HTTP load generator
+        brew: hey
+        choco: hey
+        apt: hey
+
+  terminal:
+    description: Terminal emulators and multiplexers
+    packages:
+      # Modern GPU-accelerated terminals
+      - name: warp
+        description: Warp - AI-powered terminal with modern features
+        recommended:
+          darwin: brew
+          linux: script
+        brew: warp
+        winget: Warp.Warp
+        flatpak: dev.warp.Warp
+        apt: warp-terminal
+        dnf: warp-terminal
+        pacman: warp-terminal
+        script_deb: |
+          curl -fsSL https://releases.warp.dev/linux/keys/warp.asc | sudo gpg --dearmor -o /usr/share/keyrings/warp.gpg
+          echo "deb [signed-by=/usr/share/keyrings/warp.gpg] https://releases.warp.dev/linux/deb stable main" | sudo tee /etc/apt/sources.list.d/warp.list
+          sudo apt update && sudo apt install -y warp-terminal
+        script_rpm: |
+          sudo rpm --import https://releases.warp.dev/linux/keys/warp.asc
+          sudo sh -c 'echo -e "[warp]\nname=Warp Terminal\nbaseurl=https://releases.warp.dev/linux/rpm/stable\nenabled=1\ngpgcheck=1\ngpgkey=https://releases.warp.dev/linux/keys/warp.asc" > /etc/yum.repos.d/warp.repo'
+          sudo dnf install -y warp-terminal
+
+      - name: wezterm
+        description: WezTerm - GPU-accelerated cross-platform terminal
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: flatpak
+        brew: wezterm
+        winget: wez.wezterm
+        choco: wezterm
+        flatpak: org.wezfurlong.wezterm
+        apt: wezterm
+        dnf: wezterm
+        pacman: wezterm
+        script: curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/wezterm.gpg && echo "deb [signed-by=/usr/share/keyrings/wezterm.gpg] https://apt.fury.io/wez/ * *" | sudo tee /etc/apt/sources.list.d/wezterm.list && sudo apt update && sudo apt install -y wezterm
+
+      - name: kitty
+        description: Kitty - fast GPU-based terminal emulator
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: kitty
+        winget: kovidgoyal.kitty
+        apt: kitty
+        dnf: kitty
+        pacman: kitty
+        flatpak: com.github.nickvision.cavalier
+        pip: kitty
+        script: curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+
+      - name: alacritty
+        description: Alacritty - fast OpenGL terminal emulator
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: alacritty
+        winget: Alacritty.Alacritty
+        choco: alacritty
+        apt: alacritty
+        dnf: alacritty
+        pacman: alacritty
+        flatpak: org.alacritty.Alacritty
+        snap: alacritty
+        cargo: alacritty
+
+      - name: hyper
+        description: Hyper - Electron-based terminal with web technologies
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: flatpak
+        brew: hyper
+        winget: Vercel.Hyper
+        choco: hyper
+        flatpak: co.zeit.Hyper
+        apt: hyper
+        snap: hyper
+        script: curl -sL https://releases.hyper.is/download/deb -o hyper.deb && sudo dpkg -i hyper.deb
+
+      - name: tabby
+        description: Tabby - modern configurable terminal
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: flatpak
+        brew: tabby
+        winget: Eugeny.Tabby
+        choco: tabby
+        flatpak: org.tabby.Tabby
+        apt: tabby
+        pacman: tabby-terminal
+        snap: tabby
+
+      - name: rio
+        description: Rio - hardware-accelerated GPU terminal
+        recommended:
+          darwin: brew
+          linux: cargo
+        brew: rio
+        winget: raphaelamorim.rio
+        cargo: rio
+        pacman: rio
+        script: cargo install rio
+
+      - name: ghostty
+        description: Ghostty - fast native terminal by Mitchell Hashimoto
+        recommended:
+          darwin: brew
+          linux: script
+        brew: ghostty
+        script: git clone https://github.com/ghostty-org/ghostty && cd ghostty && zig build -Doptimize=ReleaseFast
+
+      # Platform-specific terminals
+      - name: iterm2
+        description: iTerm2 - macOS terminal replacement
+        recommended:
+          darwin: brew
+        brew: iterm2
+        mas: "1218902972"
+
+      - name: terminal-app
+        description: Apple Terminal (macOS built-in)
+        note: "Included with macOS. No installation required."
+
+      - name: windows-terminal
+        description: Windows Terminal - modern terminal for Windows
+        recommended:
+          windows: winget
+        winget: Microsoft.WindowsTerminal
+        choco: microsoft-windows-terminal
+        scoop: windows-terminal
+        note: "Pre-installed on Windows 11. Available in Microsoft Store."
+
+      - name: fluent-terminal
+        description: Fluent Terminal - UWP terminal for Windows
+        winget: AJM.FluentTerminal
+        choco: fluent-terminal
+
+      # Linux-native terminals
+      - name: gnome-terminal
+        description: GNOME Terminal - default GNOME terminal
+        apt: gnome-terminal
+        dnf: gnome-terminal
+        pacman: gnome-terminal
+
+      - name: konsole
+        description: Konsole - KDE terminal emulator
+        apt: konsole
+        dnf: konsole
+        pacman: konsole
+        flatpak: org.kde.konsole
+
+      - name: tilix
+        description: Tilix - tiling terminal emulator for Linux
+        apt: tilix
+        dnf: tilix
+        pacman: tilix
+        flatpak: com.gexperts.Tilix
+
+      - name: terminator
+        description: Terminator - multiple terminals in one window
+        brew: terminator
+        apt: terminator
+        dnf: terminator
+        pacman: terminator
+        flatpak: net.launchpad.Terminator
+
+      - name: guake
+        description: Guake - drop-down terminal for GNOME
+        apt: guake
+        dnf: guake
+        pacman: guake
+        flatpak: com.uploadedlobster.peek
+
+      - name: yakuake
+        description: Yakuake - drop-down terminal for KDE
+        apt: yakuake
+        dnf: yakuake
+        pacman: yakuake
+        flatpak: org.kde.yakuake
+
+      - name: xterm
+        description: XTerm - standard X Window terminal
+        brew: xterm
+        apt: xterm
+        dnf: xterm
+        pacman: xterm
+
+      - name: urxvt
+        description: rxvt-unicode - lightweight terminal
+        apt: rxvt-unicode
+        dnf: rxvt-unicode
+        pacman: rxvt-unicode
+
+      - name: st
+        description: suckless simple terminal
+        apt: stterm
+        pacman: st
+        script: git clone https://git.suckless.org/st && cd st && sudo make clean install
+
+      - name: foot
+        description: Foot - fast Wayland terminal
+        apt: foot
+        dnf: foot
+        pacman: foot
+        flatpak: org.codeberg.dnkl.foot
+
+      # Terminal multiplexers
+      - name: tmux
+        description: tmux - terminal multiplexer
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: tmux
+        winget: tmux.tmux
+        choco: tmux
+        apt: tmux
+        dnf: tmux
+        pacman: tmux
+        apk: tmux
+
+      - name: screen
+        description: GNU Screen - terminal multiplexer
+        brew: screen
+        apt: screen
+        dnf: screen
+        pacman: screen
+        apk: screen
+
+      - name: zellij
+        description: Zellij - modern terminal workspace with layouts
+        recommended:
+          darwin: brew
+          linux: cargo
+        brew: zellij
+        apt: zellij
+        dnf: zellij
+        pacman: zellij
+        cargo: zellij
+        script: cargo install zellij
+
+      - name: byobu
+        description: Byobu - enhanced profiles for tmux/screen
+        brew: byobu
+        apt: byobu
+        dnf: byobu
+        pacman: byobu
+        snap: byobu
+
+      - name: abduco
+        description: abduco - session management for terminal
+        brew: abduco
+        apt: abduco
+        dnf: abduco
+        pacman: abduco
+
+      - name: dtach
+        description: dtach - simple program that emulates detach feature of screen
+        brew: dtach
+        apt: dtach
+        dnf: dtach
+        pacman: dtach
+
+      # Serial/SSH terminal tools
+      - name: minicom
+        description: Minicom - serial communication program
+        brew: minicom
+        apt: minicom
+        dnf: minicom
+        pacman: minicom
+
+      - name: picocom
+        description: Picocom - minimal serial terminal
+        brew: picocom
+        apt: picocom
+        dnf: picocom
+        pacman: picocom
+
+      - name: mosh
+        description: Mosh - mobile shell with roaming support
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: mosh
+        apt: mosh
+        dnf: mosh
+        pacman: mosh
+        apk: mosh
+
+      - name: eternal-terminal
+        description: Eternal Terminal - remote shell that reconnects automatically
+        brew: eternal-terminal
+        apt: et
+        dnf: et
+        pacman: eternal-terminal
+
+  file-managers:
+    description: TUI file managers
+    packages:
+      - name: ranger
+        description: Text-based file manager
+        brew: ranger
+        winget: ranger.ranger
+        apt: ranger
+        dnf: ranger
+
+      - name: nnn
+        description: Tiny, lightning fast file manager
+        brew: nnn
+        winget: jarun.nnn
+        choco: nnn
+        apt: nnn
+        dnf: nnn
+
+      - name: lf
+        description: Terminal file manager
+        brew: lf
+        winget: gokcehan.lf
+        choco: lf
+        apt: lf
+
+  ai-assisted:
+    description: AI-powered development assistants and code generation
+    packages:
+      - name: github-copilot-cli
+        description: GitHub Copilot CLI for command suggestions
+        npm: "@github/copilot"
+        script: npm install -g @github/copilot
+
+      - name: aider
+        description: AI pair programming in your terminal
+        pip: aider-chat
+        pipx: aider-chat
+        brew: aider
+
+      - name: cody
+        description: Sourcegraph Cody CLI (AI coding assistant)
+        npm: "@sourcegraph/cody"
+        script: npm install -g @sourcegraph/cody
+
+      - name: continue
+        description: Open-source AI code assistant
+        npm: continue-cli
+
+      - name: tabby
+        description: Self-hosted AI coding assistant
+        brew: tabbyml/tabby/tabby
+        cargo: tabby
+        script: cargo install tabby
+
+      - name: fabric
+        description: AI augmentation framework for text processing
+        pip: fabric-ai
+        pipx: fabric-ai
+
+      - name: shell-gpt
+        description: ChatGPT in terminal (sgpt)
+        pip: shell-gpt
+        pipx: shell-gpt
+
+      - name: chatgpt-cli
+        description: ChatGPT command-line interface
+        npm: chatgpt-cli
+        pip: chatgpt-cli
+
+  # ============================================================================
+  # PROTON SUITE AND PRIVACY TOOLS
+  # ============================================================================
+  proton:
+    description: Proton privacy-focused services
+    packages:
+      - name: proton-mail
+        description: Proton Mail desktop client
+        brew: protonmail-bridge
+        winget: Proton.ProtonMail
+        choco: protonmail-bridge
+        flatpak: me.proton.Mail
+        apt: protonmail-bridge
+        dnf: protonmail-bridge
+
+      - name: proton-mail-bridge
+        description: Proton Mail Bridge for email clients (IMAP/SMTP)
+        brew: protonmail-bridge
+        winget: Proton.ProtonMailBridge
+        choco: protonmail-bridge
+        apt: protonmail-bridge
+        dnf: protonmail-bridge
+        flatpak: ch.protonmail.protonmail-bridge
+        script: curl -sL https://proton.me/download/bridge/protonmail-bridge_linux.deb -o protonmail-bridge.deb && sudo dpkg -i protonmail-bridge.deb
+
+      - name: proton-vpn
+        description: Proton VPN client
+        brew: protonvpn
+        winget: Proton.ProtonVPN
+        choco: protonvpn
+        flatpak: com.protonvpn.www
+        apt: protonvpn
+        dnf: protonvpn
+        snap: protonvpn
+        pip: protonvpn-cli
+        script: curl -sL https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release.deb -o protonvpn.deb && sudo dpkg -i protonvpn.deb
+
+      - name: proton-vpn-cli
+        description: Proton VPN command-line interface
+        pip: protonvpn-cli
+        apt: protonvpn-cli
+        dnf: protonvpn-cli
+        script: pip3 install protonvpn-cli
+
+      - name: proton-drive
+        description: Proton Drive encrypted cloud storage
+        brew: proton-drive
+        winget: Proton.ProtonDrive
+        flatpak: me.proton.Drive
+
+      - name: proton-pass
+        description: Proton Pass password manager
+        brew: proton-pass
+        winget: Proton.ProtonPass
+        choco: proton-pass
+        flatpak: me.proton.Pass
+
+  # ============================================================================
+  # EMAIL CLIENTS
+  # ============================================================================
+  email-clients:
+    description: Desktop email clients
+    packages:
+      - name: thunderbird
+        description: Mozilla Thunderbird email client
+        brew: thunderbird
+        winget: Mozilla.Thunderbird
+        choco: thunderbird
+        apt: thunderbird
+        dnf: thunderbird
+        flatpak: org.mozilla.Thunderbird
+        pacman: thunderbird
+        snap: thunderbird
+
+      - name: mailspring
+        description: Mailspring modern email client
+        brew: mailspring
+        winget: Foundry376.Mailspring
+        choco: mailspring
+        flatpak: com.getmailspring.Mailspring
+        snap: mailspring
+
+      - name: betterbird
+        description: Betterbird - enhanced Thunderbird fork
+        brew: betterbird
+        winget: Betterbird.Betterbird
+        flatpak: eu.betterbird.Betterbird
+
+      - name: geary
+        description: GNOME email client
+        apt: geary
+        dnf: geary
+        flatpak: org.gnome.Geary
+        pacman: geary
+
+      - name: evolution
+        description: GNOME Evolution mail and calendar
+        apt: evolution
+        dnf: evolution
+        flatpak: org.gnome.Evolution
+        pacman: evolution
+
+      - name: kmail
+        description: KDE Kontact email client
+        apt: kmail
+        dnf: kmail
+        flatpak: org.kde.kmail2
+        pacman: kmail
+
+      - name: claws-mail
+        description: Claws Mail lightweight GTK email client
+        brew: claws-mail
+        apt: claws-mail
+        dnf: claws-mail
+        flatpak: org.claws_mail.Claws-Mail
+        pacman: claws-mail
+
+      - name: mutt
+        description: Mutt text-based email client
+        brew: mutt
+        apt: mutt
+        dnf: mutt
+        pacman: mutt
+        apk: mutt
+
+      - name: neomutt
+        description: NeoMutt - enhanced Mutt fork
+        brew: neomutt
+        apt: neomutt
+        dnf: neomutt
+        pacman: neomutt
+
+      - name: aerc
+        description: Terminal email client for power users
+        brew: aerc
+        apt: aerc
+        dnf: aerc
+        pacman: aerc
+
+      - name: himalaya
+        description: CLI email client written in Rust
+        brew: himalaya
+        cargo: himalaya
+        pacman: himalaya
+        script: cargo install himalaya
+
+  # ============================================================================
+  # PRIVACY-FOCUSED COMMUNICATION
+  # ============================================================================
+  privacy-communication:
+    description: Privacy-focused messaging and communication tools
+    packages:
+      - name: signal-desktop
+        description: Signal private messenger
+        brew: signal
+        winget: OpenWhisperSystems.Signal
+        choco: signal
+        flatpak: org.signal.Signal
+        apt: signal-desktop
+        dnf: signal-desktop
+        snap: signal-desktop
+
+      - name: session
+        description: Session decentralized messenger
+        brew: session
+        winget: Oxen.Session
+        flatpak: network.loki.Session
+        apt: session-desktop
+        snap: session-desktop
+
+      - name: element
+        description: Element Matrix client
+        brew: element
+        winget: Element.Element
+        choco: element-desktop
+        flatpak: im.riot.Riot
+        apt: element-desktop
+        dnf: element-desktop
+        snap: element-desktop
+
+      - name: wire
+        description: Wire secure messenger
+        brew: wire
+        winget: Wire.Wire
+        flatpak: com.wire.WireDesktop
+        apt: wire-desktop
+
+      - name: keybase
+        description: Keybase encrypted communication
+        brew: keybase
+        winget: Keybase.Keybase
+        choco: keybase
+        apt: keybase
+        dnf: keybase
+
+      - name: jami
+        description: Jami distributed communication (formerly Ring)
+        brew: jami
+        winget: SavoirFaireLinux.Jami
+        flatpak: net.jami.Jami
+        apt: jami
+        dnf: jami
+        snap: jami
+
+      - name: briar
+        description: Briar peer-to-peer encrypted messenger
+        flatpak: org.briarproject.Briar
+
+      - name: simplex
+        description: SimpleX Chat private messenger
+        brew: simplex
+        winget: SimpleX.SimpleX
+        flatpak: chat.simplex.simplex
+        apt: simplex-chat
+
+  # ============================================================================
+  # VPN CLIENTS
+  # ============================================================================
+  vpn-clients:
+    description: VPN clients, tools, and GUI applications
+    packages:
+      # WireGuard
+      - name: wireguard-tools
+        description: WireGuard VPN tools (wg, wg-quick)
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: wireguard-tools
+        winget: WireGuard.WireGuard
+        choco: wireguard
+        apt: wireguard-tools
+        dnf: wireguard-tools
+        pacman: wireguard-tools
+        apk: wireguard-tools
+        snap: wireguard-tools
+
+      - name: wireguard
+        description: WireGuard VPN kernel module and tools
+        recommended:
+          linux: apt
+        apt: wireguard
+        dnf: wireguard-tools
+        pacman: wireguard-tools
+        note: "On Linux, includes kernel module. On macOS/Windows, use wireguard-tools."
+
+      - name: wireguard-gui
+        description: WireGuard official GUI client
+        recommended:
+          darwin: brew
+          windows: winget
+        brew: wireguard-tools
+        winget: WireGuard.WireGuard
+        choco: wireguard
+        mas: "1451685025"
+        note: "GUI included with WireGuard installer on Windows/macOS"
+
+      - name: wireguard-ui
+        description: WireGuard web UI for managing configs
+        docker: ngoduykhanh/wireguard-ui
+        script: docker run -d -p 5000:5000 ngoduykhanh/wireguard-ui
+
+      # OpenVPN
+      - name: openvpn
+        description: OpenVPN client and server
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: openvpn
+        winget: OpenVPNTechnologies.OpenVPN
+        choco: openvpn
+        apt: openvpn
+        dnf: openvpn
+        pacman: openvpn
+        apk: openvpn
+        snap: openvpn
+
+      - name: openvpn-connect
+        description: OpenVPN Connect - official GUI client
+        recommended:
+          darwin: brew
+          windows: winget
+        brew: openvpn-connect
+        winget: OpenVPNTechnologies.OpenVPNConnect
+        choco: openvpn-connect
+        flatpak: com.tunnelblick.Tunnelblick
+        apt: openvpn3
+        script_deb: |
+          curl -fsSL https://swupdate.openvpn.net/repos/openvpn-repo-pkg-key.pub | gpg --dearmor > /usr/share/keyrings/openvpn.gpg
+          echo "deb [signed-by=/usr/share/keyrings/openvpn.gpg] https://swupdate.openvpn.net/community/openvpn3/repos/$(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/openvpn3.list
+          sudo apt update && sudo apt install -y openvpn3
+
+      - name: tunnelblick
+        description: Tunnelblick - free OpenVPN client for macOS
+        recommended:
+          darwin: brew
+        brew: tunnelblick
+        mas: "1493335478"
+
+      - name: viscosity
+        description: Viscosity - premium OpenVPN client
+        brew: viscosity
+        winget: SparkLabs.Viscosity
+        choco: viscosity
+
+      - name: network-manager-openvpn
+        description: OpenVPN plugin for NetworkManager (GNOME)
+        apt: network-manager-openvpn-gnome
+        dnf: NetworkManager-openvpn-gnome
+        pacman: networkmanager-openvpn
+
+      # Mesh VPN
+      - name: tailscale
+        description: Tailscale - zero-config mesh VPN using WireGuard
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: tailscale
+        winget: tailscale.tailscale
+        choco: tailscale
+        apt: tailscale
+        dnf: tailscale
+        pacman: tailscale
+        snap: tailscale
+        script: curl -fsSL https://tailscale.com/install.sh | sh
+
+      - name: zerotier
+        description: ZeroTier - global virtual network
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: zerotier-one
+        winget: ZeroTier.ZeroTierOne
+        choco: zerotier-one
+        apt: zerotier-one
+        dnf: zerotier-one
+        pacman: zerotier-one
+        snap: zerotier
+        script: curl -s https://install.zerotier.com | sudo bash
+
+      - name: headscale
+        description: Headscale - self-hosted Tailscale control server
+        brew: headscale
+        apt: headscale
+        dnf: headscale
+        pacman: headscale
+        docker: headscale/headscale
+        script: curl -fsSL https://github.com/juanfont/headscale/releases/latest/download/headscale_linux_amd64 -o /usr/local/bin/headscale && chmod +x /usr/local/bin/headscale
+
+      - name: netbird
+        description: Netbird - WireGuard-based mesh VPN alternative
+        brew: netbirdio/tap/netbird
+        winget: Netbird.Netbird
+        apt: netbird
+        dnf: netbird
+        script: curl -fsSL https://pkgs.netbird.io/install.sh | sudo bash
+
+      # Privacy VPN providers
+      - name: mullvad-vpn
+        description: Mullvad VPN client - privacy-focused
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: mullvadvpn
+        winget: MullvadVPN.MullvadVPN
+        choco: mullvad-app
+        flatpak: net.mullvad.MullvadVPN
+        apt: mullvad-vpn
+        dnf: mullvad-vpn
+        script: curl -fsSL https://mullvad.net/media/app/MullvadVPN-latest.deb -o mullvad.deb && sudo dpkg -i mullvad.deb
+
+      - name: nordvpn
+        description: NordVPN client
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: nordvpn
+        winget: NordVPN.NordVPN
+        choco: nordvpn
+        apt: nordvpn
+        dnf: nordvpn
+        snap: nordvpn
+        script: curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh | sh
+
+      - name: expressvpn
+        description: ExpressVPN client
+        recommended:
+          darwin: brew
+          windows: winget
+        brew: expressvpn
+        winget: ExpressVPN.ExpressVPN
+        choco: expressvpn
+        script: curl -sL https://www.expressvpn.works/clients/linux/expressvpn_latest_amd64.deb -o expressvpn.deb && sudo dpkg -i expressvpn.deb
+
+      - name: surfshark
+        description: Surfshark VPN client
+        winget: Surfshark.SurfsharkVPN
+        choco: surfshark
+        flatpak: com.surfshark.Surfshark
+        apt: surfshark
+        script: curl -f https://downloads.surfshark.com/linux/debian-install.sh | sh
+
+      - name: privateinternetaccess
+        description: Private Internet Access (PIA) VPN client
+        brew: private-internet-access
+        winget: PrivateInternetAccess.PrivateInternetAccess
+        choco: pia
+        flatpak: com.privateinternetaccess.pia
+        script: curl -sL https://installers.privateinternetaccess.com/download/pia-linux.run -o pia-linux.run && bash pia-linux.run
+
+      # VPN management tools
+      - name: openconnect
+        description: OpenConnect - Cisco AnyConnect compatible VPN client
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: openconnect
+        apt: openconnect
+        dnf: openconnect
+        pacman: openconnect
+
+      - name: network-manager-openconnect
+        description: OpenConnect plugin for NetworkManager
+        apt: network-manager-openconnect-gnome
+        dnf: NetworkManager-openconnect-gnome
+        pacman: networkmanager-openconnect
+
+      - name: strongswan
+        description: StrongSwan - IPsec VPN solution
+        brew: strongswan
+        apt: strongswan
+        dnf: strongswan
+        pacman: strongswan
+
+      - name: libreswan
+        description: Libreswan - IPsec VPN implementation
+        apt: libreswan
+        dnf: libreswan
+        pacman: libreswan
+
+      - name: softether-vpn
+        description: SoftEther VPN - multi-protocol VPN software
+        brew: softether
+        choco: softether
+        apt: softether-vpnclient
+        script: curl -sL https://github.com/SoftEtherVPN/SoftEtherVPN_Stable/releases/latest/download/softether-vpnclient-linux-x64.tar.gz | tar xz
+
+      # VPN GUI managers
+      - name: gnome-network-manager
+        description: GNOME Network Manager for VPN management
+        apt: network-manager-gnome
+        dnf: NetworkManager
+        pacman: networkmanager
+
+      - name: plasma-nm
+        description: KDE Plasma Network Manager
+        apt: plasma-nm
+        dnf: plasma-nm
+        pacman: plasma-nm
+
+  # ============================================================================
+  # PASSWORD MANAGERS
+  # ============================================================================
+  password-managers:
+    description: Password and secret management tools
+    packages:
+      - name: bitwarden
+        description: Bitwarden password manager
+        brew: bitwarden
+        winget: Bitwarden.Bitwarden
+        choco: bitwarden
+        flatpak: com.bitwarden.desktop
+        apt: bitwarden
+        snap: bitwarden
+
+      - name: bitwarden-cli
+        description: Bitwarden command-line interface
+        brew: bitwarden-cli
+        winget: Bitwarden.CLI
+        choco: bitwarden-cli
+        npm: "@bitwarden/cli"
+        snap: bw
+
+      - name: 1password
+        description: 1Password password manager
+        brew: 1password
+        winget: AgileBits.1Password
+        choco: 1password
+        apt: 1password
+        dnf: 1password
+        snap: 1password
+
+      - name: 1password-cli
+        description: 1Password command-line tool
+        brew: 1password-cli
+        winget: AgileBits.1Password.CLI
+        choco: 1password-cli
+        apt: 1password-cli
+        dnf: 1password-cli
+
+      - name: keepassxc
+        description: KeePassXC password manager
+        brew: keepassxc
+        winget: KeePassXCTeam.KeePassXC
+        choco: keepassxc
+        flatpak: org.keepassxc.KeePassXC
+        apt: keepassxc
+        dnf: keepassxc
+        pacman: keepassxc
+        snap: keepassxc
+
+      - name: pass
+        description: Unix password manager (pass)
+        brew: pass
+        apt: pass
+        dnf: pass
+        pacman: pass
+        apk: pass
+
+      - name: gopass
+        description: Password manager for teams (pass compatible)
+        brew: gopass
+        winget: gopass.gopass
+        choco: gopass
+        apt: gopass
+        dnf: gopass
+        pacman: gopass
+
+      - name: lastpass-cli
+        description: LastPass command-line client
+        brew: lastpass-cli
+        apt: lastpass-cli
+        dnf: lastpass-cli
+        pacman: lastpass-cli
+
+      - name: dashlane-cli
+        description: Dashlane CLI
+        brew: dashlane/tap/dashlane-cli
+        npm: "@dashlane/cli"
+
+  # ============================================================================
+  # WEB BROWSERS
+  # ============================================================================
+  browsers:
+    description: Web browsers for development and general use
+    packages:
+      # Privacy-focused browsers
+      - name: brave-browser
+        description: Brave Browser - privacy-focused browser with ad blocking
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: flatpak
+        brew: brave-browser
+        winget: Brave.Brave
+        choco: brave
+        scoop: brave
+        flatpak: com.brave.Browser
+        snap: brave
+        apt: brave-browser
+        dnf: brave-browser
+        pacman: brave-bin
+        script_deb: |
+          sudo curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" | sudo tee /etc/apt/sources.list.d/brave-browser-release.list
+          sudo apt update && sudo apt install -y brave-browser
+        script_rpm: |
+          sudo dnf install -y dnf-plugins-core
+          sudo dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
+          sudo rpm --import https://brave-browser-rpm-release.s3.brave.com/brave-core.asc
+          sudo dnf install -y brave-browser
+
+      - name: firefox
+        description: Mozilla Firefox - open-source web browser
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt  # Native package preferred over flatpak/snap for system integration
+        brew: firefox
+        winget: Mozilla.Firefox
+        choco: firefox
+        scoop: firefox
+        apt: firefox
+        dnf: firefox
+        pacman: firefox
+        apk: firefox
+        flatpak: org.mozilla.firefox
+        snap: firefox
+
+      - name: firefox-developer-edition
+        description: Firefox Developer Edition - browser for web developers
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: flatpak
+        brew: firefox-developer-edition
+        winget: Mozilla.Firefox.DeveloperEdition
+        choco: firefox-dev
+        flatpak: org.mozilla.firefox
+        pacman: firefox-developer-edition
+        script: curl -sL "https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=en-US" | tar xj -C /opt/
+
+      - name: firefox-esr
+        description: Firefox Extended Support Release - stable long-term browser
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: firefox-esr
+        winget: Mozilla.Firefox.ESR
+        choco: firefoxesr
+        apt: firefox-esr
+        dnf: firefox-esr
+        flatpak: org.mozilla.firefox
+
+      - name: librewolf
+        description: LibreWolf - privacy-hardened Firefox fork
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: flatpak
+        brew: librewolf
+        winget: LibreWolf.LibreWolf
+        choco: librewolf
+        flatpak: io.gitlab.librewolf-community
+        pacman: librewolf
+        script: curl -sL https://librewolf.net/installation/linux/ # Follow distro instructions
+
+      - name: tor-browser
+        description: Tor Browser - anonymous browsing via Tor network
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: flatpak
+        brew: tor-browser
+        winget: TorProject.TorBrowser
+        choco: tor-browser
+        flatpak: com.github.nickvision.tagger
+        apt: torbrowser-launcher
+        dnf: torbrowser-launcher
+        pacman: torbrowser-launcher
+
+      # Chromium-based browsers
+      - name: chromium
+        description: Chromium - open-source browser (Chrome base)
+        recommended:
+          darwin: brew
+          windows: choco
+          linux: apt  # Native package preferred for system integration
+        brew: chromium
+        choco: chromium
+        apt: chromium-browser
+        dnf: chromium
+        pacman: chromium
+        apk: chromium
+        flatpak: org.chromium.Chromium
+        snap: chromium
+
+      - name: ungoogled-chromium
+        description: Ungoogled Chromium - Chromium without Google integration
+        recommended:
+          darwin: brew
+          windows: choco
+          linux: flatpak
+        brew: eloston-chromium
+        choco: ungoogled-chromium
+        flatpak: com.github.nickvision.tagger
+        pacman: ungoogled-chromium
+        script: curl -sL https://ungoogled-software.github.io/ungoogled-chromium-binaries/
+
+      - name: google-chrome
+        description: Google Chrome - Google's web browser
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: google-chrome
+        winget: Google.Chrome
+        choco: googlechrome
+        apt: google-chrome-stable
+        dnf: google-chrome-stable
+        flatpak: com.google.Chrome
+        script_deb: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt update && sudo apt install -y google-chrome-stable
+
+      - name: microsoft-edge
+        description: Microsoft Edge - Chromium-based browser
+        recommended:
+          darwin: brew
+          windows: winget  # Pre-installed on Windows 11
+          linux: apt
+        brew: microsoft-edge
+        winget: Microsoft.Edge
+        choco: microsoft-edge
+        apt: microsoft-edge-stable
+        dnf: microsoft-edge-stable
+        flatpak: com.microsoft.Edge
+        script_deb: |
+          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-edge.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main" | sudo tee /etc/apt/sources.list.d/microsoft-edge.list
+          sudo apt update && sudo apt install -y microsoft-edge-stable
+
+      - name: vivaldi
+        description: Vivaldi - feature-rich browser for power users
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: apt
+        brew: vivaldi
+        winget: Vivaldi.Vivaldi
+        choco: vivaldi
+        apt: vivaldi-stable
+        dnf: vivaldi-stable
+        flatpak: com.vivaldi.Vivaldi
+        pacman: vivaldi
+        script_deb: |
+          wget -qO- https://repo.vivaldi.com/archive/linux_signing_key.pub | gpg --dearmor | sudo tee /usr/share/keyrings/vivaldi.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/vivaldi.gpg] https://repo.vivaldi.com/archive/deb/ stable main" | sudo tee /etc/apt/sources.list.d/vivaldi.list
+          sudo apt update && sudo apt install -y vivaldi-stable
+
+      - name: opera
+        description: Opera - browser with built-in VPN and ad blocker
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: flatpak
+        brew: opera
+        winget: Opera.Opera
+        choco: opera
+        flatpak: com.opera.Opera
+        apt: opera-stable
+        snap: opera
+
+      # Developer/specialty browsers
+      - name: arc
+        description: Arc Browser - modern browser with workspaces
+        recommended:
+          darwin: brew
+          windows: winget
+        brew: arc
+        winget: TheBrowserCompany.Arc
+
+      - name: min
+        description: Min - minimal, privacy-focused browser
+        recommended:
+          darwin: brew
+          windows: winget
+          linux: flatpak
+        brew: min
+        winget: nickvision.MinBrowser
+        choco: min
+        flatpak: io.github.nickvision.money
+        apt: min
+        script: curl -sL https://github.com/nickvision-apps/min/releases/latest
+
+      - name: qutebrowser
+        description: Qutebrowser - keyboard-driven vim-like browser
+        recommended:
+          darwin: brew
+          windows: choco
+          linux: apt
+        brew: qutebrowser
+        choco: qutebrowser
+        apt: qutebrowser
+        dnf: qutebrowser
+        pacman: qutebrowser
+        flatpak: org.qutebrowser.qutebrowser
+        pip: qutebrowser
+
+      - name: nyxt
+        description: Nyxt - keyboard-oriented extensible web browser
+        recommended:
+          darwin: brew
+          linux: flatpak
+        brew: nyxt
+        flatpak: engineer.atlas.Nyxt
+        pacman: nyxt
+        guix: nyxt
+
+      # WebKit-based browsers
+      - name: epiphany
+        description: GNOME Web (Epiphany) - WebKit-based browser
+        recommended:
+          linux: apt
+        apt: epiphany-browser
+        dnf: epiphany
+        flatpak: org.gnome.Epiphany
+        pacman: epiphany
+
+      - name: falkon
+        description: Falkon - KDE QtWebEngine browser
+        recommended:
+          linux: apt
+        apt: falkon
+        dnf: falkon
+        flatpak: org.kde.falkon
+        pacman: falkon
+
+  # ============================================================================
+  # HEADLESS BROWSERS AND BROWSER AUTOMATION
+  # ============================================================================
+  headless-browsers:
+    description: Headless browsers and browser automation tools for testing and scraping
+    packages:
+      # Browser automation frameworks
+      - name: playwright
+        description: Playwright - cross-browser automation (Chromium, Firefox, WebKit)
+        recommended:
+          all: npm
+        npm: playwright
+        pip: playwright
+        brew: playwright
+        script: npm install -g playwright && npx playwright install
+
+      - name: puppeteer
+        description: Puppeteer - headless Chrome/Chromium automation
+        recommended:
+          all: npm
+        npm: puppeteer
+        script: npm install -g puppeteer
+
+      - name: selenium
+        description: Selenium WebDriver for browser automation
+        recommended:
+          all: pip
+        pip: selenium
+        npm: selenium-webdriver
+        brew: selenium-server
+        apt: python3-selenium
+
+      - name: cypress
+        description: Cypress - end-to-end testing framework
+        recommended:
+          all: npm
+        npm: cypress
+        brew: cypress
+        script: npm install -g cypress
+
+      # WebDriver implementations
+      - name: chromedriver
+        description: ChromeDriver - WebDriver for Chrome/Chromium
+        recommended:
+          darwin: brew
+          windows: choco
+          linux: apt
+        brew: chromedriver
+        choco: chromedriver
+        apt: chromium-chromedriver
+        dnf: chromedriver
+        pacman: chromedriver
+        npm: chromedriver
+        script: npx @puppeteer/browsers install chromedriver@stable
+
+      - name: geckodriver
+        description: GeckoDriver - WebDriver for Firefox
+        recommended:
+          darwin: brew
+          windows: choco
+          linux: apt
+        brew: geckodriver
+        choco: selenium-gecko-driver
+        apt: firefox-geckodriver
+        dnf: geckodriver
+        pacman: geckodriver
+        cargo: geckodriver
+        script: curl -sL https://github.com/mozilla/geckodriver/releases/latest/download/geckodriver-linux64.tar.gz | tar xz -C /usr/local/bin/
+
+      - name: msedgedriver
+        description: Microsoft Edge WebDriver
+        recommended:
+          darwin: brew
+          windows: winget
+        brew: microsoft-edge-driver
+        winget: Microsoft.EdgeWebDriver
+        script: curl -sL "https://msedgedriver.azureedge.net/LATEST_STABLE" | xargs -I {} curl -sL "https://msedgedriver.azureedge.net/{}/edgedriver_linux64.zip" -o edgedriver.zip && unzip edgedriver.zip
+
+      - name: safaridriver
+        description: Safari WebDriver (macOS built-in)
+        note: "Included with Safari on macOS. Enable via: safaridriver --enable"
+
+      # Headless browser engines
+      - name: chromium-headless
+        description: Chromium in headless mode (use with --headless flag)
+        note: "Use chromium --headless --disable-gpu for headless mode"
+        brew: chromium
+        apt: chromium-browser
+        dnf: chromium
+        pacman: chromium
+
+      - name: firefox-headless
+        description: Firefox in headless mode (use with --headless flag)
+        note: "Use firefox --headless for headless mode"
+        brew: firefox
+        apt: firefox
+        dnf: firefox
+        pacman: firefox
+
+      # Lightweight headless browsers
+      - name: phantomjs
+        description: PhantomJS - scriptable headless browser (legacy)
+        note: "Deprecated - consider using Playwright or Puppeteer instead"
+        brew: phantomjs
+        choco: phantomjs
+        apt: phantomjs
+        npm: phantomjs-prebuilt
+
+      - name: splash
+        description: Splash - lightweight scriptable browser for web scraping
+        recommended:
+          all: docker
+        pip: splash
+        docker: scrapinghub/splash
+        script: docker run -p 8050:8050 scrapinghub/splash
+
+      - name: browserless
+        description: Browserless - headless Chrome as a service
+        recommended:
+          all: docker
+        docker: browserless/chrome
+        script: docker run -p 3000:3000 browserless/chrome
+
+      # Browser testing tools
+      - name: webdriverio
+        description: WebdriverIO - browser and mobile automation framework
+        recommended:
+          all: npm
+        npm: webdriverio
+        script: npm install -g @wdio/cli
+
+      - name: nightwatch
+        description: Nightwatch.js - end-to-end testing framework
+        recommended:
+          all: npm
+        npm: nightwatch
+        script: npm install -g nightwatch
+
+      - name: testcafe
+        description: TestCafe - cross-browser end-to-end testing
+        recommended:
+          all: npm
+        npm: testcafe
+        brew: testcafe
+        script: npm install -g testcafe
+
+      # HTTP clients and scraping tools
+      - name: curl-impersonate
+        description: curl-impersonate - curl with browser TLS fingerprints
+        recommended:
+          darwin: brew
+          linux: script
+        brew: curl-impersonate
+        script: curl -sL https://github.com/lwthiker/curl-impersonate/releases/latest/download/curl-impersonate-linux.tar.gz | tar xz -C /usr/local/bin/
+
+      - name: httpx
+        description: httpx - fast HTTP toolkit for web reconnaissance
+        recommended:
+          darwin: brew
+          linux: go
+        brew: httpx
+        go: github.com/projectdiscovery/httpx/cmd/httpx@latest
+        apt: httpx
+        script: go install github.com/projectdiscovery/httpx/cmd/httpx@latest
+
+      - name: katana
+        description: Katana - fast web crawler
+        recommended:
+          darwin: brew
+          linux: go
+        brew: katana
+        go: github.com/projectdiscovery/katana/cmd/katana@latest
+        script: go install github.com/projectdiscovery/katana/cmd/katana@latest
+
+      # Screenshot and rendering tools
+      - name: shot-scraper
+        description: shot-scraper - CLI tool for screenshots and scraping
+        recommended:
+          all: pip
+        pip: shot-scraper
+        pipx: shot-scraper
+        brew: shot-scraper
+        script: pip install shot-scraper && shot-scraper install
+
+      - name: pageres-cli
+        description: Pageres - capture screenshots of websites
+        recommended:
+          all: npm
+        npm: pageres-cli
+        script: npm install -g pageres-cli
+
+      - name: capture-website-cli
+        description: Capture Website - screenshot websites from CLI
+        recommended:
+          all: npm
+        npm: capture-website-cli
+        script: npm install -g capture-website-cli
+
+      - name: percollate
+        description: Percollate - web pages to PDF/EPUB
+        recommended:
+          all: npm
+        npm: percollate
+        script: npm install -g percollate
+
+      # Browser management
+      - name: browsers-cli
+        description: Puppeteer browsers CLI - manage browser installations
+        recommended:
+          all: npm
+        npm: "@puppeteer/browsers"
+        script: npm install -g @puppeteer/browsers
+
+platforms:
+  darwin:
+    note: "All packages available via Homebrew"
+
+  linux:
+    note: "Most packages available via system package managers"
+
+  windows:
+    note: "Some packages may require WSL or alternative Windows installation"

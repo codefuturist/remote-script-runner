@@ -1,0 +1,473 @@
+# languages-extended.yaml - Additional programming languages and runtimes
+# Usage: rsr pkg install languages-extended
+#        rsr pkg install languages-extended.jvm
+#        rsr pkg install languages-extended.php
+
+name: languages-extended
+description: Additional programming languages and runtimes
+version: "2.0.0"
+category: development
+
+packages:
+  - git
+  - curl
+
+groups:
+  jvm:
+    description: Java Virtual Machine languages and tools
+    jdk:
+      description: Java Development Kit distributions
+      packages:
+        - name: temurin
+          description: Eclipse Temurin (Adoptium) JDK - recommended
+          brew: temurin
+          winget: EclipseAdoptium.Temurin.21.JDK
+          choco: temurin21jdk
+          apt: temurin-21-jdk
+          dnf: temurin-21-jdk
+          sdkman: java 21-tem
+
+        - name: openjdk
+          description: OpenJDK - official open-source JDK
+          brew: openjdk
+          winget: Oracle.OpenJDK
+          choco: openjdk
+          apt: openjdk-21-jdk
+          dnf: java-21-openjdk-devel
+          sdkman: java 21-open
+
+        - name: corretto
+          description: Amazon Corretto - production-ready JDK
+          brew: corretto
+          winget: Amazon.Corretto.21
+          choco: corretto21jdk
+          apt: java-21-amazon-corretto-jdk
+          sdkman: java 21-amzn
+
+        - name: zulu
+          description: Azul Zulu JDK
+          brew: zulu
+          winget: Azul.Zulu.21.JDK
+          choco: zulu21
+          sdkman: java 21-zulu
+
+        - name: graalvm
+          description: GraalVM - high-performance polyglot VM
+          brew: graalvm-ce
+          winget: Oracle.GraalVM.Community.21
+          choco: graalvm
+          sdkman: java 21-graalce
+
+    build-tools:
+      description: Build and dependency management tools
+      packages:
+        - name: gradle
+          description: Build automation tool
+          brew: gradle
+          winget: Gradle.Gradle
+          choco: gradle
+          apt: gradle
+          dnf: gradle
+          sdkman: gradle
+
+        - name: maven
+          description: Apache Maven - build and dependency management
+          brew: maven
+          winget: Apache.Maven
+          choco: maven
+          apt: maven
+          dnf: maven
+          sdkman: maven
+
+        - name: ant
+          description: Apache Ant - build tool
+          brew: ant
+          winget: Apache.Ant
+          choco: ant
+          apt: ant
+          dnf: ant
+          sdkman: ant
+
+        - name: sbt
+          description: Scala Build Tool
+          brew: sbt
+          winget: sbt.sbt
+          choco: sbt
+          apt: sbt
+          sdkman: sbt
+
+    languages:
+      description: JVM languages
+      packages:
+        - name: kotlin
+          description: Kotlin programming language
+          brew: kotlin
+          winget: JetBrains.Kotlin
+          choco: kotlin
+          apt: kotlin
+          dnf: kotlin
+          sdkman: kotlin
+
+        - name: scala
+          description: Scala programming language
+          brew: scala
+          winget: Lightbend.Scala
+          choco: scala
+          apt: scala
+          dnf: scala
+          sdkman: scala
+
+        - name: groovy
+          description: Groovy programming language
+          brew: groovy
+          winget: Apache.Groovy
+          choco: groovy
+          apt: groovy
+          dnf: groovy
+          sdkman: groovy
+
+        - name: clojure
+          description: Clojure programming language
+          brew: clojure
+          winget: Cognitect.Clojure
+          choco: clojure
+          apt: clojure
+          dnf: clojure
+
+    dev-tools:
+      description: Java development utilities
+      packages:
+        - name: jenv
+          description: Java environment manager
+          brew: jenv
+          script: git clone https://github.com/jenv/jenv.git ~/.jenv
+
+        - name: sdkman
+          description: SDK Manager for JVM languages
+          script: curl -s https://get.sdkman.io | bash
+
+        - name: visualvm
+          description: Visual tool for JVM monitoring and profiling
+          brew: visualvm
+          winget: Oracle.VisualVM
+          choco: visualvm
+
+        - name: jmeter
+          description: Apache JMeter - load testing tool
+          brew: jmeter
+          winget: Apache.JMeter
+          choco: jmeter
+
+        - name: lombok
+          description: Lombok - Java annotation library
+          optional: true
+
+        - name: spring-boot-cli
+          description: Spring Boot CLI
+          brew: spring-boot
+          sdkman: springboot
+
+  dotnet:
+    description: Microsoft .NET ecosystem
+    sdk:
+      description: .NET SDK versions
+      packages:
+        - name: dotnet-sdk-8
+          description: .NET 8 SDK (LTS - recommended)
+          brew: dotnet-sdk
+          winget: Microsoft.DotNet.SDK.8
+          choco: dotnet-sdk
+          apt: dotnet-sdk-8.0
+          dnf: dotnet-sdk-8.0
+          script: curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 8.0
+          script_windows: winget install Microsoft.DotNet.SDK.8
+
+        - name: dotnet-sdk-9
+          description: .NET 9 SDK (latest)
+          winget: Microsoft.DotNet.SDK.9
+          choco: dotnet-sdk --version=9.0.0
+          apt: dotnet-sdk-9.0
+          script: curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0
+
+        - name: dotnet-runtime
+          description: .NET Runtime (for running apps only)
+          brew: dotnet
+          winget: Microsoft.DotNet.Runtime.8
+          choco: dotnet-runtime
+          apt: dotnet-runtime-8.0
+          dnf: dotnet-runtime-8.0
+
+    languages:
+      description: .NET languages
+      packages:
+        - name: fsharp
+          description: F# functional programming language
+          brew: fsharp
+          winget: Microsoft.DotNet.SDK.8
+          apt: fsharp
+          dnf: fsharp
+
+        - name: csharp
+          description: C# (included with .NET SDK)
+          optional: true
+
+        - name: vbnet
+          description: Visual Basic .NET (included with .NET SDK)
+          optional: true
+
+    tools:
+      description: .NET development tools
+      packages:
+        - name: nuget
+          description: NuGet package manager CLI
+          brew: nuget
+          winget: Microsoft.NuGet
+          choco: nuget.commandline
+          apt: nuget
+
+        - name: dotnet-ef
+          description: Entity Framework Core CLI tools
+          dotnet: dotnet-ef
+
+        - name: dotnet-format
+          description: Code formatter for .NET
+          dotnet: dotnet-format
+
+        - name: dotnet-outdated
+          description: Check for outdated NuGet packages
+          dotnet: dotnet-outdated-tool
+
+        - name: dotnet-reportgenerator
+          description: Code coverage report generator
+          dotnet: dotnet-reportgenerator-globaltool
+
+        - name: nbgv
+          description: Nerdbank.GitVersioning CLI
+          dotnet: nbgv
+
+    frameworks:
+      description: .NET frameworks and templates
+      packages:
+        - name: aspnet-codegenerator
+          description: ASP.NET Core scaffolding tool
+          dotnet: dotnet-aspnet-codegenerator
+
+        - name: blazor
+          description: Blazor templates (included with SDK)
+          optional: true
+
+        - name: maui
+          description: .NET MAUI workload for cross-platform apps
+          dotnet_workload: maui
+
+    testing:
+      description: .NET testing tools
+      packages:
+        - name: dotnet-coverage
+          description: Code coverage collection tool
+          dotnet: dotnet-coverage
+
+        - name: dotnet-stryker
+          description: Mutation testing for .NET
+          dotnet: dotnet-stryker
+
+        - name: specflow
+          description: SpecFlow BDD testing
+          optional: true
+
+    ide-extensions:
+      description: IDE and editor tools
+      packages:
+        - name: omnisharp
+          description: OmniSharp language server for C#
+          brew: omnisharp
+          winget: OmniSharp.OmniSharp
+
+        - name: csharp-ls
+          description: C# language server
+          dotnet: csharp-ls
+
+        - name: fsautocomplete
+          description: F# language server
+          dotnet: fsautocomplete
+
+  php:
+    description: PHP web development
+    packages:
+      - name: php
+        description: PHP programming language
+        brew: php
+        winget: PHP.PHP.8.3
+        choco: php
+        apt: php
+        dnf: php
+
+      - name: composer
+        description: PHP dependency manager
+        brew: composer
+        winget: PHP.Composer
+        choco: composer
+        apt: composer
+        dnf: composer
+
+      - name: php-cs-fixer
+        description: PHP code fixer
+        brew: php-cs-fixer
+        apt: php-cs-fixer
+
+  elixir:
+    description: Elixir functional programming
+    packages:
+      - name: elixir
+        description: Elixir programming language
+        brew: elixir
+        winget: Elixir-Lang.Elixir
+        choco: elixir
+        apt: elixir
+        dnf: elixir
+
+      - name: erlang
+        description: Erlang runtime
+        brew: erlang
+        winget: Erlang.Erlang
+        choco: erlang
+        apt: erlang
+        dnf: erlang
+
+      - name: hex
+        description: Hex package manager for Erlang/Elixir
+        brew: hex
+        apt: elixir
+
+  lua:
+    description: Lua scripting language
+    packages:
+      - name: lua
+        description: Lua programming language
+        brew: lua
+        winget: lua.lua
+        choco: lua
+        apt: lua5.4
+        dnf: lua
+
+      - name: luarocks
+        description: Lua package manager
+        brew: luarocks
+        apt: luarocks
+        dnf: luarocks
+
+  perl:
+    description: Perl scripting language
+    packages:
+      - name: perl
+        description: Perl programming language
+        brew: perl
+        apt: perl
+        dnf: perl
+
+      - name: cpanminus
+        description: CPAN package manager
+        brew: cpanminus
+        apt: cpanminus
+        dnf: perl-App-cpanminus
+
+  haskell:
+    description: Haskell functional programming
+    packages:
+      - name: ghc
+        description: Glasgow Haskell Compiler
+        brew: ghc
+        winget: Haskell.GHC
+        choco: ghc
+        apt: ghc
+        dnf: ghc
+
+      - name: cabal
+        description: Cabal build system
+        brew: cabal-install
+        apt: cabal-install
+        dnf: cabal-install
+
+  version-managers:
+    description: Universal version managers for multiple languages
+    packages:
+      - name: asdf
+        description: ASDF - Extendable version manager for multiple languages
+        brew: asdf
+        winget: asdf-vm.asdf
+        pacman: asdf-vm
+        script: git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0
+
+      - name: uv
+        description: Fast Python package installer and resolver
+        brew: uv
+        macports: uv
+        winget: astral-sh.uv
+        scoop: main/uv
+        pipx: uv
+        pip: uv
+        cargo: uv
+        script: curl -LsSf https://astral.sh/uv/install.sh | sh
+        script_windows: powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+      - name: nvm
+        description: Node Version Manager
+        brew: nvm
+        pacman: nvm
+        script: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+        script_wget: wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+
+      - name: fnm
+        description: Fast Node Manager (Rust-based alternative to nvm)
+        brew: fnm
+        winget: Schniz.fnm
+        choco: fnm
+        cargo: fnm
+        script: curl -fsSL https://fnm.vercel.app/install | bash
+        script_windows: winget install Schniz.fnm
+
+      - name: n
+        description: Node.js version management (simpler alternative to nvm)
+        brew: n
+        npm: n
+        script: curl -L https://bit.ly/n-install | bash
+
+      - name: pyenv
+        description: Python version management
+        brew: pyenv
+        winget: pyenv.pyenv
+        pacman: pyenv
+        script: curl https://pyenv.run | bash
+
+      - name: rvm
+        description: Ruby Version Manager
+        brew: rvm
+        script: curl -sSL https://get.rvm.io | bash -s stable
+
+      - name: rbenv
+        description: Ruby environment manager (lightweight alternative to rvm)
+        brew: rbenv
+        apt: rbenv
+        pacman: rbenv
+        script: curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash
+
+      - name: rustup
+        description: Rust version manager and installer
+        brew: rustup
+        winget: Rustlang.Rustup
+        pacman: rustup
+        script: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+      - name: sdkman
+        description: SDK Manager for JVM languages (Java, Kotlin, Scala, etc.)
+        script: curl -s https://get.sdkman.io | bash
+
+platforms:
+  darwin:
+    note: "Most languages available via Homebrew"
+
+  linux:
+    note: "All languages available via system package managers"
+
+  windows:
+    note: "Most languages available; some require WSL or manual installation"

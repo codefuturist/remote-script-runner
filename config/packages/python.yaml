@@ -1,80 +1,161 @@
 # python.yaml - Python development environment
 # Usage: rsr pkg install-profile python
-#
-# Python development environment with common tools.
-# Includes pip, venv, and popular development packages.
+#        rsr pkg install python.core
+#        rsr pkg install python.package-managers
+#        rsr pkg install python.dev-tools
 
 name: python
 description: Python development environment
-version: "1.0.0"
+version: "2.0.0"
 category: languages
 
 packages:
-  # Python core
-  - python3
-  - python3-pip
-  - python3-venv
-  - python-dev
+  - curl
+  - wget
 
-optional:
-  # Additional Python packages
-  - python3-setuptools
-  - python3-wheel
+groups:
+  core:
+    description: Python runtime and core tools
+    packages:
+      - name: python3
+        description: Python 3 programming language
+        brew: python@3
+        winget: Python.Python.3.13
+        choco: python
+        apt: python3
+        dnf: python3
 
-  # Version management
-  - pipx
+      - name: python3-pip
+        description: Python package installer
+        brew: python@3
+        apt: python3-pip
+        dnf: python3-pip
 
-  # Virtual environment tools (install via pip)
-  # - virtualenv
-  # - pipenv
-  # - poetry
+      - name: python3-venv
+        description: Virtual environment support
+        apt: python3-venv
+        dnf: python3
 
-# Packages to install via pip
-pip_packages:
-  - virtualenv
-  - pipenv
-  - poetry
-  - black
-  - flake8
-  - mypy
-  - pytest
-  - ipython
-  - jupyter
+      - name: python3-dev
+        description: Python development headers
+        apt: python3-dev
+        dnf: python3-devel
+
+  setuptools:
+    description: Build and distribution tools
+    packages:
+      - name: python3-setuptools
+        description: Setuptools for building packages
+        apt: python3-setuptools
+        dnf: python3-setuptools
+
+      - name: python3-wheel
+        description: Wheel binary package format
+        apt: python3-wheel
+        dnf: python3-wheel
+
+  package-managers:
+    description: Alternative package managers
+    packages:
+      - name: pip
+        description: Official Python package manager
+        optional: true
+
+      - name: uv
+        description: Fast Python package installer and resolver
+        brew: uv
+        macports: uv
+        winget: astral-sh.uv
+        scoop: main/uv
+        pipx: uv
+        pip: uv
+        cargo: uv
+        script: curl -LsSf https://astral.sh/uv/install.sh | sh
+        script_windows: powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+      - name: pipx
+        description: Install isolated Python apps
+        brew: pipx
+        apt: pipx
+        dnf: pipx
+
+  venv-tools:
+    description: Virtual environment management
+    packages:
+      - name: virtualenv
+        description: Virtual environment tool
+        pip: virtualenv
+
+      - name: pipenv
+        description: Python environment manager
+        brew: pipenv
+        apt: pipenv
+        dnf: pipenv
+        pip: pipenv
+
+      - name: poetry
+        description: Python dependency manager and packager
+        brew: poetry
+        apt: poetry
+        dnf: poetry
+        pip: poetry
+
+  linting-formatting:
+    description: Code quality and style tools
+    packages:
+      - name: black
+        description: Python code formatter
+        pip: black
+
+      - name: flake8
+        description: Python linter
+        pip: flake8
+
+      - name: mypy
+        description: Static type checker for Python
+        pip: mypy
+
+      - name: ruff
+        description: Fast Python linter
+        brew: ruff
+        pip: ruff
+
+  testing:
+    description: Testing frameworks
+    packages:
+      - name: pytest
+        description: Python testing framework
+        pip: pytest
+
+      - name: pytest-cov
+        description: Coverage plugin for pytest
+        pip: pytest-cov
+
+  interactive:
+    description: Interactive tools
+    packages:
+      - name: ipython
+        description: Interactive Python shell
+        pip: ipython
+
+      - name: jupyter
+        description: Jupyter notebook environment
+        pip: jupyter
+
+      - name: jupyterlab
+        description: Next generation Jupyter
+        pip: jupyterlab
 
 platforms:
   darwin:
-    packages:
-      - python@3
-      - pipx
-    skip:
-      - python3
-      - python3-pip
-      - python3-venv
-      - python-dev
-    note: "Python 3 installed via Homebrew"
+    note: "Python 3 installed via Homebrew; use pipx for isolated apps"
 
   debian:
-    packages:
-      - python3
-      - python3-pip
-      - python3-venv
-      - python3-dev
+    note: "All tools available via apt or pip"
 
   rhel:
-    packages:
-      - python3
-      - python3-pip
-      - python3-devel
-    skip:
-      - python3-venv
-      - python-dev
+    note: "Most tools available via dnf or pip"
 
   alpine:
-    packages:
-      - python3
-      - py3-pip
-      - python3-dev
-    skip:
-      - python3-pip
-      - python3-venv
+    note: "Use py3-pip and py3-dev instead of python3-pip/python3-dev"
 

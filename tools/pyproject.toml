@@ -1,0 +1,17 @@
+[project]
+name = "rsr-package-verifier"
+version = "1.0.0"
+description = "Package verification tool for remote-script-runner YAML profiles"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pyyaml>=6.0",
+    "requests>=2.31.0",
+]
+
+[project.scripts]
+verify-packages = "verify_packages:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

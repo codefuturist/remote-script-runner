@@ -1,0 +1,372 @@
+# backup-sync.yaml - Backup and data synchronization tools
+# Usage: rsr pkg install backup-sync
+#        rsr pkg install backup-sync.backup
+#        rsr pkg install backup-sync.sync
+
+name: backup-sync
+description: Backup and data synchronization tools
+version: "2.0.0"
+category: utilities
+
+packages:
+  - curl
+  - wget
+  - rsync
+
+groups:
+  backup:
+    description: Backup and archival tools
+    packages:
+      - name: restic
+        description: Fast, secure, and efficient backup program
+        brew: restic
+        winget: restic.restic
+        choco: restic
+        scoop: restic
+        apt: restic
+        dnf: restic
+        pacman: restic
+        apk: restic
+        script: curl -L https://github.com/restic/restic/releases/latest/download/restic_linux_amd64.bz2 | bunzip2 > /usr/local/bin/restic && chmod +x /usr/local/bin/restic
+
+      - name: borgbackup
+        description: Deduplicating backup program with compression and encryption
+        brew: borgbackup
+        choco: borgbackup
+        apt: borgbackup
+        dnf: borgbackup
+        pacman: borg
+        apk: borgbackup
+        pip: borgbackup
+        script: pip3 install --user borgbackup
+
+      - name: kopia
+        description: Fast and secure open-source backup/restore tool with encryption and deduplication
+        brew: kopia
+        winget: KopiaUI.KopiaUI
+        choco: kopia
+        scoop: kopia
+        apt: kopia
+        dnf: kopia
+        pacman: kopia
+        script: curl -s https://kopia.io/setup.sh | sudo bash
+
+      - name: duplicity
+        description: Encrypted incremental backup
+        brew: duplicity
+        apt: duplicity
+        dnf: duplicity
+        pacman: duplicity
+        pip: duplicity
+
+      - name: duplicati
+        description: Free backup software with cloud support and encryption
+        brew: duplicati
+        winget: Duplicati.Duplicati
+        choco: duplicati
+        apt: duplicati
+        flatpak: com.duplicati.Duplicati
+
+      - name: bacula
+        description: Enterprise backup solution
+        brew: bacula
+        apt: bacula-client
+        dnf: bacula-client
+        pacman: bacula
+
+      - name: burp
+        description: BackUp and Restore Program
+        brew: burp
+        apt: burp
+
+      - name: rdiff-backup
+        description: Reverse differential backup
+        brew: rdiff-backup
+        apt: rdiff-backup
+        dnf: rdiff-backup
+        pacman: rdiff-backup
+
+  backup-ui:
+    description: Graphical user interfaces for backup tools
+    packages:
+      - name: vorta
+        description: GUI for BorgBackup - desktop backup client
+        brew: vorta
+        flatpak: com.borgbase.Vorta
+        pip: vorta
+        apt: vorta
+        pacman: vorta
+
+      - name: kopia-ui
+        description: Kopia UI - graphical interface for Kopia backup
+        brew: kopiaui
+        winget: KopiaUI.KopiaUI
+        choco: kopia-ui
+        flatpak: io.kopia.KopiaUI
+        script: curl -sL https://kopia.io/setup.sh | sudo bash && sudo apt install kopia-ui
+
+      - name: pika-backup
+        description: GTK-based backup application using BorgBackup
+        flatpak: org.gnome.World.PikaBackup
+        pacman: pika-backup
+
+      - name: timeshift
+        description: System restore tool with BTRFS/rsync support
+        apt: timeshift
+        dnf: timeshift
+        pacman: timeshift
+        flatpak: org.gnome.Timeshift
+
+      - name: deja-dup
+        description: Simple backup tool for GNOME (uses duplicity)
+        apt: deja-dup
+        dnf: deja-dup
+        flatpak: org.gnome.DejaDup
+        pacman: deja-dup
+
+      - name: restic-browser
+        description: GUI for browsing restic repositories
+        brew: restic-browser
+        flatpak: io.github.emuell.restic-browser
+        script: curl -sL https://github.com/emuell/restic-browser/releases/latest/download/restic-browser-linux.AppImage -o restic-browser && chmod +x restic-browser
+
+      - name: restatic
+        description: Qt-based GUI for Restic backup
+        pip: restatic
+        flatpak: io.github.Restatic
+
+      - name: backintime
+        description: Simple backup tool inspired by Time Machine
+        apt: backintime-qt
+        dnf: backintime-qt
+        pacman: backintime
+        flatpak: org.backintime.BackInTime
+
+      - name: duplicati-web
+        description: Duplicati web interface (included with duplicati)
+        note: "Web UI included with duplicati package - access via http://localhost:8200"
+
+      - name: rclone-browser
+        description: GUI for rclone file operations
+        brew: rclone-browser
+        apt: rclone-browser
+        flatpak: io.github.kapitainsky.RcloneBrowser
+        choco: rclone-browser
+
+      - name: syncthing-gtk
+        description: GTK GUI for Syncthing
+        apt: syncthing-gtk
+        flatpak: me.kozec.syncthingtk
+        pacman: syncthing-gtk
+
+  sync:
+    description: File and folder synchronization
+    packages:
+      - name: rclone
+        description: Rsync for cloud storage (S3, GCS, Azure, SFTP, etc.)
+        brew: rclone
+        winget: Rclone.Rclone
+        choco: rclone
+        scoop: rclone
+        apt: rclone
+        dnf: rclone
+        pacman: rclone
+        apk: rclone
+        snap: rclone
+        script: curl https://rclone.org/install.sh | sudo bash
+
+      - name: syncthing
+        description: Continuous P2P file synchronization
+        brew: syncthing
+        winget: Syncthing.Syncthing
+        choco: syncthing
+        scoop: syncthing
+        apt: syncthing
+        dnf: syncthing
+        pacman: syncthing
+        snap: syncthing
+        flatpak: me.kozec.syncthingtk
+
+      - name: unison
+        description: Bidirectional file synchronization tool
+        brew: unison
+        winget: BCPierce.Unison
+        apt: unison
+        dnf: unison
+        pacman: unison
+
+      - name: resilio-sync
+        description: P2P file synchronization (BitTorrent Sync)
+        brew: resilio-sync
+        winget: Resilio.ResilioSync
+        choco: resilio-sync.install
+
+      - name: synology-drive
+        description: Synology Drive client
+        brew: synology-drive
+        winget: Synology.DriveClient
+
+      - name: seafile
+        description: Self-hosted cloud storage client
+        brew: seafile-client
+        apt: seafile-gui
+        flatpak: com.client.Seafile
+
+      - name: nextcloud-client
+        description: Nextcloud desktop sync client
+        brew: nextcloud
+        winget: Nextcloud.NextcloudDesktop
+        choco: nextcloud-client
+        apt: nextcloud-desktop
+        dnf: nextcloud-client
+        flatpak: com.nextcloud.desktopclient.nextcloud
+        pacman: nextcloud-client
+
+      - name: owncloud-client
+        description: ownCloud desktop sync client
+        brew: owncloud
+        winget: ownCloud.ownCloudDesktop
+        apt: owncloud-client
+        flatpak: com.owncloud.desktopclient.owncloud
+
+  transfer:
+    description: Data transfer and download tools
+    packages:
+      - name: rsync
+        description: Fast incremental file transfer with delta encoding
+        brew: rsync
+        winget: rsync
+        choco: rsync
+        scoop: rsync
+        apt: rsync
+        dnf: rsync
+        pacman: rsync
+        apk: rsync
+
+      - name: aria2
+        description: Lightweight multi-protocol download utility
+        brew: aria2
+        winget: aria2.aria2
+        choco: aria2
+        scoop: aria2
+        apt: aria2
+        dnf: aria2
+        pacman: aria2
+
+      - name: curl
+        description: Data transfer tool supporting multiple protocols
+        brew: curl
+        winget: cURL.cURL
+        choco: curl
+        scoop: curl
+        apt: curl
+        dnf: curl
+        pacman: curl
+        apk: curl
+
+      - name: wget
+        description: Non-interactive network downloader
+        brew: wget
+        winget: JernejSimoncic.Wget
+        choco: wget
+        scoop: wget
+        apt: wget
+        dnf: wget
+        pacman: wget
+        apk: wget
+
+      - name: lftp
+        description: Advanced FTP/HTTP client with scripting
+        brew: lftp
+        apt: lftp
+        dnf: lftp
+        pacman: lftp
+
+      - name: ncftp
+        description: FTP client with advanced features
+        brew: ncftp
+        apt: ncftp
+        dnf: ncftp
+        pacman: ncftp
+
+      - name: zsync
+        description: Efficient file transfer using rsync algorithm over HTTP
+        brew: zsync
+        apt: zsync
+        dnf: zsync
+        pacman: zsync
+
+  object-storage:
+    description: Object storage clients (S3-compatible)
+    packages:
+      - name: minio-client
+        description: MinIO Client (mc) - S3-compatible object storage CLI
+        brew: minio-mc
+        winget: minio.mc
+        choco: minio-client
+        apt: minio-client
+        dnf: minio-client
+        script: curl https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc && chmod +x /usr/local/bin/mc
+        script_macos: curl https://dl.min.io/client/mc/release/darwin-amd64/mc -o /usr/local/bin/mc && chmod +x /usr/local/bin/mc
+        script_windows: Invoke-WebRequest -Uri "https://dl.min.io/client/mc/release/windows-amd64/mc.exe" -OutFile "$HOME\mc.exe"
+
+      - name: minio-server
+        description: MinIO Server - High performance object storage
+        brew: minio
+        winget: minio.minio
+        choco: minio-server
+        apt: minio
+        dnf: minio
+        script: curl https://dl.min.io/server/minio/release/linux-amd64/minio -o /usr/local/bin/minio && chmod +x /usr/local/bin/minio
+
+      - name: awscli
+        description: AWS CLI - works with any S3-compatible storage
+        brew: awscli
+        winget: Amazon.AWSCLI
+        choco: awscli
+        apt: awscli
+        pip: awscli
+        script: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && sudo ./aws/install
+
+      - name: s3cmd
+        description: S3cmd - command line S3 client
+        brew: s3cmd
+        apt: s3cmd
+        dnf: s3cmd
+        pip: s3cmd
+
+      - name: s5cmd
+        description: s5cmd - parallel S3 and local filesystem execution tool
+        brew: peak/tap/s5cmd
+        script: go install github.com/peak/s5cmd/v2@latest
+
+      - name: rclone
+        description: Rclone - rsync for cloud storage (S3, GCS, Azure, etc.)
+        brew: rclone
+        winget: Rclone.Rclone
+        choco: rclone
+        apt: rclone
+        dnf: rclone
+        script: curl https://rclone.org/install.sh | sudo bash
+
+      - name: gsutil
+        description: Google Cloud Storage CLI
+        brew: google-cloud-sdk
+        pip: gsutil
+
+      - name: azcopy
+        description: Azure Blob Storage CLI
+        brew: azcopy
+        winget: Microsoft.AzCopy
+        choco: azcopy
+        script: curl -L https://aka.ms/downloadazcopy-v10-linux | tar --strip-components=1 -C /usr/local/bin -xzf -
+
+platforms:
+  darwin:
+    note: "All tools available via Homebrew"
+
+  linux:
+    note: "All tools available via system package managers"
+
+  windows:
+    note: "Most tools available; some require WSL or alternative implementations"

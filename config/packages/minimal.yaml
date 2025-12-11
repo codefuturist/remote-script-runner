@@ -1,39 +1,63 @@
 # minimal.yaml - Minimal essential packages
 # Usage: rsr pkg install-profile minimal
-#
-# The absolute minimum set of tools for any system.
-# Safe to install on any platform.
+#        rsr pkg install minimal.base
+#        rsr pkg install minimal.editors
 
 name: minimal
 description: Minimal essential packages for any system
-version: "1.0.0"
+version: "2.0.0"
 category: essentials
 
 packages:
-  # Download utilities
   - curl
   - wget
 
-  # Version control
-  - git
+groups:
+  base:
+    description: Core CLI utilities
+    packages:
+      - name: git
+        description: Distributed version control
+        brew: git
+        winget: Git.Git
+        choco: git
+        apt: git
+        dnf: git
+      - name: jq
+        description: JSON processor
+        brew: jq
+        winget: jqlang.jq
+        choco: jq
+        apt: jq
+        dnf: jq
+      - name: htop
+        description: Process viewer
+        brew: htop
+        apt: htop
+        dnf: htop
+      - name: unzip
+        description: Unzip archives
+        brew: unzip
+        apt: unzip
+        dnf: unzip
+      - name: zip
+        description: Create zip archives
+        brew: zip
+        apt: zip
+        dnf: zip
+  editors:
+    description: Baseline editors
+    packages:
+      - name: vim
+        description: Vi IMproved editor
+        brew: vim
+        winget: vim.vim
+        choco: vim
+        apt: vim
+        dnf: vim
 
-  # Text editor
-  - vim
-
-  # System monitoring
-  - htop
-
-  # JSON processor
-  - jq
-
-  # Archive utilities
-  - unzip
-  - zip
-
-# Platform-specific notes
 platforms:
   darwin:
     note: "All packages available via Homebrew"
   alpine:
     note: "Use 'apk add' for installation"
-

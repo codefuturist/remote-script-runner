@@ -1,121 +1,590 @@
 # development.yaml - Development tools and utilities
 # Usage: rsr pkg install-profile development
-#
-# Essential development tools for software engineers.
-# Includes build tools, editors, and common CLI utilities.
+#        rsr pkg install development.vcs
+#        rsr pkg install development.build
 
 name: development
 description: Essential development tools for software engineers
-version: "1.0.0"
+version: "2.0.0"
 category: development
 
 packages:
-  # Version Control
-  - git
-  - git-lfs
-
-  # Build Tools
-  - build-essential
-  - cmake
-  - make
-
-  # Editors
-  - vim
-  - nano
-
-  # Shell utilities
   - curl
   - wget
-  - jq
-  - tree
-  - htop
-  - tmux
-  - screen
 
-  # Network tools
-  - netcat
-  - nmap
+groups:
+  vcs:
+    description: Version control systems
+    packages:
+      - name: git
+        description: Distributed version control
+        brew: git
+        winget: Git.Git
+        choco: git
+        apt: git
+        dnf: git
 
-  # File utilities
-  - rsync
-  - unzip
-  - zip
-  - tar
+      - name: git-lfs
+        description: Git Large File Storage
+        brew: git-lfs
+        apt: git-lfs
+        dnf: git-lfs
 
-optional:
-  # Modern CLI tools
-  - name: neovim
-    brew: neovim
-    winget: Neovim.Neovim
-    choco: neovim
-    apt: neovim
-    dnf: neovim
+  build:
+    description: Build tools and compilers
+    packages:
+      - name: make
+        description: Build automation
+        brew: make
+        apt: make
+        dnf: make
 
-  - name: zsh
-    brew: zsh
-    apt: zsh
-    dnf: zsh
+      - name: cmake
+        description: Cross-platform build system
+        brew: cmake
+        winget: Kitware.CMake
+        choco: cmake
+        apt: cmake
+        dnf: cmake
 
-  - name: fzf
-    brew: fzf
-    winget: junegunn.fzf
-    choco: fzf
-    apt: fzf
-    dnf: fzf
+      - name: build-essential
+        description: Essential build tools (GCC, make, etc.)
+        apt: build-essential
+        dnf: gcc
 
-  - name: ripgrep
-    brew: ripgrep
-    winget: BurntSushi.ripgrep.MSVC
-    choco: ripgrep
-    apt: ripgrep
-    dnf: ripgrep
+      - name: coreutils
+        description: GNU core utilities
+        brew: coreutils
+        apt: coreutils
+        dnf: coreutils
 
-  - name: fd
-    brew: fd
-    winget: sharkdp.fd
-    choco: fd
-    apt: fd-find
-    dnf: fd-find
+      - name: gnu-sed
+        description: GNU sed
+        brew: gnu-sed
+        apt: sed
+        dnf: sed
 
-  - name: bat
-    brew: bat
-    winget: sharkdp.bat
-    choco: bat
-    apt: bat
-    dnf: bat
+  editors:
+    description: Terminal text editors
+    packages:
+      - name: vim
+        description: Vi IMproved
+        brew: vim
+        winget: vim.vim
+        choco: vim
+        apt: vim
+        dnf: vim
 
-  - name: exa
-    brew: exa
-    winget: ogham.exa
-    choco: exa
-    apt: exa
+      - name: nano
+        description: Nano text editor
+        brew: nano
+        apt: nano
+        dnf: nano
 
-  - name: tldr
-    brew: tldr
-    winget: tldr-pages.tlrc
-    choco: tldr
-    apt: tldr
+      - name: neovim
+        description: Vim-based editor with modern features
+        brew: neovim
+        winget: Neovim.Neovim
+        choco: neovim
+        apt: neovim
+        dnf: neovim
+
+      - name: helix
+        description: Post-modern modal text editor
+        brew: helix
+        winget: Helix.Helix
+        choco: helix
+        apt: helix
+        dnf: helix
+        cargo: helix-editor
+
+  ides:
+    description: Integrated Development Environments and GUI editors
+    packages:
+      - name: visual-studio-code
+        description: Visual Studio Code - lightweight code editor
+        brew_cask: visual-studio-code
+        winget: Microsoft.VisualStudioCode
+        choco: vscode
+        apt: code
+        dnf: code
+        snap: code
+        script_linux: |
+          wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
+          sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
+          echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
+          sudo apt update && sudo apt install -y code
+
+      - name: vscodium
+        description: VSCodium - VS Code without telemetry
+        brew_cask: vscodium
+        winget: VSCodium.VSCodium
+        choco: vscodium
+        apt: codium
+        dnf: codium
+        snap: codium
+
+      - name: cursor
+        description: Cursor - AI-first code editor
+        brew_cask: cursor
+        winget: Anysphere.Cursor
+        choco: cursor
+
+      - name: zed
+        description: Zed - high-performance collaborative editor
+        brew_cask: zed
+        winget: Zed.Zed
+
+      - name: sublime-text
+        description: Sublime Text - sophisticated text editor
+        brew_cask: sublime-text
+        winget: SublimeHQ.SublimeText.4
+        choco: sublimetext4
+        apt: sublime-text
+        dnf: sublime-text
+
+      - name: visual-studio
+        description: Visual Studio (Windows/macOS IDE)
+        brew_cask: visual-studio
+        winget: Microsoft.VisualStudio.2022.Community
+        choco: visualstudio2022community
+
+      - name: visual-studio-professional
+        description: Visual Studio Professional
+        winget: Microsoft.VisualStudio.2022.Professional
+        choco: visualstudio2022professional
+
+      - name: jetbrains-toolbox
+        description: JetBrains Toolbox - manage all JetBrains IDEs
+        brew_cask: jetbrains-toolbox
+        winget: JetBrains.Toolbox
+        choco: jetbrainstoolbox
+
+      - name: intellij-idea-ce
+        description: IntelliJ IDEA Community Edition (free)
+        brew_cask: intellij-idea-ce
+        winget: JetBrains.IntelliJIDEA.Community
+        choco: intellijidea-community
+        snap: intellij-idea-community
+
+      - name: intellij-idea
+        description: IntelliJ IDEA Ultimate (commercial)
+        brew_cask: intellij-idea
+        winget: JetBrains.IntelliJIDEA.Ultimate
+        choco: intellijidea-ultimate
+        snap: intellij-idea-ultimate
+
+      - name: pycharm-ce
+        description: PyCharm Community Edition (free)
+        brew_cask: pycharm-ce
+        winget: JetBrains.PyCharm.Community
+        choco: pycharm-community
+        snap: pycharm-community
+
+      - name: pycharm
+        description: PyCharm Professional (commercial)
+        brew_cask: pycharm
+        winget: JetBrains.PyCharm.Professional
+        choco: pycharm
+        snap: pycharm-professional
+
+      - name: webstorm
+        description: WebStorm - JavaScript/TypeScript IDE
+        brew_cask: webstorm
+        winget: JetBrains.WebStorm
+        choco: webstorm
+        snap: webstorm
+
+      - name: goland
+        description: GoLand - Go IDE
+        brew_cask: goland
+        winget: JetBrains.GoLand
+        choco: goland
+        snap: goland
+
+      - name: rider
+        description: Rider - .NET/C# IDE
+        brew_cask: rider
+        winget: JetBrains.Rider
+        choco: jetbrains-rider
+        snap: rider
+
+      - name: clion
+        description: CLion - C/C++ IDE
+        brew_cask: clion
+        winget: JetBrains.CLion
+        choco: clion
+        snap: clion
+
+      - name: phpstorm
+        description: PhpStorm - PHP IDE
+        brew_cask: phpstorm
+        winget: JetBrains.PHPStorm
+        choco: phpstorm
+        snap: phpstorm
+
+      - name: rubymine
+        description: RubyMine - Ruby/Rails IDE
+        brew_cask: rubymine
+        winget: JetBrains.RubyMine
+        choco: rubymine
+        snap: rubymine
+
+      - name: datagrip
+        description: DataGrip - Database IDE
+        brew_cask: datagrip
+        winget: JetBrains.DataGrip
+        choco: datagrip
+        snap: datagrip
+
+      - name: dataspell
+        description: DataSpell - Data Science IDE
+        brew_cask: dataspell
+        winget: JetBrains.DataSpell
+        choco: dataspell
+        snap: dataspell
+
+      - name: aqua
+        description: Aqua - Test Automation IDE
+        brew_cask: aqua
+        winget: JetBrains.Aqua
+        choco: jetbrains-aqua
+
+      - name: rustrover
+        description: RustRover - Rust IDE
+        brew_cask: rustrover
+        winget: JetBrains.RustRover
+        choco: rustrover
+
+      - name: fleet
+        description: JetBrains Fleet - lightweight polyglot editor
+        brew_cask: fleet
+        winget: JetBrains.Fleet
+
+      - name: writerside
+        description: Writerside - Documentation IDE
+        brew_cask: writerside
+        winget: JetBrains.Writerside
+
+      - name: atom
+        description: Atom text editor (archived but still available)
+        brew_cask: atom
+        choco: atom
+        optional: true
+
+  shell:
+    description: Shell runtimes and core utilities
+    packages:
+      - name: zsh
+        description: Z Shell - modern interactive shell
+        brew: zsh
+        winget: zsh.zsh
+        apt: zsh
+        dnf: zsh
+        pacman: zsh
+
+      - name: bash
+        description: Bourne Again Shell
+        brew: bash
+        apt: bash
+        dnf: bash
+        pacman: bash
+
+      - name: fish
+        description: Friendly Interactive Shell
+        brew: fish
+        winget: fish-shell.fish-shell
+        choco: fish
+        apt: fish
+        dnf: fish
+        pacman: fish
+
+      - name: nushell
+        description: Modern shell with structured data
+        brew: nushell
+        winget: Nushell.Nushell
+        choco: nushell
+        pacman: nushell
+        cargo: nu
+        script: cargo install nu
+
+      - name: jq
+        description: JSON processor
+        brew: jq
+        winget: jqlang.jq
+        choco: jq
+        scoop: jq
+        apt: jq
+        dnf: jq
+        pacman: jq
+
+      - name: yq
+        description: YAML processor (like jq for YAML)
+        brew: yq
+        winget: MikeFarah.yq
+        choco: yq
+        scoop: yq
+        apt: yq
+        pacman: yq
+        snap: yq
+
+      - name: tree
+        description: Directory tree view
+        brew: tree
+        winget: tree
+        choco: tree
+        apt: tree
+        dnf: tree
+        pacman: tree
+
+  shell-enhancements:
+    description: Shell prompts, themes, and enhancements
+    packages:
+      - name: starship
+        description: Cross-shell prompt (Rust-based)
+        brew: starship
+        winget: Starship.Starship
+        choco: starship
+        scoop: starship
+        pacman: starship
+        cargo: starship
+        script: curl -sS https://starship.rs/install.sh | sh
+
+      - name: oh-my-zsh
+        description: Zsh configuration framework
+        script: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+        script_wget: sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+      - name: powerlevel10k
+        description: Zsh theme (fast, flexible)
+        brew: powerlevel10k
+        pacman: zsh-theme-powerlevel10k
+        script: git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+
+      - name: oh-my-posh
+        description: Cross-shell prompt theme engine
+        brew: oh-my-posh
+        winget: JanDeDobbeleer.OhMyPosh
+        choco: oh-my-posh
+        scoop: oh-my-posh
+        script: curl -s https://ohmyposh.dev/install.sh | bash -s
+
+      - name: zsh-autosuggestions
+        description: Fish-like autosuggestions for Zsh
+        brew: zsh-autosuggestions
+        apt: zsh-autosuggestions
+        dnf: zsh-autosuggestions
+        pacman: zsh-autosuggestions
+        script: git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+
+      - name: zsh-syntax-highlighting
+        description: Fish-like syntax highlighting for Zsh
+        brew: zsh-syntax-highlighting
+        apt: zsh-syntax-highlighting
+        dnf: zsh-syntax-highlighting
+        pacman: zsh-syntax-highlighting
+        script: git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+
+      - name: zsh-completions
+        description: Additional Zsh completions
+        brew: zsh-completions
+        apt: zsh-completions
+        dnf: zsh-completions
+        pacman: zsh-completions
+
+      - name: zsh-history-substring-search
+        description: Fish-like history search for Zsh
+        brew: zsh-history-substring-search
+        pacman: zsh-history-substring-search
+        script: git clone https://github.com/zsh-users/zsh-history-substring-search ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-history-substring-search
+
+      - name: bash-completion
+        description: Programmable completion for Bash
+        brew: bash-completion@2
+        apt: bash-completion
+        dnf: bash-completion
+        pacman: bash-completion
+
+      - name: zoxide
+        description: Smarter cd command (z/autojump alternative)
+        brew: zoxide
+        winget: ajeetdsouza.zoxide
+        choco: zoxide
+        scoop: zoxide
+        apt: zoxide
+        dnf: zoxide
+        pacman: zoxide
+        cargo: zoxide
+        script: curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+
+      - name: atuin
+        description: Magical shell history (sync across machines)
+        brew: atuin
+        pacman: atuin
+        cargo: atuin
+        script: curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+
+      - name: mcfly
+        description: Intelligent shell history search
+        brew: mcfly
+        pacman: mcfly
+        cargo: mcfly
+
+      - name: thefuck
+        description: Correct previous console command
+        brew: thefuck
+        pip: thefuck
+        apt: thefuck
+        dnf: thefuck
+        pacman: thefuck
+
+      - name: direnv
+        description: Environment switcher for shell
+        brew: direnv
+        winget: direnv.direnv
+        choco: direnv
+        apt: direnv
+        dnf: direnv
+        pacman: direnv
+
+  terminal:
+    description: Terminal multiplexers and utilities
+    packages:
+      - name: tmux
+        description: Terminal multiplexer
+        brew: tmux
+        winget: tmux.tmux
+        choco: tmux
+        apt: tmux
+        dnf: tmux
+        pacman: tmux
+
+      - name: screen
+        description: Terminal window manager
+        brew: screen
+        apt: screen
+        dnf: screen
+        pacman: screen
+
+      - name: zellij
+        description: Modern terminal multiplexer (Rust-based)
+        brew: zellij
+        cargo: zellij
+        pacman: zellij
+        script: cargo install zellij
+
+  search:
+    description: Fast search and filtering tools
+    packages:
+      - name: ripgrep
+        description: Fast grep alternative
+        brew: ripgrep
+        winget: BurntSushi.ripgrep.MSVC
+        choco: ripgrep
+        apt: ripgrep
+        dnf: ripgrep
+
+      - name: fd
+        description: Fast find alternative
+        brew: fd
+        winget: sharkdp.fd
+        choco: fd
+        apt: fd-find
+        dnf: fd-find
+
+      - name: fzf
+        description: Fuzzy finder
+        brew: fzf
+        winget: junegunn.fzf
+        choco: fzf
+        apt: fzf
+        dnf: fzf
+
+  files:
+    description: File manipulation and archives
+    packages:
+      - name: rsync
+        description: Synchronize files/folders
+        brew: rsync
+        apt: rsync
+        dnf: rsync
+
+      - name: zip
+        description: Create zip archives
+        brew: zip
+        apt: zip
+        dnf: zip
+
+      - name: unzip
+        description: Extract zip archives
+        brew: unzip
+        apt: unzip
+        dnf: unzip
+
+      - name: tar
+        description: Tape archive utility
+        brew: gnu-tar
+        apt: tar
+        dnf: tar
+
+  viewing:
+    description: File viewing with syntax highlighting
+    packages:
+      - name: bat
+        description: Cat with syntax highlighting
+        brew: bat
+        winget: sharkdp.bat
+        choco: bat
+        apt: bat
+        dnf: bat
+
+      - name: exa
+        description: Modern ls replacement
+        brew: exa
+        winget: ogham.exa
+        choco: exa
+        apt: exa
+
+      - name: tldr
+        description: Simplified man pages
+        brew: tldr
+        winget: tldr-pages.tlrc
+        choco: tldr
+        apt: tldr
+
+  network:
+    description: Network diagnostic tools
+    packages:
+      - name: netcat
+        description: Network Swiss-army knife
+        brew: netcat
+        apt: netcat-openbsd
+        dnf: ncat
+
+      - name: nmap
+        description: Network mapper
+        brew: nmap
+        winget: Insecure.Nmap
+        choco: nmap
+        apt: nmap
+        dnf: nmap
+
+  system:
+    description: System utilities
+    packages:
+      - name: htop
+        description: Process viewer
+        brew: htop
+        apt: htop
+        dnf: htop
 
 platforms:
   darwin:
-    packages:
-      - coreutils
-      - gnu-sed
-      - grep
-      - findutils
-    skip:
-      - build-essential
-    note: "Xcode Command Line Tools provides build essentials"
+    note: "Xcode Command Line Tools provides GCC/build essentials"
 
   alpine:
-    packages:
-      - build-base
-    skip:
-      - build-essential
+    note: "Use build-base group for build essentials"
 
   arch:
-    packages:
-      - base-devel
-    skip:
-      - build-essential
+    note: "Use base-devel group for build essentials"
 
