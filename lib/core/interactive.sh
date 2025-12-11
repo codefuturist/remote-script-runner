@@ -483,6 +483,32 @@ rsr_progress_bar() {
 }
 
 # =============================================================================
+# Interactive Header
+# =============================================================================
+
+# Print a stylish header for interactive mode
+# Usage: print_interactive_header "Script Name" "1.0.0"
+print_interactive_header() {
+    local title="$1"
+    local version="${2:-}"
+    
+    printf "\n"
+    printf "${RSR_COLOR_CYAN}${RSR_BOLD}┌─────────────────────────────────────────────────────────┐${RSR_COLOR_RESET}\n"
+    printf "${RSR_COLOR_CYAN}${RSR_BOLD}│${RSR_COLOR_RESET}  ${RSR_BOLD}%s${RSR_COLOR_RESET}" "$title"
+    if [[ -n "$version" ]]; then
+        printf " ${RSR_COLOR_DIM}v%s${RSR_COLOR_RESET}" "$version"
+    fi
+    # Calculate padding
+    local title_len=${#title}
+    local ver_len=${#version}
+    local total_len=$((title_len + ver_len + 3))
+    local padding=$((55 - total_len))
+    printf "%${padding}s${RSR_COLOR_CYAN}${RSR_BOLD}│${RSR_COLOR_RESET}\n"
+    printf "${RSR_COLOR_CYAN}${RSR_BOLD}└─────────────────────────────────────────────────────────┘${RSR_COLOR_RESET}\n"
+    printf "\n"
+}
+
+# =============================================================================
 # Initialization Complete
 # =============================================================================
 
