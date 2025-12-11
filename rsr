@@ -28,7 +28,10 @@ else
     SCRIPT_VERSION="1.0.0"
 fi
 
+# Primary URL for entry scripts (GitHub Pages)
 REPO_BASE_URL="https://scripts.pandia.io"
+# GitHub raw URL for all scripts and lib files
+GITHUB_RAW_URL="https://raw.githubusercontent.com/codefuturist/remote-script-runner/refs/heads/main"
 
 # Environment variable defaults
 RSR_VERBOSE="${RSR_VERBOSE:-0}"
@@ -214,8 +217,8 @@ run_script() {
         log_warn "Script not found locally, fetching from remote..."
     fi
 
-    # Remote execution
-    script_url="$REPO_BASE_URL/$script_path"
+    # Remote execution - fetch from GitHub raw
+    script_url="$GITHUB_RAW_URL/$script_path"
     log_debug "Fetching: $script_url"
 
     download "$script_url" | "$shell_type" -s -- "$@"
