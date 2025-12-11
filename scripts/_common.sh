@@ -7,20 +7,37 @@
 # - Automatically locate and load the RSR library
 # - Set up common variables and functions
 #
-# Usage:
+# RECOMMENDED Usage (handles piped execution):
+#   source <(curl -fsSL https://raw.githubusercontent.com/.../scripts/_common.sh) || \
+#       source "$(dirname "${BASH_SOURCE[0]:-$0}")/../_common.sh" 2>/dev/null || \
+#       { echo "ERROR: Cannot find _common.sh" >&2; exit 1; }
+#
+# Legacy Usage (local execution only):
 #   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 #   source "${SCRIPT_DIR}/../../_common.sh"
-#
-# Or use the auto-detection:
-#   source "$(dirname "${BASH_SOURCE[0]}")/../../_common.sh" 2>/dev/null || \
-#       source "$(dirname "${BASH_SOURCE[0]}")/../_common.sh" 2>/dev/null || \
-#       { echo "ERROR: Cannot find _common.sh" >&2; exit 1; }
 #
 # =============================================================================
 
 # Prevent double-sourcing
 [[ -n "${_RSR_COMMON_LOADED:-}" ]] && return 0
 _RSR_COMMON_LOADED=1
+
+# =============================================================================
+# Safe BASH_SOURCE handling for piped execution
+# =============================================================================
+
+# Helper: Get script directory safely (works with piped execution)
+_get_script_dir() {
+    local src="${BASH_SOURCE[1]:-${BASH_SOURCE[0]:-$0}}"
+    # Check if running via pipe (sh/bash are shell names, not paths)
+    if [[ -n "$src" ]] && [[ "$src" != "bash" ]] && [[ "$src" != "sh" ]] && [[ "$src" != "-bash" ]] && [[ "$src" != "-sh" ]]; then
+        dirname "$(cd "$(dirname "$src")" 2>/dev/null && pwd 2>/dev/null)" 2>/dev/null || echo ""
+    else
+        echo ""
+    fi
+}
+
+export -f _get_script_dir 2>/dev/null || true
 
 # =============================================================================
 # Path Detection
