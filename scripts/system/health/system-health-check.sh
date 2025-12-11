@@ -20,11 +20,17 @@ set -euo pipefail
 # Load RSR Library
 # =============================================================================
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Handle both local execution and piped execution
+if [ -n "${BASH_SOURCE[0]:-}" ] && [ "${BASH_SOURCE[0]}" != "bash" ] && [ "${BASH_SOURCE[0]}" != "sh" ]; then
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+else
+    SCRIPT_DIR=""
+fi
+
 RSR_LIB_DIR="${SCRIPT_DIR}/../../../lib"
 
-# Load the RSR library (core only for this script)
-if [[ -f "$RSR_LIB_DIR/rsr-lib.sh" ]]; then
+# Load the RSR library (core only for this script) - skip if piped execution
+if [[ -n "$SCRIPT_DIR" ]] && [[ -f "$RSR_LIB_DIR/rsr-lib.sh" ]]; then
     source "$RSR_LIB_DIR/rsr-lib.sh" validate
     # Also try to load interactive if available
     [[ -n "${BASH_VERSION:-}" ]] && source "$RSR_LIB_DIR/rsr-lib.sh" interactive 2>/dev/null || true
