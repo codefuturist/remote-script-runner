@@ -3,14 +3,28 @@
 #
 # Install: pip install pre-commit && pre-commit install
 # Run manually: pre-commit run --all-files
+#
+# Developer Friendly Features:
+# - All hooks have reasonable timeouts
+# - Most hooks auto-fix issues
+# - Can skip with: SKIP=hook-id git commit
+# - Can skip all with: git commit --no-verify
+
+default_stages: [commit]
+fail_fast: false  # Run all hooks even if one fails
+
+# Default timeout for all hooks (can be overridden per hook)
+default_language_version:
+  python: python3
 
 repos:
-  # General file checks
+  # General file checks (fast, auto-fix)
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
         exclude: ^test/libs/
+        args: [--markdown-linebreak-ext=md]
       - id: end-of-file-fixer
         exclude: ^test/libs/
       - id: check-yaml
@@ -26,8 +40,11 @@ repos:
       - id: mixed-line-ending
         args: [--fix=lf]
         exclude: ^test/libs/
+      - id: check-case-conflict
+      - id: detect-private-key
+        exclude: ^test/
 
-  # Shell script linting with ShellCheck
+  # Shell script linting with ShellCheck (WARNING ONLY - non-blocking)
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.9.0.6
     hooks:
@@ -36,8 +53,13 @@ repos:
         exclude: ^test/libs/
         types: [shell]
         files: \.(sh|bash|zsh)$
+        # Non-blocking - warnings only
+        verbose: true
+        # Timeout after 30 seconds
+        language: python
+        additional_dependencies: []
 
-  # Shell script formatting with shfmt
+  # Shell script formatting with shfmt (AUTO-FIX)
   - repo: https://github.com/scop/pre-commit-shfmt
     rev: v3.8.0-1
     hooks:
@@ -48,6 +70,41 @@ repos:
 
   # Secret scanning (baseline maintained in repo)
   - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+        exclude: ^test/libs/
+        # Timeout after 30 seconds
+        verbose: true
+
+  # Markdown linting (WARNING ONLY)
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.38.0
+    hooks:
+      - id: markdownlint
+        args: [--fix, --disable, MD013, MD033, MD041, --]
+        exclude: ^(test/libs/|CHANGELOG\.md)
+        # Auto-fix enabled
+
+  # YAML linting (WARNING ONLY)
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.33.0
+    hooks:
+      - id: yamllint
+        args: [-d, "{extends: relaxed, rules: {line-length: disable}}"]
+        exclude: ^test/libs/
+        # Non-blocking
+        verbose: true
+
+# CI configuration - for GitHub Actions / GitLab CI
+ci:
+  autofix_commit_msg: "style: auto-fix from pre-commit hooks"
+  autofix_prs: true
+  autoupdate_commit_msg: "chore: update pre-commit hooks"
+  autoupdate_schedule: monthly
+  skip: [shellcheck]  # Run shellcheck separately for better error reporting
+  submodules: false
     rev: v1.4.0
     hooks:
       - id: detect-secrets

@@ -272,12 +272,31 @@ endif
 	@echo "$(GREEN)✓ Dependencies installed$(NC)"
 
 setup-hooks:
-	@echo "$(BLUE)▸ Setting up pre-commit hooks...$(NC)"
+	@echo "$(BLUE)▸ Setting up git hooks...$(NC)"
+	@if command -v npm >/dev/null 2>&1; then \
+		npm install --silent 2>/dev/null || npm install; \
+		echo "$(GREEN)✓ Husky hooks installed$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠ npm not installed. Skipping Husky installation$(NC)"; \
+	fi
 	@if command -v pre-commit >/dev/null 2>&1; then \
-		pre-commit install; \
+		pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push --hook-type post-merge; \
 		echo "$(GREEN)✓ Pre-commit hooks installed$(NC)"; \
 	else \
 		echo "$(YELLOW)⚠ pre-commit not installed. Install with: pip install pre-commit$(NC)"; \
+	fi
+	@echo "$(GREEN)✓ Git hooks ready$(NC)"
+	@echo ""
+	@echo "  Test with: pre-commit run --all-files"
+	@echo "  Skip with: git commit --no-verify"
+	@echo ""
+
+test-hooks:
+	@echo "$(BLUE)▸ Testing git hooks...$(NC)"
+	@if command -v pre-commit >/dev/null 2>&1; then \
+		pre-commit run --all-files && echo "$(GREEN)✓ All hooks passed$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠ pre-commit not installed$(NC)"; \
 	fi
 
 # Initialize submodules for BATS
