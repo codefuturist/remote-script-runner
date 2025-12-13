@@ -254,7 +254,7 @@ groups:
         pacman: aria2
 
       - name: curl
-        description: Data transfer tool supporting multiple protocols
+        description: Data transfer tool (HTTP, FTP, SFTP, SCP, and 20+ protocols)
         brew: curl
         winget: cURL.cURL
         choco: curl
@@ -263,9 +263,10 @@ groups:
         dnf: curl
         pacman: curl
         apk: curl
+        note: "Supports SFTP: curl sftp://user@host/path -u user:pass"
 
       - name: wget
-        description: Non-interactive network downloader
+        description: Non-interactive network downloader (HTTP, HTTPS, FTP)
         brew: wget
         winget: JernejSimoncic.Wget
         choco: wget
@@ -274,6 +275,7 @@ groups:
         dnf: wget
         pacman: wget
         apk: wget
+        note: "For SFTP transfers, use curl instead"
 
       - name: lftp
         description: Advanced FTP/HTTP client with scripting
@@ -339,15 +341,6 @@ groups:
         description: s5cmd - parallel S3 and local filesystem execution tool
         brew: peak/tap/s5cmd
         script: go install github.com/peak/s5cmd/v2@latest
-
-      - name: rclone
-        description: Rclone - rsync for cloud storage (S3, GCS, Azure, etc.)
-        brew: rclone
-        winget: Rclone.Rclone
-        choco: rclone
-        apt: rclone
-        dnf: rclone
-        script: curl https://rclone.org/install.sh | sudo bash
 
       - name: gsutil
         description: Google Cloud Storage CLI

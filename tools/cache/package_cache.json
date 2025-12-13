@@ -10134,5 +10134,5885 @@
     "details": "Found in crates.io",
     "suggestion": null,
     "timestamp": 1765471321.8313851
+  },
+  "brew:warp": {
+    "package": "warp",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475271.774384
+  },
+  "apt:warp-terminal": {
+    "package": "warp-terminal",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475271.774405
+  },
+  "dnf:warp-terminal": {
+    "package": "warp-terminal",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475271.7744179
+  },
+  "pacman:warp-terminal": {
+    "package": "warp-terminal",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475272.295935
+  },
+  "winget:Warp.Warp": {
+    "package": "Warp.Warp",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475272.659054
+  },
+  "apt:wezterm": {
+    "package": "wezterm",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475272.6596532
+  },
+  "dnf:wezterm": {
+    "package": "wezterm",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475272.659657
+  },
+  "pacman:wezterm": {
+    "package": "wezterm",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475272.94493
+  },
+  "dnf:kitty": {
+    "package": "kitty",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475272.945451
+  },
+  "pacman:kitty": {
+    "package": "kitty",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475273.157714
+  },
+  "pip:kitty": {
+    "package": "kitty",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475273.5348291
+  },
+  "brew:alacritty": {
+    "package": "alacritty",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475273.540759
+  },
+  "apt:alacritty": {
+    "package": "alacritty",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475273.540771
+  },
+  "dnf:alacritty": {
+    "package": "alacritty",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475273.5407748
+  },
+  "pacman:alacritty": {
+    "package": "alacritty",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475273.862612
+  },
+  "winget:Alacritty.Alacritty": {
+    "package": "Alacritty.Alacritty",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475274.236146
+  },
+  "choco:alacritty": {
+    "package": "alacritty",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475275.4063501
+  },
+  "cargo:alacritty": {
+    "package": "alacritty",
+    "manager": "cargo",
+    "status": "verified",
+    "details": "Found in crates.io",
+    "suggestion": null,
+    "timestamp": 1765475276.161194
+  },
+  "snap:alacritty": {
+    "package": "alacritty",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475276.648727
+  },
+  "brew:hyper": {
+    "package": "hyper",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475276.6514602
+  },
+  "apt:hyper": {
+    "package": "hyper",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475276.651474
+  },
+  "winget:Vercel.Hyper": {
+    "package": "Vercel.Hyper",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475277.109111
+  },
+  "choco:hyper": {
+    "package": "hyper",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475278.2894661
+  },
+  "snap:hyper": {
+    "package": "hyper",
+    "manager": "snap",
+    "status": "not_found",
+    "details": "Not found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475278.6882298
+  },
+  "brew:tabby": {
+    "package": "tabby",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475278.688768
+  },
+  "apt:tabby": {
+    "package": "tabby",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475278.688771
+  },
+  "pacman:tabby-terminal": {
+    "package": "tabby-terminal",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475279.119041
+  },
+  "winget:Eugeny.Tabby": {
+    "package": "Eugeny.Tabby",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475279.548438
+  },
+  "choco:tabby": {
+    "package": "tabby",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475282.13854
+  },
+  "snap:tabby": {
+    "package": "tabby",
+    "manager": "snap",
+    "status": "not_found",
+    "details": "Not found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475282.9987452
+  },
+  "brew:rio": {
+    "package": "rio",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475283.002305
+  },
+  "pacman:rio": {
+    "package": "rio",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475283.36094
+  },
+  "winget:raphaelamorim.rio": {
+    "package": "raphaelamorim.rio",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475283.642445
+  },
+  "cargo:rio": {
+    "package": "rio",
+    "manager": "cargo",
+    "status": "verified",
+    "details": "Found in crates.io",
+    "suggestion": null,
+    "timestamp": 1765475284.455552
+  },
+  "brew:ghostty": {
+    "package": "ghostty",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475284.456552
+  },
+  "brew:iterm2": {
+    "package": "iterm2",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475284.456563
+  },
+  "winget:Microsoft.WindowsTerminal": {
+    "package": "Microsoft.WindowsTerminal",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475285.101022
+  },
+  "choco:microsoft-windows-terminal": {
+    "package": "microsoft-windows-terminal",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475286.6238441
+  },
+  "scoop:windows-terminal": {
+    "package": "windows-terminal",
+    "manager": "scoop",
+    "status": "not_found",
+    "details": "Not found in Scoop main bucket",
+    "suggestion": null,
+    "timestamp": 1765475286.9246972
+  },
+  "winget:AJM.FluentTerminal": {
+    "package": "AJM.FluentTerminal",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475287.26611
+  },
+  "choco:fluent-terminal": {
+    "package": "fluent-terminal",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475288.213037
+  },
+  "apt:gnome-terminal": {
+    "package": "gnome-terminal",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475288.2136269
+  },
+  "dnf:gnome-terminal": {
+    "package": "gnome-terminal",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475288.213629
+  },
+  "pacman:gnome-terminal": {
+    "package": "gnome-terminal",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475288.462083
+  },
+  "apt:konsole": {
+    "package": "konsole",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475288.4625869
+  },
+  "dnf:konsole": {
+    "package": "konsole",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475288.462589
+  },
+  "pacman:konsole": {
+    "package": "konsole",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475288.810475
+  },
+  "apt:tilix": {
+    "package": "tilix",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475288.811122
+  },
+  "dnf:tilix": {
+    "package": "tilix",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475288.811125
+  },
+  "pacman:tilix": {
+    "package": "tilix",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475289.02828
+  },
+  "brew:terminator": {
+    "package": "terminator",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475289.029896
+  },
+  "apt:terminator": {
+    "package": "terminator",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475289.029908
+  },
+  "dnf:terminator": {
+    "package": "terminator",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475289.0299258
+  },
+  "pacman:terminator": {
+    "package": "terminator",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475289.299632
+  },
+  "apt:guake": {
+    "package": "guake",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475289.301302
+  },
+  "dnf:guake": {
+    "package": "guake",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475289.3013089
+  },
+  "pacman:guake": {
+    "package": "guake",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475289.542259
+  },
+  "apt:yakuake": {
+    "package": "yakuake",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475289.5447628
+  },
+  "dnf:yakuake": {
+    "package": "yakuake",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475289.544777
+  },
+  "pacman:yakuake": {
+    "package": "yakuake",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475289.882221
+  },
+  "brew:xterm": {
+    "package": "xterm",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475289.8836339
+  },
+  "apt:xterm": {
+    "package": "xterm",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475289.883641
+  },
+  "dnf:xterm": {
+    "package": "xterm",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475289.883647
+  },
+  "pacman:xterm": {
+    "package": "xterm",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475290.199302
+  },
+  "apt:rxvt-unicode": {
+    "package": "rxvt-unicode",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475290.2013052
+  },
+  "dnf:rxvt-unicode": {
+    "package": "rxvt-unicode",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475290.201312
+  },
+  "pacman:rxvt-unicode": {
+    "package": "rxvt-unicode",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475290.468978
+  },
+  "apt:stterm": {
+    "package": "stterm",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475290.469564
+  },
+  "pacman:st": {
+    "package": "st",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475290.706086
+  },
+  "apt:foot": {
+    "package": "foot",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475290.707076
+  },
+  "dnf:foot": {
+    "package": "foot",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475290.707079
+  },
+  "pacman:foot": {
+    "package": "foot",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475291.051589
+  },
+  "apt:zellij": {
+    "package": "zellij",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475291.0538921
+  },
+  "dnf:zellij": {
+    "package": "zellij",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475291.0539021
+  },
+  "brew:byobu": {
+    "package": "byobu",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475291.053928
+  },
+  "apt:byobu": {
+    "package": "byobu",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475291.053935
+  },
+  "dnf:byobu": {
+    "package": "byobu",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475291.053941
+  },
+  "pacman:byobu": {
+    "package": "byobu",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475291.2762399
+  },
+  "snap:byobu": {
+    "package": "byobu",
+    "manager": "snap",
+    "status": "not_found",
+    "details": "Not found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475291.616821
+  },
+  "brew:abduco": {
+    "package": "abduco",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475291.626097
+  },
+  "apt:abduco": {
+    "package": "abduco",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475291.626106
+  },
+  "dnf:abduco": {
+    "package": "abduco",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475291.6261098
+  },
+  "pacman:abduco": {
+    "package": "abduco",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475291.922067
+  },
+  "brew:dtach": {
+    "package": "dtach",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475291.926602
+  },
+  "apt:dtach": {
+    "package": "dtach",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475291.926612
+  },
+  "dnf:dtach": {
+    "package": "dtach",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475291.9266171
+  },
+  "pacman:dtach": {
+    "package": "dtach",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475292.200691
+  },
+  "brew:minicom": {
+    "package": "minicom",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475292.204921
+  },
+  "apt:minicom": {
+    "package": "minicom",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475292.20494
+  },
+  "dnf:minicom": {
+    "package": "minicom",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475292.20497
+  },
+  "pacman:minicom": {
+    "package": "minicom",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475292.4222279
+  },
+  "brew:picocom": {
+    "package": "picocom",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475292.424361
+  },
+  "apt:picocom": {
+    "package": "picocom",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475292.424371
+  },
+  "dnf:picocom": {
+    "package": "picocom",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475292.424376
+  },
+  "pacman:picocom": {
+    "package": "picocom",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475292.661067
+  },
+  "brew:mosh": {
+    "package": "mosh",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475292.664213
+  },
+  "apt:mosh": {
+    "package": "mosh",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475292.664227
+  },
+  "dnf:mosh": {
+    "package": "mosh",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475292.664234
+  },
+  "pacman:mosh": {
+    "package": "mosh",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475292.962928
+  },
+  "brew:eternal-terminal": {
+    "package": "eternal-terminal",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475292.9642408
+  },
+  "apt:et": {
+    "package": "et",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475292.964247
+  },
+  "dnf:et": {
+    "package": "et",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475292.964252
+  },
+  "pacman:eternal-terminal": {
+    "package": "eternal-terminal",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475293.211327
+  },
+  "brew:protonmail-bridge": {
+    "package": "protonmail-bridge",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475293.218785
+  },
+  "apt:protonmail-bridge": {
+    "package": "protonmail-bridge",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475293.2187939
+  },
+  "dnf:protonmail-bridge": {
+    "package": "protonmail-bridge",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475293.218799
+  },
+  "winget:Proton.ProtonMail": {
+    "package": "Proton.ProtonMail",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475293.620321
+  },
+  "choco:protonmail-bridge": {
+    "package": "protonmail-bridge",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475294.347133
+  },
+  "winget:Proton.ProtonMailBridge": {
+    "package": "Proton.ProtonMailBridge",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475295.092234
+  },
+  "brew:protonvpn": {
+    "package": "protonvpn",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475295.096788
+  },
+  "apt:protonvpn": {
+    "package": "protonvpn",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475295.096811
+  },
+  "dnf:protonvpn": {
+    "package": "protonvpn",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475295.0968199
+  },
+  "winget:Proton.ProtonVPN": {
+    "package": "Proton.ProtonVPN",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475295.8172622
+  },
+  "choco:protonvpn": {
+    "package": "protonvpn",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475297.2272582
+  },
+  "pip:protonvpn-cli": {
+    "package": "protonvpn-cli",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475297.5462751
+  },
+  "snap:protonvpn": {
+    "package": "protonvpn",
+    "manager": "snap",
+    "status": "not_found",
+    "details": "Not found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475297.7849011
+  },
+  "apt:protonvpn-cli": {
+    "package": "protonvpn-cli",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475297.785436
+  },
+  "dnf:protonvpn-cli": {
+    "package": "protonvpn-cli",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475297.785439
+  },
+  "brew:proton-drive": {
+    "package": "proton-drive",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475297.785446
+  },
+  "winget:Proton.ProtonDrive": {
+    "package": "Proton.ProtonDrive",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475298.1542442
+  },
+  "brew:proton-pass": {
+    "package": "proton-pass",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475298.1548119
+  },
+  "winget:Proton.ProtonPass": {
+    "package": "Proton.ProtonPass",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475298.535077
+  },
+  "choco:proton-pass": {
+    "package": "proton-pass",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475299.206916
+  },
+  "brew:thunderbird": {
+    "package": "thunderbird",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475299.211871
+  },
+  "apt:thunderbird": {
+    "package": "thunderbird",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475299.21188
+  },
+  "dnf:thunderbird": {
+    "package": "thunderbird",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475299.211885
+  },
+  "pacman:thunderbird": {
+    "package": "thunderbird",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475299.5571089
+  },
+  "winget:Mozilla.Thunderbird": {
+    "package": "Mozilla.Thunderbird",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475300.273291
+  },
+  "choco:thunderbird": {
+    "package": "thunderbird",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475301.280372
+  },
+  "snap:thunderbird": {
+    "package": "thunderbird",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475301.629825
+  },
+  "brew:mailspring": {
+    "package": "mailspring",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475301.6311638
+  },
+  "winget:Foundry376.Mailspring": {
+    "package": "Foundry376.Mailspring",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475301.9619808
+  },
+  "choco:mailspring": {
+    "package": "mailspring",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475302.583074
+  },
+  "snap:mailspring": {
+    "package": "mailspring",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475302.908813
+  },
+  "brew:betterbird": {
+    "package": "betterbird",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475302.910768
+  },
+  "winget:Betterbird.Betterbird": {
+    "package": "Betterbird.Betterbird",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475303.225016
+  },
+  "apt:geary": {
+    "package": "geary",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475303.227586
+  },
+  "dnf:geary": {
+    "package": "geary",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475303.2275982
+  },
+  "pacman:geary": {
+    "package": "geary",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475303.587283
+  },
+  "apt:evolution": {
+    "package": "evolution",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475303.5894341
+  },
+  "dnf:evolution": {
+    "package": "evolution",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475303.589439
+  },
+  "pacman:evolution": {
+    "package": "evolution",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475303.837452
+  },
+  "apt:kmail": {
+    "package": "kmail",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475303.8400462
+  },
+  "dnf:kmail": {
+    "package": "kmail",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475303.840055
+  },
+  "pacman:kmail": {
+    "package": "kmail",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475304.100631
+  },
+  "brew:claws-mail": {
+    "package": "claws-mail",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475304.1015942
+  },
+  "apt:claws-mail": {
+    "package": "claws-mail",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475304.1016011
+  },
+  "dnf:claws-mail": {
+    "package": "claws-mail",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475304.101604
+  },
+  "pacman:claws-mail": {
+    "package": "claws-mail",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475304.366155
+  },
+  "brew:mutt": {
+    "package": "mutt",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475304.368775
+  },
+  "apt:mutt": {
+    "package": "mutt",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475304.368785
+  },
+  "dnf:mutt": {
+    "package": "mutt",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475304.368791
+  },
+  "pacman:mutt": {
+    "package": "mutt",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475304.716299
+  },
+  "brew:neomutt": {
+    "package": "neomutt",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475304.717976
+  },
+  "apt:neomutt": {
+    "package": "neomutt",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475304.717984
+  },
+  "dnf:neomutt": {
+    "package": "neomutt",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475304.7179892
+  },
+  "pacman:neomutt": {
+    "package": "neomutt",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475305.1022909
+  },
+  "brew:aerc": {
+    "package": "aerc",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475305.102827
+  },
+  "apt:aerc": {
+    "package": "aerc",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475305.102829
+  },
+  "dnf:aerc": {
+    "package": "aerc",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475305.1028311
+  },
+  "pacman:aerc": {
+    "package": "aerc",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475305.3723269
+  },
+  "brew:himalaya": {
+    "package": "himalaya",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475305.373018
+  },
+  "pacman:himalaya": {
+    "package": "himalaya",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475305.623223
+  },
+  "cargo:himalaya": {
+    "package": "himalaya",
+    "manager": "cargo",
+    "status": "verified",
+    "details": "Found in crates.io",
+    "suggestion": null,
+    "timestamp": 1765475306.092133
+  },
+  "brew:signal": {
+    "package": "signal",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475306.0927548
+  },
+  "apt:signal-desktop": {
+    "package": "signal-desktop",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475306.0927591
+  },
+  "dnf:signal-desktop": {
+    "package": "signal-desktop",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475306.092761
+  },
+  "winget:OpenWhisperSystems.Signal": {
+    "package": "OpenWhisperSystems.Signal",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475306.624293
+  },
+  "choco:signal": {
+    "package": "signal",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475308.748587
+  },
+  "snap:signal-desktop": {
+    "package": "signal-desktop",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475309.274168
+  },
+  "brew:session": {
+    "package": "session",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475309.2776918
+  },
+  "apt:session-desktop": {
+    "package": "session-desktop",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475309.277704
+  },
+  "winget:Oxen.Session": {
+    "package": "Oxen.Session",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475309.8878562
+  },
+  "snap:session-desktop": {
+    "package": "session-desktop",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475310.516753
+  },
+  "brew:element": {
+    "package": "element",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475310.5183082
+  },
+  "apt:element-desktop": {
+    "package": "element-desktop",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475310.518317
+  },
+  "dnf:element-desktop": {
+    "package": "element-desktop",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475310.51832
+  },
+  "winget:Element.Element": {
+    "package": "Element.Element",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475311.01215
+  },
+  "choco:element-desktop": {
+    "package": "element-desktop",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475312.310265
+  },
+  "snap:element-desktop": {
+    "package": "element-desktop",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475312.6256251
+  },
+  "brew:wire": {
+    "package": "wire",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475312.6264372
+  },
+  "apt:wire-desktop": {
+    "package": "wire-desktop",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475312.626442
+  },
+  "winget:Wire.Wire": {
+    "package": "Wire.Wire",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475312.978889
+  },
+  "brew:keybase": {
+    "package": "keybase",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475312.979976
+  },
+  "apt:keybase": {
+    "package": "keybase",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475312.979983
+  },
+  "dnf:keybase": {
+    "package": "keybase",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475312.979985
+  },
+  "winget:Keybase.Keybase": {
+    "package": "Keybase.Keybase",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475313.258991
+  },
+  "choco:keybase": {
+    "package": "keybase",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475314.457108
+  },
+  "brew:jami": {
+    "package": "jami",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475314.458581
+  },
+  "apt:jami": {
+    "package": "jami",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475314.45859
+  },
+  "dnf:jami": {
+    "package": "jami",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475314.4585931
+  },
+  "winget:SavoirFaireLinux.Jami": {
+    "package": "SavoirFaireLinux.Jami",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475314.7833579
+  },
+  "snap:jami": {
+    "package": "jami",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475315.181432
+  },
+  "brew:simplex": {
+    "package": "simplex",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475315.182384
+  },
+  "apt:simplex-chat": {
+    "package": "simplex-chat",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475315.18239
+  },
+  "winget:SimpleX.SimpleX": {
+    "package": "SimpleX.SimpleX",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475315.558298
+  },
+  "apt:wireguard-tools": {
+    "package": "wireguard-tools",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475315.569948
+  },
+  "pacman:wireguard-tools": {
+    "package": "wireguard-tools",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475315.855097
+  },
+  "snap:wireguard-tools": {
+    "package": "wireguard-tools",
+    "manager": "snap",
+    "status": "not_found",
+    "details": "Not found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475316.1833081
+  },
+  "pacman:openvpn": {
+    "package": "openvpn",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475316.4918232
+  },
+  "winget:OpenVPNTechnologies.OpenVPN": {
+    "package": "OpenVPNTechnologies.OpenVPN",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475316.9035578
+  },
+  "snap:openvpn": {
+    "package": "openvpn",
+    "manager": "snap",
+    "status": "not_found",
+    "details": "Not found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475317.104096
+  },
+  "brew:openvpn-connect": {
+    "package": "openvpn-connect",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475317.105717
+  },
+  "apt:openvpn3": {
+    "package": "openvpn3",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475317.1057222
+  },
+  "winget:OpenVPNTechnologies.OpenVPNConnect": {
+    "package": "OpenVPNTechnologies.OpenVPNConnect",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475317.501534
+  },
+  "choco:openvpn-connect": {
+    "package": "openvpn-connect",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475318.087251
+  },
+  "brew:tunnelblick": {
+    "package": "tunnelblick",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475318.089504
+  },
+  "brew:viscosity": {
+    "package": "viscosity",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475318.0895119
+  },
+  "winget:SparkLabs.Viscosity": {
+    "package": "SparkLabs.Viscosity",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475318.4342039
+  },
+  "choco:viscosity": {
+    "package": "viscosity",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475318.8660119
+  },
+  "apt:network-manager-openvpn-gnome": {
+    "package": "network-manager-openvpn-gnome",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475318.866753
+  },
+  "dnf:NetworkManager-openvpn-gnome": {
+    "package": "NetworkManager-openvpn-gnome",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475318.8667562
+  },
+  "pacman:networkmanager-openvpn": {
+    "package": "networkmanager-openvpn",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475319.173852
+  },
+  "brew:tailscale": {
+    "package": "tailscale",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475319.1754649
+  },
+  "apt:tailscale": {
+    "package": "tailscale",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475319.175473
+  },
+  "dnf:tailscale": {
+    "package": "tailscale",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475319.175481
+  },
+  "pacman:tailscale": {
+    "package": "tailscale",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475319.537788
+  },
+  "winget:tailscale.tailscale": {
+    "package": "tailscale.tailscale",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475319.813121
+  },
+  "choco:tailscale": {
+    "package": "tailscale",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475320.974692
+  },
+  "snap:tailscale": {
+    "package": "tailscale",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475321.6286762
+  },
+  "brew:zerotier-one": {
+    "package": "zerotier-one",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475321.6408
+  },
+  "apt:zerotier-one": {
+    "package": "zerotier-one",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475321.640812
+  },
+  "dnf:zerotier-one": {
+    "package": "zerotier-one",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475321.6408179
+  },
+  "pacman:zerotier-one": {
+    "package": "zerotier-one",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475322.3693812
+  },
+  "winget:ZeroTier.ZeroTierOne": {
+    "package": "ZeroTier.ZeroTierOne",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475323.301789
+  },
+  "choco:zerotier-one": {
+    "package": "zerotier-one",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475324.630458
+  },
+  "snap:zerotier": {
+    "package": "zerotier",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475325.1004028
+  },
+  "brew:headscale": {
+    "package": "headscale",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475325.101068
+  },
+  "apt:headscale": {
+    "package": "headscale",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475325.1010711
+  },
+  "dnf:headscale": {
+    "package": "headscale",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475325.1010728
+  },
+  "pacman:headscale": {
+    "package": "headscale",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475325.359423
+  },
+  "brew:netbirdio/tap/netbird": {
+    "package": "netbirdio/tap/netbird",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475325.3604538
+  },
+  "apt:netbird": {
+    "package": "netbird",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475325.360461
+  },
+  "dnf:netbird": {
+    "package": "netbird",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475325.3604639
+  },
+  "winget:Netbird.Netbird": {
+    "package": "Netbird.Netbird",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475325.8259509
+  },
+  "brew:mullvadvpn": {
+    "package": "mullvadvpn",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475325.826797
+  },
+  "apt:mullvad-vpn": {
+    "package": "mullvad-vpn",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475325.826803
+  },
+  "dnf:mullvad-vpn": {
+    "package": "mullvad-vpn",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475325.8268049
+  },
+  "winget:MullvadVPN.MullvadVPN": {
+    "package": "MullvadVPN.MullvadVPN",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475326.279232
+  },
+  "choco:mullvad-app": {
+    "package": "mullvad-app",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475327.4558809
+  },
+  "brew:nordvpn": {
+    "package": "nordvpn",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475327.457161
+  },
+  "apt:nordvpn": {
+    "package": "nordvpn",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475327.4571671
+  },
+  "dnf:nordvpn": {
+    "package": "nordvpn",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475327.457171
+  },
+  "winget:NordVPN.NordVPN": {
+    "package": "NordVPN.NordVPN",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475327.7413151
+  },
+  "choco:nordvpn": {
+    "package": "nordvpn",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475328.988159
+  },
+  "snap:nordvpn": {
+    "package": "nordvpn",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475329.352554
+  },
+  "brew:expressvpn": {
+    "package": "expressvpn",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475329.354326
+  },
+  "winget:ExpressVPN.ExpressVPN": {
+    "package": "ExpressVPN.ExpressVPN",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475329.765312
+  },
+  "choco:expressvpn": {
+    "package": "expressvpn",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475330.797388
+  },
+  "apt:surfshark": {
+    "package": "surfshark",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475330.800061
+  },
+  "winget:Surfshark.SurfsharkVPN": {
+    "package": "Surfshark.SurfsharkVPN",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475331.111042
+  },
+  "choco:surfshark": {
+    "package": "surfshark",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475331.69017
+  },
+  "brew:private-internet-access": {
+    "package": "private-internet-access",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475331.693103
+  },
+  "winget:PrivateInternetAccess.PrivateInternetAccess": {
+    "package": "PrivateInternetAccess.PrivateInternetAccess",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475332.0741482
+  },
+  "choco:pia": {
+    "package": "pia",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475333.2584362
+  },
+  "brew:openconnect": {
+    "package": "openconnect",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475333.259208
+  },
+  "apt:openconnect": {
+    "package": "openconnect",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475333.259212
+  },
+  "dnf:openconnect": {
+    "package": "openconnect",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475333.2592142
+  },
+  "pacman:openconnect": {
+    "package": "openconnect",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475333.523137
+  },
+  "apt:network-manager-openconnect-gnome": {
+    "package": "network-manager-openconnect-gnome",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475333.529839
+  },
+  "dnf:NetworkManager-openconnect-gnome": {
+    "package": "NetworkManager-openconnect-gnome",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475333.5298429
+  },
+  "pacman:networkmanager-openconnect": {
+    "package": "networkmanager-openconnect",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475333.7697139
+  },
+  "brew:strongswan": {
+    "package": "strongswan",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475333.771585
+  },
+  "apt:strongswan": {
+    "package": "strongswan",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475333.7715971
+  },
+  "dnf:strongswan": {
+    "package": "strongswan",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475333.771601
+  },
+  "pacman:strongswan": {
+    "package": "strongswan",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475334.14835
+  },
+  "apt:libreswan": {
+    "package": "libreswan",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475334.148967
+  },
+  "dnf:libreswan": {
+    "package": "libreswan",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475334.148969
+  },
+  "pacman:libreswan": {
+    "package": "libreswan",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475334.4384692
+  },
+  "brew:softether": {
+    "package": "softether",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475334.440154
+  },
+  "apt:softether-vpnclient": {
+    "package": "softether-vpnclient",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475334.440159
+  },
+  "choco:softether": {
+    "package": "softether",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475335.45376
+  },
+  "apt:network-manager-gnome": {
+    "package": "network-manager-gnome",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475335.46535
+  },
+  "dnf:NetworkManager": {
+    "package": "NetworkManager",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475335.465357
+  },
+  "pacman:networkmanager": {
+    "package": "networkmanager",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475336.2276711
+  },
+  "apt:plasma-nm": {
+    "package": "plasma-nm",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475336.228448
+  },
+  "dnf:plasma-nm": {
+    "package": "plasma-nm",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475336.2284539
+  },
+  "pacman:plasma-nm": {
+    "package": "plasma-nm",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475336.862923
+  },
+  "brew:bitwarden": {
+    "package": "bitwarden",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475336.86369
+  },
+  "winget:Bitwarden.Bitwarden": {
+    "package": "Bitwarden.Bitwarden",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475337.833469
+  },
+  "choco:bitwarden": {
+    "package": "bitwarden",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475339.3460329
+  },
+  "snap:bitwarden": {
+    "package": "bitwarden",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475339.674911
+  },
+  "npm:@bitwarden/cli": {
+    "package": "@bitwarden/cli",
+    "manager": "npm",
+    "status": "verified",
+    "details": "Found in NPM registry",
+    "suggestion": null,
+    "timestamp": 1765475341.286536
+  },
+  "snap:bw": {
+    "package": "bw",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475341.59452
+  },
+  "brew:1password": {
+    "package": "1password",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475341.5950541
+  },
+  "dnf:1password": {
+    "package": "1password",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475341.5950599
+  },
+  "winget:AgileBits.1Password": {
+    "package": "AgileBits.1Password",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475341.9902048
+  },
+  "snap:1password": {
+    "package": "1password",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475342.320426
+  },
+  "apt:1password-cli": {
+    "package": "1password-cli",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475342.320972
+  },
+  "dnf:1password-cli": {
+    "package": "1password-cli",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475342.320974
+  },
+  "choco:1password-cli": {
+    "package": "1password-cli",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475343.269889
+  },
+  "brew:keepassxc": {
+    "package": "keepassxc",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475343.272078
+  },
+  "apt:keepassxc": {
+    "package": "keepassxc",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475343.272088
+  },
+  "dnf:keepassxc": {
+    "package": "keepassxc",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475343.2720919
+  },
+  "pacman:keepassxc": {
+    "package": "keepassxc",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475343.5541902
+  },
+  "winget:KeePassXCTeam.KeePassXC": {
+    "package": "KeePassXCTeam.KeePassXC",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475343.983028
+  },
+  "choco:keepassxc": {
+    "package": "keepassxc",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475345.0550232
+  },
+  "snap:keepassxc": {
+    "package": "keepassxc",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475345.460001
+  },
+  "pacman:pass": {
+    "package": "pass",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475345.735758
+  },
+  "brew:gopass": {
+    "package": "gopass",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475345.737632
+  },
+  "apt:gopass": {
+    "package": "gopass",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475345.737639
+  },
+  "dnf:gopass": {
+    "package": "gopass",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475345.737644
+  },
+  "pacman:gopass": {
+    "package": "gopass",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475346.044014
+  },
+  "winget:gopass.gopass": {
+    "package": "gopass.gopass",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475346.419086
+  },
+  "choco:gopass": {
+    "package": "gopass",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475347.769661
+  },
+  "brew:lastpass-cli": {
+    "package": "lastpass-cli",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475347.771915
+  },
+  "apt:lastpass-cli": {
+    "package": "lastpass-cli",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475347.771924
+  },
+  "dnf:lastpass-cli": {
+    "package": "lastpass-cli",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475347.771929
+  },
+  "pacman:lastpass-cli": {
+    "package": "lastpass-cli",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475348.070125
+  },
+  "brew:dashlane/tap/dashlane-cli": {
+    "package": "dashlane/tap/dashlane-cli",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475348.071611
+  },
+  "npm:@dashlane/cli": {
+    "package": "@dashlane/cli",
+    "manager": "npm",
+    "status": "not_found",
+    "details": "Not found in NPM registry",
+    "suggestion": null,
+    "timestamp": 1765475348.951571
+  },
+  "brew:brave-browser": {
+    "package": "brave-browser",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475348.953492
+  },
+  "apt:brave-browser": {
+    "package": "brave-browser",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475348.953501
+  },
+  "dnf:brave-browser": {
+    "package": "brave-browser",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475348.953506
+  },
+  "pacman:brave-bin": {
+    "package": "brave-bin",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475349.279812
+  },
+  "winget:Brave.Brave": {
+    "package": "Brave.Brave",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475350.342307
+  },
+  "choco:brave": {
+    "package": "brave",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475352.470679
+  },
+  "scoop:brave": {
+    "package": "brave",
+    "manager": "scoop",
+    "status": "not_found",
+    "details": "Not found in Scoop main bucket",
+    "suggestion": null,
+    "timestamp": 1765475352.832114
+  },
+  "snap:brave": {
+    "package": "brave",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475353.318922
+  },
+  "brew:firefox": {
+    "package": "firefox",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475353.319666
+  },
+  "apt:firefox": {
+    "package": "firefox",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475353.319672
+  },
+  "dnf:firefox": {
+    "package": "firefox",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475353.319674
+  },
+  "pacman:firefox": {
+    "package": "firefox",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475353.598816
+  },
+  "winget:Mozilla.Firefox": {
+    "package": "Mozilla.Firefox",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475354.1407201
+  },
+  "choco:firefox": {
+    "package": "firefox",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475354.7709801
+  },
+  "scoop:firefox": {
+    "package": "firefox",
+    "manager": "scoop",
+    "status": "not_found",
+    "details": "Not found in Scoop main bucket",
+    "suggestion": null,
+    "timestamp": 1765475355.0535228
+  },
+  "snap:firefox": {
+    "package": "firefox",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475355.482635
+  },
+  "brew:firefox-developer-edition": {
+    "package": "firefox-developer-edition",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475355.484014
+  },
+  "pacman:firefox-developer-edition": {
+    "package": "firefox-developer-edition",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475355.777332
+  },
+  "winget:Mozilla.Firefox.DeveloperEdition": {
+    "package": "Mozilla.Firefox.DeveloperEdition",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475356.136526
+  },
+  "choco:firefox-dev": {
+    "package": "firefox-dev",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475357.294028
+  },
+  "brew:firefox-esr": {
+    "package": "firefox-esr",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475357.294793
+  },
+  "apt:firefox-esr": {
+    "package": "firefox-esr",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475357.2947998
+  },
+  "dnf:firefox-esr": {
+    "package": "firefox-esr",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475357.294802
+  },
+  "winget:Mozilla.Firefox.ESR": {
+    "package": "Mozilla.Firefox.ESR",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475357.608723
+  },
+  "choco:firefoxesr": {
+    "package": "firefoxesr",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475358.489834
+  },
+  "brew:librewolf": {
+    "package": "librewolf",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475358.490515
+  },
+  "pacman:librewolf": {
+    "package": "librewolf",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475358.774749
+  },
+  "winget:LibreWolf.LibreWolf": {
+    "package": "LibreWolf.LibreWolf",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475359.203139
+  },
+  "choco:librewolf": {
+    "package": "librewolf",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475360.1839979
+  },
+  "brew:tor-browser": {
+    "package": "tor-browser",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475360.184685
+  },
+  "apt:torbrowser-launcher": {
+    "package": "torbrowser-launcher",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475360.184688
+  },
+  "dnf:torbrowser-launcher": {
+    "package": "torbrowser-launcher",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475360.18469
+  },
+  "pacman:torbrowser-launcher": {
+    "package": "torbrowser-launcher",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475360.5231612
+  },
+  "winget:TorProject.TorBrowser": {
+    "package": "TorProject.TorBrowser",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475361.086273
+  },
+  "choco:tor-browser": {
+    "package": "tor-browser",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475362.378804
+  },
+  "brew:chromium": {
+    "package": "chromium",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475362.380225
+  },
+  "apt:chromium-browser": {
+    "package": "chromium-browser",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475362.3802319
+  },
+  "dnf:chromium": {
+    "package": "chromium",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475362.380235
+  },
+  "pacman:chromium": {
+    "package": "chromium",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475362.734077
+  },
+  "choco:chromium": {
+    "package": "chromium",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475364.257817
+  },
+  "snap:chromium": {
+    "package": "chromium",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475365.042606
+  },
+  "brew:eloston-chromium": {
+    "package": "eloston-chromium",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475365.044986
+  },
+  "pacman:ungoogled-chromium": {
+    "package": "ungoogled-chromium",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475365.565469
+  },
+  "choco:ungoogled-chromium": {
+    "package": "ungoogled-chromium",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475367.128899
+  },
+  "brew:google-chrome": {
+    "package": "google-chrome",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475367.129859
+  },
+  "apt:google-chrome-stable": {
+    "package": "google-chrome-stable",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475367.129863
+  },
+  "dnf:google-chrome-stable": {
+    "package": "google-chrome-stable",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475367.129865
+  },
+  "winget:Google.Chrome": {
+    "package": "Google.Chrome",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475367.4593852
+  },
+  "choco:googlechrome": {
+    "package": "googlechrome",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475368.2077792
+  },
+  "brew:microsoft-edge": {
+    "package": "microsoft-edge",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475368.208423
+  },
+  "apt:microsoft-edge-stable": {
+    "package": "microsoft-edge-stable",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475368.208427
+  },
+  "dnf:microsoft-edge-stable": {
+    "package": "microsoft-edge-stable",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475368.2084281
+  },
+  "winget:Microsoft.Edge": {
+    "package": "Microsoft.Edge",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475368.631254
+  },
+  "choco:microsoft-edge": {
+    "package": "microsoft-edge",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475369.763853
+  },
+  "brew:vivaldi": {
+    "package": "vivaldi",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475369.7645912
+  },
+  "apt:vivaldi-stable": {
+    "package": "vivaldi-stable",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475369.764595
+  },
+  "dnf:vivaldi-stable": {
+    "package": "vivaldi-stable",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475369.764597
+  },
+  "pacman:vivaldi": {
+    "package": "vivaldi",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475370.01838
+  },
+  "winget:Vivaldi.Vivaldi": {
+    "package": "Vivaldi.Vivaldi",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475370.409878
+  },
+  "choco:vivaldi": {
+    "package": "vivaldi",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475371.186562
+  },
+  "brew:opera": {
+    "package": "opera",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475371.187541
+  },
+  "apt:opera-stable": {
+    "package": "opera-stable",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475371.187548
+  },
+  "winget:Opera.Opera": {
+    "package": "Opera.Opera",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475371.6253939
+  },
+  "choco:opera": {
+    "package": "opera",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475372.3274949
+  },
+  "snap:opera": {
+    "package": "opera",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475372.8564029
+  },
+  "brew:arc": {
+    "package": "arc",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475372.857534
+  },
+  "winget:TheBrowserCompany.Arc": {
+    "package": "TheBrowserCompany.Arc",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475373.321226
+  },
+  "brew:min": {
+    "package": "min",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475373.322765
+  },
+  "apt:min": {
+    "package": "min",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475373.322773
+  },
+  "winget:nickvision.MinBrowser": {
+    "package": "nickvision.MinBrowser",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475373.572712
+  },
+  "choco:min": {
+    "package": "min",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475374.4718778
+  },
+  "brew:qutebrowser": {
+    "package": "qutebrowser",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475374.4727612
+  },
+  "apt:qutebrowser": {
+    "package": "qutebrowser",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475374.472768
+  },
+  "dnf:qutebrowser": {
+    "package": "qutebrowser",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475374.47277
+  },
+  "pacman:qutebrowser": {
+    "package": "qutebrowser",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475374.7635672
+  },
+  "choco:qutebrowser": {
+    "package": "qutebrowser",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475375.697409
+  },
+  "pip:qutebrowser": {
+    "package": "qutebrowser",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475375.9934971
+  },
+  "brew:nyxt": {
+    "package": "nyxt",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475375.994035
+  },
+  "pacman:nyxt": {
+    "package": "nyxt",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475376.256305
+  },
+  "apt:epiphany-browser": {
+    "package": "epiphany-browser",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475376.257165
+  },
+  "dnf:epiphany": {
+    "package": "epiphany",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475376.2571678
+  },
+  "pacman:epiphany": {
+    "package": "epiphany",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475376.467137
+  },
+  "apt:falkon": {
+    "package": "falkon",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475376.467768
+  },
+  "dnf:falkon": {
+    "package": "falkon",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475376.4677708
+  },
+  "pacman:falkon": {
+    "package": "falkon",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475376.7209659
+  },
+  "brew:playwright": {
+    "package": "playwright",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475376.721874
+  },
+  "pip:playwright": {
+    "package": "playwright",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475376.997188
+  },
+  "brew:selenium-server": {
+    "package": "selenium-server",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475376.998219
+  },
+  "apt:python3-selenium": {
+    "package": "python3-selenium",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475376.9982238
+  },
+  "npm:selenium-webdriver": {
+    "package": "selenium-webdriver",
+    "manager": "npm",
+    "status": "verified",
+    "details": "Found in NPM registry",
+    "suggestion": null,
+    "timestamp": 1765475377.1910248
+  },
+  "pip:selenium": {
+    "package": "selenium",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475377.419222
+  },
+  "brew:cypress": {
+    "package": "cypress",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475377.4200802
+  },
+  "brew:chromedriver": {
+    "package": "chromedriver",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475377.420089
+  },
+  "apt:chromium-chromedriver": {
+    "package": "chromium-chromedriver",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475377.4200919
+  },
+  "dnf:chromedriver": {
+    "package": "chromedriver",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475377.4200928
+  },
+  "pacman:chromedriver": {
+    "package": "chromedriver",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475378.026721
+  },
+  "choco:chromedriver": {
+    "package": "chromedriver",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475380.159622
+  },
+  "npm:chromedriver": {
+    "package": "chromedriver",
+    "manager": "npm",
+    "status": "verified",
+    "details": "Found in NPM registry",
+    "suggestion": null,
+    "timestamp": 1765475380.42084
+  },
+  "brew:geckodriver": {
+    "package": "geckodriver",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475380.421503
+  },
+  "apt:firefox-geckodriver": {
+    "package": "firefox-geckodriver",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475380.4215062
+  },
+  "dnf:geckodriver": {
+    "package": "geckodriver",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475380.421508
+  },
+  "pacman:geckodriver": {
+    "package": "geckodriver",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475380.663956
+  },
+  "choco:selenium-gecko-driver": {
+    "package": "selenium-gecko-driver",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475381.997695
+  },
+  "cargo:geckodriver": {
+    "package": "geckodriver",
+    "manager": "cargo",
+    "status": "verified",
+    "details": "Found in crates.io",
+    "suggestion": null,
+    "timestamp": 1765475383.120555
+  },
+  "brew:microsoft-edge-driver": {
+    "package": "microsoft-edge-driver",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475383.1218581
+  },
+  "winget:Microsoft.EdgeWebDriver": {
+    "package": "Microsoft.EdgeWebDriver",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475383.420418
+  },
+  "brew:phantomjs": {
+    "package": "phantomjs",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475383.4224849
+  },
+  "apt:phantomjs": {
+    "package": "phantomjs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475383.4224918
+  },
+  "choco:phantomjs": {
+    "package": "phantomjs",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475384.141691
+  },
+  "npm:phantomjs-prebuilt": {
+    "package": "phantomjs-prebuilt",
+    "manager": "npm",
+    "status": "verified",
+    "details": "Found in NPM registry",
+    "suggestion": null,
+    "timestamp": 1765475384.444731
+  },
+  "pip:splash": {
+    "package": "splash",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475384.724307
+  },
+  "npm:webdriverio": {
+    "package": "webdriverio",
+    "manager": "npm",
+    "status": "verified",
+    "details": "Found in NPM registry",
+    "suggestion": null,
+    "timestamp": 1765475384.932978
+  },
+  "npm:nightwatch": {
+    "package": "nightwatch",
+    "manager": "npm",
+    "status": "verified",
+    "details": "Found in NPM registry",
+    "suggestion": null,
+    "timestamp": 1765475385.753868
+  },
+  "brew:testcafe": {
+    "package": "testcafe",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475385.757217
+  },
+  "npm:testcafe": {
+    "package": "testcafe",
+    "manager": "npm",
+    "status": "verified",
+    "details": "Found in NPM registry",
+    "suggestion": null,
+    "timestamp": 1765475385.994998
+  },
+  "brew:curl-impersonate": {
+    "package": "curl-impersonate",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475385.996063
+  },
+  "brew:httpx": {
+    "package": "httpx",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475385.996067
+  },
+  "apt:httpx": {
+    "package": "httpx",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475385.99607
+  },
+  "brew:katana": {
+    "package": "katana",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475385.996072
+  },
+  "brew:shot-scraper": {
+    "package": "shot-scraper",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475385.996073
+  },
+  "pip:shot-scraper": {
+    "package": "shot-scraper",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475386.30527
+  },
+  "pipx:shot-scraper": {
+    "package": "shot-scraper",
+    "manager": "pipx",
+    "status": "unverifiable",
+    "details": "Uses PyPI (verify with pip validator)",
+    "suggestion": null,
+    "timestamp": 1765475386.308172
+  },
+  "npm:pageres-cli": {
+    "package": "pageres-cli",
+    "manager": "npm",
+    "status": "verified",
+    "details": "Found in NPM registry",
+    "suggestion": null,
+    "timestamp": 1765475386.5710862
+  },
+  "npm:capture-website-cli": {
+    "package": "capture-website-cli",
+    "manager": "npm",
+    "status": "verified",
+    "details": "Found in NPM registry",
+    "suggestion": null,
+    "timestamp": 1765475386.779926
+  },
+  "npm:percollate": {
+    "package": "percollate",
+    "manager": "npm",
+    "status": "verified",
+    "details": "Found in NPM registry",
+    "suggestion": null,
+    "timestamp": 1765475387.654104
+  },
+  "npm:@puppeteer/browsers": {
+    "package": "@puppeteer/browsers",
+    "manager": "npm",
+    "status": "verified",
+    "details": "Found in NPM registry",
+    "suggestion": null,
+    "timestamp": 1765475387.878666
+  },
+  "brew:samba": {
+    "package": "samba",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475387.882646
+  },
+  "apt:smbclient": {
+    "package": "smbclient",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475387.8826518
+  },
+  "dnf:samba-client": {
+    "package": "samba-client",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475387.882655
+  },
+  "pacman:smbclient": {
+    "package": "smbclient",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475388.1818519
+  },
+  "apt:cifs-utils": {
+    "package": "cifs-utils",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475388.1827211
+  },
+  "dnf:cifs-utils": {
+    "package": "cifs-utils",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475388.1827252
+  },
+  "pacman:cifs-utils": {
+    "package": "cifs-utils",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475388.462187
+  },
+  "apt:smbnetfs": {
+    "package": "smbnetfs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475388.464382
+  },
+  "dnf:smbnetfs": {
+    "package": "smbnetfs",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475388.4643898
+  },
+  "pacman:smbnetfs": {
+    "package": "smbnetfs",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475388.7310889
+  },
+  "apt:nfs-common": {
+    "package": "nfs-common",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475388.735883
+  },
+  "dnf:nfs-utils": {
+    "package": "nfs-utils",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475388.735892
+  },
+  "pacman:nfs-utils": {
+    "package": "nfs-utils",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475389.061462
+  },
+  "brew:sshfs": {
+    "package": "sshfs",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475389.062458
+  },
+  "apt:sshfs": {
+    "package": "sshfs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475389.0624619
+  },
+  "dnf:fuse-sshfs": {
+    "package": "fuse-sshfs",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475389.062464
+  },
+  "pacman:sshfs": {
+    "package": "sshfs",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475389.393984
+  },
+  "winget:SSHFS-Win.SSHFS-Win": {
+    "package": "SSHFS-Win.SSHFS-Win",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475389.733808
+  },
+  "choco:sshfs": {
+    "package": "sshfs",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475390.526646
+  },
+  "pacman:openssh": {
+    "package": "openssh",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475390.80722
+  },
+  "apt:davfs2": {
+    "package": "davfs2",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475390.809342
+  },
+  "dnf:davfs2": {
+    "package": "davfs2",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475390.809351
+  },
+  "pacman:davfs2": {
+    "package": "davfs2",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475391.241837
+  },
+  "brew:cadaver": {
+    "package": "cadaver",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475391.246848
+  },
+  "apt:cadaver": {
+    "package": "cadaver",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475391.246858
+  },
+  "dnf:cadaver": {
+    "package": "cadaver",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475391.2468631
+  },
+  "pacman:cadaver": {
+    "package": "cadaver",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475391.768883
+  },
+  "pacman:lftp": {
+    "package": "lftp",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475392.220416
+  },
+  "brew:ncftp": {
+    "package": "ncftp",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475392.22295
+  },
+  "apt:ncftp": {
+    "package": "ncftp",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475392.222959
+  },
+  "dnf:ncftp": {
+    "package": "ncftp",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475392.222965
+  },
+  "pacman:ncftp": {
+    "package": "ncftp",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475392.864914
+  },
+  "apt:curlftpfs": {
+    "package": "curlftpfs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475392.8656251
+  },
+  "dnf:curlftpfs": {
+    "package": "curlftpfs",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475392.86563
+  },
+  "pacman:curlftpfs": {
+    "package": "curlftpfs",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475393.5492852
+  },
+  "apt:afpfs-ng": {
+    "package": "afpfs-ng",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475393.549982
+  },
+  "pacman:afpfs-ng": {
+    "package": "afpfs-ng",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475394.2166772
+  },
+  "brew:netatalk": {
+    "package": "netatalk",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475394.217225
+  },
+  "apt:netatalk": {
+    "package": "netatalk",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475394.217228
+  },
+  "dnf:netatalk": {
+    "package": "netatalk",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475394.21723
+  },
+  "pacman:netatalk": {
+    "package": "netatalk",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475394.483863
+  },
+  "brew:macfuse": {
+    "package": "macfuse",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475394.486037
+  },
+  "apt:fuse3": {
+    "package": "fuse3",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475394.486047
+  },
+  "dnf:fuse3": {
+    "package": "fuse3",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475394.486052
+  },
+  "pacman:fuse3": {
+    "package": "fuse3",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475394.746829
+  },
+  "brew:filezilla": {
+    "package": "filezilla",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475394.748714
+  },
+  "apt:filezilla": {
+    "package": "filezilla",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475394.748724
+  },
+  "dnf:filezilla": {
+    "package": "filezilla",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475394.748745
+  },
+  "pacman:filezilla": {
+    "package": "filezilla",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475395.034092
+  },
+  "winget:TimKosse.FileZilla.Client": {
+    "package": "TimKosse.FileZilla.Client",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475395.334944
+  },
+  "choco:filezilla": {
+    "package": "filezilla",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475396.435474
+  },
+  "snap:filezilla": {
+    "package": "filezilla",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475396.74864
+  },
+  "brew:cyberduck": {
+    "package": "cyberduck",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475396.753649
+  },
+  "winget:Cyberduck.Cyberduck": {
+    "package": "Cyberduck.Cyberduck",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475397.047213
+  },
+  "choco:cyberduck": {
+    "package": "cyberduck",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475398.569358
+  },
+  "brew:transmit": {
+    "package": "transmit",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475398.570425
+  },
+  "brew:forklift": {
+    "package": "forklift",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475398.570443
+  },
+  "brew:mountain-duck": {
+    "package": "mountain-duck",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475398.570446
+  },
+  "winget:iterate.MountainDuck": {
+    "package": "iterate.MountainDuck",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475398.8848279
+  },
+  "choco:mountain-duck": {
+    "package": "mountain-duck",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475399.937977
+  },
+  "winget:OpenBoxLab.RaiDrive": {
+    "package": "OpenBoxLab.RaiDrive",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475400.2812538
+  },
+  "choco:raidrive": {
+    "package": "raidrive",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475401.430041
+  },
+  "apt:gigolo": {
+    "package": "gigolo",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475401.430867
+  },
+  "dnf:gigolo": {
+    "package": "gigolo",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475401.4308748
+  },
+  "pacman:gigolo": {
+    "package": "gigolo",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475401.710717
+  },
+  "apt:avahi-utils": {
+    "package": "avahi-utils",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475401.71169
+  },
+  "dnf:avahi-tools": {
+    "package": "avahi-tools",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475401.7116952
+  },
+  "pacman:avahi": {
+    "package": "avahi",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475402.032254
+  },
+  "apt:libnss-mdns": {
+    "package": "libnss-mdns",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475402.034487
+  },
+  "dnf:nss-mdns": {
+    "package": "nss-mdns",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475402.034494
+  },
+  "pacman:nss-mdns": {
+    "package": "nss-mdns",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475402.366455
+  },
+  "pacman:rclone": {
+    "package": "rclone",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475402.682952
+  },
+  "snap:rclone": {
+    "package": "rclone",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475403.261291
+  },
+  "brew:s3fs": {
+    "package": "s3fs",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475403.263886
+  },
+  "apt:s3fs": {
+    "package": "s3fs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475403.263901
+  },
+  "dnf:s3fs-fuse": {
+    "package": "s3fs-fuse",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475403.263911
+  },
+  "pacman:s3fs-fuse": {
+    "package": "s3fs-fuse",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475403.557104
+  },
+  "brew:gcsfuse": {
+    "package": "gcsfuse",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475403.56471
+  },
+  "apt:gcsfuse": {
+    "package": "gcsfuse",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475403.5647192
+  },
+  "apt:blobfuse2": {
+    "package": "blobfuse2",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475403.564724
+  },
+  "dnf:blobfuse2": {
+    "package": "blobfuse2",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475403.564728
+  },
+  "apt:gvfs": {
+    "package": "gvfs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475403.5647318
+  },
+  "dnf:gvfs": {
+    "package": "gvfs",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475403.564735
+  },
+  "pacman:gvfs": {
+    "package": "gvfs",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475403.835708
+  },
+  "apt:gvfs-backends": {
+    "package": "gvfs-backends",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475403.8367438
+  },
+  "dnf:gvfs-smb": {
+    "package": "gvfs-smb",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475403.836749
+  },
+  "pacman:gvfs-smb": {
+    "package": "gvfs-smb",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475404.082248
+  },
+  "dnf:gvfs-nfs": {
+    "package": "gvfs-nfs",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475404.0872169
+  },
+  "pacman:gvfs-nfs": {
+    "package": "gvfs-nfs",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475404.366884
+  },
+  "apt:kio-extras": {
+    "package": "kio-extras",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475404.3675258
+  },
+  "dnf:kio-extras": {
+    "package": "kio-extras",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475404.367529
+  },
+  "pacman:kio-extras": {
+    "package": "kio-extras",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475404.6361642
+  },
+  "apt:fuse": {
+    "package": "fuse",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475404.636819
+  },
+  "dnf:fuse": {
+    "package": "fuse",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475404.636821
+  },
+  "pacman:fuse2": {
+    "package": "fuse2",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475405.3710778
+  },
+  "winget:WinFsp.WinFsp": {
+    "package": "WinFsp.WinFsp",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475406.10928
+  },
+  "choco:winfsp": {
+    "package": "winfsp",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475408.027701
+  },
+  "winget:Dokan.Dokany": {
+    "package": "Dokan.Dokany",
+    "manager": "winget",
+    "status": "not_found",
+    "details": "Not found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475408.399392
+  },
+  "choco:dokany": {
+    "package": "dokany",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475409.353086
+  },
+  "brew:juicefs": {
+    "package": "juicefs",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475409.353822
+  },
+  "apt:juicefs": {
+    "package": "juicefs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475409.353824
+  },
+  "brew:seaweedfs": {
+    "package": "seaweedfs",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475409.353827
+  },
+  "brew:gocryptfs": {
+    "package": "gocryptfs",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475409.3538291
+  },
+  "apt:gocryptfs": {
+    "package": "gocryptfs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475409.3538299
+  },
+  "dnf:gocryptfs": {
+    "package": "gocryptfs",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475409.353832
+  },
+  "pacman:gocryptfs": {
+    "package": "gocryptfs",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475409.799882
+  },
+  "brew:cryfs": {
+    "package": "cryfs",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475409.8030689
+  },
+  "apt:cryfs": {
+    "package": "cryfs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475409.8030772
+  },
+  "dnf:cryfs": {
+    "package": "cryfs",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475409.803082
+  },
+  "pacman:cryfs": {
+    "package": "cryfs",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475410.0959911
+  },
+  "brew:encfs": {
+    "package": "encfs",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475410.096799
+  },
+  "apt:encfs": {
+    "package": "encfs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475410.0968032
+  },
+  "dnf:fuse-encfs": {
+    "package": "fuse-encfs",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475410.0968058
+  },
+  "pacman:encfs": {
+    "package": "encfs",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475410.4833019
+  },
+  "brew:securefs": {
+    "package": "securefs",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475410.48437
+  },
+  "apt:securefs": {
+    "package": "securefs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475410.484375
+  },
+  "brew:cryptomator": {
+    "package": "cryptomator",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475410.484381
+  },
+  "apt:cryptomator": {
+    "package": "cryptomator",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475410.484385
+  },
+  "pacman:cryptomator": {
+    "package": "cryptomator",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475410.7444081
+  },
+  "winget:Cryptomator.Cryptomator": {
+    "package": "Cryptomator.Cryptomator",
+    "manager": "winget",
+    "status": "verified",
+    "details": "Found in winget-pkgs repository",
+    "suggestion": null,
+    "timestamp": 1765475411.3263
+  },
+  "choco:cryptomator": {
+    "package": "cryptomator",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475412.772307
+  },
+  "snap:cryptomator": {
+    "package": "cryptomator",
+    "manager": "snap",
+    "status": "not_found",
+    "details": "Not found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475413.123053
+  },
+  "brew:veracrypt": {
+    "package": "veracrypt",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475413.124764
+  },
+  "apt:veracrypt": {
+    "package": "veracrypt",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475413.124773
+  },
+  "dnf:veracrypt": {
+    "package": "veracrypt",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475413.124778
+  },
+  "pacman:veracrypt": {
+    "package": "veracrypt",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475413.419185
+  },
+  "winget:IDRIX.VeraCrypt": {
+    "package": "IDRIX.VeraCrypt",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited (set GITHUB_TOKEN env var)",
+    "suggestion": null,
+    "timestamp": 1765475413.710193
+  },
+  "choco:veracrypt": {
+    "package": "veracrypt",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475414.920237
+  },
+  "brew:archivemount": {
+    "package": "archivemount",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475414.92238
+  },
+  "apt:archivemount": {
+    "package": "archivemount",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475414.922387
+  },
+  "dnf:archivemount": {
+    "package": "archivemount",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475414.9223921
+  },
+  "pacman:archivemount": {
+    "package": "archivemount",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475415.362143
+  },
+  "apt:fuse-zip": {
+    "package": "fuse-zip",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475415.36356
+  },
+  "dnf:fuse-zip": {
+    "package": "fuse-zip",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475415.363564
+  },
+  "pacman:fuse-zip": {
+    "package": "fuse-zip",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475415.798354
+  },
+  "apt:ratarmount": {
+    "package": "ratarmount",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475415.7991838
+  },
+  "pip:ratarmount": {
+    "package": "ratarmount",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475416.1194692
+  },
+  "brew:squashfuse": {
+    "package": "squashfuse",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475416.121145
+  },
+  "apt:squashfuse": {
+    "package": "squashfuse",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475416.121153
+  },
+  "dnf:squashfuse": {
+    "package": "squashfuse",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475416.1211572
+  },
+  "pacman:squashfuse": {
+    "package": "squashfuse",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475416.606323
+  },
+  "apt:apfs-fuse": {
+    "package": "apfs-fuse",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475416.606876
+  },
+  "pacman:apfs-fuse": {
+    "package": "apfs-fuse",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475416.92743
+  },
+  "apt:hfsprogs": {
+    "package": "hfsprogs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475416.936831
+  },
+  "pacman:hfsprogs": {
+    "package": "hfsprogs",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475417.2702022
+  },
+  "brew:ntfs-3g-mac": {
+    "package": "ntfs-3g-mac",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475417.272001
+  },
+  "apt:ntfs-3g": {
+    "package": "ntfs-3g",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475417.272013
+  },
+  "dnf:ntfs-3g": {
+    "package": "ntfs-3g",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475417.2720299
+  },
+  "pacman:ntfs-3g": {
+    "package": "ntfs-3g",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475417.612703
+  },
+  "apt:exfat-fuse": {
+    "package": "exfat-fuse",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475417.61475
+  },
+  "dnf:exfatprogs": {
+    "package": "exfatprogs",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475417.614759
+  },
+  "pacman:exfatprogs": {
+    "package": "exfatprogs",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475417.951968
+  },
+  "apt:unionfs-fuse": {
+    "package": "unionfs-fuse",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475417.958285
+  },
+  "dnf:fuse-unionfs": {
+    "package": "fuse-unionfs",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475417.958297
+  },
+  "pacman:unionfs-fuse": {
+    "package": "unionfs-fuse",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475418.2447739
+  },
+  "apt:mergerfs": {
+    "package": "mergerfs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475418.2489111
+  },
+  "dnf:mergerfs": {
+    "package": "mergerfs",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475418.24892
+  },
+  "pacman:mergerfs": {
+    "package": "mergerfs",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475418.558024
+  },
+  "apt:overlayroot": {
+    "package": "overlayroot",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475418.560263
+  },
+  "pacman:overlayfs-tools": {
+    "package": "overlayfs-tools",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475418.9798
+  },
+  "brew:bindfs": {
+    "package": "bindfs",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475418.980344
+  },
+  "apt:bindfs": {
+    "package": "bindfs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475418.9803462
+  },
+  "dnf:bindfs": {
+    "package": "bindfs",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475418.9803479
+  },
+  "pacman:bindfs": {
+    "package": "bindfs",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475419.5880342
+  },
+  "brew:dislocker": {
+    "package": "dislocker",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475419.591239
+  },
+  "apt:dislocker": {
+    "package": "dislocker",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475419.5912478
+  },
+  "dnf:dislocker": {
+    "package": "dislocker",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475419.591253
+  },
+  "pacman:dislocker": {
+    "package": "dislocker",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475420.3869739
+  },
+  "apt:httpdirfs": {
+    "package": "httpdirfs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475420.38853
+  },
+  "pacman:httpdirfs": {
+    "package": "httpdirfs",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475421.249656
+  },
+  "apt:gitfs": {
+    "package": "gitfs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475421.25146
+  },
+  "pip:gitfs": {
+    "package": "gitfs",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475421.770414
+  },
+  "apt:hubicfuse": {
+    "package": "hubicfuse",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475421.772293
+  },
+  "brew:ifuse": {
+    "package": "ifuse",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475421.772307
+  },
+  "apt:ifuse": {
+    "package": "ifuse",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475421.7723122
+  },
+  "dnf:ifuse": {
+    "package": "ifuse",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475421.772316
+  },
+  "pacman:ifuse": {
+    "package": "ifuse",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475422.1638
+  },
+  "brew:android-file-transfer": {
+    "package": "android-file-transfer",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475422.1672928
+  },
+  "apt:android-file-transfer": {
+    "package": "android-file-transfer",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475422.167315
+  },
+  "dnf:android-file-transfer": {
+    "package": "android-file-transfer",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475422.16733
+  },
+  "pacman:android-file-transfer": {
+    "package": "android-file-transfer",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475422.4921799
+  },
+  "apt:jmtpfs": {
+    "package": "jmtpfs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475422.49299
+  },
+  "dnf:jmtpfs": {
+    "package": "jmtpfs",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475422.492998
+  },
+  "pacman:jmtpfs": {
+    "package": "jmtpfs",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475422.783077
+  },
+  "brew:go-mtpfs": {
+    "package": "go-mtpfs",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475422.7845519
+  },
+  "apt:go-mtpfs": {
+    "package": "go-mtpfs",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475422.7845602
+  },
+  "brew:libfuse": {
+    "package": "libfuse",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475422.784566
+  },
+  "apt:libfuse3-dev": {
+    "package": "libfuse3-dev",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475422.784571
+  },
+  "dnf:fuse3-devel": {
+    "package": "fuse3-devel",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475422.784574
+  },
+  "apt:python3-fuse": {
+    "package": "python3-fuse",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475422.784585
+  },
+  "pip:fusepy": {
+    "package": "fusepy",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475423.0803368
+  },
+  "cargo:fuser": {
+    "package": "fuser",
+    "manager": "cargo",
+    "status": "verified",
+    "details": "Found in crates.io",
+    "suggestion": null,
+    "timestamp": 1765475423.465788
+  },
+  "pacman:restic": {
+    "package": "restic",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475423.7631402
+  },
+  "scoop:restic": {
+    "package": "restic",
+    "manager": "scoop",
+    "status": "verified",
+    "details": "Found in Scoop main bucket",
+    "suggestion": null,
+    "timestamp": 1765475424.119144
+  },
+  "pacman:borg": {
+    "package": "borg",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475424.7593222
+  },
+  "pip:borgbackup": {
+    "package": "borgbackup",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475425.12606
+  },
+  "brew:kopia": {
+    "package": "kopia",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475425.128905
+  },
+  "apt:kopia": {
+    "package": "kopia",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475425.1289191
+  },
+  "dnf:kopia": {
+    "package": "kopia",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475425.1289248
+  },
+  "pacman:kopia": {
+    "package": "kopia",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475425.442859
+  },
+  "winget:KopiaUI.KopiaUI": {
+    "package": "KopiaUI.KopiaUI",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited",
+    "suggestion": null,
+    "timestamp": 1765475425.4447858
+  },
+  "choco:kopia": {
+    "package": "kopia",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475426.178792
+  },
+  "scoop:kopia": {
+    "package": "kopia",
+    "manager": "scoop",
+    "status": "verified",
+    "details": "Found in Scoop main bucket",
+    "suggestion": null,
+    "timestamp": 1765475426.509415
+  },
+  "pacman:duplicity": {
+    "package": "duplicity",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475426.836832
+  },
+  "pip:duplicity": {
+    "package": "duplicity",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475427.187552
+  },
+  "brew:duplicati": {
+    "package": "duplicati",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475427.188203
+  },
+  "apt:duplicati": {
+    "package": "duplicati",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475427.1882071
+  },
+  "winget:Duplicati.Duplicati": {
+    "package": "Duplicati.Duplicati",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited",
+    "suggestion": null,
+    "timestamp": 1765475427.188211
+  },
+  "choco:duplicati": {
+    "package": "duplicati",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475428.2511082
+  },
+  "apt:bacula-client": {
+    "package": "bacula-client",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475428.252726
+  },
+  "dnf:bacula-client": {
+    "package": "bacula-client",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475428.2527301
+  },
+  "pacman:bacula": {
+    "package": "bacula",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475428.499406
+  },
+  "pacman:rdiff-backup": {
+    "package": "rdiff-backup",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475428.7701309
+  },
+  "brew:vorta": {
+    "package": "vorta",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475428.771638
+  },
+  "apt:vorta": {
+    "package": "vorta",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475428.771648
+  },
+  "pacman:vorta": {
+    "package": "vorta",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475429.1400802
+  },
+  "pip:vorta": {
+    "package": "vorta",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475429.404562
+  },
+  "brew:kopiaui": {
+    "package": "kopiaui",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475429.406121
+  },
+  "choco:kopia-ui": {
+    "package": "kopia-ui",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475430.206317
+  },
+  "pacman:pika-backup": {
+    "package": "pika-backup",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475430.50564
+  },
+  "apt:timeshift": {
+    "package": "timeshift",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475430.508579
+  },
+  "dnf:timeshift": {
+    "package": "timeshift",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475430.508595
+  },
+  "pacman:timeshift": {
+    "package": "timeshift",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475430.7891421
+  },
+  "apt:deja-dup": {
+    "package": "deja-dup",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475430.793925
+  },
+  "dnf:deja-dup": {
+    "package": "deja-dup",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475430.793934
+  },
+  "pacman:deja-dup": {
+    "package": "deja-dup",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475431.0669692
+  },
+  "brew:restic-browser": {
+    "package": "restic-browser",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475431.069889
+  },
+  "pip:restatic": {
+    "package": "restatic",
+    "manager": "pip",
+    "status": "not_found",
+    "details": "Not found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475431.473742
+  },
+  "apt:backintime-qt": {
+    "package": "backintime-qt",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475431.475563
+  },
+  "dnf:backintime-qt": {
+    "package": "backintime-qt",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475431.47557
+  },
+  "pacman:backintime": {
+    "package": "backintime",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475431.782531
+  },
+  "brew:rclone-browser": {
+    "package": "rclone-browser",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475431.7831402
+  },
+  "apt:rclone-browser": {
+    "package": "rclone-browser",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475431.783144
+  },
+  "choco:rclone-browser": {
+    "package": "rclone-browser",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475432.449183
+  },
+  "apt:syncthing-gtk": {
+    "package": "syncthing-gtk",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475432.45089
+  },
+  "pacman:syncthing-gtk": {
+    "package": "syncthing-gtk",
+    "manager": "pacman",
+    "status": "not_found",
+    "details": "Not found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475433.046041
+  },
+  "scoop:rclone": {
+    "package": "rclone",
+    "manager": "scoop",
+    "status": "verified",
+    "details": "Found in Scoop main bucket",
+    "suggestion": null,
+    "timestamp": 1765475433.6624908
+  },
+  "pacman:syncthing": {
+    "package": "syncthing",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475434.478456
+  },
+  "scoop:syncthing": {
+    "package": "syncthing",
+    "manager": "scoop",
+    "status": "verified",
+    "details": "Found in Scoop main bucket",
+    "suggestion": null,
+    "timestamp": 1765475435.179584
+  },
+  "snap:syncthing": {
+    "package": "syncthing",
+    "manager": "snap",
+    "status": "verified",
+    "details": "Found in Snap Store",
+    "suggestion": null,
+    "timestamp": 1765475435.745195
+  },
+  "pacman:unison": {
+    "package": "unison",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475436.14864
+  },
+  "winget:BCPierce.Unison": {
+    "package": "BCPierce.Unison",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited",
+    "suggestion": null,
+    "timestamp": 1765475436.1503282
+  },
+  "winget:Resilio.ResilioSync": {
+    "package": "Resilio.ResilioSync",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited",
+    "suggestion": null,
+    "timestamp": 1765475436.1503448
+  },
+  "choco:resilio-sync.install": {
+    "package": "resilio-sync.install",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475437.059336
+  },
+  "winget:Synology.DriveClient": {
+    "package": "Synology.DriveClient",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited",
+    "suggestion": null,
+    "timestamp": 1765475437.065225
+  },
+  "apt:seafile-gui": {
+    "package": "seafile-gui",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475437.0652502
+  },
+  "brew:nextcloud": {
+    "package": "nextcloud",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475437.065263
+  },
+  "apt:nextcloud-desktop": {
+    "package": "nextcloud-desktop",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475437.0652711
+  },
+  "dnf:nextcloud-client": {
+    "package": "nextcloud-client",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475437.065276
+  },
+  "pacman:nextcloud-client": {
+    "package": "nextcloud-client",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475437.3646662
+  },
+  "winget:Nextcloud.NextcloudDesktop": {
+    "package": "Nextcloud.NextcloudDesktop",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited",
+    "suggestion": null,
+    "timestamp": 1765475437.365242
+  },
+  "choco:nextcloud-client": {
+    "package": "nextcloud-client",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475438.5602748
+  },
+  "brew:owncloud": {
+    "package": "owncloud",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew casks",
+    "suggestion": "Consider using brew_cask manager",
+    "timestamp": 1765475438.561218
+  },
+  "apt:owncloud-client": {
+    "package": "owncloud-client",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475438.5612218
+  },
+  "winget:ownCloud.ownCloudDesktop": {
+    "package": "ownCloud.ownCloudDesktop",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited",
+    "suggestion": null,
+    "timestamp": 1765475438.561226
+  },
+  "pacman:rsync": {
+    "package": "rsync",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475438.866509
+  },
+  "winget:rsync": {
+    "package": "rsync",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited",
+    "suggestion": null,
+    "timestamp": 1765475438.8718789
+  },
+  "choco:rsync": {
+    "package": "rsync",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475440.033775
+  },
+  "scoop:rsync": {
+    "package": "rsync",
+    "manager": "scoop",
+    "status": "not_found",
+    "details": "Not found in Scoop main bucket",
+    "suggestion": null,
+    "timestamp": 1765475440.369243
+  },
+  "pacman:aria2": {
+    "package": "aria2",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475440.670345
+  },
+  "scoop:aria2": {
+    "package": "aria2",
+    "manager": "scoop",
+    "status": "verified",
+    "details": "Found in Scoop main bucket",
+    "suggestion": null,
+    "timestamp": 1765475440.954894
+  },
+  "pacman:curl": {
+    "package": "curl",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475441.2841148
+  },
+  "winget:cURL.cURL": {
+    "package": "cURL.cURL",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited",
+    "suggestion": null,
+    "timestamp": 1765475441.287319
+  },
+  "choco:curl": {
+    "package": "curl",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475442.5563588
+  },
+  "scoop:curl": {
+    "package": "curl",
+    "manager": "scoop",
+    "status": "verified",
+    "details": "Found in Scoop main bucket",
+    "suggestion": null,
+    "timestamp": 1765475442.882
+  },
+  "pacman:wget": {
+    "package": "wget",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475443.1702552
+  },
+  "winget:JernejSimoncic.Wget": {
+    "package": "JernejSimoncic.Wget",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited",
+    "suggestion": null,
+    "timestamp": 1765475443.173005
+  },
+  "choco:wget": {
+    "package": "wget",
+    "manager": "choco",
+    "status": "not_found",
+    "details": "Not found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475443.9802098
+  },
+  "scoop:wget": {
+    "package": "wget",
+    "manager": "scoop",
+    "status": "verified",
+    "details": "Found in Scoop main bucket",
+    "suggestion": null,
+    "timestamp": 1765475444.356083
+  },
+  "brew:zsync": {
+    "package": "zsync",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475444.362559
+  },
+  "apt:zsync": {
+    "package": "zsync",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475444.362571
+  },
+  "dnf:zsync": {
+    "package": "zsync",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475444.362578
+  },
+  "pacman:zsync": {
+    "package": "zsync",
+    "manager": "pacman",
+    "status": "verified",
+    "details": "Found in Arch Linux repositories",
+    "suggestion": null,
+    "timestamp": 1765475444.6274822
+  },
+  "brew:minio-mc": {
+    "package": "minio-mc",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475444.630697
+  },
+  "apt:minio-client": {
+    "package": "minio-client",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475444.630707
+  },
+  "dnf:minio-client": {
+    "package": "minio-client",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475444.630712
+  },
+  "winget:minio.mc": {
+    "package": "minio.mc",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited",
+    "suggestion": null,
+    "timestamp": 1765475444.630719
+  },
+  "choco:minio-client": {
+    "package": "minio-client",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475445.7874691
+  },
+  "brew:minio": {
+    "package": "minio",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475445.7882082
+  },
+  "apt:minio": {
+    "package": "minio",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475445.7882109
+  },
+  "dnf:minio": {
+    "package": "minio",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475445.788213
+  },
+  "winget:minio.minio": {
+    "package": "minio.minio",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited",
+    "suggestion": null,
+    "timestamp": 1765475445.788215
+  },
+  "choco:minio-server": {
+    "package": "minio-server",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475448.1877508
+  },
+  "brew:s3cmd": {
+    "package": "s3cmd",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475448.188564
+  },
+  "apt:s3cmd": {
+    "package": "s3cmd",
+    "manager": "apt",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475448.188566
+  },
+  "dnf:s3cmd": {
+    "package": "s3cmd",
+    "manager": "dnf",
+    "status": "unverifiable",
+    "details": "No reliable public API (repo-dependent)",
+    "suggestion": null,
+    "timestamp": 1765475448.188568
+  },
+  "pip:s3cmd": {
+    "package": "s3cmd",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475449.212874
+  },
+  "brew:peak/tap/s5cmd": {
+    "package": "peak/tap/s5cmd",
+    "manager": "brew",
+    "status": "not_found",
+    "details": "Not found in Homebrew formulas or casks",
+    "suggestion": null,
+    "timestamp": 1765475449.216012
+  },
+  "pip:gsutil": {
+    "package": "gsutil",
+    "manager": "pip",
+    "status": "verified",
+    "details": "Found in PyPI",
+    "suggestion": null,
+    "timestamp": 1765475449.6409311
+  },
+  "brew:azcopy": {
+    "package": "azcopy",
+    "manager": "brew",
+    "status": "verified",
+    "details": "Found in Homebrew formulas",
+    "suggestion": null,
+    "timestamp": 1765475449.642453
+  },
+  "winget:Microsoft.AzCopy": {
+    "package": "Microsoft.AzCopy",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited",
+    "suggestion": null,
+    "timestamp": 1765475449.6424608
+  },
+  "choco:azcopy": {
+    "package": "azcopy",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765475450.133214
+  },
+  "winget:WinSCP.WinSCP": {
+    "package": "WinSCP.WinSCP",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited (set GITHUB_TOKEN env var)",
+    "suggestion": null,
+    "timestamp": 1765476078.853827
+  },
+  "choco:winscp": {
+    "package": "winscp",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765476079.744281
+  },
+  "scoop:winscp": {
+    "package": "winscp",
+    "manager": "scoop",
+    "status": "not_found",
+    "details": "Not found in Scoop main bucket",
+    "suggestion": null,
+    "timestamp": 1765476080.01563
+  },
+  "winget:PuTTY.PuTTY": {
+    "package": "PuTTY.PuTTY",
+    "manager": "winget",
+    "status": "unverifiable",
+    "details": "GitHub API rate limited",
+    "suggestion": null,
+    "timestamp": 1765476080.016392
+  },
+  "choco:putty": {
+    "package": "putty",
+    "manager": "choco",
+    "status": "verified",
+    "details": "Found in Chocolatey repository",
+    "suggestion": null,
+    "timestamp": 1765476081.043684
+  },
+  "scoop:putty": {
+    "package": "putty",
+    "manager": "scoop",
+    "status": "not_found",
+    "details": "Not found in Scoop main bucket",
+    "suggestion": null,
+    "timestamp": 1765476081.285225
   }
 }

@@ -458,7 +458,7 @@ groups:
         description: Open-source AI code assistant
         npm: continue-cli
 
-      - name: tabby
+      - name: tabby-ai
         description: Self-hosted AI coding assistant
         brew: tabbyml/tabby/tabby
         cargo: tabby

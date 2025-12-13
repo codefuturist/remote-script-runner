@@ -1,0 +1,134 @@
+#!/bin/bash
+# rsr-pkg-select - Interactive Package Selector CLI
+# Part of Remote Script Runner (RSR)
+#
+# Usage: rsr-pkg-select [profile] [group]
+#
+# Examples:
+#   rsr-pkg-select              # Interactive profile selection
+#   rsr-pkg-select core         # Load 'core' profile directly
+#   rsr-pkg-select dev python   # Load 'python' group from 'dev' profile
+
+set -e
+
+# =============================================================================
+# Script Location
+# =============================================================================
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# =============================================================================
+# Help
+# =============================================================================
+
+show_help() {
+    cat << 'EOF'
+rsr-pkg-select - Interactive Package Selector
+
+Usage: rsr-pkg-select [OPTIONS] [PROFILE] [GROUP]
+
+Arguments:
+  PROFILE    Package profile to load (e.g., core, development, productivity)
+  GROUP      Specific group within the profile (optional)
+
+Options:
+  -h, --help     Show this help message
+  -l, --list     List available profiles
+  -v, --version  Show version
+
+Navigation:
+  ↑/↓ or j/k     Move selection up/down
+  Space/x/t      Toggle package selection
+  /              Start search filter
+  Esc            Clear search filter
+  a              Select all (filtered) packages
+  n              Deselect all (filtered) packages
+  Enter          Confirm selection
+  q              Quit without changes
+
+Examples:
+  rsr-pkg-select                  # Interactive profile browser
+  rsr-pkg-select core             # Select packages from 'core' profile
+  rsr-pkg-select productivity     # Select from 'productivity' profile
+
+EOF
+}
+
+show_version() {
+    echo "rsr-pkg-select v1.0.0"
+}
+
+list_profiles() {
+    echo "Available package profiles:"
+    echo ""
+    for f in "$PROJECT_ROOT/config/packages"/*.yaml; do
+        [[ -f "$f" ]] || continue
+        name=$(basename "$f" .yaml)
+        [[ "$name" == "methods" || "$name" == "bootstrap" || "$name" == "example-multimethod" ]] && continue
+        desc=$(grep -m1 '^description:' "$f" 2>/dev/null | sed 's/^description:[[:space:]]*//' | tr -d '"')
+        printf "  %-20s %s\n" "$name" "${desc:-}"
+    done
+}
+
+# =============================================================================
+# Parse Arguments
+# =============================================================================
+
+PROFILE=""
+GROUP=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -v|--version)
+            show_version
+            exit 0
+            ;;
+        -l|--list)
+            list_profiles
+            exit 0
+            ;;
+        -*)
+            echo "Unknown option: $1" >&2
+            echo "Use --help for usage information" >&2
+            exit 1
+            ;;
+        *)
+            if [[ -z "$PROFILE" ]]; then
+                PROFILE="$1"
+            elif [[ -z "$GROUP" ]]; then
+                GROUP="$1"
+            else
+                echo "Too many arguments" >&2
+                exit 1
+            fi
+            ;;
+    esac
+    shift
+done
+
+# =============================================================================
+# Load RSR Framework
+# =============================================================================
+
+# Source core init
+source "$PROJECT_ROOT/lib/core/init.sh" || {
+    echo "ERROR: Failed to load RSR core" >&2
+    exit 1
+}
+
+# Source package selector module
+source "$PROJECT_ROOT/lib/modules/pkg-select.sh" || {
+    echo "ERROR: Failed to load package selector module" >&2
+    exit 1
+}
+
+# =============================================================================
+# Run
+# =============================================================================
+
+rsr_pkg_select "$PROFILE" "$GROUP"

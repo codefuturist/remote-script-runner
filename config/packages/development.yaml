@@ -308,16 +308,6 @@ groups:
         cargo: nu
         script: cargo install nu
 
-      - name: jq
-        description: JSON processor
-        brew: jq
-        winget: jqlang.jq
-        choco: jq
-        scoop: jq
-        apt: jq
-        dnf: jq
-        pacman: jq
-
       - name: yq
         description: YAML processor (like jq for YAML)
         brew: yq
@@ -484,14 +474,6 @@ groups:
         apt: ripgrep
         dnf: ripgrep
 
-      - name: fd
-        description: Fast find alternative
-        brew: fd
-        winget: sharkdp.fd
-        choco: fd
-        apt: fd-find
-        dnf: fd-find
-
       - name: fzf
         description: Fuzzy finder
         brew: fzf
@@ -508,18 +490,6 @@ groups:
         brew: rsync
         apt: rsync
         dnf: rsync
-
-      - name: zip
-        description: Create zip archives
-        brew: zip
-        apt: zip
-        dnf: zip
-
-      - name: unzip
-        description: Extract zip archives
-        brew: unzip
-        apt: unzip
-        dnf: unzip
 
       - name: tar
         description: Tape archive utility
@@ -571,12 +541,7 @@ groups:
 
   system:
     description: System utilities
-    packages:
-      - name: htop
-        description: Process viewer
-        brew: htop
-        apt: htop
-        dnf: htop
+    packages: []
 
 platforms:
   darwin:

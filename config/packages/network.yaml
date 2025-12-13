@@ -17,14 +17,25 @@ groups:
     description: DNS tools and utilities
     packages:
       - name: dnsutils
-        description: DNS utilities (dig, nslookup, host)
+        description: DNS utilities package (includes dig, nslookup, host)
+        recommended:
+          linux: apt
         apt: dnsutils
         dnf: bind-utils
+        note: "Essential DNS troubleshooting tools"
 
       - name: bind-utils
         description: BIND DNS utilities
         dnf: bind-utils
         apt: dnsutils
+
+      - name: whois
+        description: WHOIS client - domain registration information lookup
+        brew: whois
+        apt: whois
+        dnf: whois
+        pacman: whois
+        note: "Query domain registration and IP ownership information"
 
   diagnostics:
     description: Network diagnostic tools
@@ -97,6 +108,25 @@ groups:
         apt: ngrep
         dnf: ngrep
 
+      - name: iptraf-ng
+        description: Interactive IP LAN monitor (ncurses-based)
+        recommended:
+          linux: apt
+        apt: iptraf-ng
+        dnf: iptraf-ng
+        pacman: iptraf-ng
+        note: "Real-time network statistics viewer with ncurses interface"
+
+      - name: vnstat
+        description: Network traffic monitor with statistics logging
+        recommended:
+          linux: apt
+        brew: vnstat
+        apt: vnstat
+        dnf: vnstat
+        pacman: vnstat
+        note: "Tracks network data usage over time"
+
   connection-tools:
     description: Connection and transfer tools
     packages:
@@ -106,23 +136,53 @@ groups:
         dnf: telnet
 
       - name: openssh-client
-        description: SSH client
+        description: OpenSSH client (includes ssh, scp, sftp, ssh-keygen)
         brew: openssh
         apt: openssh-client
         dnf: openssh-clients
+        pacman: openssh
+        note: "Primary SSH/SCP/SFTP client for Unix/Linux/macOS. Windows 10+ includes OpenSSH."
+
+      - name: netcat
+        description: Netcat - TCP/UDP networking swiss army knife
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: netcat
+        apt: netcat-openbsd
+        dnf: nmap-ncat
+        pacman: openbsd-netcat
+        apk: netcat-openbsd
+        note: "Also available as 'nc' command. Use for port testing, proxying, and data transfer."
+
+      - name: ssh-copy-id
+        description: Install SSH keys on remote servers
+        brew: ssh-copy-id
+        apt: openssh-client
+        dnf: openssh-clients
+        pacman: openssh
+        note: "Included with openssh-client on most Linux systems"
 
   ip-utilities:
     description: IP and routing utilities
     packages:
       - name: iproute2
-        description: Advanced routing and network utilities
+        description: Advanced routing and network utilities (includes ip, ss, route, arp)
+        recommended:
+          linux: apt
         apt: iproute2
         dnf: iproute
+        pacman: iproute2
+        note: "Modern replacement for net-tools. Provides ip, ss, and other utilities."
 
       - name: net-tools
-        description: Network utilities (ifconfig, netstat, etc.)
+        description: Legacy network utilities (includes ifconfig, netstat, route, arp)
+        recommended:
+          linux: apt
         apt: net-tools
         dnf: net-tools
+        pacman: net-tools
+        note: "Legacy tools - iproute2 is recommended for modern systems"
 
       - name: iputils
         description: IP utilities
@@ -191,6 +251,26 @@ groups:
         description: Fast and comprehensive SSL scanner
         apt: sslyze
         dnf: sslyze
+
+      - name: masscan
+        description: Fast TCP port scanner
+        recommended:
+          linux: apt
+        brew: masscan
+        apt: masscan
+        dnf: masscan
+        pacman: masscan
+        note: "Extremely fast port scanner (like nmap but faster for large scans)"
+
+      - name: netdiscover
+        description: Active/passive network address discovery tool
+        recommended:
+          linux: apt
+        brew: netdiscover
+        apt: netdiscover
+        dnf: netdiscover
+        pacman: netdiscover
+        note: "Useful for discovering devices on local networks"
 
   # ============================================================================
   # NETWORK FILE SHARING CLIENTS
@@ -264,6 +344,25 @@ groups:
         pacman: openssh
         note: "Included with openssh-client package"
 
+      # Windows SSH/SFTP/SCP tools
+      - name: winscp
+        description: WinSCP - Windows SFTP/SCP/FTP/WebDAV client
+        recommended:
+          windows: winget
+        winget: WinSCP.WinSCP
+        choco: winscp
+        scoop: winscp
+        note: "GUI + command-line mode (winscp.com). Most popular Windows SFTP tool."
+
+      - name: putty
+        description: PuTTY - SSH/Telnet/SCP/SFTP toolkit for Windows
+        recommended:
+          windows: winget
+        winget: PuTTY.PuTTY
+        choco: putty
+        scoop: putty
+        note: "Includes pscp (SCP), psftp (SFTP), puttygen (key gen), pageant (SSH agent)"
+
       # WebDAV
       - name: davfs2
         description: WebDAV filesystem driver for Linux
@@ -279,6 +378,29 @@ groups:
         apt: cadaver
         dnf: cadaver
         pacman: cadaver
+
+      # Text-based web browsers
+      - name: lynx
+        description: Text-based web browser
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: lynx
+        apt: lynx
+        dnf: lynx
+        pacman: lynx
+        note: "Terminal-based web browser for accessibility and text-only access"
+
+      - name: w3m
+        description: Text-based web browser with tables/frames support
+        recommended:
+          darwin: brew
+          linux: apt
+        brew: w3m
+        apt: w3m
+        dnf: w3m
+        pacman: w3m
+        note: "Advanced text browser with image support (via external viewer)"
 
       # FTP clients
       - name: lftp
@@ -330,21 +452,6 @@ groups:
         dnf: fuse3
         pacman: fuse3
         apk: fuse3
-
-      - name: macfuse
-        description: macFUSE - FUSE for macOS
-        recommended:
-          darwin: brew
-        brew: macfuse
-        note: "Required for SSHFS and other FUSE filesystems on macOS"
-
-      - name: winfsp
-        description: WinFsp - Windows File System Proxy
-        recommended:
-          windows: winget
-        winget: WinFsp.WinFsp
-        choco: winfsp
-        note: "Required for SSHFS and other FUSE filesystems on Windows"
 
       # GUI file sharing clients
       - name: filezilla
@@ -525,20 +632,6 @@ groups:
         note: "Alternative to WinFsp for Windows virtual filesystems"
 
       # Remote filesystem mounts
-      - name: sshfs
-        description: SSHFS - mount remote filesystems over SSH
-        recommended:
-          darwin: brew
-          windows: winget
-          linux: apt
-        brew: sshfs
-        winget: SSHFS-Win.SSHFS-Win
-        choco: sshfs
-        apt: sshfs
-        dnf: fuse-sshfs
-        pacman: sshfs
-        apk: sshfs
-
       - name: rclone-mount
         description: Rclone mount - mount cloud storage via FUSE
         recommended:

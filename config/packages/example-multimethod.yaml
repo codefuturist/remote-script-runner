@@ -12,29 +12,8 @@ packages:
   # Simple format (backward compatible) - uses detected package manager
   - curl
   - wget
-  
-  # Extended format with multiple methods - tries in order until success
-  - name: jq
-    brew: jq
-    winget: jqlang.jq
-    choco: jq
-    apt: jq
-    dnf: jq
-  
-  # Another example with cross-platform differences
-  - name: htop
-    brew: htop
-    winget: htop-dev.htop
-    apt: htop
-    dnf: htop
-  
-  # Example where package names differ
-  - name: fd
-    brew: fd
-    winget: sharkdp.fd
-    choco: fd
-    apt: fd-find
-    dnf: fd-find
+
+  # Example where package names differ - see productivity.yaml for fd
 
 optional:
   # Extended format works in optional packages too
@@ -48,9 +27,9 @@ optional:
 platforms:
   darwin:
     note: "Using Homebrew for all packages"
-  
+
   windows:
     note: "Using winget (preferred) or Chocolatey as fallback"
-  
+
   linux:
     note: "Using system package manager (apt/dnf/etc)"

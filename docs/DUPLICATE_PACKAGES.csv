@@ -1,0 +1,33 @@
+Priority,Package,Files,Count,Type,Action,Status
+CRITICAL,rclone,backup-sync.yaml,3,Same File,Merge into single entry,TODO
+CRITICAL,tabby,productivity.yaml,2,Same File,Remove duplicate,TODO
+CRITICAL,sshfs,network.yaml,2,Same File,Remove duplicate,TODO
+CRITICAL,macfuse,network.yaml,2,Same File,Remove duplicate,TODO
+CRITICAL,winfsp,network.yaml,2,Same File,Remove duplicate,TODO
+HIGH,jq,"core, development, example-multimethod, minimal",4,Identical,Remove from development & example,TODO
+HIGH,htop,"development, example-multimethod, minimal, monitoring",4,Identical,Remove from development & example,TODO
+MEDIUM,fd,"development, example-multimethod, productivity",3,Identical,Keep in productivity only,TODO
+MEDIUM,unzip,"core, development, minimal",3,Identical,Remove from development,TODO
+MEDIUM,zip,"core, development, minimal",3,Identical,Remove from development,TODO
+MEDIUM,yq,"core, development, kubernetes",3,Identical,Keep in core (most complete),TODO
+MEDIUM,rsync,"backup-sync, development, server",3,Identical,Keep in backup-sync,REVIEW
+MEDIUM,openssl,"network, security, webserver",3,Identical,Keep in security,REVIEW
+MEDIUM,mtr,"monitoring, network, server",3,Identical,Keep in monitoring & network,REVIEW
+LOW,ansible,"devops, server",2,Identical,Review necessity,REVIEW
+LOW,borgbackup,"backup-sync, server",2,Identical,Review necessity,REVIEW
+LOW,bzip2,"core, server",2,Identical,Review necessity,REVIEW
+LOW,gzip,"core, server",2,Identical,Review necessity,REVIEW
+LOW,iproute2,"network, server",2,Identical,Review necessity,REVIEW
+LOW,lftp,"backup-sync, network",2,Identical,Review necessity,REVIEW
+LOW,ncftp,"backup-sync, network",2,Identical,Review necessity,REVIEW
+LOW,restic,"backup-sync, server",2,Identical,Review necessity,REVIEW
+LOW,net-tools,"network, server",2,Identical,Review necessity,REVIEW
+LOW,dnsutils,"network, server",2,Identical,Review necessity,REVIEW
+LOW,traceroute,"network, server",2,Identical,Review necessity,REVIEW
+INTENTIONAL,git,"development, minimal",2,Different Config,Keep both,OK
+INTENTIONAL,vault,"devops, kubernetes",2,Different Config,Keep both,OK
+INTENTIONAL,trivy,"docker, kubernetes",2,Different Config,Keep both,OK
+INTENTIONAL,tmux,"development, productivity",2,Different Config,Keep both,OK
+INTENTIONAL,wireguard,"network, productivity",2,Different Config,Keep both,OK
+INTENTIONAL,vim,"development, minimal",2,Different Config,Keep both,OK
+INTENTIONAL,sops,"kubernetes, secrets",2,Different Config,Keep both,OK
