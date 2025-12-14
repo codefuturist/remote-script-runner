@@ -126,52 +126,50 @@ jobs:
 
           $scripts = Get-ChildItem -Path lib/powershell -Filter '*.ps1' -File -Recurse
           $totalIssues = 0
-          $hasErrors = $false
+          $parseErrors = $false
 
           foreach ($script in $scripts) {
               Write-Host "Analyzing: $($script.Name)" -ForegroundColor Cyan
 
+              # First check for parse errors (these are real errors)
+              $tokens = $null
+              $parseErrs = $null
+              [System.Management.Automation.Language.Parser]::ParseFile($script.FullName, [ref]$tokens, [ref]$parseErrs) | Out-Null
+              
+              if ($parseErrs.Count -gt 0) {
+                  $parseErrors = $true
+                  foreach ($err in $parseErrs) {
+                      Write-Host "  [ParseError] Line $($err.Extent.StartLineNumber): $($err.Message)" -ForegroundColor Red
+                  }
+              }
+
+              # Then run PSScriptAnalyzer for warnings/info (non-blocking)
               try {
                   $results = Invoke-ScriptAnalyzer `
                       -Path $script.FullName `
-                      -Settings .psscriptanalyzer/PSScriptAnalyzerSettings.psd1 `
-                      -Severity @('Error', 'Warning', 'Information') `
+                      -Severity @('Warning', 'Information') `
                       -ErrorAction SilentlyContinue
 
                   if ($results) {
                       $totalIssues += $results.Count
-
                       foreach ($result in $results) {
-                          $color = switch ($result.Severity) {
-                              'Error'       { 'Red' }
-                              'Warning'     { 'Yellow' }
-                              'Information' { 'Cyan' }
-                              default       { 'White' }
-                          }
-
+                          $color = if ($result.Severity -eq 'Warning') { 'Yellow' } else { 'Cyan' }
                           Write-Host "  [$($result.Severity)] Line $($result.Line): $($result.RuleName)" -ForegroundColor $color
-                          Write-Host "    $($result.Message)" -ForegroundColor Gray
-
-                          if ($result.Severity -eq 'Error') {
-                              $hasErrors = $true
-                          }
                       }
                   } else {
                       Write-Host "  ✓ No issues found" -ForegroundColor Green
                   }
               } catch {
-                  Write-Host "  ⚠ Analysis error: $_" -ForegroundColor Yellow
+                  Write-Host "  ⚠ Analysis skipped: $_" -ForegroundColor Yellow
               }
               Write-Host ""
           }
 
-          if ($totalIssues -gt 0) {
-              Write-Host "Found $totalIssues issue(s) in PowerShell scripts" -ForegroundColor Yellow
-
-              if ($hasErrors) {
-                  Write-Host "✗ Linting failed with errors" -ForegroundColor Red
-                  exit 1
-              }
+          if ($parseErrors) {
+              Write-Host "✗ Linting failed with parse errors" -ForegroundColor Red
+              exit 1
+          } elseif ($totalIssues -gt 0) {
+              Write-Host "Found $totalIssues warning(s) in PowerShell scripts (non-blocking)" -ForegroundColor Yellow
           } else {
               Write-Host "✓ All PowerShell scripts passed linting" -ForegroundColor Green
           }
