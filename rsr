@@ -177,7 +177,7 @@ get_script_path() {
         db-backup)
             echo "scripts/backup/database/database-backup.sh"
             ;;
-        backup)
+        config-backup)
             echo "scripts/backup/config/config-backup.sh"
             ;;
         git-sync)
@@ -357,9 +357,9 @@ list_scripts() {
     printf "  \${GREEN}db-backup\${NC}      Database Backup\n"
     printf "              Backup MySQL, PostgreSQL, MongoDB databases\n"
     printf "              \${DIM}rsr db-backup\${NC}\n\n"
-    printf "  \${GREEN}backup\${NC}      Config Backup\n"
+    printf "  \${GREEN}config-backup\${NC}      Config Backup\n"
     printf "              Backup system and application configuration files\n"
-    printf "              \${DIM}rsr backup\${NC}\n\n"
+    printf "              \${DIM}rsr config-backup\${NC}\n\n"
     printf "  \${GREEN}git-sync\${NC}      Git Auto Sync\n"
     printf "              Production-grade git repository auto-sync daemon\n"
     printf "              \${DIM}rsr git-sync start\${NC}\n\n"
@@ -980,8 +980,8 @@ main() {
         db-backup | database-backup)
             run_script "db-backup" "$@"
             ;;
-        backup | config-backup)
-            run_script "backup" "$@"
+        config-backup | cfg-backup)
+            run_script "config-backup" "$@"
             ;;
         git-sync | git-auto-sync)
             run_script "git-sync" "$@"

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # lib/modules/ssh.sh - RSR SSH Management Module
 # Cross-platform SSH server/client management
 #
@@ -19,8 +19,8 @@ _RSR_MODULE_SSH_LOADED=1
 
 # Ensure core is loaded
 if [ -z "${_RSR_CORE_INIT_LOADED:-}" ]; then
-    _script_dir="$(cd "$(dirname "$0")" 2>/dev/null && pwd)" || _script_dir="."
-    . "${_script_dir}/../core/init.sh" 2>/dev/null || . "./lib/core/init.sh" 2>/dev/null || {
+    _script_dir="$(cd "$(dirname "$0")" 2> /dev/null && pwd)" || _script_dir="."
+    . "${_script_dir}/../core/init.sh" 2> /dev/null || . "./lib/core/init.sh" 2> /dev/null || {
         echo "ERROR: RSR core/init.sh must be sourced first" >&2
         return 1
     }
@@ -39,7 +39,7 @@ _RSR_SSH_VERSION="2.0.0"
 # Get SSH config path
 _rsr_ssh_config_path() {
     case "$(rsr_detect_os)" in
-        darwin|linux|freebsd) echo "/etc/ssh/sshd_config" ;;
+        darwin | linux | freebsd) echo "/etc/ssh/sshd_config" ;;
         *) echo "" ;;
     esac
 }
@@ -50,7 +50,7 @@ _rsr_ssh_service_name() {
         darwin) echo "com.openssh.sshd" ;;
         linux)
             if rsr_has_command systemctl; then
-                if systemctl list-unit-files 2>/dev/null | grep -q "^sshd.service"; then
+                if systemctl list-unit-files 2> /dev/null | grep -q "^sshd.service"; then
                     echo "sshd"
                 else
                     echo "ssh"
@@ -76,7 +76,7 @@ rsr_ssh_server_is_installed() {
             # macOS has sshd built-in
             [ -f /usr/sbin/sshd ]
             ;;
-        linux|freebsd)
+        linux | freebsd)
             rsr_has_command sshd
             ;;
         *)
@@ -90,17 +90,17 @@ rsr_ssh_server_is_installed() {
 rsr_ssh_server_is_running() {
     case "$(rsr_detect_os)" in
         darwin)
-            launchctl list 2>/dev/null | grep -q "com.openssh.sshd"
+            launchctl list 2> /dev/null | grep -q "com.openssh.sshd"
             ;;
         linux)
             if rsr_has_command systemctl; then
-                systemctl is-active "$(_rsr_ssh_service_name)" >/dev/null 2>&1
+                systemctl is-active "$(_rsr_ssh_service_name)" > /dev/null 2>&1
             else
-                service "$(_rsr_ssh_service_name)" status >/dev/null 2>&1
+                service "$(_rsr_ssh_service_name)" status > /dev/null 2>&1
             fi
             ;;
         freebsd)
-            service sshd status >/dev/null 2>&1
+            service sshd status > /dev/null 2>&1
             ;;
         *)
             return 1
@@ -113,17 +113,17 @@ rsr_ssh_server_is_running() {
 rsr_ssh_server_is_enabled() {
     case "$(rsr_detect_os)" in
         darwin)
-            systemsetup -getremotelogin 2>/dev/null | grep -qi "on"
+            systemsetup -getremotelogin 2> /dev/null | grep -qi "on"
             ;;
         linux)
             if rsr_has_command systemctl; then
-                systemctl is-enabled "$(_rsr_ssh_service_name)" >/dev/null 2>&1
+                systemctl is-enabled "$(_rsr_ssh_service_name)" > /dev/null 2>&1
             else
-                return 0  # Assume enabled if using SysV
+                return 0 # Assume enabled if using SysV
             fi
             ;;
         freebsd)
-            grep -q 'sshd_enable="YES"' /etc/rc.conf 2>/dev/null
+            grep -q 'sshd_enable="YES"' /etc/rc.conf 2> /dev/null
             ;;
         *)
             return 1
@@ -169,7 +169,7 @@ rsr_ssh_server_install() {
                 apt)
                     apt-get update && apt-get install -y openssh-server
                     ;;
-                dnf|yum)
+                dnf | yum)
                     dnf install -y openssh-server || yum install -y openssh-server
                     ;;
                 pacman)
@@ -212,8 +212,8 @@ rsr_ssh_server_start() {
 
     case "$(rsr_detect_os)" in
         darwin)
-            launchctl load -w /System/Library/LaunchDaemons/ssh.plist 2>/dev/null || \
-                systemsetup -setremotelogin on
+            launchctl load -w /System/Library/LaunchDaemons/ssh.plist 2> /dev/null \
+                || systemsetup -setremotelogin on
             ;;
         linux)
             if rsr_has_command systemctl; then
@@ -242,8 +242,8 @@ rsr_ssh_server_stop() {
 
     case "$(rsr_detect_os)" in
         darwin)
-            launchctl unload -w /System/Library/LaunchDaemons/ssh.plist 2>/dev/null || \
-                systemsetup -setremotelogin off
+            launchctl unload -w /System/Library/LaunchDaemons/ssh.plist 2> /dev/null \
+                || systemsetup -setremotelogin off
             ;;
         linux)
             if rsr_has_command systemctl; then
@@ -328,7 +328,7 @@ rsr_ssh_config_get() {
 
     [ -f "$_config" ] || return 1
 
-    grep -E "^[[:space:]]*${_key}[[:space:]]" "$_config" 2>/dev/null | awk '{print $2}'
+    grep -E "^[[:space:]]*${_key}[[:space:]]" "$_config" 2> /dev/null | awk '{print $2}'
 }
 
 # Set SSH config value
@@ -360,7 +360,7 @@ rsr_ssh_config_set() {
 # Validate SSH config
 # Usage: if rsr_ssh_config_test; then ...
 rsr_ssh_config_test() {
-    sshd -t 2>/dev/null
+    sshd -t 2> /dev/null
 }
 
 # =============================================================================
@@ -411,7 +411,7 @@ rsr_ssh_authorized_keys_add() {
 
     # Get home directory
     if [ -n "${_RSR_MODULE_USERS_LOADED:-}" ]; then
-        _home=$(rsr_user_home "$_user" 2>/dev/null)
+        _home=$(rsr_user_home "$_user" 2> /dev/null)
     fi
     [ -z "$_home" ] && _home="$HOME"
 
@@ -450,7 +450,7 @@ rsr_ssh_authorized_keys_remove() {
 
     # Get home directory
     if [ -n "${_RSR_MODULE_USERS_LOADED:-}" ]; then
-        _home=$(rsr_user_home "$_user" 2>/dev/null)
+        _home=$(rsr_user_home "$_user" 2> /dev/null)
     fi
     [ -z "$_home" ] && _home="$HOME"
 
@@ -479,7 +479,7 @@ rsr_ssh_authorized_keys_list() {
 
     # Get home directory
     if [ -n "${_RSR_MODULE_USERS_LOADED:-}" ]; then
-        _home=$(rsr_user_home "$_user" 2>/dev/null)
+        _home=$(rsr_user_home "$_user" 2> /dev/null)
     fi
     [ -z "$_home" ] && _home="$HOME"
 
@@ -506,9 +506,18 @@ rsr_ssh_harden() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --disable-root) _disable_root=1; shift ;;
-            --disable-password) _disable_password=1; shift ;;
-            --change-port) _port="$2"; shift 2 ;;
+            --disable-root)
+                _disable_root=1
+                shift
+                ;;
+            --disable-password)
+                _disable_password=1
+                shift
+                ;;
+            --change-port)
+                _port="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -550,7 +559,7 @@ rsr_ssh_harden() {
     else
         rsr_log_error "SSH configuration is invalid!"
         rsr_log_info "Restoring backup..."
-        cp "${_config}.backup."* "$_config" 2>/dev/null
+        cp "${_config}.backup."* "$_config" 2> /dev/null
         return "$RSR_EXIT_ERROR"
     fi
 }
@@ -565,7 +574,7 @@ rsr_ssh_test_connection() {
     _target="$1"
     _port="${2:-22}"
 
-    ssh -o BatchMode=yes -o ConnectTimeout=5 -p "$_port" "$_target" exit 2>/dev/null
+    ssh -o BatchMode=yes -o ConnectTimeout=5 -p "$_port" "$_target" exit 2> /dev/null
 }
 
 # =============================================================================
@@ -578,7 +587,7 @@ rsr_ssh_list_local_keys() {
     _ssh_dir="$HOME/.ssh"
     [ -d "$_ssh_dir" ] || return 0
 
-    find "$_ssh_dir" -type f \( -name "id_*.pub" -o -name "*.pub" \) 2>/dev/null | sort
+    find "$_ssh_dir" -type f \( -name "id_*.pub" -o -name "*.pub" \) 2> /dev/null | sort
 }
 
 # Get SSH key fingerprint
@@ -587,7 +596,7 @@ rsr_ssh_get_key_fingerprint() {
     _keyfile="$1"
     [ -f "$_keyfile" ] || return 1
 
-    ssh-keygen -lf "$_keyfile" 2>/dev/null | awk '{print $2}'
+    ssh-keygen -lf "$_keyfile" 2> /dev/null | awk '{print $2}'
 }
 
 # Check if SSH key file exists
@@ -624,7 +633,7 @@ rsr_ssh_copy_key_to_host() {
     _pubkey=$(cat "$_keyfile")
 
     # Copy key using ssh
-    ssh -p "$_port" "$_target" "mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo '$_pubkey' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys" 2>/dev/null
+    ssh -p "$_port" "$_target" "mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo '$_pubkey' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys" 2> /dev/null
 }
 
 # Test SSH key authentication
@@ -637,7 +646,7 @@ rsr_ssh_test_key_auth() {
     _ssh_opts="-o BatchMode=yes -o ConnectTimeout=5 -o PreferredAuthentications=publickey"
     [ -n "$_keyfile" ] && _ssh_opts="$_ssh_opts -i $_keyfile"
 
-    ssh $_ssh_opts -p "$_port" "$_target" exit 2>/dev/null
+    ssh $_ssh_opts -p "$_port" "$_target" exit 2> /dev/null
 }
 
 # Remove SSH key from remote host
@@ -647,7 +656,7 @@ rsr_ssh_revoke_key_from_host() {
     _pattern="$2"
     _port="${3:-22}"
 
-    ssh -p "$_port" "$_target" "[ -f ~/.ssh/authorized_keys ] && grep -v '$_pattern' ~/.ssh/authorized_keys > ~/.ssh/authorized_keys.tmp && mv ~/.ssh/authorized_keys.tmp ~/.ssh/authorized_keys" 2>/dev/null
+    ssh -p "$_port" "$_target" "[ -f ~/.ssh/authorized_keys ] && grep -v '$_pattern' ~/.ssh/authorized_keys > ~/.ssh/authorized_keys.tmp && mv ~/.ssh/authorized_keys.tmp ~/.ssh/authorized_keys" 2> /dev/null
 }
 
 # =============================================================================
@@ -655,4 +664,3 @@ rsr_ssh_revoke_key_from_host() {
 # =============================================================================
 
 rsr_log_debug "RSR SSH Module v${_RSR_SSH_VERSION} loaded"
-

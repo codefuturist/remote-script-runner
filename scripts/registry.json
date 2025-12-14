@@ -328,10 +328,10 @@
     {
       "id": "config-backup",
       "name": "Config Backup",
-      "command": "backup",
-      "aliases": ["backup", "config-backup"],
+      "command": "config-backup",
+      "aliases": ["config-backup", "cfg-backup"],
       "description": "Backup system and application configuration files",
-      "example": "rsr backup",
+      "example": "rsr config-backup",
       "category": "backup",
       "subcategory": "config",
       "path": "scripts/backup/config/config-backup.sh",

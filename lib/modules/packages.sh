@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # lib/modules/packages.sh - RSR Package Management Module
 # Cross-platform package installation and dependency management
 #
@@ -24,8 +24,8 @@ _RSR_PACKAGES_VERSION="1.0.0"
 RSR_PKG_AUTO_INSTALL="${RSR_PKG_AUTO_INSTALL:-0}"
 RSR_PKG_CONFIRM="${RSR_PKG_CONFIRM:-1}"
 RSR_PKG_UPDATE_CACHE="${RSR_PKG_UPDATE_CACHE:-1}"
-RSR_PKG_CACHE_MAX_AGE="${RSR_PKG_CACHE_MAX_AGE:-3600}"  # 1 hour
-RSR_PKG_USE_FALLBACK_PARSER="${RSR_PKG_USE_FALLBACK_PARSER:-0}"  # Force pure-shell parser
+RSR_PKG_CACHE_MAX_AGE="${RSR_PKG_CACHE_MAX_AGE:-3600}"          # 1 hour
+RSR_PKG_USE_FALLBACK_PARSER="${RSR_PKG_USE_FALLBACK_PARSER:-0}" # Force pure-shell parser
 
 # Package lists directory
 RSR_PKG_LISTS_DIR="${RSR_PKG_LISTS_DIR:-${RSR_LIB_DIR:-./lib}/../config/packages}"
@@ -50,7 +50,7 @@ rsr_pkg_manager() {
 _rsr_pkg_sudo() {
     _mgr="$(rsr_pkg_manager)"
     case "$_mgr" in
-        brew|choco|winget) echo "" ;;  # User-space package managers
+        brew | choco | winget) echo "" ;; # User-space package managers
         *)
             if [ "$(id -u)" -ne 0 ]; then
                 echo "sudo"
@@ -73,7 +73,7 @@ rsr_pkg_cache_fresh() {
         apt)
             _cache_file="/var/cache/apt/pkgcache.bin"
             ;;
-        dnf|yum)
+        dnf | yum)
             _cache_file="/var/cache/dnf/packages.db"
             [ ! -f "$_cache_file" ] && _cache_file="/var/cache/yum"
             ;;
@@ -81,16 +81,16 @@ rsr_pkg_cache_fresh() {
             _cache_file="/var/lib/pacman/sync"
             ;;
         brew)
-            _cache_file="$(brew --cache 2>/dev/null)/api"
+            _cache_file="$(brew --cache 2> /dev/null)/api"
             ;;
         *)
-            return 1  # Unknown, assume needs update
+            return 1 # Unknown, assume needs update
             ;;
     esac
 
     [ ! -e "$_cache_file" ] && return 1
 
-    _cache_age=$(($(date +%s) - $(stat -c %Y "$_cache_file" 2>/dev/null || stat -f %m "$_cache_file" 2>/dev/null || echo 0)))
+    _cache_age=$(($(date +%s) - $(stat -c %Y "$_cache_file" 2> /dev/null || stat -f %m "$_cache_file" 2> /dev/null || echo 0)))
     [ "$_cache_age" -lt "$RSR_PKG_CACHE_MAX_AGE" ]
 }
 
@@ -129,7 +129,7 @@ rsr_pkg_update_cache() {
             ;;
         winget)
             # winget updates its source automatically
-            winget source update --disable-interactivity >/dev/null 2>&1 || true
+            winget source update --disable-interactivity > /dev/null 2>&1 || true
             ;;
         *)
             rsr_log_warn "Unknown package manager, skipping cache update"
@@ -290,28 +290,28 @@ rsr_pkg_is_installed() {
 
     case "$_mgr" in
         apt)
-            dpkg -l "$_pkg" 2>/dev/null | grep -q "^ii"
+            dpkg -l "$_pkg" 2> /dev/null | grep -q "^ii"
             ;;
-        dnf|yum)
-            rpm -q "$_pkg" >/dev/null 2>&1
+        dnf | yum)
+            rpm -q "$_pkg" > /dev/null 2>&1
             ;;
         pacman)
-            pacman -Qi "$_pkg" >/dev/null 2>&1
+            pacman -Qi "$_pkg" > /dev/null 2>&1
             ;;
         zypper)
-            rpm -q "$_pkg" >/dev/null 2>&1
+            rpm -q "$_pkg" > /dev/null 2>&1
             ;;
         apk)
-            apk info -e "$_pkg" >/dev/null 2>&1
+            apk info -e "$_pkg" > /dev/null 2>&1
             ;;
         brew)
-            brew list "$_pkg" >/dev/null 2>&1
+            brew list "$_pkg" > /dev/null 2>&1
             ;;
         choco)
-            choco list --local-only "$_pkg" 2>/dev/null | grep -qi "$_pkg"
+            choco list --local-only "$_pkg" 2> /dev/null | grep -qi "$_pkg"
             ;;
         winget)
-            winget list --id "$_pkg" --exact >/dev/null 2>&1
+            winget list --id "$_pkg" --exact > /dev/null 2>&1
             ;;
         *)
             # Fallback: check if command exists
@@ -328,22 +328,22 @@ rsr_pkg_version() {
 
     case "$_mgr" in
         apt)
-            dpkg -l "$_pkg" 2>/dev/null | awk '/^ii/{print $3}'
+            dpkg -l "$_pkg" 2> /dev/null | awk '/^ii/{print $3}'
             ;;
-        dnf|yum)
-            rpm -q --qf '%{VERSION}\n' "$_pkg" 2>/dev/null
+        dnf | yum)
+            rpm -q --qf '%{VERSION}\n' "$_pkg" 2> /dev/null
             ;;
         pacman)
-            pacman -Qi "$_pkg" 2>/dev/null | awk '/^Version/{print $3}'
+            pacman -Qi "$_pkg" 2> /dev/null | awk '/^Version/{print $3}'
             ;;
         apk)
-            apk info "$_pkg" 2>/dev/null | head -1
+            apk info "$_pkg" 2> /dev/null | head -1
             ;;
         brew)
-            brew list --versions "$_pkg" 2>/dev/null | awk '{print $2}'
+            brew list --versions "$_pkg" 2> /dev/null | awk '{print $2}'
             ;;
         winget)
-            winget list --id "$_pkg" --exact 2>/dev/null | awk 'NR==3 {print $3}'
+            winget list --id "$_pkg" --exact 2> /dev/null | awk 'NR==3 {print $3}'
             ;;
         *)
             echo "unknown"
@@ -390,7 +390,7 @@ rsr_pkg_check_deps() {
         printf "${RSR_COLOR_YELLOW}?${RSR_COLOR_RESET} Install missing dependencies? [y/N] "
         read -r _answer
         case "$_answer" in
-            [Yy]|[Yy][Ee][Ss])
+            [Yy] | [Yy][Ee][Ss])
                 rsr_pkg_update_cache
                 rsr_pkg_install_many $_missing
                 return $?
@@ -422,7 +422,7 @@ rsr_pkg_map_name() {
     # Common mappings
     case "$_generic" in
         # Web servers
-        httpd|apache)
+        httpd | apache)
             case "$_mgr" in
                 apt) echo "apache2" ;;
                 brew) echo "httpd" ;;
@@ -433,7 +433,7 @@ rsr_pkg_map_name() {
         build-essential)
             case "$_mgr" in
                 apt) echo "build-essential" ;;
-                dnf|yum) echo "gcc gcc-c++ make" ;;
+                dnf | yum) echo "gcc gcc-c++ make" ;;
                 pacman) echo "base-devel" ;;
                 brew) echo "gcc make" ;;
                 apk) echo "build-base" ;;
@@ -448,22 +448,22 @@ rsr_pkg_map_name() {
                 *) echo "python3" ;;
             esac
             ;;
-        python-pip|pip)
+        python-pip | pip)
             case "$_mgr" in
                 apt) echo "python3-pip" ;;
-                dnf|yum) echo "python3-pip" ;;
+                dnf | yum) echo "python3-pip" ;;
                 *) echo "python3-pip" ;;
             esac
             ;;
         python-dev)
             case "$_mgr" in
                 apt) echo "python3-dev" ;;
-                dnf|yum) echo "python3-devel" ;;
+                dnf | yum) echo "python3-devel" ;;
                 *) echo "python3-dev" ;;
             esac
             ;;
         # Node.js
-        nodejs|node)
+        nodejs | node)
             case "$_mgr" in
                 brew) echo "node" ;;
                 *) echo "nodejs" ;;
@@ -473,7 +473,7 @@ rsr_pkg_map_name() {
         netcat)
             case "$_mgr" in
                 apt) echo "netcat-openbsd" ;;
-                dnf|yum) echo "nmap-ncat" ;;
+                dnf | yum) echo "nmap-ncat" ;;
                 *) echo "netcat" ;;
             esac
             ;;
@@ -481,7 +481,7 @@ rsr_pkg_map_name() {
         mysql-client)
             case "$_mgr" in
                 apt) echo "mysql-client" ;;
-                dnf|yum) echo "mysql" ;;
+                dnf | yum) echo "mysql" ;;
                 brew) echo "mysql-client" ;;
                 *) echo "mysql" ;;
             esac
@@ -490,7 +490,7 @@ rsr_pkg_map_name() {
         postgresql-client)
             case "$_mgr" in
                 apt) echo "postgresql-client" ;;
-                dnf|yum) echo "postgresql" ;;
+                dnf | yum) echo "postgresql" ;;
                 brew) echo "libpq" ;;
                 *) echo "postgresql" ;;
             esac
@@ -513,7 +513,7 @@ _RSR_YAML_CORE_TOOLS="sed grep awk"
 # Returns: 0 if all tools available, 1 if any missing
 _rsr_yaml_parser_ready() {
     for _tool in $_RSR_YAML_CORE_TOOLS; do
-        if ! command -v "$_tool" >/dev/null 2>&1; then
+        if ! command -v "$_tool" > /dev/null 2>&1; then
             return 1
         fi
     done
@@ -524,7 +524,7 @@ _rsr_yaml_parser_ready() {
 _rsr_yaml_missing_tools() {
     _missing=""
     for _tool in $_RSR_YAML_CORE_TOOLS; do
-        if ! command -v "$_tool" >/dev/null 2>&1; then
+        if ! command -v "$_tool" > /dev/null 2>&1; then
             _missing="$_missing $_tool"
         fi
     done
@@ -536,35 +536,35 @@ _rsr_yaml_missing_tools() {
 # Usage: _rsr_bootstrap_parser_deps
 _rsr_bootstrap_parser_deps() {
     _missing="$(_rsr_yaml_missing_tools)"
-    
+
     if [ -z "$_missing" ]; then
         rsr_log_debug "All YAML parser dependencies available"
         return 0
     fi
-    
+
     rsr_log_warn "Missing core tools for YAML parsing: $_missing"
     rsr_log_info "Attempting to bootstrap core dependencies..."
-    
+
     _mgr="$(rsr_pkg_manager)"
     _sudo="$(_rsr_pkg_sudo)"
-    
+
     case "$_mgr" in
         apt)
             # On Debian/Ubuntu, these are in coreutils/base packages
             for _tool in $_missing; do
                 case "$_tool" in
-                    sed) $_sudo apt-get install -y -qq sed 2>/dev/null ;;
-                    grep) $_sudo apt-get install -y -qq grep 2>/dev/null ;;
-                    awk) $_sudo apt-get install -y -qq gawk 2>/dev/null || $_sudo apt-get install -y -qq mawk 2>/dev/null ;;
+                    sed) $_sudo apt-get install -y -qq sed 2> /dev/null ;;
+                    grep) $_sudo apt-get install -y -qq grep 2> /dev/null ;;
+                    awk) $_sudo apt-get install -y -qq gawk 2> /dev/null || $_sudo apt-get install -y -qq mawk 2> /dev/null ;;
                 esac
             done
             ;;
-        dnf|yum)
+        dnf | yum)
             for _tool in $_missing; do
                 case "$_tool" in
-                    sed) $_sudo $_mgr install -y -q sed 2>/dev/null ;;
-                    grep) $_sudo $_mgr install -y -q grep 2>/dev/null ;;
-                    awk) $_sudo $_mgr install -y -q gawk 2>/dev/null ;;
+                    sed) $_sudo $_mgr install -y -q sed 2> /dev/null ;;
+                    grep) $_sudo $_mgr install -y -q grep 2> /dev/null ;;
+                    awk) $_sudo $_mgr install -y -q gawk 2> /dev/null ;;
                 esac
             done
             ;;
@@ -572,27 +572,27 @@ _rsr_bootstrap_parser_deps() {
             # On macOS with Homebrew, install GNU versions
             for _tool in $_missing; do
                 case "$_tool" in
-                    sed) brew install -q gnu-sed 2>/dev/null ;;
-                    grep) brew install -q grep 2>/dev/null ;;
-                    awk) brew install -q gawk 2>/dev/null ;;
+                    sed) brew install -q gnu-sed 2> /dev/null ;;
+                    grep) brew install -q grep 2> /dev/null ;;
+                    awk) brew install -q gawk 2> /dev/null ;;
                 esac
             done
             ;;
         apk)
             # Alpine Linux
             for _tool in $_missing; do
-                $_sudo apk add -q "$_tool" 2>/dev/null
+                $_sudo apk add -q "$_tool" 2> /dev/null
             done
             ;;
         pacman)
             for _tool in $_missing; do
                 case "$_tool" in
-                    awk) $_sudo pacman -S --noconfirm --needed gawk 2>/dev/null ;;
-                    *) $_sudo pacman -S --noconfirm --needed "$_tool" 2>/dev/null ;;
+                    awk) $_sudo pacman -S --noconfirm --needed gawk 2> /dev/null ;;
+                    *) $_sudo pacman -S --noconfirm --needed "$_tool" 2> /dev/null ;;
                 esac
             done
             ;;
-        winget|choco)
+        winget | choco)
             # Windows - these should be available via Git Bash or WSL
             rsr_log_warn "On Windows, ensure Git Bash or WSL is installed for POSIX tools"
             return 1
@@ -602,7 +602,7 @@ _rsr_bootstrap_parser_deps() {
             return 1
             ;;
     esac
-    
+
     # Verify bootstrap succeeded
     if _rsr_yaml_parser_ready; then
         rsr_log_success "Successfully bootstrapped parser dependencies"
@@ -619,7 +619,7 @@ _rsr_ensure_parser_ready() {
     if _rsr_yaml_parser_ready; then
         return 0
     fi
-    
+
     _rsr_bootstrap_parser_deps
 }
 
@@ -635,21 +635,21 @@ _rsr_ensure_parser_ready() {
 _rsr_parse_yaml_pure_shell() {
     _yaml_file="$1"
     _section="${2:-packages}"
-    
+
     [ ! -f "$_yaml_file" ] && return 1
-    
+
     _in_section=0
     _indent_level=0
-    
+
     while IFS= read -r _line || [ -n "$_line" ]; do
         # Skip empty lines
         [ -z "$_line" ] && continue
-        
+
         # Skip comments (check first non-space char)
         _first_char="${_line##*( )}"
         _first_char="${_first_char:0:1}"
         case "$_line" in
-            *"#"*) 
+            *"#"*)
                 # Check if # is at start (after spaces)
                 _trimmed="${_line#"${_line%%[![:space:]]*}"}"
                 case "$_trimmed" in
@@ -657,15 +657,15 @@ _rsr_parse_yaml_pure_shell() {
                 esac
                 ;;
         esac
-        
+
         # Check for section header (e.g., "packages:")
         case "$_line" in
-            "${_section}:"*|*" ${_section}:"*)
+            "${_section}:"* | *" ${_section}:"*)
                 _in_section=1
                 continue
                 ;;
         esac
-        
+
         # Check for different section (ends current section)
         if [ $_in_section -eq 1 ]; then
             # If line starts with letter (no leading space), it's a new section
@@ -681,7 +681,7 @@ _rsr_parse_yaml_pure_shell() {
                     ;;
             esac
         fi
-        
+
         # Extract packages (lines starting with "  - ")
         if [ $_in_section -eq 1 ]; then
             case "$_line" in
@@ -716,21 +716,21 @@ _rsr_parse_yaml_pure_shell() {
 # Usage: rsr_pkg_bootstrap
 rsr_pkg_bootstrap() {
     rsr_log_info "Bootstrapping system with core tools..."
-    
+
     # First, try to bootstrap parser dependencies directly
     if ! _rsr_yaml_parser_ready; then
         rsr_log_info "Installing YAML parser dependencies..."
         _rsr_bootstrap_parser_deps
     fi
-    
+
     # Then install bootstrap profile using pure-shell parser if needed
     _bootstrap_file="${RSR_PKG_LISTS_DIR}/bootstrap.yaml"
-    
+
     if [ -f "$_bootstrap_file" ]; then
         # Use pure-shell parser for bootstrap (no external deps required)
         rsr_log_info "Installing bootstrap packages..."
         _packages=$(_rsr_parse_yaml_pure_shell "$_bootstrap_file" "packages")
-        
+
         if [ -n "$_packages" ]; then
             # Convert newlines to spaces for passing to function
             _pkg_list=$(echo "$_packages" | tr '\n' ' ')
@@ -741,7 +741,7 @@ rsr_pkg_bootstrap() {
         rsr_log_warn "Bootstrap profile not found, installing core tools directly"
         rsr_pkg_bootstrap_install sed grep gawk curl
     fi
-    
+
     # Verify parser is now ready
     if _rsr_yaml_parser_ready; then
         rsr_log_success "Bootstrap complete - full parser available"
@@ -764,37 +764,37 @@ rsr_pkg_needs_bootstrap() {
 rsr_pkg_bootstrap_install() {
     _mgr="$(rsr_pkg_manager)"
     _sudo="$(_rsr_pkg_sudo)"
-    
+
     rsr_log_info "Bootstrap installing: $*"
-    
+
     for _pkg in "$@"; do
         rsr_log_info "Installing $_pkg..."
         case "$_mgr" in
             apt)
-                $_sudo apt-get update -qq 2>/dev/null
-                $_sudo apt-get install -y -qq "$_pkg" 2>/dev/null
+                $_sudo apt-get update -qq 2> /dev/null
+                $_sudo apt-get install -y -qq "$_pkg" 2> /dev/null
                 ;;
             dnf)
-                $_sudo dnf install -y -q "$_pkg" 2>/dev/null
+                $_sudo dnf install -y -q "$_pkg" 2> /dev/null
                 ;;
             yum)
-                $_sudo yum install -y -q "$_pkg" 2>/dev/null
+                $_sudo yum install -y -q "$_pkg" 2> /dev/null
                 ;;
             pacman)
-                $_sudo pacman -Sy --noconfirm --needed "$_pkg" 2>/dev/null
+                $_sudo pacman -Sy --noconfirm --needed "$_pkg" 2> /dev/null
                 ;;
             apk)
-                $_sudo apk update 2>/dev/null
-                $_sudo apk add -q "$_pkg" 2>/dev/null
+                $_sudo apk update 2> /dev/null
+                $_sudo apk add -q "$_pkg" 2> /dev/null
                 ;;
             brew)
-                brew install -q "$_pkg" 2>/dev/null
+                brew install -q "$_pkg" 2> /dev/null
                 ;;
             winget)
-                winget install --id "$_pkg" --silent --accept-source-agreements --accept-package-agreements 2>/dev/null
+                winget install --id "$_pkg" --silent --accept-source-agreements --accept-package-agreements 2> /dev/null
                 ;;
             choco)
-                choco install -y "$_pkg" 2>/dev/null
+                choco install -y "$_pkg" 2> /dev/null
                 ;;
             *)
                 rsr_log_warn "Unknown package manager, cannot install $_pkg"
@@ -814,26 +814,26 @@ rsr_pkg_bootstrap_install() {
 _rsr_parse_yaml_group_list() {
     _yaml_file="$1"
     _group_path="${2:-}"
-    
+
     [ ! -f "$_yaml_file" ] && return 1
-    
+
     # If no group path, we're looking at top-level groups
     if [ -z "$_group_path" ]; then
         # Find all top-level group names under groups:
-        grep -A 9999 '^groups:' "$_yaml_file" 2>/dev/null | \
-            grep -E '^[[:space:]]{2}[a-zA-Z_][a-zA-Z0-9_-]*:' | \
-            sed 's/^[[:space:]]*//' | \
-            sed 's/:.*//' | \
-            head -100
+        grep -A 9999 '^groups:' "$_yaml_file" 2> /dev/null \
+            | grep -E '^[[:space:]]{2}[a-zA-Z_][a-zA-Z0-9_-]*:' \
+            | sed 's/^[[:space:]]*//' \
+            | sed 's/:.*//' \
+            | head -100
     else
         # Navigate to specific group path and list subgroups
         # This is a simplified version - handles one level of nesting
         _parent_group="${_group_path%%.*}"
-        grep -A 9999 "^[[:space:]]*${_parent_group}:" "$_yaml_file" 2>/dev/null | \
-            grep -E '^[[:space:]]{4}[a-zA-Z_][a-zA-Z0-9_-]*:' | \
-            sed 's/^[[:space:]]*//' | \
-            sed 's/:.*//' | \
-            head -100
+        grep -A 9999 "^[[:space:]]*${_parent_group}:" "$_yaml_file" 2> /dev/null \
+            | grep -E '^[[:space:]]{4}[a-zA-Z_][a-zA-Z0-9_-]*:' \
+            | sed 's/^[[:space:]]*//' \
+            | sed 's/:.*//' \
+            | head -100
     fi
 }
 
@@ -843,10 +843,10 @@ _rsr_parse_yaml_group_list() {
 _rsr_parse_yaml_group() {
     _yaml_file="$1"
     _group_path="$2"
-    
+
     [ ! -f "$_yaml_file" ] && return 1
     [ -z "$_group_path" ] && return 1
-    
+
     # Split group path (e.g., "languages.python" -> ["languages", "python"])
     _path_parts=""
     _remaining="$_group_path"
@@ -859,31 +859,31 @@ _rsr_parse_yaml_group() {
             _remaining=""
         fi
     done
-    
+
     # Navigate through the path to find the target group
     # For now, handle up to 3 levels: group.subgroup.subsubgroup
     _level=0
     _current_pattern="^groups:"
     _indent=2
-    
+
     for _part in $_path_parts; do
         _level=$((_level + 1))
         # Look for the pattern at current indentation level
         _current_pattern="^[[:space:]]{$_indent}${_part}:"
         _indent=$((_indent + 2))
     done
-    
+
     # Extract packages from the target group
     # Find the group header, then extract until next same-level key
-    grep -A 200 "$_current_pattern" "$_yaml_file" 2>/dev/null | \
-        sed -n '/packages:/,/^[[:space:]]*[a-zA-Z_]/p' | \
-        grep '^[[:space:]]*-' | \
-        sed 's/^[[:space:]]*-[[:space:]]*//' | \
-        sed 's/#.*//' | \
-        tr -d '"' | \
-        tr -d "'" | \
-        xargs -n1 | \
-        grep -v '^$'
+    grep -A 200 "$_current_pattern" "$_yaml_file" 2> /dev/null \
+        | sed -n '/packages:/,/^[[:space:]]*[a-zA-Z_]/p' \
+        | grep '^[[:space:]]*-' \
+        | sed 's/^[[:space:]]*-[[:space:]]*//' \
+        | sed 's/#.*//' \
+        | tr -d '"' \
+        | tr -d "'" \
+        | xargs -n1 \
+        | grep -v '^$'
 }
 
 # Install a specific group from a profile
@@ -891,30 +891,30 @@ _rsr_parse_yaml_group() {
 rsr_pkg_install_group() {
     _profile="$1"
     _group_path="$2"
-    
+
     _profile_file="${RSR_PKG_LISTS_DIR}/${_profile}.yaml"
-    
+
     if [ ! -f "$_profile_file" ]; then
         rsr_log_error "Profile not found: $_profile"
         return 1
     fi
-    
+
     rsr_log_info "Installing group: $_profile.$_group_path"
-    
+
     # Parse packages from the group
     _packages=$(_rsr_parse_yaml_group "$_profile_file" "$_group_path")
-    
+
     if [ -z "$_packages" ]; then
         rsr_log_warn "No packages found in group: $_group_path"
         return 0
     fi
-    
+
     rsr_pkg_update_cache
-    
+
     # Install each package
     _failed_packages=""
     _success_count=0
-    
+
     for _pkg in $_packages; do
         _mapped=$(rsr_pkg_map_name "$_pkg")
         rsr_log_info "Installing $_pkg..."
@@ -924,17 +924,17 @@ rsr_pkg_install_group() {
             _failed_packages="$_failed_packages $_pkg"
         fi
     done
-    
+
     # Summary
     if [ $_success_count -gt 0 ]; then
         rsr_log_success "Successfully installed $_success_count package(s) from group"
     fi
-    
+
     if [ -n "$_failed_packages" ]; then
         rsr_log_warn "Failed to install:$_failed_packages"
         return 1
     fi
-    
+
     return 0
 }
 
@@ -943,34 +943,34 @@ rsr_pkg_install_group() {
 rsr_pkg_list_groups() {
     _profile="$1"
     _profile_file="${RSR_PKG_LISTS_DIR}/${_profile}.yaml"
-    
+
     if [ ! -f "$_profile_file" ]; then
         rsr_log_error "Profile not found: $_profile"
         return 1
     fi
-    
+
     rsr_log_info "Groups in $_profile:"
-    
+
     _groups=$(_rsr_parse_yaml_group_list "$_profile_file")
-    
+
     if [ -z "$_groups" ]; then
         rsr_log_info "  No groups defined (flat profile)"
         return 0
     fi
-    
+
     for _group in $_groups; do
         # Get description if available
-        _desc=$(grep -A 1 "^[[:space:]]*${_group}:" "$_profile_file" 2>/dev/null | \
-                grep 'description:' | \
-                sed 's/.*description:[[:space:]]*//' | \
-                tr -d '"')
-        
+        _desc=$(grep -A 1 "^[[:space:]]*${_group}:" "$_profile_file" 2> /dev/null \
+            | grep 'description:' \
+            | sed 's/.*description:[[:space:]]*//' \
+            | tr -d '"')
+
         if [ -n "$_desc" ]; then
             printf "  ${RSR_COLOR_CYAN}%-20s${RSR_COLOR_RESET} %s\n" "$_group" "$_desc"
         else
             printf "  ${RSR_COLOR_CYAN}%s${RSR_COLOR_RESET}\n" "$_group"
         fi
-        
+
         # List subgroups (one level deep)
         _subgroups=$(_rsr_parse_yaml_group_list "$_profile_file" "$_group")
         for _subgroup in $_subgroups; do
@@ -997,7 +997,7 @@ _rsr_parse_yaml_packages() {
     while IFS= read -r _line || [ -n "$_line" ]; do
         # Skip comments and empty lines
         case "$_line" in
-            \#*|"") continue ;;
+            \#* | "") continue ;;
         esac
 
         # Check for section header
@@ -1050,13 +1050,13 @@ rsr_pkg_install_from_yaml() {
     _line_num=0
     _failed_packages=""
     _success_count=0
-    
+
     while IFS= read -r _line || [ -n "$_line" ]; do
         _line_num=$((_line_num + 1))
-        
+
         # Skip comments and empty lines
         case "$_line" in
-            \#*|"") continue ;;
+            \#* | "") continue ;;
         esac
 
         # Check for section header
@@ -1082,7 +1082,7 @@ rsr_pkg_install_from_yaml() {
                     _pkg_info=$(_rsr_extract_package_methods "$_yaml_file" "$_line_num")
                     _pkg_name="${_pkg_info%%|*}"
                     _methods="${_pkg_info#*|}"
-                    
+
                     if [ -n "$_pkg_name" ] && [ -n "$_methods" ]; then
                         rsr_log_info "Installing $_pkg_name (multi-method)..."
                         if rsr_pkg_try_methods "$_pkg_name" $_methods; then
@@ -1107,17 +1107,17 @@ rsr_pkg_install_from_yaml() {
             fi
         fi
     done < "$_yaml_file"
-    
+
     # Summary
     if [ $_success_count -gt 0 ]; then
         rsr_log_success "Successfully installed $_success_count package(s)"
     fi
-    
+
     if [ -n "$_failed_packages" ]; then
         rsr_log_warn "Failed to install:$_failed_packages"
         return 1
     fi
-    
+
     return 0
 }
 
@@ -1125,18 +1125,18 @@ rsr_pkg_install_from_yaml() {
 # Usage: rsr_pkg_install_profile "development" or "development.languages.python"
 rsr_pkg_install_profile() {
     _input="$1"
-    
+
     # Check if input contains dot (group notation)
     if echo "$_input" | grep -q '\.'; then
         # Extract profile name and group path
         _profile="${_input%%.*}"
         _group_path="${_input#*.}"
-        
+
         # Install specific group
         rsr_pkg_install_group "$_profile" "$_group_path"
         return $?
     fi
-    
+
     # Install entire profile (no group specified)
     _profile="$_input"
     _profile_file="${RSR_PKG_LISTS_DIR}/${_profile}.yaml"
@@ -1168,7 +1168,7 @@ rsr_pkg_list_profiles() {
     for _f in "$RSR_PKG_LISTS_DIR"/*.yaml "$RSR_PKG_LISTS_DIR"/*.yml; do
         [ -f "$_f" ] || continue
         _name=$(basename "$_f" | sed 's/\.ya\?ml$//')
-        _desc=$(grep -m1 '^description:' "$_f" 2>/dev/null | sed 's/^description:[[:space:]]*//' | tr -d '"'"'")
+        _desc=$(grep -m1 '^description:' "$_f" 2> /dev/null | sed 's/^description:[[:space:]]*//' | tr -d '"'"'")
         if [ -n "$_desc" ]; then
             printf "  ${RSR_COLOR_CYAN}%-20s${RSR_COLOR_RESET} %s\n" "$_name" "$_desc"
         else
@@ -1185,7 +1185,7 @@ rsr_pkg_list_profiles() {
 # Returns: space-separated list of available methods
 rsr_pkg_available_methods() {
     _methods=""
-    
+
     # Check for package managers
     rsr_has_command apt-get && _methods="$_methods apt"
     rsr_has_command dnf && _methods="$_methods dnf"
@@ -1196,10 +1196,10 @@ rsr_pkg_available_methods() {
     rsr_has_command brew && _methods="$_methods brew"
     rsr_has_command winget && _methods="$_methods winget"
     rsr_has_command choco && _methods="$_methods choco"
-    
+
     # Script method always available
     _methods="$_methods script"
-    
+
     echo "${_methods# }"
 }
 
@@ -1209,55 +1209,55 @@ rsr_pkg_install_with_method() {
     _pkg="$1"
     _method="$2"
     _method_pkg="${3:-$_pkg}"
-    
+
     rsr_log_debug "Attempting to install $_pkg using method: $_method"
-    
+
     case "$_method" in
         apt)
             rsr_has_command apt-get || return 1
             _sudo="$(_rsr_pkg_sudo)"
-            $_sudo apt-get install -y -qq "$_method_pkg" 2>/dev/null
+            $_sudo apt-get install -y -qq "$_method_pkg" 2> /dev/null
             ;;
         dnf)
             rsr_has_command dnf || return 1
             _sudo="$(_rsr_pkg_sudo)"
-            $_sudo dnf install -y -q "$_method_pkg" 2>/dev/null
+            $_sudo dnf install -y -q "$_method_pkg" 2> /dev/null
             ;;
         yum)
             rsr_has_command yum || return 1
             _sudo="$(_rsr_pkg_sudo)"
-            $_sudo yum install -y -q "$_method_pkg" 2>/dev/null
+            $_sudo yum install -y -q "$_method_pkg" 2> /dev/null
             ;;
         pacman)
             rsr_has_command pacman || return 1
             _sudo="$(_rsr_pkg_sudo)"
-            $_sudo pacman -S --noconfirm --needed "$_method_pkg" 2>/dev/null
+            $_sudo pacman -S --noconfirm --needed "$_method_pkg" 2> /dev/null
             ;;
         zypper)
             rsr_has_command zypper || return 1
             _sudo="$(_rsr_pkg_sudo)"
-            $_sudo zypper install -y -q "$_method_pkg" 2>/dev/null
+            $_sudo zypper install -y -q "$_method_pkg" 2> /dev/null
             ;;
         apk)
             rsr_has_command apk || return 1
             _sudo="$(_rsr_pkg_sudo)"
-            $_sudo apk add -q "$_method_pkg" 2>/dev/null
+            $_sudo apk add -q "$_method_pkg" 2> /dev/null
             ;;
         brew)
             rsr_has_command brew || return 1
-            brew install -q "$_method_pkg" 2>/dev/null
+            brew install -q "$_method_pkg" 2> /dev/null
             ;;
         brew_cask)
             rsr_has_command brew || return 1
-            brew install --cask -q "$_method_pkg" 2>/dev/null
+            brew install --cask -q "$_method_pkg" 2> /dev/null
             ;;
         winget)
             rsr_has_command winget || return 1
-            winget install --id "$_method_pkg" --silent --accept-source-agreements --accept-package-agreements 2>/dev/null
+            winget install --id "$_method_pkg" --silent --accept-source-agreements --accept-package-agreements 2> /dev/null
             ;;
         choco)
             rsr_has_command choco || return 1
-            choco install -y "$_method_pkg" 2>/dev/null
+            choco install -y "$_method_pkg" 2> /dev/null
             ;;
         script)
             # Script method requires the script to be provided
@@ -1280,27 +1280,27 @@ rsr_pkg_install_with_method() {
 rsr_pkg_try_methods() {
     _pkg="$1"
     shift
-    
+
     _methods_tried=""
-    
+
     for _method_spec in "$@"; do
         # Parse method:package format
         _method="${_method_spec%%:*}"
         _method_pkg="${_method_spec#*:}"
-        
+
         # If no colon, use package name as-is
         [ "$_method" = "$_method_pkg" ] && _method_pkg="$_pkg"
-        
+
         _methods_tried="$_methods_tried $_method"
-        
+
         rsr_log_debug "Trying method $_method for $_pkg"
-        
+
         if rsr_pkg_install_with_method "$_pkg" "$_method" "$_method_pkg"; then
             rsr_log_success "Installed $_pkg using $_method"
             return 0
         fi
     done
-    
+
     rsr_log_error "Failed to install $_pkg. Tried methods:$_methods_tried"
     return 1
 }
@@ -1310,21 +1310,21 @@ rsr_pkg_try_methods() {
 # Usage: _rsr_parse_package_line "  - name: kubectl"
 _rsr_parse_package_line() {
     _line="$1"
-    
+
     # Check if it's simple format (just "- package")
     if echo "$_line" | grep -q '^[[:space:]]*-[[:space:]]*[a-zA-Z0-9_-]*[[:space:]]*$'; then
         # Simple format
         echo "$_line" | sed -n 's/^[[:space:]]*-[[:space:]]*\([^#[:space:]]*\).*/\1/p'
         return 0
     fi
-    
+
     # Check for extended format indicators
     if echo "$_line" | grep -q 'name:\|brew:\|brew_cask:\|winget:\|apt:\|choco:'; then
         # Extended format - return the line for further processing
         echo "EXTENDED:$_line"
         return 0
     fi
-    
+
     # Default: treat as simple format
     echo "$_line" | sed -n 's/^[[:space:]]*-[[:space:]]*\([^#]*\).*/\1/p' | tr -d '"'"'" | xargs
 }
@@ -1337,17 +1337,17 @@ _rsr_extract_package_methods() {
     _start_line="$2"
     _pkg_name=""
     _methods=""
-    
+
     # Read lines starting from _start_line until we hit another package or section
     _line_num=0
     _in_package=0
-    
+
     while IFS= read -r _line || [ -n "$_line" ]; do
         _line_num=$((_line_num + 1))
-        
+
         # Skip until we reach start line
         [ $_line_num -lt $_start_line ] && continue
-        
+
         # Stop if we hit another package or section
         if [ $_in_package -eq 1 ]; then
             # Check if line starts a new package or section
@@ -1355,7 +1355,7 @@ _rsr_extract_package_methods() {
                 break
             fi
         fi
-        
+
         # Parse the line
         case "$_line" in
             *name:*)
@@ -1387,11 +1387,11 @@ _rsr_extract_package_methods() {
                 _methods="$_methods choco:$_method_pkg"
                 ;;
         esac
-        
+
         # Stop if line is empty and we're in a package (end of package definition)
         [ $_in_package -eq 1 ] && [ -z "$_line" ] && break
     done < "$_yaml_file"
-    
+
     # Return format: package_name|method1:pkg1 method2:pkg2 ...
     echo "${_pkg_name}|${_methods# }"
 }
@@ -1463,4 +1463,3 @@ rsr_pkg_info() {
 }
 
 rsr_log_debug "RSR packages module loaded (v${_RSR_PACKAGES_VERSION})"
-

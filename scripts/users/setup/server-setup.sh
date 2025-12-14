@@ -22,7 +22,7 @@ set -eo pipefail
 
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -106,7 +106,7 @@ log() {
     local level="$1"
     local message="$2"
 
-    if type rsr_log_info &>/dev/null; then
+    if type rsr_log_info &> /dev/null; then
         case "$level" in
             "INFO") rsr_log_info "$message" ;;
             "WARN") rsr_log_warn "$message" ;;
@@ -119,9 +119,10 @@ log() {
             "INFO") echo -e "${BLUE}▸${NC} $message" ;;
             "WARN") echo -e "${YELLOW}⚠${NC} $message" ;;
             "ERROR") echo -e "${RED}✗${NC} $message" >&2 ;;
-        "OK") echo -e "${GREEN}✓${NC} $message" ;;
-        *) echo "[$level] $message" ;;
-    esac
+            "OK") echo -e "${GREEN}✓${NC} $message" ;;
+            *) echo "[$level] $message" ;;
+        esac
+    fi
 }
 
 # Function to check if package is available
@@ -393,7 +394,7 @@ main() {
     fi
 
     # Run interactive mode if enabled
-    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &> /dev/null && rsr_is_interactive; then
         run_interactive
     fi
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # lib/rsr-lib.sh - RSR Library Loader
 # Single entry point to load all RSR library components
 #
@@ -25,9 +25,9 @@ if [ -n "${RSR_LIB_DIR:-}" ]; then
 else
     _script_source="${BASH_SOURCE[0]:-${0:-}}"
     if [ -n "${_script_source}" ] && [ "${_script_source}" != "sh" ] && [ "${_script_source}" != "bash" ] && [ "${_script_source}" != "-sh" ] && [ "${_script_source}" != "-bash" ]; then
-        _RSR_LIB_ROOT="$(cd "$(dirname "${_script_source}")" 2>/dev/null && pwd)" || _RSR_LIB_ROOT="./lib"
+        _RSR_LIB_ROOT="$(cd "$(dirname "${_script_source}")" 2> /dev/null && pwd)" || _RSR_LIB_ROOT="./lib"
     else
-        _RSR_LIB_ROOT="$(cd "$(dirname "$0")" 2>/dev/null && pwd)" || _RSR_LIB_ROOT="./lib"
+        _RSR_LIB_ROOT="$(cd "$(dirname "$0")" 2> /dev/null && pwd)" || _RSR_LIB_ROOT="./lib"
     fi
 fi
 
@@ -60,7 +60,7 @@ rsr_load_module() {
             # Already loaded
             return 0
             ;;
-        validate|validation)
+        validate | validation)
             # shellcheck source=core/validate.sh
             . "${_RSR_LIB_ROOT}/core/validate.sh"
             ;;
@@ -74,7 +74,7 @@ rsr_load_module() {
                 return 1
             fi
             ;;
-        users|user)
+        users | user)
             # shellcheck source=modules/users.sh
             . "${_RSR_LIB_ROOT}/modules/users.sh"
             ;;
@@ -86,11 +86,11 @@ rsr_load_module() {
             # shellcheck source=modules/ssh.sh
             . "${_RSR_LIB_ROOT}/modules/ssh.sh"
             ;;
-        packages|pkg)
+        packages | pkg)
             # shellcheck source=modules/packages.sh
             . "${_RSR_LIB_ROOT}/modules/packages.sh"
             ;;
-        backup|bkp)
+        backup | bkp)
             # shellcheck source=modules/backup.sh
             . "${_RSR_LIB_ROOT}/modules/backup.sh"
             ;;
@@ -122,12 +122,12 @@ _rsr_lib_process_args() {
 
     for _arg in "$@"; do
         case "$_arg" in
-            --all|-a)
+            --all | -a)
                 rsr_load_all
                 return 0
                 ;;
-            --help|-h)
-                cat <<'EOF'
+            --help | -h)
+                cat << 'EOF'
 RSR Library Loader
 
 Usage:
@@ -189,4 +189,3 @@ rsr_lib_version() {
 # =============================================================================
 
 rsr_log_debug "RSR Library loader initialized (${RSR_LIB_DIR})"
-
