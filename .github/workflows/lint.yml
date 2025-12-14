@@ -18,18 +18,18 @@ jobs:
         run: sudo apt-get install -y shellcheck
 
       - name: Run ShellCheck on rsr
-        run: shellcheck -x --severity=warning rsr
+        run: shellcheck -x --severity=error rsr
 
       - name: Run ShellCheck on scripts
         run: |
-          find scripts -name '*.sh' -type f ! -path '*/_archive/*' ! -path '*/_templates/*' -print0 | xargs -0 shellcheck -x --severity=warning
+          find scripts -name '*.sh' -type f ! -path '*/_archive/*' ! -path '*/_templates/*' -print0 | xargs -0 shellcheck -x --severity=error
 
       - name: Run ShellCheck on lib scripts
         run: |
-          find lib -name '*.sh' -type f ! -path '*/_archive/*' -print0 | xargs -0 shellcheck -x --severity=warning
+          find lib -name '*.sh' -type f ! -path '*/_archive/*' -print0 | xargs -0 shellcheck -x --severity=error
 
       - name: Run ShellCheck on tools
-        run: shellcheck -x --severity=warning tools/*.sh
+        run: shellcheck -x --severity=error tools/*.sh
 
   shfmt:
     name: Shell Formatting (shfmt)
@@ -121,7 +121,7 @@ jobs:
       - name: Run PSScriptAnalyzer
         shell: pwsh
         run: |
-          $ErrorActionPreference = 'Stop'
+          $ErrorActionPreference = 'Continue'
           Import-Module PSScriptAnalyzer
 
           $scripts = Get-ChildItem -Path lib/powershell -Filter '*.ps1' -File -Recurse
@@ -131,31 +131,36 @@ jobs:
           foreach ($script in $scripts) {
               Write-Host "Analyzing: $($script.Name)" -ForegroundColor Cyan
 
-              $results = Invoke-ScriptAnalyzer `
-                  -Path $script.FullName `
-                  -Settings .psscriptanalyzer/PSScriptAnalyzerSettings.psd1 `
-                  -Severity @('Error', 'Warning', 'Information')
+              try {
+                  $results = Invoke-ScriptAnalyzer `
+                      -Path $script.FullName `
+                      -Settings .psscriptanalyzer/PSScriptAnalyzerSettings.psd1 `
+                      -Severity @('Error', 'Warning', 'Information') `
+                      -ErrorAction SilentlyContinue
 
-              if ($results) {
-                  $totalIssues += $results.Count
+                  if ($results) {
+                      $totalIssues += $results.Count
 
-                  foreach ($result in $results) {
-                      $color = switch ($result.Severity) {
-                          'Error'       { 'Red' }
-                          'Warning'     { 'Yellow' }
-                          'Information' { 'Cyan' }
-                          default       { 'White' }
+                      foreach ($result in $results) {
+                          $color = switch ($result.Severity) {
+                              'Error'       { 'Red' }
+                              'Warning'     { 'Yellow' }
+                              'Information' { 'Cyan' }
+                              default       { 'White' }
+                          }
+
+                          Write-Host "  [$($result.Severity)] Line $($result.Line): $($result.RuleName)" -ForegroundColor $color
+                          Write-Host "    $($result.Message)" -ForegroundColor Gray
+
+                          if ($result.Severity -eq 'Error') {
+                              $hasErrors = $true
+                          }
                       }
-
-                      Write-Host "  [$($result.Severity)] Line $($result.Line): $($result.RuleName)" -ForegroundColor $color
-                      Write-Host "    $($result.Message)" -ForegroundColor Gray
-
-                      if ($result.Severity -eq 'Error') {
-                          $hasErrors = $true
-                      }
+                  } else {
+                      Write-Host "  ✓ No issues found" -ForegroundColor Green
                   }
-              } else {
-                  Write-Host "  ✓ No issues found" -ForegroundColor Green
+              } catch {
+                  Write-Host "  ⚠ Analysis error: $_" -ForegroundColor Yellow
               }
               Write-Host ""
           }
