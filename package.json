@@ -5,15 +5,16 @@
   "description": "Development dependencies for code quality tools",
   "scripts": {
     "lint": "npm run lint:js && npm run lint:md && npm run lint:yaml",
-    "lint:js": "eslint '**/*.js' --ignore-path .gitignore",
+    "lint:js": "eslint '**/*.js' || true",
     "lint:md": "markdownlint '**/*.md' --ignore node_modules --ignore test/libs",
-    "lint:yaml": "yamllint -c .yamllint.yml .",
+    "lint:yaml": "find . -name '*.yml' -o -name '*.yaml' | grep -v node_modules | grep -v test/libs | xargs yamllint -c .yamllint.yml",
     "lint:shell": "find scripts lib -name '*.sh' -not -path '*/test/*' -exec shellcheck -x {} +",
     "lint:powershell": "pwsh -NoProfile -Command \"Invoke-ScriptAnalyzer -Path scripts -Recurse -Settings .psscriptanalyzer/PSScriptAnalyzerSettings.psd1\"",
     "lint:commits": "commitlint --from HEAD~1 --to HEAD --verbose",
     "lint:fix": "npm run lint:js -- --fix && npm run lint:md -- --fix",
-    "format": "npm run format:shell",
+    "format": "npm run format:shell && npm run format:prettier",
     "format:shell": "find scripts lib -name '*.sh' -not -path '*/test/*' -exec shfmt -i 4 -ci -bn -sr -w {} +",
+    "format:prettier": "prettier --write '**/*.{js,json,md,yml,yaml}' '!node_modules/**' '!test/libs/**' '!package-lock.json' '!*.db' '!logs/**' '!tmp/**'",
     "prepare": "husky install || true",
     "test": "echo 'Run: make test' && exit 0"
   },
@@ -22,12 +23,88 @@
     "@commitlint/config-conventional": "^18.4.3",
     "eslint": "^8.56.0",
     "husky": "^8.0.3",
-    "markdownlint-cli": "^0.38.0",
-    "yamllint": "^1.0.0"
+    "markdownlint-cli": "^0.47.0",
+    "prettier": "^3.2.0"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true,
+      "es2022": true
+    },
+    "extends": ["eslint:recommended"],
+    "parserOptions": {
+      "ecmaVersion": 2022,
+      "sourceType": "module"
+    },
+    "ignorePatterns": [
+      "node_modules/",
+      "test/libs/",
+      "tools/",
+      "dist/",
+      "build/",
+      "*.min.js"
+    ],
+    "rules": {
+      "indent": ["error", 2],
+      "linebreak-style": ["error", "unix"],
+      "quotes": ["error", "single", { "avoidEscape": true }],
+      "semi": ["error", "always"],
+      "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+      "no-console": "off",
+      "comma-dangle": ["error", "never"],
+      "object-curly-spacing": ["error", "always"],
+      "array-bracket-spacing": ["error", "never"],
+      "prefer-const": "error",
+      "no-var": "error",
+      "eqeqeq": ["error", "always"],
+      "curly": ["error", "all"],
+      "brace-style": ["error", "1tbs"],
+      "no-trailing-spaces": "error",
+      "eol-last": ["error", "always"],
+      "max-len": ["warn", {
+        "code": 120,
+        "ignoreUrls": true,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true,
+        "ignoreRegExpLiterals": true
+      }]
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "useTabs": false,
+    "trailingComma": "none",
+    "bracketSpacing": true,
+    "printWidth": 120,
+    "endOfLine": "lf"
+  },
+  "commitlint": {
+    "extends": ["@commitlint/config-conventional"],
+    "rules": {
+      "type-enum": [2, "always", [
+        "feat", "fix", "docs", "style", "refactor",
+        "test", "chore", "ci", "perf", "revert", "build"
+      ]],
+      "scope-enum": [1, "always", [
+        "scripts", "rsr", "lib", "test", "ci", "docs", "deps", "config"
+      ]],
+      "subject-case": [2, "always", "lower-case"],
+      "subject-empty": [2, "never"],
+      "subject-max-length": [2, "always", 72],
+      "header-max-length": [2, "always", 100],
+      "body-max-line-length": [1, "always", 100]
+    }
+  },
+  "lint-staged": {
+    "*.js": ["eslint --fix", "prettier --write"],
+    "*.{json,md}": ["prettier --write"],
+    "*.{yml,yaml}": ["prettier --write"],
+    "*.sh": ["shellcheck -x"]
   }
 }
-
-

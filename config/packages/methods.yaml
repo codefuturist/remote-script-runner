@@ -18,7 +18,7 @@ platforms:
     notes: |
       Homebrew is the standard package manager for macOS.
       Script fallback handles packages not available in Homebrew.
-  
+
   # Windows
   windows:
     priority:
@@ -29,7 +29,7 @@ platforms:
       winget (Windows Package Manager) is preferred as it's built-in to Windows 11+.
       Chocolatey is used as fallback for systems without winget.
       Script method can handle custom installations.
-  
+
   # Debian-based (Debian, Ubuntu, Linux Mint, etc.)
   debian:
     priority:
@@ -37,14 +37,14 @@ platforms:
       - script
     notes: |
       APT is the native package manager for Debian-based distributions.
-  
+
   ubuntu:
     priority:
       - apt
       - script
     notes: |
       Ubuntu uses APT as its primary package manager.
-  
+
   # RHEL-based (RHEL, CentOS, Fedora, AlmaLinux, Rocky Linux)
   rhel:
     priority:
@@ -54,20 +54,20 @@ platforms:
     notes: |
       DNF is preferred for RHEL 8+ and Fedora.
       YUM is used as fallback for older RHEL/CentOS 7.
-  
+
   centos:
     priority:
       - dnf
       - yum
       - script
-  
+
   fedora:
     priority:
       - dnf
       - script
     notes: |
       Fedora uses DNF exclusively (YUM is deprecated).
-  
+
   # Arch Linux
   arch:
     priority:
@@ -76,7 +76,7 @@ platforms:
     notes: |
       Pacman is the native package manager for Arch Linux.
       AUR helpers not included (yay, paru) - use script method if needed.
-  
+
   # openSUSE
   opensuse:
     priority:
@@ -84,7 +84,7 @@ platforms:
       - script
     notes: |
       Zypper is the native package manager for openSUSE.
-  
+
   # Alpine Linux
   alpine:
     priority:
@@ -93,7 +93,7 @@ platforms:
     notes: |
       APK is the native package manager for Alpine Linux.
       Alpine is commonly used in Docker containers.
-  
+
   # FreeBSD
   freebsd:
     priority:
@@ -116,50 +116,50 @@ method_info:
     requires_sudo: true
     platforms: [debian, ubuntu]
     cache_update: true
-    
+
   dnf:
     requires_sudo: true
     platforms: [fedora, rhel, centos]
     cache_update: true
-    
+
   yum:
     requires_sudo: true
     platforms: [rhel, centos]
     cache_update: true
-    
+
   pacman:
     requires_sudo: true
     platforms: [arch]
     cache_update: true
-    
+
   zypper:
     requires_sudo: true
     platforms: [opensuse]
     cache_update: true
-    
+
   apk:
     requires_sudo: true
     platforms: [alpine]
     cache_update: true
-    
+
   brew:
     requires_sudo: false
     platforms: [darwin]
     cache_update: true
     notes: Homebrew is user-space, no sudo needed
-    
+
   winget:
     requires_sudo: false
     platforms: [windows]
     cache_update: false
     notes: Windows Package Manager (built-in to Windows 11+)
-    
+
   choco:
     requires_sudo: false
     platforms: [windows]
     cache_update: false
     notes: Chocolatey package manager for Windows
-    
+
   script:
     requires_sudo: varies
     platforms: [all]

@@ -44,7 +44,7 @@ repos:
       - id: detect-private-key
         exclude: ^test/
 
-  # Shell script linting with ShellCheck (WARNING ONLY - non-blocking)
+  # Shell script linting with ShellCheck
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.9.0.6
     hooks:
@@ -53,11 +53,7 @@ repos:
         exclude: ^test/libs/
         types: [shell]
         files: \.(sh|bash|zsh)$
-        # Non-blocking - warnings only
         verbose: true
-        # Timeout after 30 seconds
-        language: python
-        additional_dependencies: []
 
   # Shell script formatting with shfmt (AUTO-FIX)
   - repo: https://github.com/scop/pre-commit-shfmt
@@ -75,43 +71,9 @@ repos:
       - id: detect-secrets
         args: [--baseline, .secrets.baseline]
         exclude: ^test/libs/
-        # Timeout after 30 seconds
         verbose: true
 
-  # Markdown linting (WARNING ONLY)
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.38.0
-    hooks:
-      - id: markdownlint
-        args: [--fix, --disable, MD013, MD033, MD041, --]
-        exclude: ^(test/libs/|CHANGELOG\.md)
-        # Auto-fix enabled
-
-  # YAML linting (WARNING ONLY)
-  - repo: https://github.com/adrienverge/yamllint
-    rev: v1.33.0
-    hooks:
-      - id: yamllint
-        args: [-d, "{extends: relaxed, rules: {line-length: disable}}"]
-        exclude: ^test/libs/
-        # Non-blocking
-        verbose: true
-
-# CI configuration - for GitHub Actions / GitLab CI
-ci:
-  autofix_commit_msg: "style: auto-fix from pre-commit hooks"
-  autofix_prs: true
-  autoupdate_commit_msg: "chore: update pre-commit hooks"
-  autoupdate_schedule: monthly
-  skip: [shellcheck]  # Run shellcheck separately for better error reporting
-  submodules: false
-    rev: v1.4.0
-    hooks:
-      - id: detect-secrets
-        args: [--baseline, .secrets.baseline]
-        exclude: ^test/libs/
-
-  # Additional secret scanning with gitleaks (fast fail)
+  # Additional secret scanning with gitleaks
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.18.4
     hooks:
@@ -147,7 +109,7 @@ ci:
         files: ^(scripts/registry\.json|rsr)$
         pass_filenames: false
 
-  # Markdown linting
+  # Markdown linting (AUTO-FIX)
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.38.0
     hooks:
@@ -162,6 +124,15 @@ ci:
       - id: yamllint
         args: [-d, "{extends: relaxed, rules: {line-length: disable}}"]
         exclude: ^test/libs/
+        verbose: true
+
+  # Prettier for JS/JSON/YAML/MD formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        types_or: [javascript, json, yaml, markdown]
+        exclude: ^(test/libs/|node_modules/|package-lock\.json)
 
 # CI configuration
 ci:
@@ -169,5 +140,6 @@ ci:
   autofix_prs: true
   autoupdate_commit_msg: "chore: update pre-commit hooks"
   autoupdate_schedule: monthly
-  skip: [shellcheck] # Run shellcheck in CI instead for better error reporting
+  skip: [shellcheck]  # Run shellcheck separately for better error reporting
+  submodules: false
 

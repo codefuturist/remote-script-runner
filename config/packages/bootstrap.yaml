@@ -25,12 +25,12 @@ packages:
 platforms:
   darwin:
     note: macOS includes BSD versions; GNU versions available via Homebrew
-  
+
   debian:
     note: These are typically pre-installed on Debian/Ubuntu
-  
+
   alpine:
     note: Alpine may need explicit installation of these tools
-  
+
   windows:
     note: Requires Git Bash, WSL, or similar POSIX environment

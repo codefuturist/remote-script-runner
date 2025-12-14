@@ -504,7 +504,7 @@ groups:
       - name: faker
         description: Faker - generate fake data for testing
         pip: faker
-        npm: @faker-js/faker
+        npm: "@faker-js/faker"
 
       - name: synth
         description: Synth - declarative test data generation
