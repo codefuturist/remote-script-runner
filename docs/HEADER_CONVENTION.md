@@ -160,6 +160,7 @@ set -euo pipefail
   - Think about how users will search
 
 **Tag Strategy**:
+
 - Primary function (monitoring, backup, security)
 - Resources affected (disk, memory, cpu, network)
 - Technologies involved (docker, nginx, postgresql)
@@ -371,9 +372,9 @@ done
 
 main() {
     log_info "Starting $SCRIPT_NAME..."
-    
+
     # Main script logic here
-    
+
     log_success "$SCRIPT_NAME completed successfully"
 }
 
@@ -410,6 +411,7 @@ main "$@"
 ### Tag Selection Strategy
 
 **Good Tags** (Specific, Searchable):
+
 ```
 @tags postgresql,database,backup,restore,dump,pg_dump,data
 @tags nginx,webserver,configuration,ssl,tls,https,certbot
@@ -417,6 +419,7 @@ main "$@"
 ```
 
 **Poor Tags** (Too Generic):
+
 ```
 @tags script,system,linux,general,tool,utility
 ```
@@ -424,11 +427,13 @@ main "$@"
 ### Description Writing
 
 **Good Descriptions**:
+
 - ✅ "Check system health: CPU, memory, disk usage, network status"
 - ✅ "Backup PostgreSQL databases with compression and encryption"
 - ✅ "Harden SSH configuration: disable root login, key-only auth"
 
 **Poor Descriptions**:
+
 - ❌ "System script"
 - ❌ "Backs up stuff"
 - ❌ "Security configuration"
@@ -582,6 +587,7 @@ make build-registry
 ### Validation
 
 The `tools/validate.sh` script checks:
+
 - ✅ All required metadata fields present
 - ✅ Metadata format is correct
 - ✅ Script IDs are unique
@@ -610,6 +616,7 @@ To maximize searchability:
 #### 1. Comprehensive Tags
 
 Include all ways users might search:
+
 ```bash
 # Database backup script
 @tags backup,database,mysql,postgresql,mongodb,dump,restore,archive,snapshot,data
@@ -621,6 +628,7 @@ Include all ways users might search:
 #### 2. Descriptive Names
 
 Use clear, searchable terms:
+
 ```bash
 # Good
 @id ssh-harden
@@ -636,6 +644,7 @@ Use clear, searchable terms:
 #### 3. Keyword-Rich Descriptions
 
 Include searchable terms:
+
 ```bash
 # Good
 @description Backup PostgreSQL databases with compression, encryption, and S3 upload
@@ -657,6 +666,7 @@ Include searchable terms:
 ### Example Web UI Card
 
 The metadata:
+
 ```bash
 @id           health
 @displayName  System Health Check
@@ -667,6 +677,7 @@ The metadata:
 ```
 
 Generates this HTML:
+
 ```html
 <div class="script-card" data-category="monitoring" data-tags="health,monitoring,cpu,memory,disk">
   <div class="category-badge">monitoring</div>
@@ -772,6 +783,7 @@ make test
 ### Common Pitfalls
 
 ❌ **Don't:**
+
 - Use generic tags like "script", "tool", "utility"
 - Forget to update @version when changing functionality
 - List shells in @shells that don't exist
@@ -781,6 +793,7 @@ make test
 - Use non-standard @category values
 
 ✅ **Do:**
+
 - Include synonyms and related terms in @tags
 - Test all shell variants before listing in @shells
 - Keep @description focused on what the script does
@@ -814,5 +827,5 @@ For questions or suggestions about header conventions:
 
 ---
 
-**Last Updated**: 2025-12-07  
+**Last Updated**: 2025-12-07
 **Version**: 1.0.0

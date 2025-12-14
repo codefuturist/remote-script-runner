@@ -35,7 +35,7 @@
 - [ ] Tested manually on:
   - [ ] macOS
   - [ ] Linux (Ubuntu/Debian)
-  - [ ] Other: ___
+  - [ ] Other: \_\_\_
 
 ## Checklist
 
@@ -60,4 +60,3 @@
 ## Additional Notes
 
 <!-- Any additional information reviewers should know -->
-

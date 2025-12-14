@@ -14,6 +14,7 @@ sudo bash git-auto-sync-manager.sh
 ```
 
 The interactive manager will:
+
 1. Install dependencies
 2. Install the script to `/usr/local/bin`
 3. Create configuration in `/etc/git-auto-sync`
@@ -422,6 +423,7 @@ sudo journalctl -u git-auto-sync.service -f
 ```
 
 Validator script (`/usr/local/bin/validate-zones.sh`):
+
 ```bash
 #!/bin/bash
 errors=0
@@ -436,6 +438,7 @@ exit $errors
 ```
 
 Post-hook script (`/usr/local/bin/reload-bind.sh`):
+
 ```bash
 #!/bin/bash
 systemctl reload bind9
@@ -478,6 +481,7 @@ systemctl reload bind9
 ### Adjust Check Interval
 
 For high-priority systems (DNS, etc.):
+
 ```json
 {
   "quick_check": {
@@ -488,6 +492,7 @@ For high-priority systems (DNS, etc.):
 ```
 
 For low-priority systems:
+
 ```json
 {
   "quick_check": {
@@ -500,6 +505,7 @@ For low-priority systems:
 ### Resource Limits
 
 Add to service file:
+
 ```ini
 [Service]
 CPUQuota=20%
@@ -590,17 +596,19 @@ sudo rm -rf /var/log/git-auto-sync
 
 - SystemD documentation: `man systemd.service`
 - Git documentation: `man git`
-- Project repository: https://github.com/codefuturist/remote-script-runner
-- Report issues: https://github.com/codefuturist/remote-script-runner/issues
+- Project repository: <https://github.com/codefuturist/remote-script-runner>
+- Report issues: <https://github.com/codefuturist/remote-script-runner/issues>
 
 ## Summary
 
 **Quick Setup:**
+
 ```bash
 sudo bash git-auto-sync-manager.sh
 ```
 
 **Manual Setup:**
+
 1. Install dependencies: `sudo apt install git jq`
 2. Copy script: `sudo cp git-auto-sync.sh /usr/local/bin/`
 3. Create config: `/etc/git-auto-sync/repos.json`
@@ -608,6 +616,7 @@ sudo bash git-auto-sync-manager.sh
 5. Enable: `sudo systemctl enable --now git-auto-sync.service`
 
 **Management:**
+
 ```bash
 sudo systemctl status git-auto-sync    # Check status
 sudo journalctl -u git-auto-sync -f    # View logs

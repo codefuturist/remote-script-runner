@@ -39,16 +39,16 @@ RSR_LIB_DIR="${SCRIPT_DIR}/../../lib"
 # Try to load RSR library, but work standalone if not available
 if [[ -f "$RSR_LIB_DIR/rsr-lib.sh" ]]; then
     # shellcheck source=../../lib/rsr-lib.sh
-    source "$RSR_LIB_DIR/rsr-lib.sh" 2>/dev/null || true
+    source "$RSR_LIB_DIR/rsr-lib.sh" 2> /dev/null || true
 fi
 
 # Fallback logging functions if RSR library not loaded
-if ! declare -f rsr_log_info &>/dev/null; then
-    rsr_log_info()    { echo "[INFO]    $*"; }
+if ! declare -f rsr_log_info &> /dev/null; then
+    rsr_log_info() { echo "[INFO]    $*"; }
     rsr_log_success() { echo "[SUCCESS] $*"; }
-    rsr_log_warn()    { echo "[WARN]    $*"; }
-    rsr_log_error()   { echo "[ERROR]   $*" >&2; }
-    rsr_log_debug()   { [[ "${DEBUG:-0}" == "1" ]] && echo "[DEBUG]   $*"; }
+    rsr_log_warn() { echo "[WARN]    $*"; }
+    rsr_log_error() { echo "[ERROR]   $*" >&2; }
+    rsr_log_debug() { [[ "${DEBUG:-0}" == "1" ]] && echo "[DEBUG]   $*"; }
 fi
 
 # =============================================================================
@@ -164,16 +164,16 @@ is_repo_configured() {
     local distro="${distro_info%%|*}"
 
     case "$distro" in
-        ubuntu|debian)
-            [[ -f /etc/apt/sources.list.d/microsoft-prod.list ]] || \
-            [[ -f /etc/apt/sources.list.d/microsoft.list ]]
+        ubuntu | debian)
+            [[ -f /etc/apt/sources.list.d/microsoft-prod.list ]] \
+                || [[ -f /etc/apt/sources.list.d/microsoft.list ]]
             ;;
-        rhel|centos|fedora|rocky|almalinux)
-            [[ -f /etc/yum.repos.d/microsoft-prod.repo ]] || \
-            rpm -q packages-microsoft-prod &>/dev/null
+        rhel | centos | fedora | rocky | almalinux)
+            [[ -f /etc/yum.repos.d/microsoft-prod.repo ]] \
+                || rpm -q packages-microsoft-prod &> /dev/null
             ;;
         alpine)
-            command -v pwsh &>/dev/null
+            command -v pwsh &> /dev/null
             ;;
         *)
             return 1
@@ -199,11 +199,11 @@ setup_debian_ubuntu() {
     # Download and install Microsoft GPG key
     rsr_log_info "Importing Microsoft GPG key..."
     wget -q "$MS_GPG_KEY_URL" -O /tmp/microsoft.asc
-    
+
     # Convert to GPG format and install
-    if command -v gpg &>/dev/null; then
-        gpg --dearmor -o /usr/share/keyrings/microsoft-archive-keyring.gpg /tmp/microsoft.asc 2>/dev/null || \
-        cat /tmp/microsoft.asc | gpg --dearmor > /usr/share/keyrings/microsoft-archive-keyring.gpg
+    if command -v gpg &> /dev/null; then
+        gpg --dearmor -o /usr/share/keyrings/microsoft-archive-keyring.gpg /tmp/microsoft.asc 2> /dev/null \
+            || cat /tmp/microsoft.asc | gpg --dearmor > /usr/share/keyrings/microsoft-archive-keyring.gpg
     else
         # Fallback for systems without gpg
         cat /tmp/microsoft.asc > /usr/share/keyrings/microsoft.asc
@@ -254,24 +254,24 @@ setup_rhel_fedora() {
         fedora)
             repo_url="https://packages.microsoft.com/config/fedora/${major_version}/packages-microsoft-prod.rpm"
             ;;
-        rhel|centos|rocky|almalinux)
+        rhel | centos | rocky | almalinux)
             # RHEL-based distros
             repo_url="https://packages.microsoft.com/config/rhel/${major_version}/packages-microsoft-prod.rpm"
             ;;
     esac
 
     rsr_log_info "Installing Microsoft repository package..."
-    
+
     # Install the repo package
-    if command -v dnf &>/dev/null; then
+    if command -v dnf &> /dev/null; then
         dnf install -y "$repo_url"
     else
         yum install -y "$repo_url"
     fi
 
     rsr_log_success "Microsoft repository configured successfully"
-    
-    if command -v dnf &>/dev/null; then
+
+    if command -v dnf &> /dev/null; then
         rsr_log_info "Install PowerShell with: sudo dnf install -y powershell"
     else
         rsr_log_info "Install PowerShell with: sudo yum install -y powershell"
@@ -283,7 +283,7 @@ setup_alpine() {
 
     rsr_log_info "Setting up PowerShell for Alpine Linux ${version}..."
     rsr_log_warn "Alpine Linux requires manual PowerShell installation"
-    
+
     # Install prerequisites
     apk add --no-cache \
         ca-certificates \
@@ -306,34 +306,34 @@ setup_alpine() {
     case "$arch" in
         x86_64) arch="x64" ;;
         aarch64) arch="arm64" ;;
-        *) 
+        *)
             rsr_log_error "Unsupported architecture: $arch"
             return 1
             ;;
     esac
 
     rsr_log_info "Downloading PowerShell for Alpine (${arch})..."
-    
+
     # Get latest stable version
     local ps_version
-    ps_version=$(curl -s "https://api.github.com/repos/PowerShell/PowerShell/releases/latest" | \
-        grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
-    
+    ps_version=$(curl -s "https://api.github.com/repos/PowerShell/PowerShell/releases/latest" \
+        | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+
     if [[ -z "$ps_version" ]]; then
-        ps_version="7.5.0"  # Fallback version
+        ps_version="7.5.0" # Fallback version
     fi
 
     local download_url="https://github.com/PowerShell/PowerShell/releases/download/v${ps_version}/powershell-${ps_version}-linux-musl-${arch}.tar.gz"
-    
+
     # Create installation directory
     mkdir -p /opt/microsoft/powershell/7
-    
+
     # Download and extract
     curl -L "$download_url" | tar -xz -C /opt/microsoft/powershell/7
-    
+
     # Create symlink
     ln -sf /opt/microsoft/powershell/7/pwsh /usr/bin/pwsh
-    
+
     # Set executable permission
     chmod +x /opt/microsoft/powershell/7/pwsh
 
@@ -353,17 +353,17 @@ remove_repo() {
     rsr_log_info "Removing Microsoft repository..."
 
     case "$distro" in
-        ubuntu|debian)
+        ubuntu | debian)
             rm -f /etc/apt/sources.list.d/microsoft-prod.list
             rm -f /etc/apt/sources.list.d/microsoft.list
             rm -f /usr/share/keyrings/microsoft-archive-keyring.gpg
             rm -f /usr/share/keyrings/microsoft.asc
             apt-get update -qq
             ;;
-        rhel|centos|fedora|rocky|almalinux)
+        rhel | centos | fedora | rocky | almalinux)
             rm -f /etc/yum.repos.d/microsoft-prod.repo
-            if rpm -q packages-microsoft-prod &>/dev/null; then
-                if command -v dnf &>/dev/null; then
+            if rpm -q packages-microsoft-prod &> /dev/null; then
+                if command -v dnf &> /dev/null; then
                     dnf remove -y packages-microsoft-prod
                 else
                     yum remove -y packages-microsoft-prod
@@ -390,7 +390,7 @@ remove_repo() {
 setup_repo() {
     local distro_info
     distro_info=$(detect_distro)
-    
+
     local distro="${distro_info%%|*}"
     local rest="${distro_info#*|}"
     local version="${rest%%|*}"
@@ -406,10 +406,10 @@ setup_repo() {
     fi
 
     case "$distro" in
-        ubuntu|debian)
+        ubuntu | debian)
             setup_debian_ubuntu "$version" "$codename" "$distro"
             ;;
-        rhel|centos|rocky|almalinux|fedora)
+        rhel | centos | rocky | almalinux | fedora)
             setup_rhel_fedora "$version" "$distro"
             ;;
         alpine)
@@ -431,7 +431,7 @@ setup_repo() {
 parse_args() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help)
+            -h | --help)
                 show_help
                 exit 0
                 ;;
@@ -439,19 +439,19 @@ parse_args() {
                 show_version
                 exit 0
                 ;;
-            -c|--check)
+            -c | --check)
                 CHECK_ONLY=true
                 shift
                 ;;
-            -r|--remove)
+            -r | --remove)
                 REMOVE_REPO=true
                 shift
                 ;;
-            -f|--force)
+            -f | --force)
                 FORCE=true
                 shift
                 ;;
-            -v|--verbose)
+            -v | --verbose)
                 VERBOSE=true
                 export DEBUG=1
                 shift

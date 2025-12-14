@@ -74,24 +74,28 @@ if (Test-RSRUserExists -Username "john") {
 ### Core (Always Loaded)
 
 **Logging:**
+
 - `rsr_log_info` - Info message
-- `rsr_log_ok` - Success message  
+- `rsr_log_ok` - Success message
 - `rsr_log_warn` - Warning message
 - `rsr_log_error` - Error message
 - `rsr_log_debug` - Debug message (if verbose)
 - `rsr_print_header` - Section header
 
 **Colors:**
+
 - `$RSR_COLOR_RED`, `$RSR_COLOR_GREEN`, `$RSR_COLOR_BLUE`, etc.
 - `$RSR_COLOR_RESET`
 
 **OS Detection:**
+
 - `rsr_detect_os` - Detect OS (linux/darwin/windows)
 - `rsr_detect_arch` - Detect architecture
 - `rsr_detect_distro` - Detect Linux distribution
 - `rsr_detect_shell` - Detect current shell
 
 **Utilities:**
+
 - `rsr_has_command` - Check if command exists
 - `rsr_is_root` - Check if running as root
 - `rsr_download` - Download file
@@ -154,6 +158,7 @@ if (Test-RSRUserExists -Username "john") {
 Current version: **2.0.0**
 
 Check version:
+
 ```bash
 source lib/rsr-lib.sh --all
 rsr_lib_version
@@ -164,11 +169,13 @@ rsr_lib_version
 The old library files (`common.sh`, `users.sh`, `docker.sh`, etc.) have been **deprecated** and moved to `_archive/`.
 
 All scripts should now use:
+
 - `rsr-lib.sh` as the single entry point
 - `rsr_*` namespaced functions
 - Module-based loading
 
 **Old (Deprecated):**
+
 ```bash
 source lib/common.sh
 source lib/users.sh
@@ -177,6 +184,7 @@ user_exists "john"
 ```
 
 **New (Current):**
+
 ```bash
 source lib/rsr-lib.sh users
 rsr_log_info "Message"
@@ -186,11 +194,13 @@ rsr_user_exists "john"
 ## Best Practices
 
 1. **Always specify required modules:**
+
    ```bash
    source lib/rsr-lib.sh users docker  # Only load what you need
    ```
 
 2. **Use proper error handling:**
+
    ```bash
    if [[ ! -f "$RSR_LIB_DIR/rsr-lib.sh" ]]; then
        echo "ERROR: RSR library not found" >&2
@@ -203,6 +213,7 @@ rsr_user_exists "john"
    - Prevents naming conflicts
 
 4. **Check module availability:**
+
    ```bash
    if type rsr_user_exists &>/dev/null; then
        # Users module is loaded
@@ -210,6 +221,7 @@ rsr_user_exists "john"
    ```
 
 5. **Use exit codes:**
+
    ```bash
    exit $RSR_EXIT_SUCCESS  # 0
    exit $RSR_EXIT_ERROR    # 1
@@ -226,6 +238,7 @@ To add a new module:
 4. Add loading logic to `rsr-lib.sh`
 
 Example module:
+
 ```bash
 #!/bin/sh
 # lib/modules/mymodule.sh - My Module
@@ -241,12 +254,13 @@ rsr_mymodule_hello() {
 ## Testing
 
 Test library loading:
+
 ```bash
 bash -c 'source lib/rsr-lib.sh --all && rsr_lib_version'
 ```
 
 Test specific functions:
+
 ```bash
 bash -c 'source lib/rsr-lib.sh users && rsr_user_exists "root" && echo OK'
 ```
-

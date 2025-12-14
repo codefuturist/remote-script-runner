@@ -180,17 +180,20 @@ The JSON configuration file supports multiple repositories with different settin
 ## Sync Modes
 
 ### Safe Mode (Recommended)
+
 - Stashes local changes before syncing
 - Attempts fast-forward merge
 - Falls back to reset if needed
 - **Best for:** Production environments
 
 ### Force Mode
+
 - Hard resets to remote
 - Discards all local changes
 - **Best for:** Deployment servers, mirrors
 
 ### Pull Mode
+
 - Standard git pull
 - Falls back to reset on conflict
 - **Best for:** Development environments

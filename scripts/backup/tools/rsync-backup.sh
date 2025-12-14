@@ -25,7 +25,7 @@ set -eo pipefail
 
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -135,29 +135,99 @@ parse_args() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help) show_help; exit 0 ;;
-            -v|--verbose) VERBOSE=true; shift ;;
-            -d|--dry-run) DRY_RUN=true; shift ;;
-            -x|--exclude) EXCLUDE_PATTERNS+=("$2"); shift 2 ;;
-            -i|--include) INCLUDE_PATTERNS+=("$2"); shift 2 ;;
-            --exclude-from) EXCLUDE_FILE="$2"; shift 2 ;;
-            --bwlimit) BANDWIDTH="$2"; shift 2 ;;
-            --delete-before) DELETE_MODE="before"; shift ;;
-            --delete-after) DELETE_MODE="after"; shift ;;
-            --delete-during) DELETE_MODE="during"; shift ;;
-            --no-delete) DELETE_MODE="none"; shift ;;
-            --link-dest) LINK_DEST="$2"; shift 2 ;;
-            -e|--rsh) REMOTE_SHELL="$2"; shift 2 ;;
-            --ssh-key) SSH_KEY="$2"; shift 2 ;;
-            --ssh-port) SSH_PORT="$2"; shift 2 ;;
-            -c|--checksum) CHECKSUM=true; shift ;;
-            --no-compress) COMPRESS_TRANSFER=false; shift ;;
-            -H|--hard-links) PRESERVE_HARD_LINKS=true; shift ;;
-            --log) LOG_FILE="$2"; shift 2 ;;
-            --no-stats) STATS=false; shift ;;
-            --) shift; positional+=("$@"); break ;;
-            -*) log_error "Unknown option: $1"; exit 1 ;;
-            *) positional+=("$1"); shift ;;
+            -h | --help)
+                show_help
+                exit 0
+                ;;
+            -v | --verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -d | --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            -x | --exclude)
+                EXCLUDE_PATTERNS+=("$2")
+                shift 2
+                ;;
+            -i | --include)
+                INCLUDE_PATTERNS+=("$2")
+                shift 2
+                ;;
+            --exclude-from)
+                EXCLUDE_FILE="$2"
+                shift 2
+                ;;
+            --bwlimit)
+                BANDWIDTH="$2"
+                shift 2
+                ;;
+            --delete-before)
+                DELETE_MODE="before"
+                shift
+                ;;
+            --delete-after)
+                DELETE_MODE="after"
+                shift
+                ;;
+            --delete-during)
+                DELETE_MODE="during"
+                shift
+                ;;
+            --no-delete)
+                DELETE_MODE="none"
+                shift
+                ;;
+            --link-dest)
+                LINK_DEST="$2"
+                shift 2
+                ;;
+            -e | --rsh)
+                REMOTE_SHELL="$2"
+                shift 2
+                ;;
+            --ssh-key)
+                SSH_KEY="$2"
+                shift 2
+                ;;
+            --ssh-port)
+                SSH_PORT="$2"
+                shift 2
+                ;;
+            -c | --checksum)
+                CHECKSUM=true
+                shift
+                ;;
+            --no-compress)
+                COMPRESS_TRANSFER=false
+                shift
+                ;;
+            -H | --hard-links)
+                PRESERVE_HARD_LINKS=true
+                shift
+                ;;
+            --log)
+                LOG_FILE="$2"
+                shift 2
+                ;;
+            --no-stats)
+                STATS=false
+                shift
+                ;;
+            --)
+                shift
+                positional+=("$@")
+                break
+                ;;
+            -*)
+                log_error "Unknown option: $1"
+                exit 1
+                ;;
+            *)
+                positional+=("$1")
+                shift
+                ;;
         esac
     done
 
@@ -179,7 +249,7 @@ main() {
     parse_args "$@"
 
     # Check rsync is installed
-    if ! command -v rsync &>/dev/null; then
+    if ! command -v rsync &> /dev/null; then
         log_error "rsync is not installed"
         exit 1
     fi
@@ -262,4 +332,3 @@ main() {
 }
 
 main "$@"
-

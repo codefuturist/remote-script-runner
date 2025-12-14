@@ -24,7 +24,7 @@ set -eo pipefail
 # Set SCRIPT_SOURCE safely - use BASH_SOURCE if available, otherwise fall back to $0
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -35,7 +35,7 @@ RSR_LIB_DIR="${SCRIPT_DIR}/../../../lib"
 if [[ -n "$SCRIPT_DIR" ]] && [[ -f "$RSR_LIB_DIR/rsr-lib.sh" ]]; then
     source "$RSR_LIB_DIR/rsr-lib.sh" validate
     # Also try to load interactive if available
-    [[ -n "${BASH_VERSION:-}" ]] && source "$RSR_LIB_DIR/rsr-lib.sh" interactive 2>/dev/null || true
+    [[ -n "${BASH_VERSION:-}" ]] && source "$RSR_LIB_DIR/rsr-lib.sh" interactive 2> /dev/null || true
 else
     # Fallback: define minimal functions if library not available
     rsr_log_info() { echo -e "\033[0;34m▸\033[0m $*"; }
@@ -436,7 +436,7 @@ main() {
     fi
 
     # Run interactive mode if enabled
-    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &> /dev/null && rsr_is_interactive; then
         run_interactive
     fi
 

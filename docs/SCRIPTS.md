@@ -60,14 +60,16 @@ curl -fsSL https://example.com/scripts/fish/system-health-check.fish | fish
 ## Shell-Specific Features
 
 ### Bash Scripts
+
 - **Shebang**: `#!/bin/bash`
-- **Features**: 
+- **Features**:
   - Arrays and associative arrays
   - Advanced parameter expansion
   - Process substitution
   - Bash-specific builtins
 
-### Zsh Scripts  
+### Zsh Scripts
+
 - **Shebang**: `#!/usr/bin/env zsh`
 - **Features**:
   - Enhanced arrays and associative arrays
@@ -77,6 +79,7 @@ curl -fsSL https://example.com/scripts/fish/system-health-check.fish | fish
   - Better color support with `print -P`
 
 ### POSIX sh Scripts
+
 - **Shebang**: `#!/bin/sh`
 - **Features**:
   - Maximum portability
@@ -85,6 +88,7 @@ curl -fsSL https://example.com/scripts/fish/system-health-check.fish | fish
   - Works on minimal systems
 
 ### Fish Scripts
+
 - **Shebang**: `#!/usr/bin/env fish`
 - **Features**:
   - User-friendly syntax

@@ -25,7 +25,7 @@ set -eo pipefail
 
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -169,7 +169,7 @@ parse_args() {
     # Check for command
     if [[ $# -gt 0 ]] && [[ ! "$1" =~ ^- ]]; then
         case "$1" in
-            sync|copy|move|check|ls|config)
+            sync | copy | move | check | ls | config)
                 COMMAND="$1"
                 shift
                 ;;
@@ -178,31 +178,107 @@ parse_args() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help) show_help; exit 0 ;;
-            -v|--verbose) VERBOSE=true; shift ;;
-            -d|--dry-run) DRY_RUN=true; shift ;;
-            -x|--exclude) EXCLUDE_PATTERNS+=("$2"); shift 2 ;;
-            -i|--include) INCLUDE_PATTERNS+=("$2"); shift 2 ;;
-            --filter-from) FILTER_FILE="$2"; shift 2 ;;
-            --bwlimit) BANDWIDTH="$2"; shift 2 ;;
-            --transfers) TRANSFERS="$2"; shift 2 ;;
-            --checkers) CHECKERS="$2"; shift 2 ;;
-            --min-age) MIN_AGE="$2"; shift 2 ;;
-            --max-age) MAX_AGE="$2"; shift 2 ;;
-            --min-size) MIN_SIZE="$2"; shift 2 ;;
-            --max-size) MAX_SIZE="$2"; shift 2 ;;
-            --checksum) COMPARE_MODE="checksum"; shift ;;
-            --size-only) COMPARE_MODE="size"; shift ;;
-            --no-empty-dirs) CREATE_EMPTY_DIRS=false; shift ;;
-            --backup-dir) BACKUP_DIR="$2"; shift 2 ;;
-            --suffix) SUFFIX="$2"; shift 2 ;;
-            --log) LOG_FILE="$2"; shift 2 ;;
-            --log-level) LOG_LEVEL="$2"; shift 2 ;;
-            --stats-interval) STATS_INTERVAL="$2"; shift 2 ;;
-            --no-progress) PROGRESS=false; shift ;;
-            --) shift; positional+=("$@"); break ;;
-            -*) log_error "Unknown option: $1"; exit 1 ;;
-            *) positional+=("$1"); shift ;;
+            -h | --help)
+                show_help
+                exit 0
+                ;;
+            -v | --verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -d | --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            -x | --exclude)
+                EXCLUDE_PATTERNS+=("$2")
+                shift 2
+                ;;
+            -i | --include)
+                INCLUDE_PATTERNS+=("$2")
+                shift 2
+                ;;
+            --filter-from)
+                FILTER_FILE="$2"
+                shift 2
+                ;;
+            --bwlimit)
+                BANDWIDTH="$2"
+                shift 2
+                ;;
+            --transfers)
+                TRANSFERS="$2"
+                shift 2
+                ;;
+            --checkers)
+                CHECKERS="$2"
+                shift 2
+                ;;
+            --min-age)
+                MIN_AGE="$2"
+                shift 2
+                ;;
+            --max-age)
+                MAX_AGE="$2"
+                shift 2
+                ;;
+            --min-size)
+                MIN_SIZE="$2"
+                shift 2
+                ;;
+            --max-size)
+                MAX_SIZE="$2"
+                shift 2
+                ;;
+            --checksum)
+                COMPARE_MODE="checksum"
+                shift
+                ;;
+            --size-only)
+                COMPARE_MODE="size"
+                shift
+                ;;
+            --no-empty-dirs)
+                CREATE_EMPTY_DIRS=false
+                shift
+                ;;
+            --backup-dir)
+                BACKUP_DIR="$2"
+                shift 2
+                ;;
+            --suffix)
+                SUFFIX="$2"
+                shift 2
+                ;;
+            --log)
+                LOG_FILE="$2"
+                shift 2
+                ;;
+            --log-level)
+                LOG_LEVEL="$2"
+                shift 2
+                ;;
+            --stats-interval)
+                STATS_INTERVAL="$2"
+                shift 2
+                ;;
+            --no-progress)
+                PROGRESS=false
+                shift
+                ;;
+            --)
+                shift
+                positional+=("$@")
+                break
+                ;;
+            -*)
+                log_error "Unknown option: $1"
+                exit 1
+                ;;
+            *)
+                positional+=("$1")
+                shift
+                ;;
         esac
     done
 
@@ -229,7 +305,7 @@ main() {
     parse_args "$@"
 
     # Check rclone is installed
-    if ! command -v rclone &>/dev/null; then
+    if ! command -v rclone &> /dev/null; then
         log_error "rclone is not installed"
         log_info "Install with: brew install rclone (macOS) or apt install rclone (Linux)"
         exit 1
@@ -317,4 +393,3 @@ main() {
 }
 
 main "$@"
-

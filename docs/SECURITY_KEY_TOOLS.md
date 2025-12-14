@@ -7,6 +7,7 @@
 ## Executive Summary
 
 Comprehensive hardware security key support has been added to the package profiles, with focus on:
+
 - **YubiKey** (most popular hardware key)
 - **FIDO2/U2F** standard protocols
 - **SoloKeys** and **Nitrokey** alternatives
@@ -16,6 +17,7 @@ Comprehensive hardware security key support has been added to the package profil
 ## Quick Start
 
 ### Install YubiKey Essentials
+
 ```bash
 # Core YubiKey management
 rsr pkg install yubikey-manager
@@ -28,12 +30,14 @@ rsr pkg install libfido2
 ```
 
 ### Install Complete Security Keys Suite
+
 ```bash
 # Install all security key tools
 rsr pkg install secrets.security-keys
 ```
 
 ### Verify YubiKey Detection
+
 ```bash
 # Check YubiKey is detected
 ykman list
@@ -88,12 +92,14 @@ ykman info
 ```
 
 **Features**:
+
 - Configure all YubiKey applications (OTP, FIDO2, PIV, OATH)
 - Manage PINs and credentials
 - Enable/disable interfaces
 - Firmware updates
 
 **Usage Examples**:
+
 ```bash
 # List connected YubiKeys
 ykman list
@@ -116,6 +122,7 @@ ykman piv keys generate 9a key.pem
 ```
 
 **Platform Support**:
+
 - ✅ macOS (Homebrew)
 - ✅ Linux (all major distros)
 - ✅ Windows (winget)
@@ -136,12 +143,14 @@ ykman piv keys generate 9a key.pem
 ```
 
 **Features**:
+
 - Manage PIV certificates
 - Generate and import keys
 - Sign and decrypt data
 - SSH authentication with PIV
 
 **Usage Examples**:
+
 ```bash
 # Check PIV status
 yubico-piv-tool -a status
@@ -162,6 +171,7 @@ yubico-piv-tool -a export-certificate -s 9a -o - | \
 ```
 
 **PIV Slots**:
+
 - **9a**: PIV Authentication (SSH, login)
 - **9c**: Digital Signature (signing)
 - **9d**: Key Management (encryption)
@@ -183,11 +193,13 @@ yubico-piv-tool -a export-certificate -s 9a -o - | \
 ```
 
 **Features**:
+
 - Configure OTP slots
 - Set static passwords
 - Challenge-response (HMAC-SHA1)
 
 **Usage Examples**:
+
 ```bash
 # Program slot 1 with Yubico OTP
 ykpersonalize -1
@@ -218,12 +230,14 @@ ykpersonalize -2 -ochal-resp -ochal-hmac -ohmac-lt64 -oserial-api-visible
 ```
 
 **Features**:
+
 - Graphical interface for ykman
 - Visual configuration
 - Easy credential management
 - Firmware updates
 
 **Best For**:
+
 - Users who prefer GUIs
 - Initial setup
 - Quick device info
@@ -242,17 +256,20 @@ ykpersonalize -2 -ochal-resp -ochal-hmac -ohmac-lt64 -oserial-api-visible
 ```
 
 **Features**:
+
 - Store TOTP/HOTP codes on YubiKey
 - Touch-required 2FA
 - QR code scanning
 - Backup codes
 
 **Usage**:
+
 - Scan QR codes from websites
 - Generate 2FA codes with YubiKey touch
 - Offline 2FA (no phone needed)
 
 **Benefits**:
+
 - Hardware-protected 2FA secrets
 - No phone dependency
 - Touch-to-auth security
@@ -274,11 +291,13 @@ ykpersonalize -2 -ochal-resp -ochal-hmac -ohmac-lt64 -oserial-api-visible
 ```
 
 **Features**:
+
 - FIDO2/WebAuthn protocol support
 - Required dependency for many tools
 - USB HID communication
 
 **Required By**:
+
 - OpenSSH 8.2+ (FIDO2 keys)
 - Browsers (WebAuthn)
 - Various CLI tools
@@ -298,11 +317,13 @@ ykpersonalize -2 -ochal-resp -ochal-hmac -ohmac-lt64 -oserial-api-visible
 ```
 
 **Tools Included**:
+
 - **fido2-token**: List and manage FIDO2 tokens
 - **fido2-cred**: Create FIDO2 credentials
 - **fido2-assert**: Test authentication
 
 **Usage Examples**:
+
 ```bash
 # List FIDO2 devices
 fido2-token -L
@@ -333,12 +354,14 @@ fido2-assert -G -h example.com /dev/hidraw0
 ```
 
 **Features**:
+
 - U2F for system login
 - U2F for sudo
 - Multi-key support
 - Fallback mechanisms
 
 **Setup**:
+
 ```bash
 # Create U2F keys directory
 mkdir -p ~/.config/Yubico
@@ -354,6 +377,7 @@ pamu2fcfg -n >> ~/.config/Yubico/u2f_keys
 ```
 
 **Security Benefits**:
+
 - Hardware-backed authentication
 - Phishing-resistant
 - Backup keys supported
@@ -372,11 +396,13 @@ pamu2fcfg -n >> ~/.config/Yubico/u2f_keys
 ```
 
 **Features**:
+
 - Hardware-protected age encryption
 - Uses YubiKey PIV slots
 - PIN-protected decryption
 
 **Usage Examples**:
+
 ```bash
 # List PIV keys
 age-plugin-yubikey --list
@@ -392,6 +418,7 @@ age -d -i age-yubikey-identity.txt secret.txt.age > secret.txt
 ```
 
 **Use Cases**:
+
 - Encrypted backups
 - Secret storage
 - Secure file sharing
@@ -410,11 +437,13 @@ age -d -i age-yubikey-identity.txt secret.txt.age > secret.txt
 ```
 
 **Features**:
+
 - Configure SoloKeys
 - Firmware updates
 - Key management
 
 **Usage**:
+
 ```bash
 # List Solo devices
 solo2 ls
@@ -441,6 +470,7 @@ solo2 update
 ```
 
 **Features**:
+
 - Nitrokey Pro/Storage management
 - OTP configuration
 - Password safe
@@ -508,6 +538,7 @@ yubioath-desktop
 ```
 
 **Benefits**:
+
 - No phone needed
 - Hardware-protected secrets
 - Touch-required security
@@ -579,21 +610,25 @@ git config --global commit.gpgsign true
 ### macOS
 
 **Installation**:
+
 ```bash
 brew install ykman yubico-piv-tool libfido2
 brew install --cask yubico-yubikey-manager yubico-authenticator
 ```
 
 **Smart Card Support**:
+
 - macOS has built-in smart card support
 - YubiKey works immediately for PIV
 
 **USB Permissions**:
+
 - No special configuration needed
 
 ### Linux
 
 **Installation**:
+
 ```bash
 # Debian/Ubuntu
 sudo apt install yubikey-manager yubico-piv-tool libfido2-1 fido2-tools
@@ -606,6 +641,7 @@ sudo pacman -S yubikey-manager yubico-piv-tool libfido2
 ```
 
 **USB Permissions**:
+
 ```bash
 # Add udev rules for YubiKey
 wget https://raw.githubusercontent.com/Yubico/libfido2/main/udev/70-u2f.rules
@@ -619,6 +655,7 @@ sudo usermod -aG plugdev $USER
 ```
 
 **Smart Card Support**:
+
 ```bash
 # Install PCSC
 sudo apt install pcscd  # Debian/Ubuntu
@@ -630,6 +667,7 @@ sudo systemctl start pcscd
 ### Windows
 
 **Installation**:
+
 ```powershell
 # Using winget
 winget install Yubico.YubikeyManager
@@ -639,10 +677,12 @@ winget install Yubico.YubikeyManager
 ```
 
 **Smart Card Support**:
+
 - Windows has built-in smart card support
 - Install YubiKey Minidriver for enhanced support
 
 **OpenSSH**:
+
 - Windows 10+ includes OpenSSH
 - FIDO2 keys supported in OpenSSH 8.2+
 
@@ -651,6 +691,7 @@ winget install Yubico.YubikeyManager
 ### YubiKey Not Detected
 
 **macOS/Linux**:
+
 ```bash
 # Check USB devices
 lsusb | grep Yubico
@@ -664,6 +705,7 @@ groups  # Should include 'plugdev'
 ```
 
 **Fix**:
+
 ```bash
 # Linux: Add udev rules
 sudo wget https://raw.githubusercontent.com/Yubico/yubikey-manager/main/resources/70-yubikey.rules \
@@ -710,6 +752,7 @@ sudo apt install libfido2-1  # Linux
 ### 1. Always Have Backup Keys
 
 Register multiple YubiKeys for critical services:
+
 ```bash
 # SSH: Generate keys on 2 YubiKeys
 ssh-keygen -t ed25519-sk -O resident  # Key 1
@@ -751,23 +794,27 @@ ykman piv access change-management-key
 ## Resources
 
 ### Official Documentation
-- **YubiKey**: https://developers.yubico.com/
-- **FIDO Alliance**: https://fidoalliance.org/
-- **Age Encryption**: https://age-encryption.org/
+
+- **YubiKey**: <https://developers.yubico.com/>
+- **FIDO Alliance**: <https://fidoalliance.org/>
+- **Age Encryption**: <https://age-encryption.org/>
 
 ### YubiKey Manager
-- **CLI Docs**: https://docs.yubico.com/software/yubikey/tools/ykman/
-- **PIV Guide**: https://developers.yubico.com/PIV/Guides/
-- **OATH Guide**: https://developers.yubico.com/OATH/
+
+- **CLI Docs**: <https://docs.yubico.com/software/yubikey/tools/ykman/>
+- **PIV Guide**: <https://developers.yubico.com/PIV/Guides/>
+- **OATH Guide**: <https://developers.yubico.com/OATH/>
 
 ### Integration Guides
-- **SSH**: https://developers.yubico.com/SSH/
-- **GPG**: https://github.com/drduh/YubiKey-Guide
-- **PAM**: https://developers.yubico.com/pam-u2f/
+
+- **SSH**: <https://developers.yubico.com/SSH/>
+- **GPG**: <https://github.com/drduh/YubiKey-Guide>
+- **PAM**: <https://developers.yubico.com/pam-u2f/>
 
 ## Installation Quick Reference
 
 ### Essential YubiKey Setup
+
 ```bash
 # macOS
 brew install ykman yubico-piv-tool libfido2
@@ -783,6 +830,7 @@ winget install Yubico.YubikeyManager
 ```
 
 ### Full Security Keys Suite
+
 ```bash
 # Using remote-script-runner
 rsr pkg install secrets.security-keys
@@ -800,6 +848,7 @@ rsr pkg install libfido2
 **Platform Support**: macOS ✅, Linux ✅, Windows ✅
 
 **Essential Tools**:
+
 1. yubikey-manager (ykman)
 2. yubico-piv-tool
 3. libfido2

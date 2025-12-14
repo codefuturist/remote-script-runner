@@ -70,10 +70,12 @@ git submodule update --init --recursive
 ### CI Integration
 
 Tests run automatically on GitHub Actions for:
+
 - Push to `main` or `develop` branches
 - Pull requests to `main`
 
 The CI workflow includes:
+
 1. Syntax checking with `bash -n`
 2. Static analysis with ShellCheck
 3. Unit tests
@@ -150,6 +152,7 @@ require_command "cmd"  # Skip if cmd missing
 ## Mocking Strategy
 
 External commands are mocked to ensure tests are:
+
 - Isolated from system state
 - Reproducible across environments
 - Fast to execute
@@ -328,6 +331,5 @@ teardown() {
 }
 ```
 
-3. Run tests: `./test/run_tests.sh test/unit/new-script.bats`
-4. Add to CI if needed
-
+1. Run tests: `./test/run_tests.sh test/unit/new-script.bats`
+2. Add to CI if needed

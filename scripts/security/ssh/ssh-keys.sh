@@ -21,7 +21,7 @@ set -eo pipefail
 
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -148,7 +148,7 @@ cmd_generate() {
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help)
+            -h | --help)
                 cat << EOF
 ${BOLD}Generate SSH Key Pair${NC}
 
@@ -170,13 +170,34 @@ ${BOLD}Examples:${NC}
 EOF
                 exit 0
                 ;;
-            -t|--type) key_type="$2"; shift 2 ;;
-            -b|--bits) key_bits="$2"; shift 2 ;;
-            -f|--file) key_file="$2"; shift 2 ;;
-            -C|--comment) key_comment="$2"; shift 2 ;;
-            -p|--passphrase) use_passphrase=true; shift ;;
-            --force) force=true; shift ;;
-            *) log_error "Unknown option: $1"; exit $EXIT_INVALID_ARGS ;;
+            -t | --type)
+                key_type="$2"
+                shift 2
+                ;;
+            -b | --bits)
+                key_bits="$2"
+                shift 2
+                ;;
+            -f | --file)
+                key_file="$2"
+                shift 2
+                ;;
+            -C | --comment)
+                key_comment="$2"
+                shift 2
+                ;;
+            -p | --passphrase)
+                use_passphrase=true
+                shift
+                ;;
+            --force)
+                force=true
+                shift
+                ;;
+            *)
+                log_error "Unknown option: $1"
+                exit $EXIT_INVALID_ARGS
+                ;;
         esac
     done
 
@@ -203,7 +224,7 @@ EOF
 
     # Build ssh-keygen command
     local ssh_keygen_cmd="ssh-keygen -t $key_type -C \"$key_comment\" -f \"$key_file\""
-    
+
     # Add RSA bits if applicable
     if [[ "$key_type" == "rsa" ]]; then
         ssh_keygen_cmd="$ssh_keygen_cmd -b $key_bits"
@@ -252,7 +273,7 @@ cmd_copy() {
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help)
+            -h | --help)
                 cat << EOF
 ${BOLD}Copy SSH Key to Host${NC}
 
@@ -277,10 +298,22 @@ ${BOLD}Examples:${NC}
 EOF
                 exit 0
                 ;;
-            -u|--user) user="$2"; shift 2 ;;
-            -p|--port) port="$2"; shift 2 ;;
-            -i|--identity) identity="$2"; shift 2 ;;
-            --test) test_after=true; shift ;;
+            -u | --user)
+                user="$2"
+                shift 2
+                ;;
+            -p | --port)
+                port="$2"
+                shift 2
+                ;;
+            -i | --identity)
+                identity="$2"
+                shift 2
+                ;;
+            --test)
+                test_after=true
+                shift
+                ;;
             -*)
                 log_error "Unknown option: $1"
                 exit $EXIT_INVALID_ARGS
@@ -292,7 +325,10 @@ EOF
         esac
     done
 
-    [[ -z "$target" ]] && { log_error "Host required"; exit $EXIT_INVALID_ARGS; }
+    [[ -z "$target" ]] && {
+        log_error "Host required"
+        exit $EXIT_INVALID_ARGS
+    }
 
     print_header "Copy SSH Key"
 
@@ -321,7 +357,10 @@ EOF
         done
     fi
 
-    [[ ! -f "$identity" ]] && { log_error "Public key not found: $identity"; exit $EXIT_ERROR; }
+    [[ ! -f "$identity" ]] && {
+        log_error "Public key not found: $identity"
+        exit $EXIT_ERROR
+    }
 
     log_info "Copying key to $full_target:$port"
     log_debug "Using key: $identity"
@@ -336,7 +375,7 @@ EOF
     pubkey=$(cat "$identity")
 
     # Copy key using ssh
-    if ssh -p "$port" "$full_target" "mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo '$pubkey' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && echo 'Key added successfully'" 2>/dev/null; then
+    if ssh -p "$port" "$full_target" "mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo '$pubkey' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && echo 'Key added successfully'" 2> /dev/null; then
         log_ok "Key copied successfully"
     else
         log_error "Failed to copy key"
@@ -347,7 +386,7 @@ EOF
     # Test connection if requested
     if [[ "$test_after" == "true" ]]; then
         log_info "Testing key-based authentication..."
-        if ssh -o BatchMode=yes -o ConnectTimeout=5 -p "$port" "$full_target" exit 2>/dev/null; then
+        if ssh -o BatchMode=yes -o ConnectTimeout=5 -p "$port" "$full_target" exit 2> /dev/null; then
             log_ok "Key authentication works!"
         else
             log_warn "Key authentication test failed"
@@ -367,7 +406,7 @@ cmd_list() {
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help)
+            -h | --help)
                 cat << EOF
 ${BOLD}List SSH Keys${NC}
 
@@ -387,10 +426,22 @@ ${BOLD}Examples:${NC}
 EOF
                 exit 0
                 ;;
-            --fingerprints) show_fingerprints=true; shift ;;
-            --public) show_public=true; shift ;;
-            --agents) show_agents=true; shift ;;
-            *) log_error "Unknown option: $1"; exit $EXIT_INVALID_ARGS ;;
+            --fingerprints)
+                show_fingerprints=true
+                shift
+                ;;
+            --public)
+                show_public=true
+                shift
+                ;;
+            --agents)
+                show_agents=true
+                shift
+                ;;
+            *)
+                log_error "Unknown option: $1"
+                exit $EXIT_INVALID_ARGS
+                ;;
         esac
     done
 
@@ -432,7 +483,7 @@ EOF
     if [[ "$show_agents" == "true" ]]; then
         echo ""
         print_header "SSH Agent Keys"
-        if ssh-add -l &>/dev/null; then
+        if ssh-add -l &> /dev/null; then
             ssh-add -l
         else
             log_warn "No SSH agent running or no keys loaded"
@@ -456,7 +507,7 @@ cmd_test() {
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help)
+            -h | --help)
                 cat << EOF
 ${BOLD}Test SSH Key Authentication${NC}
 
@@ -480,10 +531,23 @@ ${BOLD}Examples:${NC}
 EOF
                 exit 0
                 ;;
-            -u|--user) user="$2"; shift 2 ;;
-            -p|--port) port="$2"; shift 2 ;;
-            -i|--identity) identity="$2"; shift 2 ;;
-            --verbose|-v) verbose_ssh=true; VERBOSE=true; shift ;;
+            -u | --user)
+                user="$2"
+                shift 2
+                ;;
+            -p | --port)
+                port="$2"
+                shift 2
+                ;;
+            -i | --identity)
+                identity="$2"
+                shift 2
+                ;;
+            --verbose | -v)
+                verbose_ssh=true
+                VERBOSE=true
+                shift
+                ;;
             -*)
                 log_error "Unknown option: $1"
                 exit $EXIT_INVALID_ARGS
@@ -495,7 +559,10 @@ EOF
         esac
     done
 
-    [[ -z "$target" ]] && { log_error "Host required"; exit $EXIT_INVALID_ARGS; }
+    [[ -z "$target" ]] && {
+        log_error "Host required"
+        exit $EXIT_INVALID_ARGS
+    }
 
     print_header "Test SSH Key Authentication"
 
@@ -550,7 +617,7 @@ cmd_distribute() {
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help)
+            -h | --help)
                 cat << EOF
 ${BOLD}Distribute SSH Key to Multiple Hosts${NC}
 
@@ -579,13 +646,34 @@ ${BOLD}Examples:${NC}
 EOF
                 exit 0
                 ;;
-            -f|--file) hosts_file="$2"; shift 2 ;;
-            -H|--hosts) hosts_list="$2"; shift 2 ;;
-            -i|--identity) identity="$2"; shift 2 ;;
-            --parallel) parallel="$2"; shift 2 ;;
-            --timeout) timeout="$2"; shift 2 ;;
-            --report) report=true; shift ;;
-            *) log_error "Unknown option: $1"; exit $EXIT_INVALID_ARGS ;;
+            -f | --file)
+                hosts_file="$2"
+                shift 2
+                ;;
+            -H | --hosts)
+                hosts_list="$2"
+                shift 2
+                ;;
+            -i | --identity)
+                identity="$2"
+                shift 2
+                ;;
+            --parallel)
+                parallel="$2"
+                shift 2
+                ;;
+            --timeout)
+                timeout="$2"
+                shift 2
+                ;;
+            --report)
+                report=true
+                shift
+                ;;
+            *)
+                log_error "Unknown option: $1"
+                exit $EXIT_INVALID_ARGS
+                ;;
         esac
     done
 
@@ -607,14 +695,20 @@ EOF
         done
     fi
 
-    [[ ! -f "$identity" ]] && { log_error "Public key not found: $identity"; exit $EXIT_ERROR; }
+    [[ ! -f "$identity" ]] && {
+        log_error "Public key not found: $identity"
+        exit $EXIT_ERROR
+    }
 
     log_info "Using key: $identity"
 
     # Build host list
     local hosts=()
     if [[ -n "$hosts_file" ]]; then
-        [[ ! -f "$hosts_file" ]] && { log_error "Hosts file not found: $hosts_file"; exit $EXIT_ERROR; }
+        [[ ! -f "$hosts_file" ]] && {
+            log_error "Hosts file not found: $hosts_file"
+            exit $EXIT_ERROR
+        }
         while IFS= read -r line; do
             # Skip comments and empty lines
             [[ "$line" =~ ^#.* || -z "$line" ]] && continue
@@ -640,7 +734,7 @@ EOF
     for host in "${hosts[@]}"; do
         echo ""
         log_info "Copying to $host..."
-        if rsr_ssh_copy_key_to_host "$host" "$identity" 22 &>/dev/null; then
+        if rsr_ssh_copy_key_to_host "$host" "$identity" 22 &> /dev/null; then
             log_ok "$host"
             ((success++))
         else
@@ -678,7 +772,7 @@ cmd_revoke() {
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help)
+            -h | --help)
                 cat << EOF
 ${BOLD}Revoke SSH Key from Host${NC}
 
@@ -702,10 +796,22 @@ ${BOLD}Examples:${NC}
 EOF
                 exit 0
                 ;;
-            -u|--user) user="$2"; shift 2 ;;
-            -p|--port) port="$2"; shift 2 ;;
-            -i|--identity) identity="$2"; shift 2 ;;
-            -f|--file) hosts_file="$2"; shift 2 ;;
+            -u | --user)
+                user="$2"
+                shift 2
+                ;;
+            -p | --port)
+                port="$2"
+                shift 2
+                ;;
+            -i | --identity)
+                identity="$2"
+                shift 2
+                ;;
+            -f | --file)
+                hosts_file="$2"
+                shift 2
+                ;;
             -*)
                 log_error "Unknown option: $1"
                 exit $EXIT_INVALID_ARGS
@@ -734,11 +840,14 @@ EOF
         done
     fi
 
-    [[ ! -f "$identity" ]] && { log_error "Public key not found: $identity"; exit $EXIT_ERROR; }
+    [[ ! -f "$identity" ]] && {
+        log_error "Public key not found: $identity"
+        exit $EXIT_ERROR
+    }
 
     # Get key pattern (use comment or first few chars)
     local pattern
-    pattern=$(awk '{print $3}' "$identity" 2>/dev/null || awk '{print substr($2, 1, 20)}' "$identity")
+    pattern=$(awk '{print $3}' "$identity" 2> /dev/null || awk '{print substr($2, 1, 20)}' "$identity")
 
     log_info "Revoking key: $identity"
     log_debug "Pattern: $pattern"
@@ -764,7 +873,7 @@ EOF
 
     log_info "Revoking from $full_target:$port..."
 
-    if rsr_ssh_revoke_key_from_host "$full_target" "$pattern" "$port" &>/dev/null; then
+    if rsr_ssh_revoke_key_from_host "$full_target" "$pattern" "$port" &> /dev/null; then
         log_ok "Key revoked successfully"
     else
         log_error "Failed to revoke key"
@@ -779,7 +888,7 @@ EOF
 cmd_agent() {
     local action="${1:-status}"
     shift || true
-    
+
     case "$action" in
         status)
             cmd_agent_status "$@"
@@ -790,10 +899,10 @@ cmd_agent() {
         add)
             cmd_agent_add "$@"
             ;;
-        remove|rm)
+        remove | rm)
             cmd_agent_remove "$@"
             ;;
-        list|ls)
+        list | ls)
             cmd_agent_list "$@"
             ;;
         lock)
@@ -802,7 +911,7 @@ cmd_agent() {
         unlock)
             cmd_agent_unlock "$@"
             ;;
-        -h|--help)
+        -h | --help)
             cat << EOF
 ${BOLD}SSH Agent Management${NC}
 
@@ -845,15 +954,15 @@ EOF
 
 cmd_agent_status() {
     print_header "SSH Agent Status"
-    
+
     if [[ -z "${SSH_AUTH_SOCK:-}" ]]; then
         echo "${RED}✗${NC} Agent not running"
         echo
         echo "Start agent with: ${CYAN}$0 agent start${NC}"
         return $EXIT_ERROR
     fi
-    
-    if ! ssh-add -l >/dev/null 2>&1; then
+
+    if ! ssh-add -l > /dev/null 2>&1; then
         local exit_code=$?
         if [[ $exit_code -eq 2 ]]; then
             echo "${RED}✗${NC} Agent not running"
@@ -864,16 +973,16 @@ cmd_agent_status() {
             return $EXIT_OK
         fi
     fi
-    
+
     echo "${GREEN}✓${NC} Agent running (PID: ${SSH_AGENT_PID:-unknown})"
-    
+
     local keys
-    keys=$(ssh-add -l 2>/dev/null)
+    keys=$(ssh-add -l 2> /dev/null)
     local key_count=$(echo "$keys" | wc -l | tr -d ' ')
-    
+
     echo "Loaded keys: ${BOLD}$key_count${NC}"
     echo
-    
+
     if [[ -n "$keys" ]]; then
         echo "${BOLD}Keys:${NC}"
         while IFS= read -r line; do
@@ -881,27 +990,27 @@ cmd_agent_status() {
             local hash=$(echo "$line" | awk '{print $2}')
             local path=$(echo "$line" | awk '{print $3}')
             local type=$(echo "$line" | awk '{print $4}' | tr -d '()')
-            
+
             echo "  ${GREEN}✓${NC} $hash"
             echo "    ${DIM}Type: $type, Bits: $bits, Path: $path${NC}"
         done <<< "$keys"
     fi
-    
+
     return $EXIT_OK
 }
 
 cmd_agent_start() {
     print_header "Start SSH Agent"
-    
-    if [[ -n "${SSH_AUTH_SOCK:-}" ]] && ssh-add -l >/dev/null 2>&1; then
+
+    if [[ -n "${SSH_AUTH_SOCK:-}" ]] && ssh-add -l > /dev/null 2>&1; then
         log_warn "Agent already running (PID: ${SSH_AGENT_PID:-unknown})"
         return $EXIT_OK
     fi
-    
+
     log_info "Starting SSH agent..."
-    
+
     eval "$(ssh-agent -s)"
-    
+
     if [[ -n "${SSH_AUTH_SOCK:-}" ]]; then
         log_ok "Agent started (PID: $SSH_AGENT_PID)"
         echo
@@ -917,7 +1026,7 @@ cmd_agent_start() {
         log_error "Failed to start agent"
         return $EXIT_ERROR
     fi
-    
+
     return $EXIT_OK
 }
 
@@ -927,10 +1036,10 @@ cmd_agent_add() {
     local add_all=false
     local added=0
     local skipped=0
-    
+
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -t|--lifetime)
+            -t | --lifetime)
                 lifetime="$2"
                 shift 2
                 ;;
@@ -938,7 +1047,7 @@ cmd_agent_add() {
                 add_all=true
                 shift
                 ;;
-            -h|--help)
+            -h | --help)
                 cat << EOF
 ${BOLD}Add Key to SSH Agent${NC}
 
@@ -964,39 +1073,39 @@ EOF
                 ;;
         esac
     done
-    
+
     # Check agent is running
-    if [[ -z "${SSH_AUTH_SOCK:-}" ]] || ! ssh-add -l >/dev/null 2>&1; then
+    if [[ -z "${SSH_AUTH_SOCK:-}" ]] || ! ssh-add -l > /dev/null 2>&1; then
         log_error "SSH agent not running"
         log_info "Start with: $0 agent start"
         return $EXIT_ERROR
     fi
-    
+
     print_header "Add Keys to Agent"
-    
+
     if [[ "$add_all" == "true" ]]; then
         log_info "Adding all keys from ~/.ssh/"
-        
+
         shopt -s nullglob
         for key in ~/.ssh/id_* ~/.ssh/keys/id_*; do
             [[ -f "$key" ]] || continue
             [[ "$key" == *.pub ]] && continue
-            
+
             local key_name=$(basename "$key")
-            
+
             # Check if already loaded
-            if ssh-add -l 2>/dev/null | grep -q "$key"; then
+            if ssh-add -l 2> /dev/null | grep -q "$key"; then
                 echo "${YELLOW}⚠${NC}  Skipped: $key_name (already loaded)"
                 skipped=$((skipped + 1))
                 continue
             fi
-            
+
             if [[ -n "$lifetime" ]]; then
-                ssh-add -t "$lifetime" "$key" 2>/dev/null
+                ssh-add -t "$lifetime" "$key" 2> /dev/null
             else
-                ssh-add "$key" 2>/dev/null
+                ssh-add "$key" 2> /dev/null
             fi
-            
+
             if [[ $? -eq 0 ]]; then
                 local lifetime_msg=""
                 [[ -n "$lifetime" ]] && lifetime_msg=" (expires in $lifetime)"
@@ -1006,27 +1115,27 @@ EOF
                 echo "${RED}✗${NC} Failed: $key_name"
             fi
         done
-        
+
         echo
         echo "${BOLD}Summary:${NC} $added added, $skipped skipped"
-        
+
     elif [[ -n "$key_path" ]]; then
         if [[ ! -f "$key_path" ]]; then
             log_error "Key not found: $key_path"
             return $EXIT_ERROR
         fi
-        
-        if ssh-add -l 2>/dev/null | grep -q "$key_path"; then
+
+        if ssh-add -l 2> /dev/null | grep -q "$key_path"; then
             log_warn "Key already loaded: $(basename "$key_path")"
             return $EXIT_OK
         fi
-        
+
         if [[ -n "$lifetime" ]]; then
             ssh-add -t "$lifetime" "$key_path"
         else
             ssh-add "$key_path"
         fi
-        
+
         if [[ $? -eq 0 ]]; then
             local lifetime_msg=""
             [[ -n "$lifetime" ]] && lifetime_msg=" (expires in $lifetime)"
@@ -1035,28 +1144,28 @@ EOF
             log_error "Failed to add key"
             return $EXIT_ERROR
         fi
-        
+
     else
         # Auto-detect default key
         local default_keys=("~/.ssh/id_ed25519" "~/.ssh/id_rsa" "~/.ssh/id_ecdsa")
         local found=false
-        
+
         for key in "${default_keys[@]}"; do
             key="${key/#\~/$HOME}"
             if [[ -f "$key" ]]; then
                 log_info "Auto-detected key: $(basename "$key")"
-                
-                if ssh-add -l 2>/dev/null | grep -q "$key"; then
+
+                if ssh-add -l 2> /dev/null | grep -q "$key"; then
                     log_warn "Key already loaded"
                     return $EXIT_OK
                 fi
-                
+
                 if [[ -n "$lifetime" ]]; then
                     ssh-add -t "$lifetime" "$key"
                 else
                     ssh-add "$key"
                 fi
-                
+
                 if [[ $? -eq 0 ]]; then
                     log_ok "Added to agent"
                     found=true
@@ -1064,28 +1173,28 @@ EOF
                 fi
             fi
         done
-        
+
         if [[ "$found" != "true" ]]; then
             log_error "No default SSH key found"
             log_info "Generate one with: $0 generate"
             return $EXIT_ERROR
         fi
     fi
-    
+
     return $EXIT_OK
 }
 
 cmd_agent_remove() {
     local target="${1:-}"
-    
+
     if [[ -z "$target" ]]; then
         log_error "Key path or 'all' required"
         log_info "Usage: $0 agent remove [KEY|all]"
         return $EXIT_INVALID_ARGS
     fi
-    
+
     print_header "Remove Keys from Agent"
-    
+
     if [[ "$target" == "all" ]]; then
         if [[ "$DRY_RUN" != "true" ]]; then
             ssh-add -D
@@ -1098,7 +1207,7 @@ cmd_agent_remove() {
             log_error "Key not found: $target"
             return $EXIT_ERROR
         fi
-        
+
         if [[ "$DRY_RUN" != "true" ]]; then
             ssh-add -d "$target"
             if [[ $? -eq 0 ]]; then
@@ -1111,7 +1220,7 @@ cmd_agent_remove() {
             log_info "[DRY RUN] Would remove: $(basename "$target")"
         fi
     fi
-    
+
     return $EXIT_OK
 }
 
@@ -1121,14 +1230,14 @@ cmd_agent_list() {
 
 cmd_agent_lock() {
     print_header "Lock SSH Agent"
-    
+
     if [[ -z "${SSH_AUTH_SOCK:-}" ]]; then
         log_error "Agent not running"
         return $EXIT_ERROR
     fi
-    
+
     log_info "Locking agent (you will be prompted for a passphrase)..."
-    
+
     if ssh-add -x; then
         log_ok "Agent locked"
         echo
@@ -1137,27 +1246,27 @@ cmd_agent_lock() {
         log_error "Failed to lock agent"
         return $EXIT_ERROR
     fi
-    
+
     return $EXIT_OK
 }
 
 cmd_agent_unlock() {
     print_header "Unlock SSH Agent"
-    
+
     if [[ -z "${SSH_AUTH_SOCK:-}" ]]; then
         log_error "Agent not running"
         return $EXIT_ERROR
     fi
-    
+
     log_info "Unlocking agent (enter lock passphrase)..."
-    
+
     if ssh-add -X; then
         log_ok "Agent unlocked"
     else
         log_error "Failed to unlock agent"
         return $EXIT_ERROR
     fi
-    
+
     return $EXIT_OK
 }
 
@@ -1169,10 +1278,16 @@ main() {
     # Parse global flags
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help) usage ;;
-            -v|--verbose) VERBOSE=true; shift ;;
-            -d|--dry-run) DRY_RUN=true; shift ;;
-            -*) 
+            -h | --help) usage ;;
+            -v | --verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -d | --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            -*)
                 log_error "Unknown option: $1"
                 usage
                 ;;
@@ -1188,9 +1303,9 @@ main() {
     case "$SUBCOMMAND" in
         generate) cmd_generate "$@" ;;
         copy) cmd_copy "$@" ;;
-        list|ls) cmd_list "$@" ;;
+        list | ls) cmd_list "$@" ;;
         test) cmd_test "$@" ;;
-        distribute|dist) cmd_distribute "$@" ;;
+        distribute | dist) cmd_distribute "$@" ;;
         revoke) cmd_revoke "$@" ;;
         agent) cmd_agent "$@" ;;
         "")

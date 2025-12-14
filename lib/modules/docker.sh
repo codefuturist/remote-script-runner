@@ -21,8 +21,8 @@ _RSR_MODULE_DOCKER_LOADED=1
 
 # Ensure core is loaded
 if [ -z "${_RSR_CORE_INIT_LOADED:-}" ]; then
-    _script_dir="$(cd "$(dirname "$0")" 2>/dev/null && pwd)" || _script_dir="."
-    . "${_script_dir}/../core/init.sh" 2>/dev/null || . "./lib/core/init.sh" 2>/dev/null || {
+    _script_dir="$(cd "$(dirname "$0")" 2> /dev/null && pwd)" || _script_dir="."
+    . "${_script_dir}/../core/init.sh" 2> /dev/null || . "./lib/core/init.sh" 2> /dev/null || {
         echo "ERROR: RSR core/init.sh must be sourced first" >&2
         return 1
     }
@@ -47,7 +47,7 @@ rsr_docker_is_installed() {
 # Check if Docker daemon is running
 # Usage: if rsr_docker_is_running; then ...
 rsr_docker_is_running() {
-    docker info >/dev/null 2>&1
+    docker info > /dev/null 2>&1
 }
 
 # Ensure Docker is available (installed and running)
@@ -79,7 +79,7 @@ rsr_docker_ensure() {
 # Usage: version=$(rsr_docker_version)
 rsr_docker_version() {
     if rsr_docker_is_installed; then
-        docker --version 2>/dev/null | awk '{print $3}' | tr -d ','
+        docker --version 2> /dev/null | awk '{print $3}' | tr -d ','
     else
         echo "not_installed"
     fi
@@ -88,10 +88,10 @@ rsr_docker_version() {
 # Get Docker Compose version
 # Usage: version=$(rsr_docker_compose_version)
 rsr_docker_compose_version() {
-    if docker compose version >/dev/null 2>&1; then
-        docker compose version --short 2>/dev/null
+    if docker compose version > /dev/null 2>&1; then
+        docker compose version --short 2> /dev/null
     elif rsr_has_command docker-compose; then
-        docker-compose --version 2>/dev/null | awk '{print $3}' | tr -d ','
+        docker-compose --version 2> /dev/null | awk '{print $3}' | tr -d ','
     else
         echo "not_installed"
     fi
@@ -101,7 +101,7 @@ rsr_docker_compose_version() {
 # Usage: if rsr_docker_has_permissions; then ...
 rsr_docker_has_permissions() {
     [ "$(id -u)" -eq 0 ] && return 0
-    groups 2>/dev/null | grep -q docker
+    groups 2> /dev/null | grep -q docker
 }
 
 # =============================================================================
@@ -182,7 +182,10 @@ rsr_docker_container_remove() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --force|-f) _force="-f"; shift ;;
+            --force | -f)
+                _force="-f"
+                shift
+                ;;
             *) shift ;;
         esac
     done
@@ -206,8 +209,14 @@ rsr_docker_container_logs() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --tail) _tail="--tail $2"; shift 2 ;;
-            --follow|-f) _follow="-f"; shift ;;
+            --tail)
+                _tail="--tail $2"
+                shift 2
+                ;;
+            --follow | -f)
+                _follow="-f"
+                shift
+                ;;
             *) shift ;;
         esac
     done
@@ -286,7 +295,10 @@ rsr_docker_image_remove() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --force|-f) _force="-f"; shift ;;
+            --force | -f)
+                _force="-f"
+                shift
+                ;;
             *) shift ;;
         esac
     done
@@ -305,7 +317,10 @@ rsr_docker_image_build() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --file|-f) _file="-f $2"; shift 2 ;;
+            --file | -f)
+                _file="-f $2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -382,7 +397,10 @@ rsr_docker_network_create() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --driver) _driver="-d $2"; shift 2 ;;
+            --driver)
+                _driver="-d $2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -436,10 +454,19 @@ rsr_docker_compose_up() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --detach|-d) _flags="$_flags -d"; shift ;;
-            --build) _flags="$_flags --build"; shift ;;
+            --detach | -d)
+                _flags="$_flags -d"
+                shift
+                ;;
+            --build)
+                _flags="$_flags --build"
+                shift
+                ;;
             -*) shift ;;
-            *) _path="$1"; shift ;;
+            *)
+                _path="$1"
+                shift
+                ;;
         esac
     done
 
@@ -457,9 +484,15 @@ rsr_docker_compose_down() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --volumes|-v) _flags="$_flags -v"; shift ;;
+            --volumes | -v)
+                _flags="$_flags -v"
+                shift
+                ;;
             -*) shift ;;
-            *) _path="$1"; shift ;;
+            *)
+                _path="$1"
+                shift
+                ;;
         esac
     done
 
@@ -478,7 +511,10 @@ rsr_docker_compose_logs() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --follow|-f) _follow="-f"; shift ;;
+            --follow | -f)
+                _follow="-f"
+                shift
+                ;;
             -*) shift ;;
             *)
                 if [ -d "$1" ]; then
@@ -518,8 +554,14 @@ rsr_docker_system_prune() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --all|-a) _flags="$_flags -a"; shift ;;
-            --volumes) _flags="$_flags --volumes"; shift ;;
+            --all | -a)
+                _flags="$_flags -a"
+                shift
+                ;;
+            --volumes)
+                _flags="$_flags --volumes"
+                shift
+                ;;
             *) shift ;;
         esac
     done
@@ -540,4 +582,3 @@ rsr_docker_disk_usage() {
 # =============================================================================
 
 rsr_log_debug "RSR Docker Module v${_RSR_DOCKER_VERSION} loaded"
-

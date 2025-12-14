@@ -15,6 +15,7 @@ RSR System Update provides a unified, user-friendly interface for updating syste
 ### Extended Update Sources
 
 All platforms support updating:
+
 - **Language Package Managers**: pip (Python), npm (Node.js), cargo (Rust), gem (Ruby)
 - **System Packages**: Distribution-specific package managers
 - **Application Stores**: Mac App Store, Windows Store (via winget)
@@ -246,7 +247,7 @@ sudo ./scripts/system/updates/system-update.sh --security -y
 ### Linux
 
 - **Required**: One of: apt, dnf/yum, pacman, zypper, or apk package manager
-- **Optional**: 
+- **Optional**:
   - `flatpak` for Flatpak updates
   - `snap` for Snap updates
   - `fwupdmgr` for firmware updates
@@ -257,7 +258,7 @@ sudo ./scripts/system/updates/system-update.sh --security -y
 
 ### macOS
 
-- **Required**: 
+- **Required**:
   - Homebrew (`brew`)
 - **Optional**:
   - `mas-cli` for Mac App Store updates: `brew install mas`
@@ -268,7 +269,7 @@ sudo ./scripts/system/updates/system-update.sh --security -y
 
 ### Windows
 
-- **Required**: 
+- **Required**:
   - PowerShell 5.1+
 - **Optional**:
   - `winget` (Windows 10 1809+)
@@ -359,11 +360,13 @@ Use `--exclude` for packages that require manual testing:
 All scripts support interactive mode with a menu-driven interface:
 
 ### Linux/macOS
+
 - Run without arguments or with `-i` flag
 - Menu options for viewing, installing, or customizing updates
 - Guided workflow with confirmations
 
 ### Windows
+
 - Use `-Interactive` parameter
 - Numbered menu for easy selection
 - Supports custom update combinations
@@ -387,6 +390,7 @@ All scripts support interactive mode with a menu-driven interface:
 ### Linux
 
 **Package manager is locked**
+
 ```bash
 # Wait for other package operations to complete
 # Or manually remove lock files (caution!)
@@ -394,6 +398,7 @@ sudo rm /var/lib/dpkg/lock*  # Debian/Ubuntu
 ```
 
 **Insufficient disk space**
+
 ```bash
 # Check disk space
 df -h
@@ -406,12 +411,14 @@ sudo dnf clean all  # Fedora/RHEL
 ### macOS
 
 **Homebrew not found**
+
 ```bash
 # Install Homebrew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
 **mas-cli not working**
+
 ```bash
 # Install or reinstall mas
 brew install mas
@@ -420,12 +427,14 @@ brew install mas
 ### Windows
 
 **winget not available**
+
 ```powershell
 # Update Windows or install App Installer from Microsoft Store
 winget --version
 ```
 
 **PSWindowsUpdate module missing**
+
 ```powershell
 # Install as administrator
 Install-Module -Name PSWindowsUpdate -Force
@@ -484,11 +493,11 @@ See main RSR project license.
 ## Support
 
 For issues, questions, or contributions:
+
 - GitHub Issues: [remote-script-runner/issues](https://github.com/codefuturist/remote-script-runner/issues)
 - Documentation: See individual script help (`--help`)
 
 ---
 
-**Last Updated**: 2025-12-11  
+**Last Updated**: 2025-12-11
 **Version**: 1.0.0
-

@@ -20,7 +20,7 @@ set -eo pipefail
 
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -127,7 +127,7 @@ EOF
 }
 
 # Logging functions
-if type rsr_log_info &>/dev/null; then
+if type rsr_log_info &> /dev/null; then
     log_info() { rsr_log_info "$1"; }
     log_ok() { rsr_log_ok "$1"; }
     log_warn() { rsr_log_warn "$1"; }
@@ -214,7 +214,7 @@ parse_args() {
 
 # Check Homebrew updates
 check_brew_updates() {
-    if ! command -v brew &>/dev/null; then
+    if ! command -v brew &> /dev/null; then
         log_error "Homebrew not installed"
         return 1
     fi
@@ -223,11 +223,11 @@ check_brew_updates() {
 
     # Update Homebrew itself first
     if [[ "$DRY_RUN" != "true" ]]; then
-        brew update &>/dev/null || log_warn "Failed to update Homebrew"
+        brew update &> /dev/null || log_warn "Failed to update Homebrew"
     fi
 
     local outdated
-    outdated=$(brew outdated --quiet 2>/dev/null | wc -l | tr -d ' ')
+    outdated=$(brew outdated --quiet 2> /dev/null | wc -l | tr -d ' ')
 
     if [[ "$outdated" -eq 0 ]]; then
         log_ok "Homebrew: All formulae up to date"
@@ -240,12 +240,12 @@ check_brew_updates() {
 
 # List Homebrew updates
 list_brew_updates() {
-    if ! command -v brew &>/dev/null; then
+    if ! command -v brew &> /dev/null; then
         return 0
     fi
 
     local outdated
-    outdated=$(brew outdated --quiet 2>/dev/null)
+    outdated=$(brew outdated --quiet 2> /dev/null)
 
     if [[ -z "$outdated" ]]; then
         return 0
@@ -256,21 +256,21 @@ list_brew_updates() {
     echo "$outdated" | while read -r formula; do
         local current
         local latest
-        current=$(brew list --versions "$formula" 2>/dev/null | awk '{print $NF}')
-        latest=$(brew info "$formula" 2>/dev/null | head -1 | awk '{print $3}' | sed 's/,$//')
+        current=$(brew list --versions "$formula" 2> /dev/null | awk '{print $NF}')
+        latest=$(brew info "$formula" 2> /dev/null | head -1 | awk '{print $3}' | sed 's/,$//')
         printf "  ${CYAN}%-30s${NC} %s → ${GREEN}%s${NC}\n" "$formula" "$current" "$latest"
     done
 }
 
 # Update Homebrew formulae
 update_brew() {
-    if ! command -v brew &>/dev/null; then
+    if ! command -v brew &> /dev/null; then
         log_debug "Homebrew not installed, skipping"
         return 0
     fi
 
     local count
-    count=$(brew outdated --quiet 2>/dev/null | wc -l | tr -d ' ')
+    count=$(brew outdated --quiet 2> /dev/null | wc -l | tr -d ' ')
 
     if [[ "$count" -eq 0 ]]; then
         log_ok "Homebrew: Already up to date"
@@ -294,14 +294,14 @@ update_brew() {
 
 # Check Homebrew Cask updates
 check_cask_updates() {
-    if ! command -v brew &>/dev/null; then
+    if ! command -v brew &> /dev/null; then
         return 0
     fi
 
     log_info "Checking Homebrew Cask updates..."
 
     local outdated
-    outdated=$(brew outdated --cask --quiet 2>/dev/null | wc -l | tr -d ' ')
+    outdated=$(brew outdated --cask --quiet 2> /dev/null | wc -l | tr -d ' ')
 
     if [[ "$outdated" -eq 0 ]]; then
         log_ok "Homebrew Cask: All casks up to date"
@@ -314,12 +314,12 @@ check_cask_updates() {
 
 # List Homebrew Cask updates
 list_cask_updates() {
-    if ! command -v brew &>/dev/null; then
+    if ! command -v brew &> /dev/null; then
         return 0
     fi
 
     local outdated
-    outdated=$(brew outdated --cask --quiet 2>/dev/null)
+    outdated=$(brew outdated --cask --quiet 2> /dev/null)
 
     if [[ -z "$outdated" ]]; then
         return 0
@@ -334,13 +334,13 @@ list_cask_updates() {
 
 # Update Homebrew Casks
 update_cask() {
-    if ! command -v brew &>/dev/null; then
+    if ! command -v brew &> /dev/null; then
         log_debug "Homebrew not installed, skipping casks"
         return 0
     fi
 
     local count
-    count=$(brew outdated --cask --quiet 2>/dev/null | wc -l | tr -d ' ')
+    count=$(brew outdated --cask --quiet 2> /dev/null | wc -l | tr -d ' ')
 
     if [[ "$count" -eq 0 ]]; then
         log_ok "Homebrew Cask: Already up to date"
@@ -365,7 +365,7 @@ update_cask() {
 
 # Check Mac App Store updates
 check_mas_updates() {
-    if ! command -v mas &>/dev/null; then
+    if ! command -v mas &> /dev/null; then
         log_debug "mas-cli not installed (brew install mas)"
         return 0
     fi
@@ -373,7 +373,7 @@ check_mas_updates() {
     log_info "Checking Mac App Store updates..."
 
     local outdated
-    outdated=$(mas outdated 2>/dev/null | wc -l | tr -d ' ')
+    outdated=$(mas outdated 2> /dev/null | wc -l | tr -d ' ')
 
     if [[ "$outdated" -eq 0 ]]; then
         log_ok "Mac App Store: All apps up to date"
@@ -386,12 +386,12 @@ check_mas_updates() {
 
 # List Mac App Store updates
 list_mas_updates() {
-    if ! command -v mas &>/dev/null; then
+    if ! command -v mas &> /dev/null; then
         return 0
     fi
 
     local outdated
-    outdated=$(mas outdated 2>/dev/null)
+    outdated=$(mas outdated 2> /dev/null)
 
     if [[ -z "$outdated" ]]; then
         return 0
@@ -411,13 +411,13 @@ list_mas_updates() {
 
 # Update Mac App Store apps
 update_mas() {
-    if ! command -v mas &>/dev/null; then
+    if ! command -v mas &> /dev/null; then
         log_debug "mas-cli not installed, skipping App Store updates"
         return 0
     fi
 
     local count
-    count=$(mas outdated 2>/dev/null | wc -l | tr -d ' ')
+    count=$(mas outdated 2> /dev/null | wc -l | tr -d ' ')
 
     if [[ "$count" -eq 0 ]]; then
         log_ok "Mac App Store: Already up to date"
@@ -427,7 +427,7 @@ update_mas() {
     log_info "Updating $count Mac App Store app(s)..."
 
     if [[ "$DRY_RUN" == "true" ]]; then
-        mas outdated 2>/dev/null | while read -r line; do
+        mas outdated 2> /dev/null | while read -r line; do
             log_info "Would update: $(echo "$line" | cut -d' ' -f5-)"
         done
         return 0
@@ -529,10 +529,10 @@ update_language_managers() {
     local managers=("${LANGUAGE_MANAGERS[@]}")
 
     if [[ ${#managers[@]} -eq 0 ]]; then
-        command -v pip3 &>/dev/null && managers+=("pip")
-        command -v npm &>/dev/null && managers+=("npm")
-        command -v cargo &>/dev/null && managers+=("cargo")
-        command -v gem &>/dev/null && managers+=("gem")
+        command -v pip3 &> /dev/null && managers+=("pip")
+        command -v npm &> /dev/null && managers+=("npm")
+        command -v cargo &> /dev/null && managers+=("cargo")
+        command -v gem &> /dev/null && managers+=("gem")
     fi
 
     [[ ${#managers[@]} -eq 0 ]] && {
@@ -554,23 +554,23 @@ update_language_managers() {
 }
 
 update_pip() {
-    if ! command -v pip3 &>/dev/null && ! command -v pip &>/dev/null; then
+    if ! command -v pip3 &> /dev/null && ! command -v pip &> /dev/null; then
         log_debug "pip not installed, skipping"
         return 0
     fi
 
     local pip_cmd="pip3"
-    command -v pip3 &>/dev/null || pip_cmd="pip"
+    command -v pip3 &> /dev/null || pip_cmd="pip"
 
     log_info "Updating pip packages..."
 
     if [[ "$DRY_RUN" == "true" ]]; then
-        $pip_cmd list --outdated 2>/dev/null
+        $pip_cmd list --outdated 2> /dev/null
         return 0
     fi
 
     local outdated
-    outdated=$($pip_cmd list --outdated --format=freeze 2>/dev/null | cut -d= -f1)
+    outdated=$($pip_cmd list --outdated --format=freeze 2> /dev/null | cut -d= -f1)
 
     if [[ -z "$outdated" ]]; then
         log_ok "pip: All packages up to date"
@@ -579,14 +579,14 @@ update_pip() {
 
     echo "$outdated" | while read -r pkg; do
         [[ -z "$pkg" ]] && continue
-        $pip_cmd install --upgrade "$pkg" &>/dev/null || true
+        $pip_cmd install --upgrade "$pkg" &> /dev/null || true
     done
 
     log_ok "pip updates completed"
 }
 
 update_npm() {
-    if ! command -v npm &>/dev/null; then
+    if ! command -v npm &> /dev/null; then
         log_debug "npm not installed, skipping"
         return 0
     fi
@@ -594,20 +594,20 @@ update_npm() {
     log_info "Updating global npm packages..."
 
     if [[ "$DRY_RUN" == "true" ]]; then
-        npm outdated -g 2>/dev/null
+        npm outdated -g 2> /dev/null
         return 0
     fi
 
-    npm update -g &>/dev/null || log_ok "npm: All packages up to date"
+    npm update -g &> /dev/null || log_ok "npm: All packages up to date"
 }
 
 update_cargo() {
-    if ! command -v cargo &>/dev/null; then
+    if ! command -v cargo &> /dev/null; then
         log_debug "cargo not installed, skipping"
         return 0
     fi
 
-    if ! cargo install --list 2>/dev/null | grep -q "cargo-update"; then
+    if ! cargo install --list 2> /dev/null | grep -q "cargo-update"; then
         log_warn "cargo-update not installed. Install with: cargo install cargo-update"
         return 0
     fi
@@ -619,12 +619,12 @@ update_cargo() {
         return 0
     fi
 
-    cargo install-update -a &>/dev/null || log_warn "cargo-update encountered issues"
+    cargo install-update -a &> /dev/null || log_warn "cargo-update encountered issues"
     log_ok "cargo updates completed"
 }
 
 update_gem() {
-    if ! command -v gem &>/dev/null; then
+    if ! command -v gem &> /dev/null; then
         log_debug "gem not installed, skipping"
         return 0
     fi
@@ -632,16 +632,16 @@ update_gem() {
     log_info "Updating Ruby gems..."
 
     if [[ "$DRY_RUN" == "true" ]]; then
-        gem outdated 2>/dev/null
+        gem outdated 2> /dev/null
         return 0
     fi
 
-    gem update &>/dev/null || log_ok "gem: All packages up to date"
+    gem update &> /dev/null || log_ok "gem: All packages up to date"
 }
 
 # Interactive mode
 run_interactive() {
-    if type print_interactive_header &>/dev/null; then
+    if type print_interactive_header &> /dev/null; then
         print_interactive_header "$SCRIPT_NAME" "$SCRIPT_VERSION"
     else
         echo ""
@@ -697,7 +697,7 @@ run_interactive() {
 
     # Main action selection
     local action
-    if type prompt_select &>/dev/null; then
+    if type prompt_select &> /dev/null; then
         action=$(prompt_select "What would you like to do?" \
             "Update all available" \
             "Update Homebrew only" \
@@ -842,7 +842,7 @@ main() {
 }
 
 # Helper functions if RSR library not available
-if ! type prompt_yes_no &>/dev/null; then
+if ! type prompt_yes_no &> /dev/null; then
     prompt_yes_no() {
         local question="$1"
         local default="${2:-n}"
@@ -853,7 +853,7 @@ if ! type prompt_yes_no &>/dev/null; then
         answer="${answer:-$default}"
 
         case "$answer" in
-            [Yy]|[Yy][Ee][Ss]) return 0 ;;
+            [Yy] | [Yy][Ee][Ss]) return 0 ;;
             *) return 1 ;;
         esac
     }
@@ -861,4 +861,3 @@ fi
 
 # Run main function
 main "$@"
-

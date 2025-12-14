@@ -5,6 +5,7 @@ Complete guide to managing SSH keys with the Remote Script Runner user managemen
 ## Overview
 
 The SSH key management functionality provides comprehensive tools for:
+
 - **Generating** SSH key pairs (RSA, Ed25519, ECDSA)
 - **Adding** public keys to authorized_keys
 - **Removing** keys safely with backups
@@ -38,17 +39,20 @@ sudo rsr usermgmt ssh fix -u john
 Generate SSH key pair for a user with automatic permission setting.
 
 **Usage:**
+
 ```bash
 rsr usermgmt ssh generate -u USERNAME [OPTIONS]
 ```
 
 **Options:**
+
 - `-u, --username USER` - Username (required)
 - `-t, --type TYPE` - Key type: rsa, ed25519, ecdsa, dsa (default: rsa)
 - `-b, --bits BITS` - Key size for RSA/DSA (default: 4096)
 - `-c, --comment COMMENT` - Key comment (default: user@hostname)
 
 **Examples:**
+
 ```bash
 # Generate modern Ed25519 key (recommended)
 sudo rsr usermgmt ssh generate -u john -t ed25519
@@ -74,6 +78,7 @@ sudo rsr usermgmt ssh generate -u john -t rsa -b 2048
 | **dsa** | ⭐ | ⭐⭐⭐ | Universal | ⛔ Deprecated, avoid |
 
 **Output:**
+
 - Private key: `~/.ssh/id_TYPE`
 - Public key: `~/.ssh/id_TYPE.pub`
 - Permissions automatically set (600 for private, 644 for public)
@@ -84,16 +89,19 @@ sudo rsr usermgmt ssh generate -u john -t rsa -b 2048
 Add SSH public key to user's authorized_keys file.
 
 **Usage:**
+
 ```bash
 rsr usermgmt ssh add -u USERNAME (-f FILE | -k KEY)
 ```
 
 **Options:**
+
 - `-u, --username USER` - Username (required)
 - `-f, --file FILE` - Path to public key file
 - `-k, --key KEY` - Public key content as string
 
 **Examples:**
+
 ```bash
 # Add key from file
 sudo rsr usermgmt ssh add -u john -f /tmp/john_key.pub
@@ -114,12 +122,14 @@ done
 ```
 
 **Validation:**
+
 - Checks key format before adding
 - Prevents duplicate keys
 - Creates .ssh directory if needed
 - Sets proper permissions automatically
 
 **Safety Features:**
+
 - Won't add invalid keys
 - Won't add duplicate keys
 - Creates directory with correct permissions (700)
@@ -130,15 +140,18 @@ done
 Remove SSH key from user's authorized_keys with automatic backup.
 
 **Usage:**
+
 ```bash
 rsr usermgmt ssh remove -u USERNAME -i IDENTIFIER
 ```
 
 **Options:**
+
 - `-u, --username USER` - Username (required)
 - `-i, --identifier ID` - Key identifier (fingerprint, comment, or key fragment)
 
 **Examples:**
+
 ```bash
 # Remove by comment/hostname
 sudo rsr usermgmt ssh remove -u john -i "john@laptop"
@@ -154,6 +167,7 @@ sudo rsr usermgmt ssh remove -u john -i "ssh-rsa"
 ```
 
 **Safety:**
+
 - Creates backup at `~/.ssh/authorized_keys.backup`
 - Validates match before deletion
 - Returns error if no match found
@@ -164,15 +178,18 @@ sudo rsr usermgmt ssh remove -u john -i "ssh-rsa"
 List authorized SSH keys for a user.
 
 **Usage:**
+
 ```bash
 rsr usermgmt ssh list -u USERNAME [--fingerprints]
 ```
 
 **Options:**
+
 - `-u, --username USER` - Username (required)
 - `-f, --fingerprints` - Show key fingerprints instead of full keys
 
 **Examples:**
+
 ```bash
 # List full key content
 rsr usermgmt ssh list -u john
@@ -195,12 +212,14 @@ fi
 **Output Format:**
 
 Without `--fingerprints`:
+
 ```
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5... john@laptop
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQAB... john@desktop
 ```
 
 With `--fingerprints`:
+
 ```
 256 SHA256:abcd1234efgh5678ijkl... john@laptop (ED25519)
 4096 SHA256:mnop9012qrst3456uvwx... john@desktop (RSA)
@@ -211,15 +230,18 @@ With `--fingerprints`:
 Copy all SSH keys from one user to another.
 
 **Usage:**
+
 ```bash
 rsr usermgmt ssh copy -s SOURCE_USER -d DEST_USER
 ```
 
 **Options:**
+
 - `-s, --source USER` - Source username (required)
 - `-d, --dest USER` - Destination username (required)
 
 **Examples:**
+
 ```bash
 # Copy keys from admin to new developer
 sudo rsr usermgmt ssh copy -s admin -d developer
@@ -235,6 +257,7 @@ sudo rsr usermgmt ssh copy -s employee -d contractor
 ```
 
 **Behavior:**
+
 - Copies all valid keys from source
 - Skips duplicates in destination
 - Creates .ssh directory if needed
@@ -242,6 +265,7 @@ sudo rsr usermgmt ssh copy -s employee -d contractor
 - Preserves key comments
 
 **Use Cases:**
+
 - Onboarding new team members
 - Setting up service accounts
 - Migrating between accounts
@@ -252,11 +276,13 @@ sudo rsr usermgmt ssh copy -s employee -d contractor
 Validate authorized_keys file format and content.
 
 **Usage:**
+
 ```bash
 rsr usermgmt ssh validate -u USERNAME
 ```
 
 **Examples:**
+
 ```bash
 # Validate keys
 rsr usermgmt ssh validate -u john
@@ -276,6 +302,7 @@ done
 ```
 
 **Output:**
+
 ```
 Line 3: Invalid key format
 Valid keys: 2
@@ -283,6 +310,7 @@ Invalid keys: 1
 ```
 
 **Checks:**
+
 - Key format validation
 - Line-by-line analysis
 - Counts valid and invalid keys
@@ -293,11 +321,13 @@ Invalid keys: 1
 Fix SSH directory and file permissions.
 
 **Usage:**
+
 ```bash
 rsr usermgmt ssh fix -u USERNAME
 ```
 
 **Examples:**
+
 ```bash
 # Fix permissions for user
 sudo rsr usermgmt ssh fix -u john
@@ -323,6 +353,7 @@ done
 | `known_hosts` | 644 (-rw-r--r--) | user:group |
 
 **When to use:**
+
 - After manual file edits
 - Permission denied errors
 - After copying files as root
@@ -390,16 +421,16 @@ USERS="alice bob charlie"
 
 for user in $USERS; do
     echo "Setting up SSH for $user..."
-    
+
     # Generate key
     sudo rsr usermgmt ssh generate -u "$user" -t ed25519
-    
+
     # Add admin key for access
     sudo rsr usermgmt ssh add -u "$user" -f "$ADMIN_KEY"
-    
+
     # Fix permissions
     sudo rsr usermgmt ssh fix -u "$user"
-    
+
     echo "✓ $user setup complete"
 done
 ```
@@ -416,7 +447,7 @@ echo ""
 
 for user in $(rsr usermgmt list | awk '{print $1}' | tail -n +2); do
     key_count=$(rsr usermgmt ssh list -u "$user" 2>/dev/null | wc -l)
-    
+
     if [ "$key_count" -gt 0 ]; then
         echo "User: $user"
         echo "  Keys: $key_count"
@@ -491,6 +522,7 @@ pub_key=$(ssh_get_public_key "username")
 **Problem:** SSH login fails with "Permission denied"
 
 **Solution:**
+
 ```bash
 # Check permissions
 ls -la /home/john/.ssh/
@@ -507,6 +539,7 @@ rsr usermgmt ssh list -u john
 **Problem:** Key addition fails with "Invalid SSH public key format"
 
 **Solution:**
+
 ```bash
 # Verify key format
 cat key.pub | head -c 20
@@ -525,6 +558,7 @@ sudo rsr usermgmt ssh add -u john -f /tmp/correct_key.pub
 **Problem:** "Key already exists in authorized_keys"
 
 **Solution:**
+
 ```bash
 # List existing keys
 rsr usermgmt ssh list -u john --fingerprints
@@ -542,6 +576,7 @@ sudo rsr usermgmt ssh add -u john -f new_key.pub
 **Problem:** "No such file or directory: /home/user/.ssh"
 
 **Solution:**
+
 ```bash
 # Any ssh operation will create it, or manually:
 sudo mkdir -p /home/john/.ssh
@@ -553,6 +588,7 @@ sudo rsr usermgmt ssh fix -u john
 **Problem:** SSH warns about insecure permissions
 
 **Solution:**
+
 ```bash
 # Fix all SSH permissions
 sudo rsr usermgmt ssh fix -u john
@@ -566,6 +602,7 @@ ls -la /home/john/.ssh/
 **Problem:** "Operation not permitted" on macOS
 
 **Solution:**
+
 ```bash
 # Grant Full Disk Access in System Preferences
 # Or use sudo
@@ -624,7 +661,7 @@ fi
 ```yaml
 - name: Setup user SSH keys
   command: >
-    rsr usermgmt ssh generate 
+    rsr usermgmt ssh generate
     -u {{ username }}
     -t ed25519
     -c "{{ email }}"
@@ -661,6 +698,6 @@ resource "null_resource" "user_ssh" {
 ## Support
 
 For issues or questions:
-- GitHub: https://github.com/codefuturist/remote-script-runner/issues
-- Documentation: https://codefuturist.github.io/remote-script-runner/
 
+- GitHub: <https://github.com/codefuturist/remote-script-runner/issues>
+- Documentation: <https://codefuturist.github.io/remote-script-runner/>

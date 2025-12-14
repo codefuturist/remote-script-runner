@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2024-07-24
 
 ### Added
+
 - Initial release of Remote Script Runner
 - System health check script with CPU, memory, disk, network, services, and uptime checks
 - Server setup script with user configuration and package installation simulation
@@ -25,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Logging capabilities
 
 ### Features
+
 - ✅ Run scripts remotely with a single curl command
 - ✅ Support for multiple command-line arguments and options
 - ✅ Proper error handling and logging
@@ -37,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ Remote usage without repository cloning
 
 ### Documentation
+
 - README.md with comprehensive usage examples
 - SYNTAX_GUIDE.md with detailed execution patterns
 - Shell-specific documentation in scripts/README.md

@@ -11,7 +11,7 @@ set -eo pipefail
 
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -40,7 +40,7 @@ NC="${RSR_COLOR_RESET:-\033[0m}"
 DEFAULT_REPO_URL="https://github.com/codefuturist/iac-catalog.git"
 DEFAULT_REPO_BRANCH="develop"
 DEFAULT_INSTALL_PATH="/opt/gitops"
-DEFAULT_SERVICE_TYPE="standalone"  # standalone or integrated
+DEFAULT_SERVICE_TYPE="standalone" # standalone or integrated
 
 # =============================================================================
 # Helper Functions
@@ -57,7 +57,7 @@ print_header() {
 }
 
 # Logging functions (use RSR if available)
-if type rsr_log_info &>/dev/null; then
+if type rsr_log_info &> /dev/null; then
     log_info() { rsr_log_ok "$*"; }
     log_warn() { rsr_log_warn "$*"; }
     log_error() { rsr_log_error "$*"; }
@@ -83,15 +83,15 @@ prompt_yes_no() {
         read -rp "$question $prompt: " answer
         answer=${answer:-$default}
         case "$answer" in
-            [Yy]* ) return 0;;
-            [Nn]* ) return 1;;
-            * ) echo "Please answer yes or no.";;
+            [Yy]*) return 0 ;;
+            [Nn]*) return 1 ;;
+            *) echo "Please answer yes or no." ;;
         esac
     done
 }
 
 check_command() {
-    if type rsr_has_command &>/dev/null; then
+    if type rsr_has_command &> /dev/null; then
         rsr_has_command "$1"
     elif command -v "$1" &> /dev/null; then
         return 0
@@ -139,7 +139,7 @@ check_prerequisites() {
     fi
 
     # Check for sudo access
-    if ! sudo -n true 2>/dev/null; then
+    if ! sudo -n true 2> /dev/null; then
         log_warn "Sudo password will be required"
     fi
 
@@ -266,7 +266,7 @@ create_directories() {
 
     # Set permissions
     if [[ $EUID -ne 0 ]]; then
-        sudo chown -R "$USER:$USER" "$INSTALL_PATH" 2>/dev/null || true
+        sudo chown -R "$USER:$USER" "$INSTALL_PATH" 2> /dev/null || true
     fi
 
     log_info "Directories created"
@@ -512,9 +512,9 @@ uninstall() {
     log_step "Uninstalling DNS GitOps..."
 
     # Stop and disable service
-    sudo systemctl stop dns-sync.timer 2>/dev/null || true
-    sudo systemctl disable dns-sync.timer 2>/dev/null || true
-    sudo systemctl stop dns-sync.service 2>/dev/null || true
+    sudo systemctl stop dns-sync.timer 2> /dev/null || true
+    sudo systemctl disable dns-sync.timer 2> /dev/null || true
+    sudo systemctl stop dns-sync.service 2> /dev/null || true
 
     # Remove systemd files
     sudo rm -f /etc/systemd/system/dns-sync.service

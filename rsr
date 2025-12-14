@@ -20,7 +20,7 @@ set -o noglob
 # Try to read version from VERSION file (local), fallback to hardcoded
 # Handle both local execution and piped execution (where $0 may be sh/bash)
 if [ -n "${0:-}" ] && [ "$0" != "sh" ] && [ "$0" != "bash" ] && [ "$0" != "-sh" ] && [ "$0" != "-bash" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "$0")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "$0")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -210,6 +210,9 @@ get_script_path() {
         win-backup)
             echo "scripts/backup/tools/windows-backup.ps1"
             ;;
+        backup-wrapper)
+            echo "scripts/backup/tools/backup-wrappers.sh"
+            ;;
         *)
             echo ""
             ;;
@@ -364,7 +367,7 @@ list_scripts() {
     printf "              Install packages from predefined profiles with cross-platform support\n"
     printf "              \${DIM}rsr install-pkgs web-server\${NC}\n\n"
     printf "  \${GREEN}backup\${NC}      Unified Backup\n"
-    printf "              Unified backup system supporting rsync, rclone, restic, borg, kopia, Time Machine\n"
+    printf "              Unified backup system supporting rsync, rclone, restic, borg, kopia, Time Machine, Windows Backup\n"
     printf "              \${DIM}rsr backup run --source /home --dest /backup --tool restic\${NC}\n\n"
     printf "  \${GREEN}rsync-backup\${NC}      Rsync Backup\n"
     printf "              Fast incremental backup using rsync with hard links support\n"
@@ -387,6 +390,9 @@ list_scripts() {
     printf "  \${GREEN}win-backup\${NC}      Windows Backup\n"
     printf "              Windows backup with VSS, File History, and robocopy\n"
     printf "              \${DIM}rsr win-backup status\${NC}\n\n"
+    printf "  \${GREEN}backup-wrapper\${NC}      Backup Wrappers\n"
+    printf "              Manage config-driven backup wrappers (autorestic, borgmatic, resticprofile)\n"
+    printf "              \${DIM}rsr backup-wrapper status\${NC}\n\n"
     # --- END AUTO-GENERATED: SCRIPT_LIST ---
     printf "              ${DIM}rsr self-update --force${NC}\n\n"
 
@@ -411,15 +417,15 @@ self_update() {
     # Parse flags
     while [ $# -gt 0 ]; do
         case "$1" in
-            --force|-f)
+            --force | -f)
                 force=1
                 shift
                 ;;
-            --check|-c)
+            --check | -c)
                 check_only=1
                 shift
                 ;;
-            -h|--help)
+            -h | --help)
                 cat << EOF
 ${BOLD}Usage:${NC} rsr self-update [OPTIONS]
 
@@ -436,7 +442,7 @@ ${BOLD}Examples:${NC}
   rsr self-update --force   # Force update regardless of version
 
 ${BOLD}Location:${NC}
-  rsr is installed at: $(command -v rsr 2>/dev/null || echo "$HOME/.local/bin/rsr")
+  rsr is installed at: $(command -v rsr 2> /dev/null || echo "$HOME/.local/bin/rsr")
   Backup saved to: <install_path>.backup
 
 EOF
@@ -458,7 +464,7 @@ EOF
     if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/rsr" ]; then
         install_path="$SCRIPT_DIR/rsr"
     else
-        install_path="$(command -v rsr 2>/dev/null)" || install_path="$HOME/.local/bin/rsr"
+        install_path="$(command -v rsr 2> /dev/null)" || install_path="$HOME/.local/bin/rsr"
     fi
 
     # Check if rsr is actually installed
@@ -471,10 +477,10 @@ EOF
     # Fetch remote version
     log_info "Checking for updates..."
     local remote_version
-    if command -v curl >/dev/null 2>&1; then
-        remote_version=$(curl -fsSL "$REPO_BASE_URL/VERSION" 2>/dev/null | tr -d '[:space:]')
-    elif command -v wget >/dev/null 2>&1; then
-        remote_version=$(wget -qO- "$REPO_BASE_URL/VERSION" 2>/dev/null | tr -d '[:space:]')
+    if command -v curl > /dev/null 2>&1; then
+        remote_version=$(curl -fsSL "$REPO_BASE_URL/VERSION" 2> /dev/null | tr -d '[:space:]')
+    elif command -v wget > /dev/null 2>&1; then
+        remote_version=$(wget -qO- "$REPO_BASE_URL/VERSION" 2> /dev/null | tr -d '[:space:]')
     else
         log_error "Neither curl nor wget is available"
         return 1
@@ -516,14 +522,14 @@ EOF
     local temp_file="${install_path}.new.$$"
 
     # Download new version
-    if command -v curl >/dev/null 2>&1; then
-        if ! curl -fsSL "$REPO_BASE_URL/rsr" -o "$temp_file" 2>/dev/null; then
+    if command -v curl > /dev/null 2>&1; then
+        if ! curl -fsSL "$REPO_BASE_URL/rsr" -o "$temp_file" 2> /dev/null; then
             log_error "Failed to download update"
             rm -f "$temp_file"
             return 1
         fi
-    elif command -v wget >/dev/null 2>&1; then
-        if ! wget -qO "$temp_file" "$REPO_BASE_URL/rsr" 2>/dev/null; then
+    elif command -v wget > /dev/null 2>&1; then
+        if ! wget -qO "$temp_file" "$REPO_BASE_URL/rsr" 2> /dev/null; then
             log_error "Failed to download update"
             rm -f "$temp_file"
             return 1
@@ -538,7 +544,7 @@ EOF
     fi
 
     # Check if we can write to installation directory
-    if ! touch "$install_path.test" 2>/dev/null; then
+    if ! touch "$install_path.test" 2> /dev/null; then
         log_error "Cannot write to installation directory"
         log_info "Try running with elevated permissions or check directory permissions"
         rm -f "$temp_file"
@@ -565,7 +571,7 @@ EOF
     chmod +x "$install_path"
 
     # Validate the new installation by running a basic test
-    if ! "$install_path" --version >/dev/null 2>&1; then
+    if ! "$install_path" --version > /dev/null 2>&1; then
         log_error "New version failed validation test!"
         log_info "Rolling back to previous version..."
         if mv "${install_path}.backup" "$install_path"; then
@@ -728,17 +734,17 @@ run_menu() {
                 log_info "Running Network Diagnostics..."
                 run_script "netdiag"
                 ;;
-            h|H)
+            h | H)
                 show_help
                 ;;
-            l|L)
+            l | L)
                 list_scripts
                 ;;
-            u|U)
+            u | U)
                 echo
                 self_update
                 ;;
-            q|Q)
+            q | Q)
                 echo
                 log_ok "Goodbye!"
                 exit 0
@@ -1006,6 +1012,9 @@ main() {
             ;;
         win-backup | windows-backup | wbadmin-backup)
             run_script "win-backup" "$@"
+            ;;
+        backup-wrapper | backup-wrappers | autorestic | borgmatic | resticprofile)
+            run_script "backup-wrapper" "$@"
             ;;
         # --- END AUTO-GENERATED: COMMAND_ROUTING ---
         *)

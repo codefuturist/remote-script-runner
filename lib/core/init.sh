@@ -169,12 +169,12 @@ rsr_assert() {
 # Returns: darwin, linux, freebsd, windows, unknown
 rsr_detect_os() {
     if [ -z "${_RSR_CACHED_OS:-}" ]; then
-        case "$(uname -s 2>/dev/null || echo unknown)" in
-            Darwin*)  _RSR_CACHED_OS="darwin" ;;
-            Linux*)   _RSR_CACHED_OS="linux" ;;
+        case "$(uname -s 2> /dev/null || echo unknown)" in
+            Darwin*) _RSR_CACHED_OS="darwin" ;;
+            Linux*) _RSR_CACHED_OS="linux" ;;
             FreeBSD*) _RSR_CACHED_OS="freebsd" ;;
-            CYGWIN*|MINGW*|MSYS*) _RSR_CACHED_OS="windows" ;;
-            *)        _RSR_CACHED_OS="unknown" ;;
+            CYGWIN* | MINGW* | MSYS*) _RSR_CACHED_OS="windows" ;;
+            *) _RSR_CACHED_OS="unknown" ;;
         esac
     fi
     echo "$_RSR_CACHED_OS"
@@ -184,12 +184,12 @@ rsr_detect_os() {
 # Returns: amd64, arm64, arm, i386, unknown
 rsr_detect_arch() {
     if [ -z "${_RSR_CACHED_ARCH:-}" ]; then
-        case "$(uname -m 2>/dev/null || echo unknown)" in
-            x86_64|amd64)   _RSR_CACHED_ARCH="amd64" ;;
-            arm64|aarch64)  _RSR_CACHED_ARCH="arm64" ;;
-            armv*)          _RSR_CACHED_ARCH="arm" ;;
-            i386|i686)      _RSR_CACHED_ARCH="i386" ;;
-            *)              _RSR_CACHED_ARCH="unknown" ;;
+        case "$(uname -m 2> /dev/null || echo unknown)" in
+            x86_64 | amd64) _RSR_CACHED_ARCH="amd64" ;;
+            arm64 | aarch64) _RSR_CACHED_ARCH="arm64" ;;
+            armv*) _RSR_CACHED_ARCH="arm" ;;
+            i386 | i686) _RSR_CACHED_ARCH="i386" ;;
+            *) _RSR_CACHED_ARCH="unknown" ;;
         esac
     fi
     echo "$_RSR_CACHED_ARCH"
@@ -204,14 +204,14 @@ rsr_detect_distro() {
             # shellcheck disable=SC1091
             . /etc/os-release
             case "${ID:-}" in
-                debian)  _RSR_CACHED_DISTRO="debian" ;;
-                ubuntu)  _RSR_CACHED_DISTRO="ubuntu" ;;
-                fedora)  _RSR_CACHED_DISTRO="fedora" ;;
-                centos)  _RSR_CACHED_DISTRO="centos" ;;
-                rhel)    _RSR_CACHED_DISTRO="rhel" ;;
-                arch)    _RSR_CACHED_DISTRO="arch" ;;
-                alpine)  _RSR_CACHED_DISTRO="alpine" ;;
-                *)       _RSR_CACHED_DISTRO="${ID:-unknown}" ;;
+                debian) _RSR_CACHED_DISTRO="debian" ;;
+                ubuntu) _RSR_CACHED_DISTRO="ubuntu" ;;
+                fedora) _RSR_CACHED_DISTRO="fedora" ;;
+                centos) _RSR_CACHED_DISTRO="centos" ;;
+                rhel) _RSR_CACHED_DISTRO="rhel" ;;
+                arch) _RSR_CACHED_DISTRO="arch" ;;
+                alpine) _RSR_CACHED_DISTRO="alpine" ;;
+                *) _RSR_CACHED_DISTRO="${ID:-unknown}" ;;
             esac
         elif [ -f /etc/debian_version ]; then
             _RSR_CACHED_DISTRO="debian"
@@ -234,9 +234,9 @@ rsr_detect_shell() {
             _RSR_CACHED_SHELL="fish"
         else
             # Try to detect from $0 or $SHELL
-            _shell_name="$(basename "${SHELL:-sh}" 2>/dev/null || echo sh)"
+            _shell_name="$(basename "${SHELL:-sh}" 2> /dev/null || echo sh)"
             case "$_shell_name" in
-                bash|zsh|dash|fish|ksh) _RSR_CACHED_SHELL="$_shell_name" ;;
+                bash | zsh | dash | fish | ksh) _RSR_CACHED_SHELL="$_shell_name" ;;
                 *) _RSR_CACHED_SHELL="sh" ;;
             esac
         fi
@@ -280,7 +280,7 @@ rsr_detect_package_manager() {
 # Check if a command exists
 # Usage: rsr_has_command "git"
 rsr_has_command() {
-    command -v "$1" >/dev/null 2>&1
+    command -v "$1" > /dev/null 2>&1
 }
 
 # Require a command or die
@@ -392,9 +392,9 @@ rsr_uppercase() {
 # Usage: abs_path=$(rsr_realpath "./relative/path")
 rsr_realpath() {
     if rsr_has_command realpath; then
-        realpath "$1" 2>/dev/null
+        realpath "$1" 2> /dev/null
     elif rsr_has_command readlink; then
-        readlink -f "$1" 2>/dev/null
+        readlink -f "$1" 2> /dev/null
     else
         # Fallback: cd and pwd
         if [ -d "$1" ]; then
@@ -437,16 +437,16 @@ rsr_version_compare() {
     IFS="$_IFS"
 
     # Compare major
-    [ "$_v1_major" -gt "$_v2_major" ] 2>/dev/null && return 1
-    [ "$_v1_major" -lt "$_v2_major" ] 2>/dev/null && return 2
+    [ "$_v1_major" -gt "$_v2_major" ] 2> /dev/null && return 1
+    [ "$_v1_major" -lt "$_v2_major" ] 2> /dev/null && return 2
 
     # Compare minor
-    [ "$_v1_minor" -gt "$_v2_minor" ] 2>/dev/null && return 1
-    [ "$_v1_minor" -lt "$_v2_minor" ] 2>/dev/null && return 2
+    [ "$_v1_minor" -gt "$_v2_minor" ] 2> /dev/null && return 1
+    [ "$_v1_minor" -lt "$_v2_minor" ] 2> /dev/null && return 2
 
     # Compare patch
-    [ "$_v1_patch" -gt "$_v2_patch" ] 2>/dev/null && return 1
-    [ "$_v1_patch" -lt "$_v2_patch" ] 2>/dev/null && return 2
+    [ "$_v1_patch" -gt "$_v2_patch" ] 2> /dev/null && return 1
+    [ "$_v1_patch" -lt "$_v2_patch" ] 2> /dev/null && return 2
 
     return 0
 }
@@ -456,4 +456,3 @@ rsr_version_compare() {
 # =============================================================================
 
 rsr_log_debug "RSR Core Library v${RSR_LIB_VERSION} loaded"
-

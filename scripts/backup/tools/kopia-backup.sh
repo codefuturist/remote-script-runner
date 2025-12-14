@@ -26,7 +26,7 @@ set -eo pipefail
 
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -183,13 +183,13 @@ parse_args() {
     # Check for command
     if [[ $# -gt 0 ]] && [[ ! "$1" =~ ^- ]]; then
         case "$1" in
-            snapshot|restore|list|connect|create|status|policy|maintenance|server|mount)
+            snapshot | restore | list | connect | create | status | policy | maintenance | server | mount)
                 COMMAND="$1"
                 shift
                 # Check for subcommand
                 if [[ $# -gt 0 ]] && [[ ! "$1" =~ ^- ]]; then
                     case "$1" in
-                        create|list|show|set|run|start|stop)
+                        create | list | show | set | run | start | stop)
                             SUBCOMMAND="$1"
                             shift
                             ;;
@@ -201,36 +201,127 @@ parse_args() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help) show_help; exit 0 ;;
-            -v|--verbose) VERBOSE=true; shift ;;
-            -d|--dry-run) DRY_RUN=true; shift ;;
-            --path) REPO_PATH="$2"; shift 2 ;;
-            --type) REPO_TYPE="$2"; shift 2 ;;
-            -p|--password) PASSWORD="$2"; shift 2 ;;
-            --config) CONFIG_FILE="$2"; shift 2 ;;
-            -x|--exclude) EXCLUDE_PATTERNS+=("$2"); shift 2 ;;
-            -t|--tag) TAGS+=("$2"); shift 2 ;;
-            --description) DESCRIPTION="$2"; shift 2 ;;
-            --compression) COMPRESSION="$2"; shift 2 ;;
-            --snapshot) SNAPSHOT_ID="$2"; shift 2 ;;
-            --target) TARGET="$2"; shift 2 ;;
-            --parallel) PARALLEL="$2"; shift 2 ;;
-            --json) JSON_OUTPUT=true; shift ;;
-            --s3-bucket) S3_BUCKET="$2"; shift 2 ;;
-            --s3-endpoint) S3_ENDPOINT="$2"; shift 2 ;;
-            --s3-region) S3_REGION="$2"; shift 2 ;;
-            --gcs-bucket) GCS_BUCKET="$2"; shift 2 ;;
-            --azure-container) AZURE_CONTAINER="$2"; shift 2 ;;
-            --sftp-host) SFTP_HOST="$2"; shift 2 ;;
-            --sftp-user) SFTP_USER="$2"; shift 2 ;;
-            --sftp-path) SFTP_PATH="$2"; shift 2 ;;
-            --keep-daily) KEEP_DAILY="$2"; shift 2 ;;
-            --keep-weekly) KEEP_WEEKLY="$2"; shift 2 ;;
-            --keep-monthly) KEEP_MONTHLY="$2"; shift 2 ;;
-            --keep-yearly) KEEP_YEARLY="$2"; shift 2 ;;
-            --) shift; PATHS+=("$@"); break ;;
-            -*) log_error "Unknown option: $1"; exit 1 ;;
-            *) PATHS+=("$1"); shift ;;
+            -h | --help)
+                show_help
+                exit 0
+                ;;
+            -v | --verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -d | --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            --path)
+                REPO_PATH="$2"
+                shift 2
+                ;;
+            --type)
+                REPO_TYPE="$2"
+                shift 2
+                ;;
+            -p | --password)
+                PASSWORD="$2"
+                shift 2
+                ;;
+            --config)
+                CONFIG_FILE="$2"
+                shift 2
+                ;;
+            -x | --exclude)
+                EXCLUDE_PATTERNS+=("$2")
+                shift 2
+                ;;
+            -t | --tag)
+                TAGS+=("$2")
+                shift 2
+                ;;
+            --description)
+                DESCRIPTION="$2"
+                shift 2
+                ;;
+            --compression)
+                COMPRESSION="$2"
+                shift 2
+                ;;
+            --snapshot)
+                SNAPSHOT_ID="$2"
+                shift 2
+                ;;
+            --target)
+                TARGET="$2"
+                shift 2
+                ;;
+            --parallel)
+                PARALLEL="$2"
+                shift 2
+                ;;
+            --json)
+                JSON_OUTPUT=true
+                shift
+                ;;
+            --s3-bucket)
+                S3_BUCKET="$2"
+                shift 2
+                ;;
+            --s3-endpoint)
+                S3_ENDPOINT="$2"
+                shift 2
+                ;;
+            --s3-region)
+                S3_REGION="$2"
+                shift 2
+                ;;
+            --gcs-bucket)
+                GCS_BUCKET="$2"
+                shift 2
+                ;;
+            --azure-container)
+                AZURE_CONTAINER="$2"
+                shift 2
+                ;;
+            --sftp-host)
+                SFTP_HOST="$2"
+                shift 2
+                ;;
+            --sftp-user)
+                SFTP_USER="$2"
+                shift 2
+                ;;
+            --sftp-path)
+                SFTP_PATH="$2"
+                shift 2
+                ;;
+            --keep-daily)
+                KEEP_DAILY="$2"
+                shift 2
+                ;;
+            --keep-weekly)
+                KEEP_WEEKLY="$2"
+                shift 2
+                ;;
+            --keep-monthly)
+                KEEP_MONTHLY="$2"
+                shift 2
+                ;;
+            --keep-yearly)
+                KEEP_YEARLY="$2"
+                shift 2
+                ;;
+            --)
+                shift
+                PATHS+=("$@")
+                break
+                ;;
+            -*)
+                log_error "Unknown option: $1"
+                exit 1
+                ;;
+            *)
+                PATHS+=("$1")
+                shift
+                ;;
         esac
     done
 
@@ -420,7 +511,7 @@ cmd_policy() {
                 --keep-monthly "$KEEP_MONTHLY" \
                 --keep-yearly "$KEEP_YEARLY"
             ;;
-        list|show)
+        list | show)
             kopia policy list
             ;;
         *)
@@ -455,7 +546,7 @@ main() {
     parse_args "$@"
 
     # Check kopia is installed
-    if ! command -v kopia &>/dev/null; then
+    if ! command -v kopia &> /dev/null; then
         log_error "kopia is not installed"
         log_info "Install with: brew install kopia (macOS) or see https://kopia.io/docs/installation/"
         exit 1
@@ -489,4 +580,3 @@ main() {
 }
 
 main "$@"
-

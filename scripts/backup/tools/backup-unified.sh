@@ -38,7 +38,7 @@ set -eo pipefail
 
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -120,9 +120,12 @@ COMMANDS:
     verify          Verify backup integrity
     prune           Apply retention policy
     status          Show backup status and installed tools
+    health          Run backup health check and diagnostics
     profile         Manage backup profiles (create/list/delete/run)
     schedule        Create scheduled backup jobs
     install         Install backup tools
+    wrapper         Manage config-driven wrappers (autorestic, borgmatic, etc.)
+    interactive     Launch interactive menu (user-friendly mode)
 
 GLOBAL OPTIONS:
     -h, --help              Show this help message
@@ -236,7 +239,7 @@ parse_args() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help)
+            -h | --help)
                 show_help
                 exit 0
                 ;;
@@ -244,35 +247,35 @@ parse_args() {
                 show_version
                 exit 0
                 ;;
-            -v|--verbose)
+            -v | --verbose)
                 VERBOSE=true
                 shift
                 ;;
-            -q|--quiet)
+            -q | --quiet)
                 QUIET=true
                 shift
                 ;;
-            -d|--dry-run)
+            -d | --dry-run)
                 DRY_RUN=true
                 shift
                 ;;
-            -t|--tool)
+            -t | --tool)
                 TOOL="$2"
                 shift 2
                 ;;
-            -s|--source)
+            -s | --source)
                 SOURCE_PATHS+=("$2")
                 shift 2
                 ;;
-            -D|--dest|--destination|--repo|--repository)
+            -D | --dest | --destination | --repo | --repository)
                 DEST_PATH="$2"
                 shift 2
                 ;;
-            -x|--exclude)
+            -x | --exclude)
                 EXCLUDE_PATTERNS+=("$2")
                 shift 2
                 ;;
-            -p|--profile)
+            -p | --profile)
                 PROFILE_NAME="$2"
                 shift 2
                 ;;
@@ -332,12 +335,12 @@ parse_args() {
                 SCHEDULE_TIME="$2"
                 shift 2
                 ;;
-            --daily|--weekly)
+            --daily | --weekly)
                 SCHEDULE_FREQUENCY="${1#--}"
                 shift
                 ;;
             # Profile subcommands
-            create|list|show|delete|run)
+            create | list | show | delete | run)
                 if [[ "$COMMAND" == "profile" ]]; then
                     PROFILE_SUBCOMMAND="$1"
                     shift
@@ -447,7 +450,7 @@ cmd_status() {
     # Show profiles
     echo -e "${BOLD}Backup Profiles:${NC}"
     local profiles
-    profiles=$(rsr_backup_list_profiles 2>/dev/null)
+    profiles=$(rsr_backup_list_profiles 2> /dev/null)
     if [[ -n "$profiles" ]]; then
         echo "$profiles" | while read -r profile; do
             echo "  • $profile"
@@ -469,7 +472,7 @@ cmd_status() {
             ;;
         linux)
             echo -e "${BOLD}Linux Integration:${NC}"
-            if command -v systemctl &>/dev/null; then
+            if command -v systemctl &> /dev/null; then
                 echo "  • systemd timers: available"
             fi
             ;;
@@ -525,30 +528,30 @@ cmd_run() {
     # Build exclude options
     for pattern in "${EXCLUDE_PATTERNS[@]}"; do
         case "$TOOL" in
-            rsync)   backup_opts="$backup_opts --exclude=$pattern" ;;
-            rclone)  backup_opts="$backup_opts --exclude $pattern" ;;
-            restic)  backup_opts="$backup_opts --exclude $pattern" ;;
-            borg)    backup_opts="$backup_opts --exclude $pattern" ;;
-            kopia)   backup_opts="$backup_opts --ignore $pattern" ;;
+            rsync) backup_opts="$backup_opts --exclude=$pattern" ;;
+            rclone) backup_opts="$backup_opts --exclude $pattern" ;;
+            restic) backup_opts="$backup_opts --exclude $pattern" ;;
+            borg) backup_opts="$backup_opts --exclude $pattern" ;;
+            kopia) backup_opts="$backup_opts --ignore $pattern" ;;
         esac
     done
 
     # Add compression
     if [[ "$COMPRESSION" != "none" ]] && [[ "$COMPRESSION" != "auto" ]]; then
         case "$TOOL" in
-            restic)  backup_opts="$backup_opts --compression $COMPRESSION" ;;
-            borg)    backup_opts="$backup_opts --compression $COMPRESSION" ;;
+            restic) backup_opts="$backup_opts --compression $COMPRESSION" ;;
+            borg) backup_opts="$backup_opts --compression $COMPRESSION" ;;
         esac
     fi
 
     # Add verbose flag
     if [[ "$VERBOSE" == "true" ]]; then
         case "$TOOL" in
-            rsync)   backup_opts="$backup_opts -v" ;;
-            rclone)  backup_opts="$backup_opts -v" ;;
-            restic)  backup_opts="$backup_opts -v" ;;
-            borg)    backup_opts="$backup_opts -v" ;;
-            kopia)   backup_opts="$backup_opts --log-level=debug" ;;
+            rsync) backup_opts="$backup_opts -v" ;;
+            rclone) backup_opts="$backup_opts -v" ;;
+            restic) backup_opts="$backup_opts -v" ;;
+            borg) backup_opts="$backup_opts -v" ;;
+            kopia) backup_opts="$backup_opts --log-level=debug" ;;
         esac
     fi
 
@@ -564,11 +567,11 @@ cmd_run() {
 
         if [[ "$DRY_RUN" == "true" ]]; then
             case "$TOOL" in
-                rsync)   backup_opts="$backup_opts -n" ;;
-                rclone)  backup_opts="$backup_opts --dry-run" ;;
-                restic)  backup_opts="$backup_opts -n" ;;
-                borg)    backup_opts="$backup_opts --dry-run" ;;
-                kopia)   backup_opts="$backup_opts --dry-run" ;;
+                rsync) backup_opts="$backup_opts -n" ;;
+                rclone) backup_opts="$backup_opts --dry-run" ;;
+                restic) backup_opts="$backup_opts -n" ;;
+                borg) backup_opts="$backup_opts --dry-run" ;;
+                kopia) backup_opts="$backup_opts --dry-run" ;;
             esac
         fi
 
@@ -766,6 +769,76 @@ cmd_prune() {
 }
 
 # =============================================================================
+# Command: health
+# =============================================================================
+
+cmd_health() {
+    print_header "Backup Health Check"
+
+    # Run health check (uses function from backup module)
+    if type rsr_backup_health_check > /dev/null 2>&1; then
+        rsr_backup_health_check "$PROFILE_NAME"
+    else
+        # Fallback implementation
+        echo -e "${BOLD}Backup Tools:${NC}"
+        local tools
+        tools=$(rsr_backup_list_tools)
+
+        if [[ -z "$tools" ]]; then
+            log_warn "No backup tools installed"
+        else
+            for tool_info in $tools; do
+                local tool="${tool_info%%:*}"
+                local version="${tool_info#*:}"
+                log_ok "$tool (v$version)"
+            done
+        fi
+        echo ""
+
+        echo -e "${BOLD}Profiles:${NC}"
+        local profiles
+        profiles=$(rsr_backup_list_profiles 2> /dev/null)
+        if [[ -n "$profiles" ]]; then
+            echo "$profiles" | while read -r profile; do
+                log_ok "Profile: $profile"
+            done
+        else
+            log_warn "No profiles configured"
+        fi
+        echo ""
+
+        echo -e "${BOLD}Backup Status:${NC}"
+        if type rsr_backup_is_running > /dev/null 2>&1 && rsr_backup_is_running; then
+            log_warn "A backup process is currently running"
+        else
+            log_ok "No backup currently running"
+        fi
+        echo ""
+
+        echo -e "${BOLD}Scheduled Jobs:${NC}"
+        local os
+        os=$(rsr_detect_os)
+        case "$os" in
+            darwin)
+                local jobs
+                jobs=$(launchctl list 2> /dev/null | grep -c "rsr.backup" || echo "0")
+                echo "  LaunchAgent jobs: $jobs"
+                ;;
+            linux)
+                if command -v systemctl &> /dev/null; then
+                    local timers
+                    timers=$(systemctl list-timers 2> /dev/null | grep -c "rsr-backup" || echo "0")
+                    echo "  Systemd timers: $timers"
+                fi
+                local cron_jobs
+                cron_jobs=$(crontab -l 2> /dev/null | grep -c "rsr backup" || echo "0")
+                echo "  Cron jobs: $cron_jobs"
+                ;;
+        esac
+    fi
+}
+
+# =============================================================================
 # Command: profile
 # =============================================================================
 
@@ -823,7 +896,7 @@ cmd_profile_list() {
     print_header "Backup Profiles"
 
     local profiles
-    profiles=$(rsr_backup_list_profiles 2>/dev/null)
+    profiles=$(rsr_backup_list_profiles 2> /dev/null)
 
     if [[ -z "$profiles" ]]; then
         log_warn "No profiles configured"
@@ -939,7 +1012,7 @@ cmd_schedule() {
             cmd_schedule_launchd
             ;;
         linux)
-            if command -v systemctl &>/dev/null; then
+            if command -v systemctl &> /dev/null; then
                 cmd_schedule_systemd
             else
                 cmd_schedule_cron
@@ -970,7 +1043,7 @@ cmd_schedule_launchd() {
 
     rsr_backup_generate_launchd "$PROFILE_NAME" "$hour" "$minute" > "$plist_file"
 
-    launchctl load "$plist_file" 2>/dev/null || true
+    launchctl load "$plist_file" 2> /dev/null || true
 
     log_ok "Created launchd job: $plist_file"
     log_info "To start immediately: launchctl start com.rsr.backup.${PROFILE_NAME}"
@@ -1020,7 +1093,10 @@ cmd_schedule_cron() {
         return
     fi
 
-    (crontab -l 2>/dev/null | grep -v "rsr backup.*--profile $PROFILE_NAME"; echo "$cron_entry") | crontab -
+    (
+        crontab -l 2> /dev/null | grep -v "rsr backup.*--profile $PROFILE_NAME"
+        echo "$cron_entry"
+    ) | crontab -
 
     log_ok "Added cron job for profile: $PROFILE_NAME"
 }
@@ -1057,6 +1133,449 @@ cmd_install() {
 }
 
 # =============================================================================
+# Command: wrapper
+# =============================================================================
+
+cmd_wrapper() {
+    # Delegate to backup-wrappers.sh
+    local wrapper_script="${SCRIPT_DIR}/backup-wrappers.sh"
+
+    if [[ ! -f "$wrapper_script" ]]; then
+        log_error "Wrapper script not found: $wrapper_script"
+        exit 1
+    fi
+
+    # Build arguments
+    local args=()
+
+    # Pass subcommand if given via PROFILE_SUBCOMMAND
+    [[ -n "${PROFILE_SUBCOMMAND:-}" ]] && args+=("$PROFILE_SUBCOMMAND")
+
+    # Pass wrapper name if given
+    [[ -n "${PROFILE_NAME:-}" ]] && args+=("$PROFILE_NAME")
+
+    # Pass flags
+    [[ "$VERBOSE" == "true" ]] && args+=("-v")
+    [[ "$QUIET" == "true" ]] && args+=("-q")
+    [[ "$DRY_RUN" == "true" ]] && args+=("-d")
+
+    # Execute wrapper script
+    bash "$wrapper_script" "${args[@]}"
+}
+
+# =============================================================================
+# Wrapper Auto-Detection (for 'run' command)
+# =============================================================================
+
+detect_wrapper_config() {
+    # Check if any config-driven wrapper has a config file
+    local wrappers=(
+        "autorestic:$HOME/.autorestic.yml"
+        "borgmatic:$HOME/.config/borgmatic/config.yaml"
+        "resticprofile:$HOME/.config/resticprofile/profiles.yaml"
+    )
+
+    for entry in "${wrappers[@]}"; do
+        local wrapper="${entry%%:*}"
+        local config="${entry#*:}"
+
+        if [[ -f "$config" ]] && command -v "$wrapper" &> /dev/null; then
+            echo "$wrapper"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+run_with_wrapper() {
+    local wrapper="$1"
+    local wrapper_script="${SCRIPT_DIR}/backup-wrappers.sh"
+
+    log_info "Using config-driven wrapper: $wrapper"
+
+    local args=("run" "$wrapper")
+    [[ "$VERBOSE" == "true" ]] && args+=("-v")
+    [[ "$DRY_RUN" == "true" ]] && args+=("-d")
+    [[ -n "${PROFILE_NAME:-}" ]] && args+=("-p" "$PROFILE_NAME")
+
+    bash "$wrapper_script" "${args[@]}"
+}
+
+# =============================================================================
+# Command: interactive
+# =============================================================================
+
+cmd_interactive() {
+    while true; do
+        clear
+        echo ""
+        echo -e "${BOLD}${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${BOLD}${CYAN}║               RSR Unified Backup System                      ║${NC}"
+        echo -e "${BOLD}${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}"
+        echo ""
+        echo "  [1] Check backup status"
+        echo "  [2] Run backup"
+        echo "  [3] Restore from backup"
+        echo "  [4] List backups/snapshots"
+        echo "  [5] Manage profiles"
+        echo "  [6] Initialize repository"
+        echo "  [7] Verify backup"
+        echo "  [8] Apply retention policy"
+        echo "  [9] Schedule backup"
+        echo "  [0] Install backup tool"
+        echo "  [q] Quit"
+        echo ""
+        read -rp "Select an option: " choice
+
+        case "$choice" in
+            1)
+                cmd_status
+                read -rp "Press Enter to continue..."
+                ;;
+            2)
+                interactive_backup
+                read -rp "Press Enter to continue..."
+                ;;
+            3)
+                interactive_restore
+                read -rp "Press Enter to continue..."
+                ;;
+            4)
+                interactive_list
+                read -rp "Press Enter to continue..."
+                ;;
+            5)
+                interactive_profiles
+                ;;
+            6)
+                interactive_init
+                read -rp "Press Enter to continue..."
+                ;;
+            7)
+                interactive_verify
+                read -rp "Press Enter to continue..."
+                ;;
+            8)
+                interactive_prune
+                read -rp "Press Enter to continue..."
+                ;;
+            9)
+                interactive_schedule
+                read -rp "Press Enter to continue..."
+                ;;
+            0)
+                interactive_install
+                read -rp "Press Enter to continue..."
+                ;;
+            q | Q)
+                echo -e "\n${GREEN}Goodbye!${NC}"
+                exit 0
+                ;;
+            *)
+                log_warn "Invalid option"
+                sleep 1
+                ;;
+        esac
+    done
+}
+
+interactive_select_tool() {
+    echo ""
+    echo "Available backup tools:"
+    echo ""
+
+    local tools
+    tools=$(rsr_backup_list_tools)
+    local i=1
+    local tool_array=()
+
+    for tool_info in $tools; do
+        local tool="${tool_info%%:*}"
+        local version="${tool_info#*:}"
+        echo "  [$i] $tool (v$version)"
+        tool_array+=("$tool")
+        ((i++))
+    done
+
+    echo "  [a] Auto-detect best tool"
+    echo ""
+
+    read -rp "Select tool: " tool_choice
+
+    if [[ "$tool_choice" == "a" ]]; then
+        TOOL=$(detect_best_tool)
+    elif [[ "$tool_choice" =~ ^[0-9]+$ ]] && ((tool_choice >= 1 && tool_choice <= ${#tool_array[@]})); then
+        TOOL="${tool_array[$((tool_choice - 1))]}"
+    else
+        TOOL=$(detect_best_tool)
+    fi
+
+    log_info "Selected tool: $TOOL"
+}
+
+interactive_backup() {
+    print_header "Interactive Backup"
+
+    # Check for profiles first
+    local profiles
+    profiles=$(rsr_backup_list_profiles 2> /dev/null)
+
+    if [[ -n "$profiles" ]]; then
+        echo "Use existing profile?"
+        echo ""
+        local i=1
+        local profile_array=()
+        while IFS= read -r profile; do
+            echo "  [$i] $profile"
+            profile_array+=("$profile")
+            ((i++))
+        done <<< "$profiles"
+        echo "  [n] Create new backup"
+        echo ""
+
+        read -rp "Select: " profile_choice
+
+        if [[ "$profile_choice" != "n" ]] && [[ "$profile_choice" =~ ^[0-9]+$ ]]; then
+            if ((profile_choice >= 1 && profile_choice <= ${#profile_array[@]})); then
+                PROFILE_NAME="${profile_array[$((profile_choice - 1))]}"
+                cmd_profile_run
+                return
+            fi
+        fi
+    fi
+
+    # New backup
+    interactive_select_tool
+
+    echo ""
+    read -rp "Source path: " source_path
+    [[ -z "$source_path" ]] && {
+        log_error "Source required"
+        return
+    }
+    SOURCE_PATHS=("$source_path")
+
+    read -rp "Destination path: " DEST_PATH
+    [[ -z "$DEST_PATH" ]] && {
+        log_error "Destination required"
+        return
+    }
+
+    read -rp "Exclude patterns (comma-separated, or empty): " exclude_input
+    if [[ -n "$exclude_input" ]]; then
+        IFS=',' read -ra EXCLUDE_PATTERNS <<< "$exclude_input"
+    fi
+
+    read -rp "Dry run? (y/N): " dry_run_choice
+    [[ "$dry_run_choice" =~ ^[Yy] ]] && DRY_RUN=true
+
+    cmd_run
+}
+
+interactive_restore() {
+    print_header "Interactive Restore"
+
+    interactive_select_tool
+
+    echo ""
+    read -rp "Repository/backup path: " DEST_PATH
+    [[ -z "$DEST_PATH" ]] && {
+        log_error "Repository required"
+        return
+    }
+
+    read -rp "Snapshot ID (or 'latest'): " SNAPSHOT_ID
+    [[ -z "$SNAPSHOT_ID" ]] && SNAPSHOT_ID="latest"
+
+    read -rp "Restore target path: " TARGET_PATH
+    [[ -z "$TARGET_PATH" ]] && {
+        log_error "Target required"
+        return
+    }
+
+    cmd_restore
+}
+
+interactive_list() {
+    print_header "List Backups"
+
+    interactive_select_tool
+
+    echo ""
+    read -rp "Repository path: " DEST_PATH
+    [[ -z "$DEST_PATH" ]] && {
+        log_error "Repository required"
+        return
+    }
+
+    cmd_list
+}
+
+interactive_init() {
+    print_header "Initialize Repository"
+
+    interactive_select_tool
+
+    echo ""
+    read -rp "Repository path: " DEST_PATH
+    [[ -z "$DEST_PATH" ]] && {
+        log_error "Repository required"
+        return
+    }
+
+    if [[ "$TOOL" == "restic" ]] || [[ "$TOOL" == "borg" ]] || [[ "$TOOL" == "kopia" ]]; then
+        read -rsp "Encryption password (optional): " PASSWORD
+        echo ""
+    fi
+
+    cmd_init
+}
+
+interactive_verify() {
+    print_header "Verify Backup"
+
+    interactive_select_tool
+
+    echo ""
+    read -rp "Repository path: " DEST_PATH
+    [[ -z "$DEST_PATH" ]] && {
+        log_error "Repository required"
+        return
+    }
+
+    cmd_verify
+}
+
+interactive_prune() {
+    print_header "Apply Retention Policy"
+
+    interactive_select_tool
+
+    echo ""
+    read -rp "Repository path: " DEST_PATH
+    [[ -z "$DEST_PATH" ]] && {
+        log_error "Repository required"
+        return
+    }
+
+    read -rp "Keep daily backups [$KEEP_DAILY]: " keep_daily_input
+    [[ -n "$keep_daily_input" ]] && KEEP_DAILY="$keep_daily_input"
+
+    read -rp "Keep weekly backups [$KEEP_WEEKLY]: " keep_weekly_input
+    [[ -n "$keep_weekly_input" ]] && KEEP_WEEKLY="$keep_weekly_input"
+
+    read -rp "Keep monthly backups [$KEEP_MONTHLY]: " keep_monthly_input
+    [[ -n "$keep_monthly_input" ]] && KEEP_MONTHLY="$keep_monthly_input"
+
+    cmd_prune
+}
+
+interactive_profiles() {
+    while true; do
+        clear
+        echo ""
+        echo -e "${BOLD}Profile Management${NC}"
+        echo ""
+        echo "  [1] List profiles"
+        echo "  [2] Create profile"
+        echo "  [3] Run profile"
+        echo "  [4] Delete profile"
+        echo "  [b] Back to main menu"
+        echo ""
+
+        read -rp "Select: " profile_action
+
+        case "$profile_action" in
+            1)
+                cmd_profile_list
+                read -rp "Press Enter to continue..."
+                ;;
+            2)
+                echo ""
+                read -rp "Profile name: " PROFILE_NAME
+                [[ -z "$PROFILE_NAME" ]] && continue
+
+                interactive_select_tool
+
+                read -rp "Source path: " source_path
+                SOURCE_PATHS=("$source_path")
+
+                read -rp "Destination path: " DEST_PATH
+
+                cmd_profile_create
+                read -rp "Press Enter to continue..."
+                ;;
+            3)
+                echo ""
+                cmd_profile_list
+                echo ""
+                read -rp "Profile name to run: " PROFILE_NAME
+                [[ -n "$PROFILE_NAME" ]] && cmd_profile_run
+                read -rp "Press Enter to continue..."
+                ;;
+            4)
+                echo ""
+                cmd_profile_list
+                echo ""
+                read -rp "Profile name to delete: " PROFILE_NAME
+                [[ -n "$PROFILE_NAME" ]] && cmd_profile_delete
+                read -rp "Press Enter to continue..."
+                ;;
+            b | B)
+                return
+                ;;
+        esac
+    done
+}
+
+interactive_schedule() {
+    print_header "Schedule Backup"
+
+    echo "Available profiles:"
+    cmd_profile_list
+    echo ""
+
+    read -rp "Profile name: " PROFILE_NAME
+    [[ -z "$PROFILE_NAME" ]] && {
+        log_error "Profile required"
+        return
+    }
+
+    read -rp "Time (HH:MM) [$SCHEDULE_TIME]: " time_input
+    [[ -n "$time_input" ]] && SCHEDULE_TIME="$time_input"
+
+    cmd_schedule
+}
+
+interactive_install() {
+    print_header "Install Backup Tool"
+
+    echo "Available tools to install:"
+    echo ""
+    echo "  [1] restic - Fast, secure, deduplicated backups"
+    echo "  [2] rclone - Cloud storage swiss army knife"
+    echo "  [3] borg - Deduplicating archiver with compression"
+    echo "  [4] kopia - Fast, encrypted, deduplicated backups"
+    echo ""
+
+    read -rp "Select tool to install: " install_choice
+
+    case "$install_choice" in
+        1) PROFILE_NAME="restic" ;;
+        2) PROFILE_NAME="rclone" ;;
+        3) PROFILE_NAME="borg" ;;
+        4) PROFILE_NAME="kopia" ;;
+        *)
+            log_error "Invalid choice"
+            return
+            ;;
+    esac
+
+    cmd_install
+}
+
+# =============================================================================
 # Main
 # =============================================================================
 
@@ -1064,28 +1583,31 @@ main() {
     parse_args "$@"
 
     case "$COMMAND" in
-        status|"")
+        status | "")
             cmd_status
             ;;
-        run|backup)
+        run | backup)
             cmd_run
             ;;
         restore)
             cmd_restore
             ;;
-        list|snapshots)
+        list | snapshots)
             cmd_list
             ;;
-        init|initialize)
+        init | initialize)
             cmd_init
             ;;
-        verify|check)
+        verify | check)
             cmd_verify
             ;;
-        prune|cleanup|retention)
+        prune | cleanup | retention)
             cmd_prune
             ;;
-        profile|profiles)
+        health | healthcheck | diagnose)
+            cmd_health
+            ;;
+        profile | profiles)
             cmd_profile
             ;;
         schedule)
@@ -1093,6 +1615,12 @@ main() {
             ;;
         install)
             cmd_install
+            ;;
+        wrapper | wrappers)
+            cmd_wrapper
+            ;;
+        interactive | menu)
+            cmd_interactive
             ;;
         *)
             log_error "Unknown command: $COMMAND"
@@ -1107,4 +1635,3 @@ main() {
 # =============================================================================
 
 main "$@"
-

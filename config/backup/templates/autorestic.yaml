@@ -1,0 +1,211 @@
+# autorestic.yaml - Autorestic Configuration Template
+# Documentation: https://autorestic.vercel.app
+#
+# Usage:
+#   autorestic backup -a              # Backup all locations
+#   autorestic backup -l home         # Backup specific location
+#   autorestic restore -l home        # Restore from backup
+#   autorestic exec -a -- snapshots   # Run restic command
+#
+# Install: brew install autorestic restic
+#          curl -s https://raw.githubusercontent.com/cupcakearmy/autorestic/master/install.sh | bash
+
+version: 2
+
+# =============================================================================
+# Global Settings
+# =============================================================================
+
+global:
+  # Default options applied to all backends
+  forget:
+    keep-daily: 7
+    keep-weekly: 4
+    keep-monthly: 6
+    keep-yearly: 1
+  # Default backup options
+  options:
+    backup:
+      exclude-caches: true
+
+# =============================================================================
+# Backends (Backup Destinations)
+# =============================================================================
+
+backends:
+  # Local backup
+  local:
+    type: local
+    path: /backup/restic-repo
+    key: ${RESTIC_PASSWORD}
+
+  # External drive
+  external:
+    type: local
+    path: /Volumes/Backup/restic
+    key: ${RESTIC_PASSWORD}
+
+  # Remote SFTP
+  remote:
+    type: sftp
+    path: backup-server:/backup/${HOSTNAME}
+    key: ${RESTIC_PASSWORD}
+
+  # Amazon S3
+  s3:
+    type: s3
+    path: s3:s3.amazonaws.com/${BACKUP_BUCKET}/restic
+    key: ${RESTIC_PASSWORD}
+    env:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+
+  # Backblaze B2
+  b2:
+    type: b2
+    path: b2:${B2_BUCKET}:/restic
+    key: ${RESTIC_PASSWORD}
+    env:
+      B2_ACCOUNT_ID: ${B2_ACCOUNT_ID}
+      B2_ACCOUNT_KEY: ${B2_ACCOUNT_KEY}
+
+  # REST server
+  rest:
+    type: rest
+    path: rest:https://backup.example.com:8000/
+    key: ${RESTIC_PASSWORD}
+
+# =============================================================================
+# Locations (What to Backup)
+# =============================================================================
+
+locations:
+  # Home directory
+  home:
+    from: ${HOME}
+    to:
+      - local
+      - remote
+    cron: "0 2 * * *"  # Daily at 2 AM
+    forget: prune      # Apply retention after backup
+    options:
+      backup:
+        exclude:
+          - ".cache"
+          - ".local/share/Trash"
+          - "node_modules"
+          - ".npm"
+          - "__pycache__"
+          - "*.pyc"
+          - ".DS_Store"
+          - "Thumbs.db"
+          - ".venv"
+          - "venv"
+          - "*.log"
+          - "*.tmp"
+        exclude-caches: true
+        one-file-system: true
+    hooks:
+      before:
+        - echo "Starting home backup..."
+      after:
+        - echo "Home backup completed"
+      failure:
+        - echo "Home backup FAILED!" | mail -s "Backup Failed" admin@example.com
+
+  # Documents only (more frequent)
+  documents:
+    from: ${HOME}/Documents
+    to:
+      - local
+      - s3
+    cron: "0 */4 * * *"  # Every 4 hours
+    forget:
+      keep-hourly: 24
+      keep-daily: 7
+    options:
+      backup:
+        exclude:
+          - "*.tmp"
+          - "~$*"
+
+  # Development projects
+  projects:
+    from:
+      - ${HOME}/Developer
+      - ${HOME}/Projects
+    to:
+      - local
+      - remote
+    cron: "0 3 * * *"  # Daily at 3 AM
+    forget: prune
+    options:
+      backup:
+        exclude:
+          - "node_modules"
+          - "vendor"
+          - "target"
+          - "build"
+          - "dist"
+          - ".git/objects"
+          - "__pycache__"
+          - ".venv"
+
+  # Server configuration
+  server-config:
+    from:
+      - /etc
+      - /var/spool/cron
+    to:
+      - remote
+      - s3
+    cron: "0 1 * * *"  # Daily at 1 AM
+    forget:
+      keep-daily: 30
+      keep-weekly: 12
+      keep-monthly: 12
+    hooks:
+      before:
+        - dpkg --get-selections > /tmp/packages.list
+        - systemctl list-unit-files --state=enabled > /tmp/services.list
+      after:
+        - rm -f /tmp/packages.list /tmp/services.list
+
+  # Database dumps
+  databases:
+    from: /backup/databases
+    to:
+      - remote
+      - s3
+    cron: "30 1 * * *"  # Daily at 1:30 AM
+    forget:
+      keep-daily: 14
+      keep-weekly: 8
+    hooks:
+      before:
+        - /usr/local/bin/dump-databases.sh
+
+# =============================================================================
+# Example Commands
+# =============================================================================
+#
+# Initial setup:
+#   autorestic check                    # Verify config and init backends
+#
+# Backup operations:
+#   autorestic backup -a                # Backup all locations
+#   autorestic backup -l home           # Backup specific location
+#   autorestic backup -l home -v        # Verbose backup
+#
+# Restore operations:
+#   autorestic restore -l home --to /restore    # Restore latest
+#   autorestic restore -l home --to /restore --from s3  # From specific backend
+#
+# Maintenance:
+#   autorestic forget -a                # Apply retention policy
+#   autorestic exec -a -- snapshots     # List snapshots
+#   autorestic exec -a -- check         # Verify integrity
+#
+# Scheduling:
+#   autorestic cron                     # Setup cron jobs from config
+

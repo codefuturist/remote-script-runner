@@ -140,6 +140,7 @@ teardown() {
 ### Available Assertions
 
 From `bats-assert`:
+
 - `assert_success` - Exit code is 0
 - `assert_failure` - Exit code is non-zero
 - `assert_equal expected actual` - Values are equal
@@ -149,6 +150,7 @@ From `bats-assert`:
 - `refute_output --partial text` - Output does NOT contain
 
 From `bats-file`:
+
 - `assert_file_exist path`
 - `assert_file_not_exist path`
 - `assert_dir_exist path`
@@ -193,7 +195,7 @@ temp_file "content here"
 @test "detects apt package manager" {
     # Create mock apt-get that returns success
     mock_command "apt-get" "apt-get mock output" 0
-    
+
     run bash "$SCRIPT_DIR/disk-cleanup.sh" -d -s cache
     assert_success
     assert_output --partial "APT"
@@ -202,9 +204,9 @@ temp_file "content here"
 @test "captures mysqldump arguments" {
     # Create mock that logs its arguments
     mock_command_capture "mysqldump" "-- MySQL dump"
-    
+
     run bash "$SCRIPT_DIR/database-backup.sh" --mysql -A --dry-run
-    
+
     # Verify mock was called with expected arguments
     assert_mock_called_with "mysqldump" "--all-databases"
 }
@@ -227,6 +229,7 @@ Fixtures are located in `test/fixtures/`:
 ### Unit Tests (`test/unit/`)
 
 Test individual scripts in isolation:
+
 - Argument parsing (valid/invalid inputs)
 - Help output validation
 - Option handling
@@ -237,6 +240,7 @@ Test individual scripts in isolation:
 ### Integration Tests (`test/integration/`)
 
 Test how components work together:
+
 - `rsr-cli.bats` - Main CLI command discovery and execution
 - `registry.bats` - Registry validation and script existence
 - `common-lib.bats` - Shared library functions
@@ -246,10 +250,12 @@ Test how components work together:
 The test suite runs automatically on GitHub Actions when you push to `main` or `develop` branches, or create a pull request.
 
 Tests run on:
+
 - Ubuntu (latest)
 - macOS (latest)
 
 The CI workflow:
+
 1. Runs ShellCheck for static analysis
 2. Validates bash syntax
 3. Runs unit tests
@@ -290,6 +296,7 @@ See `.github/workflows/test.yml` for configuration.
 ### Tests fail with "command not found: bats"
 
 Install BATS:
+
 ```bash
 # macOS
 brew install bats-core
@@ -304,6 +311,7 @@ git submodule update --init --recursive
 ### Tests fail on Linux but pass on macOS (or vice versa)
 
 Use platform detection:
+
 ```bash
 @test "linux-specific test" {
     is_linux || skip "Linux only"
@@ -314,6 +322,7 @@ Use platform detection:
 ### Mock not being used
 
 Ensure setup function initializes test environment:
+
 ```bash
 setup() {
     setup_test_env  # This adds mocks to PATH
@@ -323,6 +332,7 @@ setup() {
 ### Tests are slow
 
 Use parallel execution:
+
 ```bash
 ./test/run_tests.sh -j 4  # Run with 4 parallel jobs
 ```
@@ -330,11 +340,13 @@ Use parallel execution:
 ### Need to debug a test
 
 Run with verbose output:
+
 ```bash
 ./test/run_tests.sh --verbose test/unit/disk-cleanup.bats
 ```
 
 Or add debug output in tests:
+
 ```bash
 @test "debugging example" {
     run some_command
@@ -360,6 +372,7 @@ When adding a new script:
 5. Add to CI if needed
 
 Template:
+
 ```bash
 #!/usr/bin/env bats
 
@@ -389,4 +402,3 @@ teardown() {
     assert_file_executable "$SCRIPT_DIR/script-name.sh"
 }
 ```
-

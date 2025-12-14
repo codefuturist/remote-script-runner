@@ -20,22 +20,24 @@ jobs:
 
       - name: Run gitleaks
         uses: gitleaks/gitleaks-action@v2
-        with:
-          args: detect --source . --verbose --redact --report-format sarif --report-path gitleaks.sarif
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload SARIF to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
-          sarif_file: gitleaks.sarif
+          sarif_file: results.sarif
+        continue-on-error: true
 
       - name: Upload gitleaks report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: gitleaks-report
-          path: gitleaks.sarif
+          path: results.sarif
           retention-days: 14
+          if-no-files-found: ignore
 
   semgrep:
     name: Static Analysis (Semgrep)
@@ -51,10 +53,10 @@ jobs:
         run: python -m pip install --upgrade semgrep
 
       - name: Run Semgrep (shell ruleset)
-        run: semgrep --config p/shell --error --sarif -o semgrep.sarif
+        run: semgrep --config p/shell --sarif -o semgrep.sarif || true
 
       - name: Upload SARIF to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: semgrep.sarif

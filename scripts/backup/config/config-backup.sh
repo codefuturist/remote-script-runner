@@ -16,7 +16,7 @@ set -eo pipefail
 # Source interactive utilities if available
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -944,14 +944,14 @@ restore_backup() {
 
 run_interactive() {
     print_interactive_header "$SCRIPT_NAME" "$SCRIPT_VERSION"
-    
+
     # Main action selection
     local action
     action=$(prompt_select "What would you like to do?" \
         "Backup configurations" \
         "Restore from backup" \
         "List existing backups")
-    
+
     case "$action" in
         "Backup configurations")
             interactive_backup
@@ -967,7 +967,7 @@ run_interactive() {
 
 interactive_backup() {
     echo ""
-    
+
     # Section selection
     local all_sections=("etc" "packages" "crontabs" "systemd" "ssh" "nginx" "apache" "database")
     local section_labels=(
@@ -980,12 +980,12 @@ interactive_backup() {
         "Apache configuration"
         "Database configs (not data)"
     )
-    
+
     local scope
     scope=$(prompt_select "What would you like to backup?" \
         "Everything (all sections)" \
         "Select specific sections")
-    
+
     if [[ "$scope" == "Everything (all sections)" ]]; then
         SECTIONS=("${all_sections[@]}")
     else
@@ -993,7 +993,7 @@ interactive_backup() {
         local selected
         selected=$(prompt_multiselect "Select sections to backup:" \
             "${section_labels[@]}")
-        
+
         # Map selections back to section names
         SECTIONS=()
         local i=0
@@ -1003,33 +1003,33 @@ interactive_backup() {
             fi
             ((i++)) || true
         done
-        
+
         if [[ ${#SECTIONS[@]} -eq 0 ]]; then
             log_error "No sections selected"
             return 1
         fi
     fi
-    
+
     echo ""
-    
+
     # Output directory
     local output
     output=$(prompt_input "Output directory" "$OUTPUT_DIR")
     OUTPUT_DIR="$output"
-    
+
     echo ""
-    
+
     # Compression
     local compress_choice
     compress_choice=$(prompt_select "Compression method:" \
         "gzip (fast, good compression)" \
         "xz (slower, best compression)" \
         "none (no compression)")
-    
+
     COMPRESS=$(echo "$compress_choice" | cut -d' ' -f1)
-    
+
     echo ""
-    
+
     # Encryption
     if prompt_yes_no "Encrypt backup with GPG?" "n"; then
         DO_ENCRYPT=true
@@ -1037,7 +1037,7 @@ interactive_backup() {
         key=$(prompt_input "GPG key ID (email or key ID, leave empty for symmetric)" "")
         [[ -n "$key" ]] && GPG_KEY="$key"
     fi
-    
+
     # Summary
     echo ""
     log_info "Backup configuration:"
@@ -1046,7 +1046,7 @@ interactive_backup() {
     echo -e "  ${CYAN}•${NC} Compression: $COMPRESS"
     [[ "$DO_ENCRYPT" == "true" ]] && echo -e "  ${CYAN}•${NC} Encryption: Yes"
     echo ""
-    
+
     if prompt_yes_no "Start backup?" "y"; then
         # Continue to run backup
         return 0
@@ -1058,41 +1058,41 @@ interactive_backup() {
 
 interactive_restore() {
     echo ""
-    
+
     # List available backups
     log_info "Available backups in $OUTPUT_DIR:"
     echo ""
-    
+
     local backups
-    backups=$(find "$OUTPUT_DIR" -maxdepth 1 -type f \( -name "backup-*.tar*" -o -name "*.gpg" \) 2>/dev/null | sort -r | head -10)
-    
+    backups=$(find "$OUTPUT_DIR" -maxdepth 1 -type f \( -name "backup-*.tar*" -o -name "*.gpg" \) 2> /dev/null | sort -r | head -10)
+
     if [[ -z "$backups" ]]; then
         log_warn "No backups found in $OUTPUT_DIR"
         return 0
     fi
-    
+
     echo "$backups" | while read -r backup; do
         local size
-        size=$(ls -lh "$backup" 2>/dev/null | awk '{print $5}')
+        size=$(ls -lh "$backup" 2> /dev/null | awk '{print $5}')
         echo -e "  ${CYAN}•${NC} $(basename "$backup") ($size)"
     done
-    
+
     echo ""
     local restore_path
     restore_path=$(prompt_input "Enter backup file path to restore" "")
-    
+
     if [[ -z "$restore_path" || ! -f "$restore_path" ]]; then
         log_error "Invalid file path"
         return 1
     fi
-    
+
     RESTORE_FILE="$restore_path"
-    
+
     echo ""
     if confirm_destructive "This will restore configuration files and may overwrite existing files"; then
         restore_backup "$RESTORE_FILE"
     fi
-    
+
     exit 0
 }
 
@@ -1111,7 +1111,7 @@ main() {
     fi
 
     # Run interactive mode if enabled
-    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &> /dev/null && rsr_is_interactive; then
         run_interactive
     fi
 

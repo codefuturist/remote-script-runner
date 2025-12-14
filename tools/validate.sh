@@ -260,7 +260,7 @@ check_orphan_scripts() {
 generate_get_script_path() {
     local script_count
     script_count=$(jq '.scripts | length' "$REGISTRY_FILE")
-    
+
     cat << 'EOF'
 get_script_path() {
     script_name="$1"
@@ -274,20 +274,20 @@ EOF
         id=$(jq -r ".scripts[$i].id" "$REGISTRY_FILE")
         name=$(jq -r ".scripts[$i].name" "$REGISTRY_FILE")
         default_shell=$(jq -r ".scripts[$i].defaultShell // \"bash\"" "$REGISTRY_FILE")
-        
+
         # Get shell variants
         local shells
-        shells=$(jq -r ".scripts[$i].shells | keys[]" "$REGISTRY_FILE" 2>/dev/null || echo "bash")
-        
+        shells=$(jq -r ".scripts[$i].shells | keys[]" "$REGISTRY_FILE" 2> /dev/null || echo "bash")
+
         echo "        $id)"
         echo "            case \"\$shell_type\" in"
-        
+
         for shell in $shells; do
             local path
             path=$(jq -r ".scripts[$i].shells.$shell" "$REGISTRY_FILE")
             echo "                $shell) echo \"$path\" ;;"
         done
-        
+
         # Default fallback
         local default_path
         default_path=$(jq -r ".scripts[$i].shells.$default_shell // .scripts[$i].shells | to_entries[0].value" "$REGISTRY_FILE")
@@ -309,39 +309,39 @@ EOF
 generate_main_routing() {
     local script_count
     script_count=$(jq '.scripts | length' "$REGISTRY_FILE")
-    
+
     local routes=""
-    
+
     for ((i = 0; i < script_count; i++)); do
         local id name
         id=$(jq -r ".scripts[$i].id" "$REGISTRY_FILE")
         name=$(jq -r ".scripts[$i].name" "$REGISTRY_FILE")
-        
+
         # Build case pattern with aliases
         local pattern="$id"
         [ "$id" != "$name" ] && pattern="$id | $name"
-        
+
         routes+="        $pattern)\n"
         routes+="            run_script \"$id\" \"\$@\"\n"
         routes+="            ;;\n"
     done
-    
+
     echo -e "$routes"
 }
 
 # Update rsr file with generated content
 update_rsr_file() {
     log_info "Updating rsr file..."
-    
+
     if [ ! -f "$RSR_FILE" ]; then
         log_error "rsr file not found: $RSR_FILE"
         return 1
     fi
-    
+
     # Create backup
     local backup_file="${RSR_FILE}.bak"
     cp "$RSR_FILE" "$backup_file"
-    
+
     local temp_file
     temp_file=$(mktemp)
     local in_get_script_path=false
@@ -349,11 +349,11 @@ update_rsr_file() {
     local brace_count=0
     local skip_until_esac=false
     local found_script_routing=false
-    
+
     # Generate new content
     local new_get_script_path
     new_get_script_path=$(generate_get_script_path)
-    
+
     # Read the file and replace get_script_path function
     while IFS= read -r line || [[ -n "$line" ]]; do
         # Detect start of get_script_path function
@@ -363,26 +363,26 @@ update_rsr_file() {
             echo "$new_get_script_path" >> "$temp_file"
             continue
         fi
-        
+
         # Track braces inside get_script_path
         if $in_get_script_path; then
             [[ "$line" == *"{"* ]] && brace_count=$((brace_count + 1))
             [[ "$line" == *"}"* ]] && brace_count=$((brace_count - 1))
-            
+
             # End of function
             if [[ $brace_count -eq 0 && "$line" == "}" ]]; then
                 in_get_script_path=false
             fi
             continue
         fi
-        
+
         echo "$line" >> "$temp_file"
     done < "$RSR_FILE"
-    
+
     if $DRY_RUN; then
         log_info "Dry run - showing diff:"
         echo ""
-        if command -v diff &>/dev/null; then
+        if command -v diff &> /dev/null; then
             diff --color=auto -u "$RSR_FILE" "$temp_file" || true
         else
             log_info "Install 'diff' to see changes"
@@ -400,19 +400,19 @@ update_rsr_file() {
 show_update_preview() {
     log_info "Preview of updates from registry.json:"
     echo ""
-    
+
     local script_count
     script_count=$(jq '.scripts | length' "$REGISTRY_FILE")
-    
+
     printf "  ${DIM}%-12s %-25s %s${NC}\n" "ID" "Name" "Shells"
     printf "  ${DIM}%-12s %-25s %s${NC}\n" "---" "----" "------"
-    
+
     for ((i = 0; i < script_count; i++)); do
         local id name shells
         id=$(jq -r ".scripts[$i].id" "$REGISTRY_FILE")
         name=$(jq -r ".scripts[$i].name" "$REGISTRY_FILE")
         shells=$(jq -r ".scripts[$i].shells | keys | join(\", \")" "$REGISTRY_FILE")
-        
+
         printf "  %-12s %-25s %s\n" "$id" "$name" "$shells"
     done
     echo ""

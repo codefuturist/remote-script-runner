@@ -64,6 +64,7 @@ Start-RSRPackageWizard
 ```
 
 **Wizard Flow:**
+
 1. Select a profile (core, development, infrastructure, etc.)
 2. Optionally select specific groups within the profile
 3. Review installation summary
@@ -287,6 +288,7 @@ sudo ./scripts/packages/setup-powershell-repo.sh --remove
 ```
 
 **Supported Linux distributions:**
+
 - Ubuntu 20.04, 22.04, 24.04
 - Debian 10, 11, 12
 - RHEL/CentOS 7, 8, 9
@@ -320,6 +322,7 @@ rsr_pkg_bootstrap
 ```
 
 The bootstrap process:
+
 1. Detects missing core tools (sed, grep, awk)
 2. Installs them using the detected package manager
 3. Uses a pure-shell YAML parser that requires no external dependencies
@@ -512,7 +515,7 @@ packages:
   # Simple format still works
   - git
   - vim
-  
+
   # Extended format with multiple methods
   - name: kubectl
     brew: kubectl
@@ -520,7 +523,7 @@ packages:
     choco: kubernetes-cli
     apt: kubectl
     dnf: kubectl
-  
+
   # Partial method specification
   - name: neovim
     brew: neovim
@@ -529,6 +532,7 @@ packages:
 ```
 
 **How it works:**
+
 - System tries available methods in order until one succeeds
 - Falls back to detected package manager if no method specified
 - Logs which method was used for each package
@@ -545,7 +549,7 @@ packages:              # Main packages to install
   # Simple format (backward compatible)
   - package1
   - package2
-  
+
   # Extended format with multiple installation methods
   - name: package3
     brew: brew-package-name
@@ -558,7 +562,7 @@ packages:              # Main packages to install
 
 optional:              # Optional packages (not installed by default)
   - opt-package1
-  
+
   # Can also use extended format in optional
   - name: opt-package2
     brew: opt-brew-pkg
@@ -569,15 +573,15 @@ platforms:             # Platform-specific overrides
     packages: []       # Additional packages
     skip: []           # Packages to skip
     note: string       # Platform note
-  
+
   debian:              # Debian/Ubuntu
     packages: []
     skip: []
-  
+
   rhel:                # RHEL/CentOS/Fedora
     packages: []
     skip: []
-  
+
   alpine:              # Alpine Linux
     packages: []
     skip: []
@@ -604,6 +608,7 @@ packages:
 ```
 
 **Benefits:**
+
 - Cross-platform profiles work on macOS, Linux, and Windows
 - Automatic fallback if preferred method unavailable
 - Package names can differ per platform (e.g., `fd` vs `fd-find`)
@@ -720,4 +725,3 @@ docker --version
   args:
     chdir: /opt/remote-script-runner
 ```
-

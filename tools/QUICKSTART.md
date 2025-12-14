@@ -94,6 +94,7 @@ fi
 ## Understanding Package Managers
 
 ### ✅ Fully Verifiable (850+ packages)
+
 - **brew**: Homebrew formulas (macOS/Linux)
 - **npm**: Node.js packages
 - **pip**: Python packages
@@ -103,6 +104,7 @@ fi
 - **krew**: kubectl plugins
 
 ### ⚠️ Unverifiable (570+ packages)
+
 - **apt**: Ubuntu/Debian (repo-dependent)
 - **dnf**: Fedora/RHEL (repo-dependent)
 - **yum**: Legacy Fedora (repo-dependent)
@@ -114,11 +116,13 @@ These managers require specific repositories to be configured and cannot be veri
 ### "Package not found" but it exists
 
 **Possible reasons:**
+
 1. Typo in package name (case-sensitive)
 2. Package in third-party repository (e.g., Homebrew tap)
 3. Wrong package manager
 
 **Example fix:**
+
 ```yaml
 # ❌ Not found
 brew: kubectl

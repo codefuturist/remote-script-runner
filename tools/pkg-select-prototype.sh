@@ -39,7 +39,7 @@ declare -a PACKAGES=()
 declare -a DESCRIPTIONS=()
 declare -a SELECTED=()
 declare -a INSTALLED=()
-declare -a FILTERED_INDICES=()  # Indices into PACKAGES array that match filter
+declare -a FILTERED_INDICES=() # Indices into PACKAGES array that match filter
 CURRENT_INDEX=0
 SCROLL_OFFSET=0
 MAX_VISIBLE=15
@@ -59,11 +59,11 @@ detect_package_manager() {
         return
     fi
 
-    if command -v brew &>/dev/null; then
+    if command -v brew &> /dev/null; then
         PKG_MANAGER="brew"
-    elif command -v apt-get &>/dev/null; then
+    elif command -v apt-get &> /dev/null; then
         PKG_MANAGER="apt"
-    elif command -v dnf &>/dev/null; then
+    elif command -v dnf &> /dev/null; then
         PKG_MANAGER="dnf"
     else
         PKG_MANAGER="unknown"
@@ -79,13 +79,16 @@ build_installed_cache() {
     case "$mgr" in
         brew)
             # Get both formulae and casks in one go
-            INSTALLED_CACHE=$(brew list --formula -1 2>/dev/null; brew list --cask -1 2>/dev/null)
+            INSTALLED_CACHE=$(
+                brew list --formula -1 2> /dev/null
+                brew list --cask -1 2> /dev/null
+            )
             ;;
         apt)
-            INSTALLED_CACHE=$(dpkg-query -W -f='${Package}\n' 2>/dev/null)
+            INSTALLED_CACHE=$(dpkg-query -W -f='${Package}\n' 2> /dev/null)
             ;;
         dnf)
-            INSTALLED_CACHE=$(rpm -qa --qf '%{NAME}\n' 2>/dev/null)
+            INSTALLED_CACHE=$(rpm -qa --qf '%{NAME}\n' 2> /dev/null)
             ;;
         *)
             INSTALLED_CACHE=""
@@ -98,7 +101,7 @@ is_installed() {
 
     if [[ -z "$INSTALLED_CACHE" ]]; then
         # Fallback to command check if no cache
-        command -v "$pkg" &>/dev/null
+        command -v "$pkg" &> /dev/null
         return
     fi
 
@@ -126,7 +129,7 @@ parse_packages_from_yaml() {
     while IFS= read -r line || [[ -n "$line" ]]; do
         # Skip comments and empty
         [[ "$line" =~ ^[[:space:]]*# ]] && continue
-        [[ -z "${line// }" ]] && continue
+        [[ -z "${line// /}" ]] && continue
 
         # Check for groups section or specific group
         if [[ -n "$group" ]]; then
@@ -210,7 +213,7 @@ apply_filter() {
     local query_lower
     query_lower=$(echo "$SEARCH_QUERY" | tr '[:upper:]' '[:lower:]')
 
-    for ((i=0; i<${#PACKAGES[@]}; i++)); do
+    for ((i = 0; i < ${#PACKAGES[@]}; i++)); do
         if [[ -z "$SEARCH_QUERY" ]]; then
             FILTERED_INDICES+=($i)
         else
@@ -264,14 +267,14 @@ render_package_list() {
 
     if ((total == 0)); then
         printf "${CLEAR_LINE}  ${DIM}No packages match '${SEARCH_QUERY}'${NC}\n"
-        for ((i=1; i<MAX_VISIBLE; i++)); do
+        for ((i = 1; i < MAX_VISIBLE; i++)); do
             printf "${CLEAR_LINE}\n"
         done
         printf "\n\n"
         return
     fi
 
-    for ((vi=visible_start; vi<visible_end; vi++)); do
+    for ((vi = visible_start; vi < visible_end; vi++)); do
         local i=${FILTERED_INDICES[$vi]}
         local name="${PACKAGES[$i]}"
         local desc="${DESCRIPTIONS[$i]}"
@@ -315,7 +318,7 @@ render_package_list() {
     done
 
     # Pad remaining lines
-    for ((vi=visible_end; vi<visible_start + MAX_VISIBLE; vi++)); do
+    for ((vi = visible_end; vi < visible_start + MAX_VISIBLE; vi++)); do
         printf "${CLEAR_LINE}\n"
     done
 
@@ -335,7 +338,7 @@ render_package_list() {
 
 clear_package_list() {
     local lines=$((MAX_VISIBLE + 3))
-    for ((i=0; i<lines; i++)); do
+    for ((i = 0; i < lines; i++)); do
         printf "${CURSOR_UP}${CLEAR_LINE}"
     done
 }
@@ -354,19 +357,19 @@ handle_input() {
     # Search mode input handling
     if ((SEARCH_MODE == 1)); then
         case "$key" in
-            $'\x1b')  # Escape - exit search mode
+            $'\x1b') # Escape - exit search mode
                 SEARCH_MODE=0
                 ;;
-            $'\x7f'|$'\b')  # Backspace
+            $'\x7f' | $'\b') # Backspace
                 if [[ -n "$SEARCH_QUERY" ]]; then
                     SEARCH_QUERY="${SEARCH_QUERY%?}"
                     apply_filter
                 fi
                 ;;
-            '')  # Enter - confirm search and exit search mode
+            '') # Enter - confirm search and exit search mode
                 SEARCH_MODE=0
                 ;;
-            *)  # Add character to search
+            *) # Add character to search
                 if [[ "$key" =~ [[:print:]] ]]; then
                     SEARCH_QUERY+="$key"
                     apply_filter
@@ -378,16 +381,16 @@ handle_input() {
 
     # Normal mode input handling
     case "$key" in
-        $'\x1b')  # Escape sequence or clear filter
+        $'\x1b') # Escape sequence or clear filter
             read -rsn1 -t 0.01 seq_check
             if [[ -n "$seq_check" ]]; then
                 read -rsn1 seq_end
                 case "$seq_check$seq_end" in
-                    '[A')  # Up
+                    '[A') # Up
                         ((CURRENT_INDEX > 0)) && ((CURRENT_INDEX--))
                         ((CURRENT_INDEX < SCROLL_OFFSET)) && ((SCROLL_OFFSET--))
                         ;;
-                    '[B')  # Down
+                    '[B') # Down
                         ((CURRENT_INDEX < total - 1)) && ((CURRENT_INDEX++))
                         ((CURRENT_INDEX >= SCROLL_OFFSET + MAX_VISIBLE)) && ((SCROLL_OFFSET++))
                         ;;
@@ -400,18 +403,18 @@ handle_input() {
                 fi
             fi
             ;;
-        'k')  # Vim up
+        'k') # Vim up
             ((CURRENT_INDEX > 0)) && ((CURRENT_INDEX--))
             ((CURRENT_INDEX < SCROLL_OFFSET)) && ((SCROLL_OFFSET--))
             ;;
-        'j')  # Vim down
+        'j') # Vim down
             ((CURRENT_INDEX < total - 1)) && ((CURRENT_INDEX++))
             ((CURRENT_INDEX >= SCROLL_OFFSET + MAX_VISIBLE)) && ((SCROLL_OFFSET++))
             ;;
-        '/')  # Enter search mode
+        '/') # Enter search mode
             SEARCH_MODE=1
             ;;
-        ' ')  # Space - toggle selection
+        ' ') # Space - toggle selection
             if ((total > 0)); then
                 local real_idx=${FILTERED_INDICES[$CURRENT_INDEX]}
                 if ((SELECTED[real_idx] == 0)); then
@@ -421,7 +424,7 @@ handle_input() {
                 fi
             fi
             ;;
-        't'|'x')  # Alternative toggle keys
+        't' | 'x') # Alternative toggle keys
             if ((total > 0)); then
                 local real_idx=${FILTERED_INDICES[$CURRENT_INDEX]}
                 if ((SELECTED[real_idx] == 0)); then
@@ -431,20 +434,20 @@ handle_input() {
                 fi
             fi
             ;;
-        'a')  # Select all (visible/filtered)
+        'a') # Select all (visible/filtered)
             for idx in "${FILTERED_INDICES[@]}"; do
                 SELECTED[$idx]=1
             done
             ;;
-        'n')  # Select none (visible/filtered)
+        'n') # Select none (visible/filtered)
             for idx in "${FILTERED_INDICES[@]}"; do
                 SELECTED[$idx]=0
             done
             ;;
-        'q')  # Quit
+        'q') # Quit
             return 1
             ;;
-        '')  # Enter - confirm
+        '') # Enter - confirm
             return 2
             ;;
     esac
@@ -465,7 +468,7 @@ list_profiles() {
         [[ "$name" == "methods" || "$name" == "bootstrap" || "$name" == "example-multimethod" ]] && continue
 
         local desc
-        desc=$(grep -m1 '^description:' "$f" 2>/dev/null | sed 's/^description:[[:space:]]*//' | tr -d '"')
+        desc=$(grep -m1 '^description:' "$f" 2> /dev/null | sed 's/^description:[[:space:]]*//' | tr -d '"')
         printf "%-20s %s\n" "$name" "${desc:-}"
     done
 }
@@ -482,7 +485,7 @@ select_profile() {
 
         profiles+=("$name")
         local desc
-        desc=$(grep -m1 '^description:' "$f" 2>/dev/null | sed 's/^description:[[:space:]]*//' | tr -d '"')
+        desc=$(grep -m1 '^description:' "$f" 2> /dev/null | sed 's/^description:[[:space:]]*//' | tr -d '"')
         descs+=("${desc:-No description}")
     done
 
@@ -496,7 +499,7 @@ select_profile() {
     printf "${DIM}↑/↓ navigate | Enter select | q quit${NC}\n\n"
 
     while true; do
-        for ((i=0; i<total; i++)); do
+        for ((i = 0; i < total; i++)); do
             printf "${CLEAR_LINE}"
             if ((i == selected)); then
                 printf "  ${CYAN}❯${NC} ${REVERSE}%-18s${NC} ${DIM}%s${NC}\n" "${profiles[$i]}" "${descs[$i]}"
@@ -516,12 +519,15 @@ select_profile() {
                 ;;
             'k') ((selected > 0)) && ((selected--)) ;;
             'j') ((selected < total - 1)) && ((selected++)) ;;
-            'q') printf "${CURSOR_SHOW}"; exit 0 ;;
+            'q')
+                printf "${CURSOR_SHOW}"
+                exit 0
+                ;;
             '') break ;;
         esac
 
         # Move cursor up to redraw
-        for ((i=0; i<total; i++)); do
+        for ((i = 0; i < total; i++)); do
             printf "${CURSOR_UP}"
         done
     done
@@ -537,7 +543,7 @@ select_profile() {
 show_summary() {
     local -a to_install=()
 
-    for ((i=0; i<${#PACKAGES[@]}; i++)); do
+    for ((i = 0; i < ${#PACKAGES[@]}; i++)); do
         if ((SELECTED[i] == 1 && INSTALLED[i] == 0)); then
             to_install+=("${PACKAGES[$i]}")
         fi
@@ -567,15 +573,15 @@ run_install() {
 
     printf "\n${BOLD}Installing packages...${NC}\n"
 
-    for ((i=0; i<${#PACKAGES[@]}; i++)); do
+    for ((i = 0; i < ${#PACKAGES[@]}; i++)); do
         if ((SELECTED[i] == 1 && INSTALLED[i] == 0)); then
             local pkg="${PACKAGES[$i]}"
             printf "${BLUE}▸${NC} Installing %s..." "$pkg"
 
             case "$mgr" in
-                brew) brew install -q "$pkg" 2>/dev/null && printf " ${GREEN}done${NC}\n" || printf " ${RED}failed${NC}\n" ;;
-                apt) sudo apt-get install -y -qq "$pkg" 2>/dev/null && printf " ${GREEN}done${NC}\n" || printf " ${RED}failed${NC}\n" ;;
-                dnf) sudo dnf install -y -q "$pkg" 2>/dev/null && printf " ${GREEN}done${NC}\n" || printf " ${RED}failed${NC}\n" ;;
+                brew) brew install -q "$pkg" 2> /dev/null && printf " ${GREEN}done${NC}\n" || printf " ${RED}failed${NC}\n" ;;
+                apt) sudo apt-get install -y -qq "$pkg" 2> /dev/null && printf " ${GREEN}done${NC}\n" || printf " ${RED}failed${NC}\n" ;;
+                dnf) sudo dnf install -y -q "$pkg" 2> /dev/null && printf " ${GREEN}done${NC}\n" || printf " ${RED}failed${NC}\n" ;;
                 *) printf " ${YELLOW}skipped (unknown manager)${NC}\n" ;;
             esac
         fi

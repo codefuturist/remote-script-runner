@@ -4,6 +4,7 @@ description: Learn how to install and connect to remote machines using the OpenS
 source: https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell&pivots=windows-11
 ---
 # Get started with OpenSSH Server for Windows
+
 ![](open-graph-image.png)
 Learn how to install and connect to remote machines using the OpenSSH Client and Server for Windows.
 
@@ -48,13 +49,13 @@ To enable SSHD using PowerShell:
 Start-Service sshd
 ```
 
-2. You can also run the following optional but recommended cmdlet to automatically start SSHD to make sure it stays enabled:
+1. You can also run the following optional but recommended cmdlet to automatically start SSHD to make sure it stays enabled:
 
 ```
 Set-Service -Name sshd -StartupType 'Automatic'
 ```
 
-3. Finally, run the following command to verify that the SSHD setup process automatically configured the firewall rule:
+1. Finally, run the following command to verify that the SSHD setup process automatically configured the firewall rule:
 
 ```
 if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue)) {
@@ -66,6 +67,7 @@ if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyCon
 ```
 
 ⠀
+
 * [GUI](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell&pivots=windows-11#tabpanel_2_gui)
 * [PowerShell](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell&pivots=windows-11#tabpanel_2_powershell)
 To install OpenSSH using PowerShell:
@@ -78,7 +80,7 @@ To install OpenSSH using PowerShell:
 Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'
 ```
 
-2. The command should return the following output if neither are already installed:
+1. The command should return the following output if neither are already installed:
 
 ```
 Name  : OpenSSH.Client~~~~0.0.1.0
@@ -88,7 +90,7 @@ Name  : OpenSSH.Server~~~~0.0.1.0
 State : NotPresent
 ```
 
-3. After that, run the following cmdlets to install the server or client components as needed:
+1. After that, run the following cmdlets to install the server or client components as needed:
 
 ```
 # Install the OpenSSH Client
@@ -98,7 +100,7 @@ Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
 Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
 ```
 
-3. Both commands should return the following output:
+1. Both commands should return the following output:
 
 ```
 Path          :
@@ -106,7 +108,7 @@ Online        : True
 RestartNeeded : False
 ```
 
-4. To start and configure OpenSSH Server for initial use, open an elevated PowerShell prompt (right-click, then select **Run as an administrator**), then run the following commands to start the `sshd service`:
+1. To start and configure OpenSSH Server for initial use, open an elevated PowerShell prompt (right-click, then select **Run as an administrator**), then run the following commands to start the `sshd service`:
 
 ```
 # Start the sshd service
@@ -125,6 +127,7 @@ if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyCon
 ```
 
 ⠀
+
 * [GUI](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell&pivots=windows-11#tabpanel_3_gui)
 * [PowerShell](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell&pivots=windows-11#tabpanel_3_powershell)
 To install OpenSSH using PowerShell:
@@ -137,7 +140,7 @@ To install OpenSSH using PowerShell:
 Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'
 ```
 
-2. The command should return the following output if neither are already installed:
+1. The command should return the following output if neither are already installed:
 
 ```
 Name  : OpenSSH.Client~~~~0.0.1.0
@@ -147,7 +150,7 @@ Name  : OpenSSH.Server~~~~0.0.1.0
 State : NotPresent
 ```
 
-3. After that, run the following cmdlets to install the server or client components as needed:
+1. After that, run the following cmdlets to install the server or client components as needed:
 
 ```
 # Install the OpenSSH Client
@@ -157,7 +160,7 @@ Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
 Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
 ```
 
-3. Both commands should return the following output:
+1. Both commands should return the following output:
 
 ```
 Path          :
@@ -165,7 +168,7 @@ Online        : True
 RestartNeeded : False
 ```
 
-4. To start and configure OpenSSH Server for initial use, open an elevated PowerShell prompt (right-click, then select **Run as an administrator**), then run the following commands to start the `sshd service`:
+1. To start and configure OpenSSH Server for initial use, open an elevated PowerShell prompt (right-click, then select **Run as an administrator**), then run the following commands to start the `sshd service`:
 
 ```
 # Start the sshd service
@@ -184,6 +187,7 @@ if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyCon
 ```
 
 ⠀
+
 * [GUI](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell&pivots=windows-11#tabpanel_4_gui)
 * [PowerShell](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell&pivots=windows-11#tabpanel_4_powershell)
 To install OpenSSH using PowerShell:
@@ -196,7 +200,7 @@ To install OpenSSH using PowerShell:
 Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'
 ```
 
-2. The command should return the following output if neither are already installed:
+1. The command should return the following output if neither are already installed:
 
 ```
 Name  : OpenSSH.Client~~~~0.0.1.0
@@ -206,7 +210,7 @@ Name  : OpenSSH.Server~~~~0.0.1.0
 State : NotPresent
 ```
 
-3. After that, run the following cmdlets to install the server or client components as needed:
+1. After that, run the following cmdlets to install the server or client components as needed:
 
 ```
 # Install the OpenSSH Client
@@ -216,7 +220,7 @@ Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
 Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
 ```
 
-3. Both commands should return the following output:
+1. Both commands should return the following output:
 
 ```
 Path          :
@@ -224,7 +228,7 @@ Online        : True
 RestartNeeded : False
 ```
 
-4. To start and configure OpenSSH Server for initial use, open an elevated PowerShell prompt (right-click, then select **Run as an administrator**), then run the following commands to start the `sshd service`:
+1. To start and configure OpenSSH Server for initial use, open an elevated PowerShell prompt (right-click, then select **Run as an administrator**), then run the following commands to start the `sshd service`:
 
 ```
 # Start the sshd service
@@ -280,13 +284,13 @@ To disable SSHD using PowerShell:
 Stop-Service sshd
 ```
 
-2. You can also run the following optional but recommended cmdlet to automatically start SSHD to make sure it stays enabled:
+1. You can also run the following optional but recommended cmdlet to automatically start SSHD to make sure it stays enabled:
 
 ```
 Set-Service -Name sshd -StartupType 'Disabled'
 ```
 
-3. Finally, run the following command to disable the default SSHD firewall rule:
+1. Finally, run the following command to disable the default SSHD firewall rule:
 
 ```
 if ((Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue)) {
@@ -298,6 +302,7 @@ if ((Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyCont
 ```
 
 ⠀
+
 * [GUI](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell&pivots=windows-11#tabpanel_6_gui)
 * [PowerShell](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell&pivots=windows-11#tabpanel_6_powershell)
 To uninstall the OpenSSH components using PowerShell, follow these steps.
@@ -314,7 +319,7 @@ Remove-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
 Remove-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
 ```
 
-3. Finally, run the following command to remove the firewall rule:
+1. Finally, run the following command to remove the firewall rule:
 
 ```
 if ((Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue)) {
@@ -326,6 +331,7 @@ if ((Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyCont
 ```
 
 ⠀
+
 * [GUI](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell&pivots=windows-11#tabpanel_7_gui)
 * [PowerShell](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell&pivots=windows-11#tabpanel_7_powershell)
 To uninstall the OpenSSH components using PowerShell, follow these steps.
@@ -342,7 +348,7 @@ Remove-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
 Remove-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
 ```
 
-3. Finally, run the following command to remove the firewall rule:
+1. Finally, run the following command to remove the firewall rule:
 
 ```
 if ((Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue)) {
@@ -364,6 +370,4 @@ Now that you're done installing OpenSSH Server for Windows, here are some articl
 
 [Get started with OpenSSH Server for Windows](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell&pivots=windows-11)
 
-#web
-
-
+# web

@@ -16,7 +16,7 @@ set -eo pipefail
 # Source interactive utilities if available
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -934,7 +934,7 @@ restore_backup() {
 
 run_interactive() {
     print_interactive_header "$SCRIPT_NAME" "$SCRIPT_VERSION"
-    
+
     # Main action selection
     local action
     action=$(prompt_select "What would you like to do?" \
@@ -942,7 +942,7 @@ run_interactive() {
         "Restore from backup" \
         "List existing backups" \
         "Auto-detect and backup all databases")
-    
+
     case "$action" in
         "Backup database(s)")
             interactive_backup
@@ -961,28 +961,28 @@ run_interactive() {
 
 interactive_backup() {
     echo ""
-    
+
     # Select database type
     local db_type
     db_type=$(prompt_select "Select database type:" \
         "MySQL / MariaDB" \
         "PostgreSQL" \
         "MongoDB")
-    
+
     case "$db_type" in
         "MySQL / MariaDB") DB_TYPE="mysql" ;;
         "PostgreSQL") DB_TYPE="postgresql" ;;
         "MongoDB") DB_TYPE="mongodb" ;;
     esac
-    
+
     echo ""
-    
+
     # Backup scope
     local scope
     scope=$(prompt_select "What would you like to backup?" \
         "All databases" \
         "Specific database")
-    
+
     if [[ "$scope" == "All databases" ]]; then
         ALL_DATABASES=true
     else
@@ -995,9 +995,9 @@ interactive_backup() {
         fi
         DATABASE="$db_name"
     fi
-    
+
     echo ""
-    
+
     # Compression
     local compress_choice
     compress_choice=$(prompt_select "Compression method:" \
@@ -1005,11 +1005,11 @@ interactive_backup() {
         "xz (slower, best compression)" \
         "lz4 (fastest, moderate compression)" \
         "none (no compression)")
-    
+
     COMPRESS=$(echo "$compress_choice" | cut -d' ' -f1)
-    
+
     echo ""
-    
+
     # Encryption
     if prompt_yes_no "Encrypt backup with GPG?" "n"; then
         DO_ENCRYPT=true
@@ -1017,16 +1017,16 @@ interactive_backup() {
         key=$(prompt_input "GPG key ID (email or key ID)" "")
         [[ -n "$key" ]] && GPG_KEY="$key"
     fi
-    
+
     echo ""
-    
+
     # Output directory
     local output
     output=$(prompt_input "Output directory" "$OUTPUT_DIR")
     OUTPUT_DIR="$output"
-    
+
     echo ""
-    
+
     # Summary
     log_info "Backup configuration:"
     echo -e "  ${CYAN}•${NC} Database type: $DB_TYPE"
@@ -1039,18 +1039,18 @@ interactive_backup() {
     [[ "$DO_ENCRYPT" == "true" ]] && echo -e "  ${CYAN}•${NC} Encryption: Yes (GPG key: $GPG_KEY)"
     echo -e "  ${CYAN}•${NC} Output: $OUTPUT_DIR"
     echo ""
-    
+
     if prompt_yes_no "Start backup?" "y"; then
         setup_backup_dir
-        
+
         case "$DB_TYPE" in
             mysql) backup_mysql ;;
             postgresql) backup_postgresql ;;
             mongodb) backup_mongodb ;;
         esac
-        
+
         apply_retention
-        
+
         echo ""
         log_ok "Backup completed successfully!"
     fi
@@ -1058,34 +1058,34 @@ interactive_backup() {
 
 interactive_restore() {
     echo ""
-    
+
     # List available backups
     log_info "Available backups in $OUTPUT_DIR:"
     echo ""
-    
+
     local backups
-    backups=$(find "$OUTPUT_DIR" -maxdepth 1 -type f \( -name "*.sql*" -o -name "*.dump*" -o -name "*.tar*" -o -name "*.archive*" \) 2>/dev/null | sort -r | head -10)
-    
+    backups=$(find "$OUTPUT_DIR" -maxdepth 1 -type f \( -name "*.sql*" -o -name "*.dump*" -o -name "*.tar*" -o -name "*.archive*" \) 2> /dev/null | sort -r | head -10)
+
     if [[ -z "$backups" ]]; then
         log_warn "No backups found in $OUTPUT_DIR"
         return 0
     fi
-    
+
     echo "$backups" | while read -r backup; do
         local size
-        size=$(ls -lh "$backup" 2>/dev/null | awk '{print $5}')
+        size=$(ls -lh "$backup" 2> /dev/null | awk '{print $5}')
         echo -e "  ${CYAN}•${NC} $(basename "$backup") ($size)"
     done
-    
+
     echo ""
     local restore_path
     restore_path=$(prompt_input "Enter backup file path to restore" "")
-    
+
     if [[ -z "$restore_path" || ! -f "$restore_path" ]]; then
         log_error "Invalid file path"
         return 1
     fi
-    
+
     # Detect database type from filename
     if [[ "$restore_path" =~ mysql ]]; then
         DB_TYPE="mysql"
@@ -1102,14 +1102,14 @@ interactive_restore() {
             "MongoDB") DB_TYPE="mongodb" ;;
         esac
     fi
-    
+
     echo ""
     local target_db
     target_db=$(prompt_input "Target database name (leave empty to use dump's database)" "")
     [[ -n "$target_db" ]] && DATABASE="$target_db"
-    
+
     echo ""
-    
+
     if confirm_destructive "This will restore the backup and may overwrite existing data in the database"; then
         restore_backup "$restore_path"
     fi
@@ -1119,21 +1119,21 @@ interactive_auto_backup() {
     echo ""
     log_info "Detecting installed databases..."
     echo ""
-    
+
     local detected
-    detected=$(detect_databases 2>/dev/null || echo "")
-    
+    detected=$(detect_databases 2> /dev/null || echo "")
+
     if [[ -z "$detected" ]]; then
         log_error "No databases detected"
         return 1
     fi
-    
+
     echo ""
     if prompt_yes_no "Backup all detected databases?" "y"; then
         ALL_DATABASES=true
         AUTO_DETECT=true
         setup_backup_dir
-        
+
         for db_type in $detected; do
             DB_TYPE="$db_type"
             case "$db_type" in
@@ -1142,9 +1142,9 @@ interactive_auto_backup() {
                 mongodb) backup_mongodb ;;
             esac
         done
-        
+
         apply_retention
-        
+
         echo ""
         log_ok "All backups completed!"
     fi
@@ -1165,7 +1165,7 @@ main() {
     fi
 
     # Run interactive mode if enabled
-    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &> /dev/null && rsr_is_interactive; then
         run_interactive
         exit $EXIT_OK
     fi

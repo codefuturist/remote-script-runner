@@ -30,7 +30,7 @@ readonly VERSION="4.0.0"
 readonly SCRIPT_NAME="${0##*/}"
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -69,8 +69,8 @@ CFG_HISTORY_FILE=""
 CFG_METRICS_FILE=""
 
 # Log rotation settings
-CFG_LOG_MAX_SIZE="${DNS_LOG_MAX_SIZE:-10485760}"  # 10MB default
-CFG_LOG_KEEP_COUNT="${DNS_LOG_KEEP_COUNT:-5}"     # Keep 5 rotated logs
+CFG_LOG_MAX_SIZE="${DNS_LOG_MAX_SIZE:-10485760}" # 10MB default
+CFG_LOG_KEEP_COUNT="${DNS_LOG_KEEP_COUNT:-5}"    # Keep 5 rotated logs
 CFG_BACKUP_KEEP_COUNT="${DNS_BACKUP_KEEP_COUNT:-10}"
 CFG_HISTORY_KEEP_COUNT="${DNS_HISTORY_KEEP_COUNT:-100}"
 
@@ -86,11 +86,11 @@ OPT_DRY_RUN=false
 OPT_FORCE=false
 OPT_NO_RESTART=false
 OPT_JSON=false
-OPT_ZONES=()  # Empty = all zones
+OPT_ZONES=() # Empty = all zones
 
 # Watch mode settings
-OPT_WATCH_INTERVAL="${DNS_WATCH_INTERVAL:-60}"  # Default 60 seconds
-OPT_WATCH_QUICK_INTERVAL="${DNS_QUICK_INTERVAL:-15}"  # Quick check interval
+OPT_WATCH_INTERVAL="${DNS_WATCH_INTERVAL:-60}"       # Default 60 seconds
+OPT_WATCH_QUICK_INTERVAL="${DNS_QUICK_INTERVAL:-15}" # Quick check interval
 
 # Sync script
 SYNC_SCRIPT="${SCRIPT_PATH%/*}/sync-dns-zones.py"
@@ -119,23 +119,23 @@ setup_colors() {
 # =============================================================================
 
 _log_file() {
-    [[ -n "${CFG_LOG_FILE:-}" ]] && [[ -w "${CFG_LOG_FILE%/*}" || -w "$CFG_LOG_FILE" ]] && \
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')][$1] $2" >> "$CFG_LOG_FILE" 2>/dev/null || true
+    [[ -n "${CFG_LOG_FILE:-}" ]] && [[ -w "${CFG_LOG_FILE%/*}" || -w "$CFG_LOG_FILE" ]] \
+        && echo "[$(date '+%Y-%m-%d %H:%M:%S')][$1] $2" >> "$CFG_LOG_FILE" 2> /dev/null || true
 }
 
 log_debug() {
     [[ "$OPT_VERBOSE" == "true" ]] && echo -e "${C_DIM}  $*${C_NC}"
     _log_file "DEBUG" "$*"
 }
-log_info()  {
+log_info() {
     [[ "$OPT_QUIET" != "true" ]] && [[ "$OPT_JSON" != "true" ]] && echo -e "${C_BLUE}▸${C_NC} $*"
     _log_file "INFO" "$*"
 }
-log_ok()    {
+log_ok() {
     [[ "$OPT_QUIET" != "true" ]] && [[ "$OPT_JSON" != "true" ]] && echo -e "${C_GREEN}✓${C_NC} $*"
     _log_file "OK" "$*"
 }
-log_warn()  {
+log_warn() {
     [[ "$OPT_JSON" != "true" ]] && echo -e "${C_YELLOW}⚠${C_NC} $*" >&2
     _log_file "WARN" "$*"
 }
@@ -218,22 +218,22 @@ load_config() {
         value=$(echo "$value" | xargs | sed 's/^["'"'"']//;s/["'"'"']$//')
 
         case "$key" in
-            repo_url)           [[ -z "$CFG_REPO_URL" ]] && CFG_REPO_URL="$value" ;;
-            repo_branch)        CFG_REPO_BRANCH="$value" ;;
-            repo_path)          CFG_REPO_PATH="$value" ;;
-            zones_path)         CFG_ZONES_PATH="$value" ;;
-            ssh_key)            [[ -z "$CFG_SSH_KEY" ]] && CFG_SSH_KEY="$value" ;;
-            pihole_toml)        CFG_PIHOLE_TOML="$value" ;;
-            log_file)           CFG_LOG_FILE="$value" ;;
-            cache_dir)          CFG_CACHE_DIR="$value" ;;
-            backup_dir)         CFG_BACKUP_DIR="$value" ;;
-            log_max_size)       CFG_LOG_MAX_SIZE="$value" ;;
-            log_keep_count)     CFG_LOG_KEEP_COUNT="$value" ;;
-            backup_keep_count)  CFG_BACKUP_KEEP_COUNT="$value" ;;
+            repo_url) [[ -z "$CFG_REPO_URL" ]] && CFG_REPO_URL="$value" ;;
+            repo_branch) CFG_REPO_BRANCH="$value" ;;
+            repo_path) CFG_REPO_PATH="$value" ;;
+            zones_path) CFG_ZONES_PATH="$value" ;;
+            ssh_key) [[ -z "$CFG_SSH_KEY" ]] && CFG_SSH_KEY="$value" ;;
+            pihole_toml) CFG_PIHOLE_TOML="$value" ;;
+            log_file) CFG_LOG_FILE="$value" ;;
+            cache_dir) CFG_CACHE_DIR="$value" ;;
+            backup_dir) CFG_BACKUP_DIR="$value" ;;
+            log_max_size) CFG_LOG_MAX_SIZE="$value" ;;
+            log_keep_count) CFG_LOG_KEEP_COUNT="$value" ;;
+            backup_keep_count) CFG_BACKUP_KEEP_COUNT="$value" ;;
             history_keep_count) CFG_HISTORY_KEEP_COUNT="$value" ;;
-            notify_webhook)     CFG_NOTIFY_WEBHOOK="$value" ;;
-            notify_on_success)  CFG_NOTIFY_ON_SUCCESS="$value" ;;
-            notify_on_failure)  CFG_NOTIFY_ON_FAILURE="$value" ;;
+            notify_webhook) CFG_NOTIFY_WEBHOOK="$value" ;;
+            notify_on_success) CFG_NOTIFY_ON_SUCCESS="$value" ;;
+            notify_on_failure) CFG_NOTIFY_ON_FAILURE="$value" ;;
         esac
     done < "$config_file"
 }
@@ -246,7 +246,7 @@ check_deps() {
     local missing=()
 
     for cmd in git python3; do
-        command -v "$cmd" &>/dev/null || missing+=("$cmd")
+        command -v "$cmd" &> /dev/null || missing+=("$cmd")
     done
 
     if [[ ${#missing[@]} -gt 0 ]]; then
@@ -257,7 +257,7 @@ check_deps() {
     fi
 
     # Warn if systemctl not available
-    if [[ "$OPT_NO_RESTART" != "true" ]] && ! command -v systemctl &>/dev/null; then
+    if [[ "$OPT_NO_RESTART" != "true" ]] && ! command -v systemctl &> /dev/null; then
         log_warn "systemctl not found - service restart will be skipped"
         OPT_NO_RESTART=true
     fi
@@ -274,10 +274,10 @@ acquire_lock() {
 
     while [[ -f "$CFG_LOCK_FILE" ]]; do
         local lock_pid
-        lock_pid=$(cat "$CFG_LOCK_FILE" 2>/dev/null || echo "")
+        lock_pid=$(cat "$CFG_LOCK_FILE" 2> /dev/null || echo "")
 
         # Remove stale lock from dead process
-        if [[ -n "$lock_pid" ]] && ! kill -0 "$lock_pid" 2>/dev/null; then
+        if [[ -n "$lock_pid" ]] && ! kill -0 "$lock_pid" 2> /dev/null; then
             log_warn "Removing stale lock (PID: $lock_pid)"
             rm -f "$CFG_LOCK_FILE"
             break
@@ -293,13 +293,13 @@ acquire_lock() {
         waited=$((waited + 2))
     done
 
-    mkdir -p "${CFG_LOCK_FILE%/*}" 2>/dev/null || true
+    mkdir -p "${CFG_LOCK_FILE%/*}" 2> /dev/null || true
     echo $$ > "$CFG_LOCK_FILE"
     log_debug "Lock acquired (PID: $$)"
 }
 
 release_lock() {
-    [[ -f "$CFG_LOCK_FILE" ]] && [[ "$(cat "$CFG_LOCK_FILE" 2>/dev/null)" == "$$" ]] && rm -f "$CFG_LOCK_FILE"
+    [[ -f "$CFG_LOCK_FILE" ]] && [[ "$(cat "$CFG_LOCK_FILE" 2> /dev/null)" == "$$" ]] && rm -f "$CFG_LOCK_FILE"
 }
 
 trap 'release_lock' EXIT INT TERM
@@ -342,12 +342,12 @@ cleanup_backups() {
     [[ ! -d "$CFG_BACKUP_DIR" ]] && return 0
 
     local count
-    count=$(find "$CFG_BACKUP_DIR" -name "*.bak" -type f 2>/dev/null | wc -l)
+    count=$(find "$CFG_BACKUP_DIR" -name "*.bak" -type f 2> /dev/null | wc -l)
 
     if [[ $count -gt $keep ]]; then
         log_debug "Cleaning old backups (keeping $keep)"
-        find "$CFG_BACKUP_DIR" -name "*.bak" -type f -printf '%T@ %p\n' 2>/dev/null | \
-            sort -n | head -n -"$keep" | cut -d' ' -f2- | xargs -r rm -f
+        find "$CFG_BACKUP_DIR" -name "*.bak" -type f -printf '%T@ %p\n' 2> /dev/null \
+            | sort -n | head -n -"$keep" | cut -d' ' -f2- | xargs -r rm -f
     fi
 }
 
@@ -359,7 +359,7 @@ rotate_logs() {
     [[ ! -f "$CFG_LOG_FILE" ]] && return 0
 
     local size
-    size=$(stat -f%z "$CFG_LOG_FILE" 2>/dev/null || stat -c%s "$CFG_LOG_FILE" 2>/dev/null || echo 0)
+    size=$(stat -f%z "$CFG_LOG_FILE" 2> /dev/null || stat -c%s "$CFG_LOG_FILE" 2> /dev/null || echo 0)
 
     if [[ $size -ge $CFG_LOG_MAX_SIZE ]]; then
         log_debug "Rotating log file (size: $size bytes)"
@@ -389,10 +389,11 @@ record_history() {
     mkdir -p "$(dirname "$CFG_HISTORY_FILE")"
 
     local entry
-    entry=$(cat <<EOF
-{"timestamp": "$(date -Iseconds)", "status": "$status", "message": "$message", "zones_synced": $zones_synced, "duration_ms": $duration, "commit": "$(get_local_hash 2>/dev/null | head -c7)", "branch": "$CFG_REPO_BRANCH"}
+    entry=$(
+        cat << EOF
+{"timestamp": "$(date -Iseconds)", "status": "$status", "message": "$message", "zones_synced": $zones_synced, "duration_ms": $duration, "commit": "$(get_local_hash 2> /dev/null | head -c7)", "branch": "$CFG_REPO_BRANCH"}
 EOF
-)
+    )
 
     # Append to history file
     if [[ -f "$CFG_HISTORY_FILE" ]]; then
@@ -427,7 +428,7 @@ update_metrics() {
     local success=0 failure=0
     [[ "$status" == "success" ]] && success=1 || failure=1
 
-    cat > "$CFG_METRICS_FILE" <<EOF
+    cat > "$CFG_METRICS_FILE" << EOF
 # HELP dns_sync_last_success_timestamp Unix timestamp of last successful sync
 # TYPE dns_sync_last_success_timestamp gauge
 dns_sync_last_success_timestamp $(date +%s)
@@ -438,7 +439,7 @@ dns_sync_last_run_success $success
 
 # HELP dns_sync_last_duration_seconds Duration of last sync in seconds
 # TYPE dns_sync_last_duration_seconds gauge
-dns_sync_last_duration_seconds $(echo "scale=3; $duration / 1000" | bc 2>/dev/null || echo "0")
+dns_sync_last_duration_seconds $(echo "scale=3; $duration / 1000" | bc 2> /dev/null || echo "0")
 
 # HELP dns_sync_zones_total Total number of zones synced
 # TYPE dns_sync_zones_total gauge
@@ -446,8 +447,8 @@ dns_sync_zones_total $zones
 
 # HELP dns_sync_total Total number of sync attempts
 # TYPE dns_sync_total counter
-dns_sync_total{status="success"} $(grep -c '"status": "success"' "$CFG_HISTORY_FILE" 2>/dev/null || echo 0)
-dns_sync_total{status="failure"} $(grep -c '"status": "failure"' "$CFG_HISTORY_FILE" 2>/dev/null || echo 0)
+dns_sync_total{status="success"} $(grep -c '"status": "success"' "$CFG_HISTORY_FILE" 2> /dev/null || echo 0)
+dns_sync_total{status="failure"} $(grep -c '"status": "failure"' "$CFG_HISTORY_FILE" 2> /dev/null || echo 0)
 EOF
 }
 
@@ -478,11 +479,12 @@ send_notification() {
     fi
 
     local hostname
-    hostname=$(hostname -f 2>/dev/null || hostname)
+    hostname=$(hostname -f 2> /dev/null || hostname)
 
     # Build JSON payload (compatible with Slack, Mattermost, Discord webhooks)
     local payload
-    payload=$(cat <<EOF
+    payload=$(
+        cat << EOF
 {
     "text": "$icon DNS Sync: $message",
     "username": "dns-sync",
@@ -498,11 +500,11 @@ send_notification() {
     }]
 }
 EOF
-)
+    )
 
     # Send notification (fire and forget)
-    if command -v curl &>/dev/null; then
-        curl -s -X POST -H "Content-Type: application/json" -d "$payload" "$CFG_NOTIFY_WEBHOOK" >/dev/null 2>&1 &
+    if command -v curl &> /dev/null; then
+        curl -s -X POST -H "Content-Type: application/json" -d "$payload" "$CFG_NOTIFY_WEBHOOK" > /dev/null 2>&1 &
         log_debug "Notification sent to webhook"
     fi
 }
@@ -514,8 +516,14 @@ EOF
 generate_diff() {
     local zones_dir="$CFG_REPO_PATH/$CFG_ZONES_PATH"
 
-    [[ ! -d "$zones_dir" ]] && { log_error "Zones directory not found"; return 1; }
-    [[ ! -f "$CFG_PIHOLE_TOML" ]] && { log_error "Pi-hole config not found"; return 1; }
+    [[ ! -d "$zones_dir" ]] && {
+        log_error "Zones directory not found"
+        return 1
+    }
+    [[ ! -f "$CFG_PIHOLE_TOML" ]] && {
+        log_error "Pi-hole config not found"
+        return 1
+    }
 
     # Create temp file for new config
     local temp_toml
@@ -527,15 +535,15 @@ generate_diff() {
 
     # Generate diff
     if [[ -f "$temp_toml" ]] && [[ -s "$temp_toml" ]]; then
-        if command -v diff &>/dev/null; then
-            diff -u "$CFG_PIHOLE_TOML" "$temp_toml" 2>/dev/null || true
+        if command -v diff &> /dev/null; then
+            diff -u "$CFG_PIHOLE_TOML" "$temp_toml" 2> /dev/null || true
         fi
     else
         # Fallback: show current records count vs new
         log_info "Current Pi-hole config: $CFG_PIHOLE_TOML"
         local current_count new_count
-        current_count=$(grep -c "host\s*=" "$CFG_PIHOLE_TOML" 2>/dev/null || echo 0)
-        new_count=$(find "$zones_dir" -name "*.zone" -exec grep -hcE '^[^;[:space:]].*IN\s+(A|AAAA|CNAME)' {} + 2>/dev/null | awk '{s+=$1} END {print s}' || echo 0)
+        current_count=$(grep -c "host\s*=" "$CFG_PIHOLE_TOML" 2> /dev/null || echo 0)
+        new_count=$(find "$zones_dir" -name "*.zone" -exec grep -hcE '^[^;[:space:]].*IN\s+(A|AAAA|CNAME)' {} + 2> /dev/null | awk '{s+=$1} END {print s}' || echo 0)
         log_info "Current hosts entries: $current_count"
         log_info "Zone file records: $new_count"
     fi
@@ -548,12 +556,15 @@ generate_diff() {
 # =============================================================================
 
 list_backups() {
-    [[ ! -d "$CFG_BACKUP_DIR" ]] && { log_warn "No backup directory found"; return 0; }
+    [[ ! -d "$CFG_BACKUP_DIR" ]] && {
+        log_warn "No backup directory found"
+        return 0
+    }
 
     local backups=()
     while IFS= read -r -d '' backup; do
         backups+=("$backup")
-    done < <(find "$CFG_BACKUP_DIR" -name "*.bak" -type f -print0 2>/dev/null | sort -rz)
+    done < <(find "$CFG_BACKUP_DIR" -name "*.bak" -type f -print0 2> /dev/null | sort -rz)
 
     if [[ ${#backups[@]} -eq 0 ]]; then
         log_warn "No backups found"
@@ -566,8 +577,8 @@ list_backups() {
         for backup in "${backups[@]}"; do
             local size timestamp name
             name=$(basename "$backup")
-            size=$(stat -f%z "$backup" 2>/dev/null || stat -c%s "$backup" 2>/dev/null || echo 0)
-            timestamp=$(stat -f%m "$backup" 2>/dev/null || stat -c%Y "$backup" 2>/dev/null || echo 0)
+            size=$(stat -f%z "$backup" 2> /dev/null || stat -c%s "$backup" 2> /dev/null || echo 0)
+            timestamp=$(stat -f%m "$backup" 2> /dev/null || stat -c%Y "$backup" 2> /dev/null || echo 0)
             [[ "$first" != "true" ]] && json_backups+=","
             json_backups+="{\"name\": \"$name\", \"path\": \"$backup\", \"size\": $size, \"timestamp\": $timestamp}"
             first=false
@@ -583,8 +594,8 @@ list_backups() {
         for backup in "${backups[@]}"; do
             local name size date_str
             name=$(basename "$backup")
-            size=$(stat -f%z "$backup" 2>/dev/null || stat -c%s "$backup" 2>/dev/null || echo "?")
-            date_str=$(stat -f%Sm -t"%Y-%m-%d %H:%M" "$backup" 2>/dev/null || stat -c%y "$backup" 2>/dev/null | cut -d. -f1 || echo "unknown")
+            size=$(stat -f%z "$backup" 2> /dev/null || stat -c%s "$backup" 2> /dev/null || echo "?")
+            date_str=$(stat -f%Sm -t"%Y-%m-%d %H:%M" "$backup" 2> /dev/null || stat -c%y "$backup" 2> /dev/null | cut -d. -f1 || echo "unknown")
 
             # Human readable size
             local hr_size
@@ -608,7 +619,10 @@ list_backups() {
 restore_backup() {
     local target="$1"
 
-    [[ ! -d "$CFG_BACKUP_DIR" ]] && { log_error "No backup directory found"; return 1; }
+    [[ ! -d "$CFG_BACKUP_DIR" ]] && {
+        log_error "No backup directory found"
+        return 1
+    }
 
     local backup_file=""
 
@@ -618,7 +632,7 @@ restore_backup() {
         local backups=()
         while IFS= read -r -d '' backup; do
             backups+=("$backup")
-        done < <(find "$CFG_BACKUP_DIR" -name "*.bak" -type f -print0 2>/dev/null | sort -rz)
+        done < <(find "$CFG_BACKUP_DIR" -name "*.bak" -type f -print0 2> /dev/null | sort -rz)
 
         if [[ $target -lt 1 ]] || [[ $target -gt ${#backups[@]} ]]; then
             log_error "Invalid backup index: $target (have ${#backups[@]} backups)"
@@ -766,7 +780,10 @@ validate_config() {
 validate_zones() {
     local zones_dir="$CFG_REPO_PATH/$CFG_ZONES_PATH"
 
-    [[ ! -d "$zones_dir" ]] && { log_error "Zones directory not found: $zones_dir"; return 1; }
+    [[ ! -d "$zones_dir" ]] && {
+        log_error "Zones directory not found: $zones_dir"
+        return 1
+    }
 
     print_header "Zone File Validation"
     log_info "Checking: $zones_dir"
@@ -813,7 +830,7 @@ validate_zones() {
             done
             errors+=("$zone_name: ${zone_errors[*]}")
         fi
-    done < <(find "$zones_dir" -maxdepth 1 -name "*.zone" -type f -print0 2>/dev/null | sort -z)
+    done < <(find "$zones_dir" -maxdepth 1 -name "*.zone" -type f -print0 2> /dev/null | sort -z)
 
     echo ""
     if [[ $invalid -gt 0 ]]; then
@@ -851,18 +868,18 @@ setup_ssh() {
 
 get_cached_hash() {
     local cache_file="$CFG_CACHE_DIR/last_remote_hash"
-    [[ -f "$cache_file" ]] && cat "$cache_file" 2>/dev/null
+    [[ -f "$cache_file" ]] && cat "$cache_file" 2> /dev/null
 }
 
 set_cached_hash() {
     local hash="$1"
-    mkdir -p "$CFG_CACHE_DIR" 2>/dev/null
+    mkdir -p "$CFG_CACHE_DIR" 2> /dev/null
     echo "$hash" > "$CFG_CACHE_DIR/last_remote_hash"
 }
 
 get_local_hash() {
     [[ ! -d "$CFG_REPO_PATH/.git" ]] && return 1
-    git -C "$CFG_REPO_PATH" rev-parse HEAD 2>/dev/null
+    git -C "$CFG_REPO_PATH" rev-parse HEAD 2> /dev/null
 }
 
 # Quick remote check - tries multiple methods for authenticated repos
@@ -872,7 +889,7 @@ get_remote_hash() {
     setup_ssh
 
     # Method 1: Try ls-remote (fastest, but may fail for private repos without credentials)
-    hash=$(timeout 10 git ls-remote "$CFG_REPO_URL" "refs/heads/$CFG_REPO_BRANCH" 2>/dev/null | cut -f1)
+    hash=$(timeout 10 git ls-remote "$CFG_REPO_URL" "refs/heads/$CFG_REPO_BRANCH" 2> /dev/null | cut -f1)
 
     if [[ -n "$hash" ]]; then
         log_debug "Got remote hash via ls-remote: ${hash:0:7}"
@@ -885,9 +902,9 @@ get_remote_hash() {
         log_debug "ls-remote failed, trying fetch --dry-run..."
 
         # Fetch updates to FETCH_HEAD without updating working tree
-        if timeout 15 git -C "$CFG_REPO_PATH" fetch --dry-run origin "$CFG_REPO_BRANCH" 2>/dev/null; then
+        if timeout 15 git -C "$CFG_REPO_PATH" fetch --dry-run origin "$CFG_REPO_BRANCH" 2> /dev/null; then
             # Get the remote ref after fetch
-            hash=$(git -C "$CFG_REPO_PATH" ls-remote origin "refs/heads/$CFG_REPO_BRANCH" 2>/dev/null | cut -f1)
+            hash=$(git -C "$CFG_REPO_PATH" ls-remote origin "refs/heads/$CFG_REPO_BRANCH" 2> /dev/null | cut -f1)
 
             if [[ -n "$hash" ]]; then
                 log_debug "Got remote hash via fetch: ${hash:0:7}"
@@ -898,8 +915,8 @@ get_remote_hash() {
 
         # Method 3: Do a real fetch (last resort, slightly heavier but reliable)
         log_debug "fetch --dry-run failed, trying actual fetch..."
-        if timeout 30 git -C "$CFG_REPO_PATH" fetch origin "$CFG_REPO_BRANCH" --depth 1 2>/dev/null; then
-            hash=$(git -C "$CFG_REPO_PATH" rev-parse "origin/$CFG_REPO_BRANCH" 2>/dev/null)
+        if timeout 30 git -C "$CFG_REPO_PATH" fetch origin "$CFG_REPO_BRANCH" --depth 1 2> /dev/null; then
+            hash=$(git -C "$CFG_REPO_PATH" rev-parse "origin/$CFG_REPO_BRANCH" 2> /dev/null)
             if [[ -n "$hash" ]]; then
                 log_debug "Got remote hash via fetch: ${hash:0:7}"
                 echo "$hash"
@@ -921,7 +938,7 @@ check_for_changes() {
     local_hash=$(get_local_hash)
     if [[ -z "$local_hash" ]]; then
         log_debug "No local repo, changes assumed"
-        return 0  # No local repo = needs sync
+        return 0 # No local repo = needs sync
     fi
 
     # Quick check: compare with cached remote hash first
@@ -934,7 +951,7 @@ check_for_changes() {
     remote_hash=$(get_remote_hash)
     if [[ -z "$remote_hash" ]]; then
         log_warn "Could not check remote, assuming no changes"
-        return 2  # Error state
+        return 2 # Error state
     fi
 
     # Update cache
@@ -943,11 +960,11 @@ check_for_changes() {
     # Compare
     if [[ "$local_hash" == "$remote_hash" ]]; then
         log_debug "No changes: local=${local_hash:0:7} remote=${remote_hash:0:7}"
-        return 1  # No changes
+        return 1 # No changes
     fi
 
     log_debug "Changes detected: local=${local_hash:0:7} remote=${remote_hash:0:7}"
-    return 0  # Changes detected
+    return 0 # Changes detected
 }
 
 # =============================================================================
@@ -959,7 +976,7 @@ git_init() {
 
     if [[ "$OPT_DRY_RUN" == "true" ]]; then
         [[ -d "$CFG_REPO_PATH" ]] && log_info "[DRY-RUN] Repository exists: $CFG_REPO_PATH" \
-                                  || log_info "[DRY-RUN] Would clone: $CFG_REPO_URL → $CFG_REPO_PATH"
+            || log_info "[DRY-RUN] Would clone: $CFG_REPO_URL → $CFG_REPO_PATH"
         return 0
     fi
 
@@ -983,28 +1000,37 @@ git_update() {
 
     if [[ "$OPT_DRY_RUN" == "true" ]]; then
         [[ -d "$CFG_REPO_PATH/.git" ]] && log_info "[DRY-RUN] Would pull: origin/$CFG_REPO_BRANCH" \
-                                       || log_info "[DRY-RUN] Would update after clone"
+            || log_info "[DRY-RUN] Would update after clone"
         return 0
     fi
 
-    [[ ! -d "$CFG_REPO_PATH/.git" ]] && { log_error "Not a git repo: $CFG_REPO_PATH"; return 1; }
+    [[ ! -d "$CFG_REPO_PATH/.git" ]] && {
+        log_error "Not a git repo: $CFG_REPO_PATH"
+        return 1
+    }
 
     cd "$CFG_REPO_PATH" || return 1
     setup_ssh
 
     local local_hash remote_hash
-    local_hash=$(git rev-parse HEAD 2>/dev/null)
+    local_hash=$(git rev-parse HEAD 2> /dev/null)
 
-    git fetch origin "$CFG_REPO_BRANCH" --depth 1 2>&1 | tee -a "${CFG_LOG_FILE:-/dev/null}" || { log_error "Fetch failed"; return 1; }
+    git fetch origin "$CFG_REPO_BRANCH" --depth 1 2>&1 | tee -a "${CFG_LOG_FILE:-/dev/null}" || {
+        log_error "Fetch failed"
+        return 1
+    }
 
-    remote_hash=$(git rev-parse "origin/$CFG_REPO_BRANCH" 2>/dev/null)
+    remote_hash=$(git rev-parse "origin/$CFG_REPO_BRANCH" 2> /dev/null)
 
     if [[ "$local_hash" == "$remote_hash" ]] && [[ "$OPT_FORCE" != "true" ]]; then
         log_ok "Already up to date"
         return 0
     fi
 
-    git reset --hard "origin/$CFG_REPO_BRANCH" 2>&1 | tee -a "${CFG_LOG_FILE:-/dev/null}" || { log_error "Reset failed"; return 1; }
+    git reset --hard "origin/$CFG_REPO_BRANCH" 2>&1 | tee -a "${CFG_LOG_FILE:-/dev/null}" || {
+        log_error "Reset failed"
+        return 1
+    }
     log_ok "Updated: ${local_hash:0:7} → ${remote_hash:0:7}"
 }
 
@@ -1016,13 +1042,16 @@ discover_zones() {
     local zones_dir="$CFG_REPO_PATH/$CFG_ZONES_PATH"
     local zones=()
 
-    [[ ! -d "$zones_dir" ]] && { log_error "Zones directory not found: $zones_dir"; return 1; }
+    [[ ! -d "$zones_dir" ]] && {
+        log_error "Zones directory not found: $zones_dir"
+        return 1
+    }
 
     while IFS= read -r -d '' zone_file; do
         local zone_name="${zone_file##*/}"
         zone_name="${zone_name%.zone}"
         zones+=("$zone_name")
-    done < <(find "$zones_dir" -maxdepth 1 -name "*.zone" -type f -print0 2>/dev/null | sort -z)
+    done < <(find "$zones_dir" -maxdepth 1 -name "*.zone" -type f -print0 2> /dev/null | sort -z)
 
     if [[ ${#zones[@]} -eq 0 ]]; then
         log_warn "No zone files found in: $zones_dir"
@@ -1080,7 +1109,7 @@ list_zones() {
             for zone in "${zones[@]}"; do
                 local zone_file="$zones_dir/${zone}.zone"
                 local records
-                records=$(grep -cE '^[^;[:space:]]' "$zone_file" 2>/dev/null || echo "0")
+                records=$(grep -cE '^[^;[:space:]]' "$zone_file" 2> /dev/null || echo "0")
                 echo -e "  ${C_CYAN}●${C_NC} $zone ${C_DIM}($records records)${C_NC}"
             done
             echo ""
@@ -1101,12 +1130,21 @@ validate_env() {
         return 0
     fi
 
-    [[ ! -f "$SYNC_SCRIPT" ]] && { log_error "Sync script not found: $SYNC_SCRIPT"; return 1; }
-    [[ ! -d "$CFG_REPO_PATH/$CFG_ZONES_PATH" ]] && { log_error "Zones dir not found: $CFG_REPO_PATH/$CFG_ZONES_PATH"; return 1; }
-    [[ ! -f "$CFG_PIHOLE_TOML" ]] && { log_error "Pi-hole config not found: $CFG_PIHOLE_TOML"; return 1; }
+    [[ ! -f "$SYNC_SCRIPT" ]] && {
+        log_error "Sync script not found: $SYNC_SCRIPT"
+        return 1
+    }
+    [[ ! -d "$CFG_REPO_PATH/$CFG_ZONES_PATH" ]] && {
+        log_error "Zones dir not found: $CFG_REPO_PATH/$CFG_ZONES_PATH"
+        return 1
+    }
+    [[ ! -f "$CFG_PIHOLE_TOML" ]] && {
+        log_error "Pi-hole config not found: $CFG_PIHOLE_TOML"
+        return 1
+    }
 
     local zone_count
-    zone_count=$(find "$CFG_REPO_PATH/$CFG_ZONES_PATH" -name "*.zone" -type f 2>/dev/null | wc -l)
+    zone_count=$(find "$CFG_REPO_PATH/$CFG_ZONES_PATH" -name "*.zone" -type f 2> /dev/null | wc -l)
     log_ok "Validation passed ($zone_count zone files)"
 }
 
@@ -1114,10 +1152,10 @@ sync_dns() {
     log_info "Syncing DNS zones..."
 
     local start_time zones_dir backup_file zone_count
-    start_time=$(date +%s%3N 2>/dev/null || date +%s)000
+    start_time=$(date +%s%3N 2> /dev/null || date +%s)000
     zones_dir="$CFG_REPO_PATH/$CFG_ZONES_PATH"
     backup_file=""
-    zone_count=$(find "$zones_dir" -name "*.zone" -type f 2>/dev/null | wc -l)
+    zone_count=$(find "$zones_dir" -name "*.zone" -type f 2> /dev/null | wc -l)
 
     # Rotate logs if needed
     rotate_logs
@@ -1134,7 +1172,10 @@ sync_dns() {
     # Build zone filter args
     local zone_args=""
     if [[ ${#OPT_ZONES[@]} -gt 0 ]]; then
-        zone_args="--zones $(IFS=,; echo "${OPT_ZONES[*]}")"
+        zone_args="--zones $(
+            IFS=,
+            echo "${OPT_ZONES[*]}"
+        )"
         log_info "Syncing zones: ${OPT_ZONES[*]}"
         zone_count=${#OPT_ZONES[@]}
     fi
@@ -1145,7 +1186,7 @@ sync_dns() {
 
     if eval "$sync_cmd" 2>&1 | tee -a "${CFG_LOG_FILE:-/dev/null}"; then
         local end_time duration
-        end_time=$(date +%s%3N 2>/dev/null || date +%s)000
+        end_time=$(date +%s%3N 2> /dev/null || date +%s)000
         duration=$((end_time - start_time))
 
         log_ok "DNS sync completed"
@@ -1168,7 +1209,7 @@ sync_dns() {
         return 0
     else
         local end_time duration
-        end_time=$(date +%s%3N 2>/dev/null || date +%s)000
+        end_time=$(date +%s%3N 2> /dev/null || date +%s)000
         duration=$((end_time - start_time))
 
         log_error "DNS sync failed"
@@ -1196,7 +1237,10 @@ sync_dns() {
 }
 
 restart_pihole() {
-    command -v systemctl &>/dev/null || { log_warn "systemctl not available"; return 0; }
+    command -v systemctl &> /dev/null || {
+        log_warn "systemctl not available"
+        return 0
+    }
 
     log_info "Restarting Pi-hole FTL..."
 
@@ -1222,7 +1266,7 @@ cmd_health() {
 
     # Check 1: Dependencies
     total=$((total + 1))
-    if check_deps 2>/dev/null; then
+    if check_deps 2> /dev/null; then
         passed=$((passed + 1))
         checks+=('{"name": "dependencies", "status": "ok", "message": "All dependencies available"}')
         [[ "$OPT_JSON" != "true" ]] && log_ok "Dependencies: OK"
@@ -1237,7 +1281,7 @@ cmd_health() {
     if [[ -d "$CFG_REPO_PATH/.git" ]]; then
         passed=$((passed + 1))
         local commit
-        commit=$(cd "$CFG_REPO_PATH" && git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+        commit=$(cd "$CFG_REPO_PATH" && git rev-parse --short HEAD 2> /dev/null || echo "unknown")
         checks+=("{\"name\": \"repository\", \"status\": \"ok\", \"message\": \"Initialized\", \"commit\": \"$commit\"}")
         [[ "$OPT_JSON" != "true" ]] && log_ok "Repository: $CFG_REPO_PATH ($commit)"
     else
@@ -1251,7 +1295,7 @@ cmd_health() {
     local zones_dir="$CFG_REPO_PATH/$CFG_ZONES_PATH"
     if [[ -d "$zones_dir" ]]; then
         local zone_count
-        zone_count=$(find "$zones_dir" -name "*.zone" -type f 2>/dev/null | wc -l)
+        zone_count=$(find "$zones_dir" -name "*.zone" -type f 2> /dev/null | wc -l)
         passed=$((passed + 1))
         checks+=("{\"name\": \"zones\", \"status\": \"ok\", \"count\": $zone_count}")
         [[ "$OPT_JSON" != "true" ]] && log_ok "Zones: $zone_count files in $zones_dir"
@@ -1275,7 +1319,7 @@ cmd_health() {
 
     # Check 5: Pi-hole service
     total=$((total + 1))
-    if command -v systemctl &>/dev/null && systemctl is-active --quiet pihole-FTL 2>/dev/null; then
+    if command -v systemctl &> /dev/null && systemctl is-active --quiet pihole-FTL 2> /dev/null; then
         passed=$((passed + 1))
         checks+=('{"name": "pihole_service", "status": "ok", "message": "Running"}')
         [[ "$OPT_JSON" != "true" ]] && log_ok "Pi-hole FTL: Running"
@@ -1291,7 +1335,10 @@ cmd_health() {
 
     if [[ "$OPT_JSON" == "true" ]]; then
         local checks_json
-        checks_json=$(IFS=,; echo "${checks[*]}")
+        checks_json=$(
+            IFS=,
+            echo "${checks[*]}"
+        )
         echo "{\"status\": \"$([[ $status -eq 0 ]] && echo ok || echo error)\", \"passed\": $passed, \"total\": $total, \"checks\": [$checks_json], \"last_success\": \"$last_success\", \"last_failure\": \"$last_failure\"}"
     else
         echo ""
@@ -1300,7 +1347,7 @@ cmd_health() {
         [[ -n "$last_failure" ]] && log_warn "  Last failure: $last_failure"
 
         local backup_count=0
-        [[ -d "$CFG_BACKUP_DIR" ]] && backup_count=$(find "$CFG_BACKUP_DIR" -name "*.bak" -type f 2>/dev/null | wc -l)
+        [[ -d "$CFG_BACKUP_DIR" ]] && backup_count=$(find "$CFG_BACKUP_DIR" -name "*.bak" -type f 2> /dev/null | wc -l)
         log_info "  Backups: $backup_count"
 
         echo ""
@@ -1321,8 +1368,8 @@ cmd_status() {
     if [[ "$OPT_JSON" == "true" ]]; then
         local commit="" branch=""
         if [[ -d "$CFG_REPO_PATH/.git" ]]; then
-            commit=$(cd "$CFG_REPO_PATH" && git rev-parse --short HEAD 2>/dev/null || echo "")
-            branch=$(cd "$CFG_REPO_PATH" && git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+            commit=$(cd "$CFG_REPO_PATH" && git rev-parse --short HEAD 2> /dev/null || echo "")
+            branch=$(cd "$CFG_REPO_PATH" && git rev-parse --abbrev-ref HEAD 2> /dev/null || echo "")
         fi
 
         echo "{\"version\": \"$VERSION\", \"repo_url\": \"$CFG_REPO_URL\", \"repo_branch\": \"$CFG_REPO_BRANCH\", \"repo_path\": \"$CFG_REPO_PATH\", \"zones_path\": \"$CFG_ZONES_PATH\", \"pihole_toml\": \"$CFG_PIHOLE_TOML\", \"commit\": \"$commit\", \"current_branch\": \"$branch\"}"
@@ -1353,9 +1400,9 @@ cmd_status() {
     if [[ -d "$CFG_REPO_PATH/.git" ]]; then
         echo -e "${C_CYAN}Repository:${C_NC}"
         cd "$CFG_REPO_PATH"
-        echo "  Branch: $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
-        echo "  Commit: $(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
-        echo "  Date:   $(git log -1 --format=%ci 2>/dev/null || echo unknown)"
+        echo "  Branch: $(git rev-parse --abbrev-ref HEAD 2> /dev/null || echo unknown)"
+        echo "  Commit: $(git rev-parse --short HEAD 2> /dev/null || echo unknown)"
+        echo "  Date:   $(git log -1 --format=%ci 2> /dev/null || echo unknown)"
     fi
 }
 
@@ -1364,7 +1411,10 @@ cmd_status() {
 # =============================================================================
 
 cmd_install() {
-    [[ $EUID -ne 0 ]] && { log_error "Install requires root privileges"; return 1; }
+    [[ $EUID -ne 0 ]] && {
+        log_error "Install requires root privileges"
+        return 1
+    }
 
     print_header "Installing DNS Sync v${VERSION}"
 
@@ -1397,7 +1447,7 @@ cmd_install() {
     log_info "Installing scripts..."
 
     # Handle re-installation (when script is already at install location)
-    if [[ "$(realpath "$SCRIPT_PATH" 2>/dev/null)" != "$(realpath "$install_path" 2>/dev/null)" ]]; then
+    if [[ "$(realpath "$SCRIPT_PATH" 2> /dev/null)" != "$(realpath "$install_path" 2> /dev/null)" ]]; then
         cp "$SCRIPT_PATH" "$install_path"
         chmod 755 "$install_path"
         log_ok "Installed: $install_path"
@@ -1407,7 +1457,7 @@ cmd_install() {
 
     if [[ -f "$SYNC_SCRIPT" ]]; then
         local target_sync="${install_path%/*}/sync-dns-zones.py"
-        if [[ "$(realpath "$SYNC_SCRIPT" 2>/dev/null)" != "$(realpath "$target_sync" 2>/dev/null)" ]]; then
+        if [[ "$(realpath "$SYNC_SCRIPT" 2> /dev/null)" != "$(realpath "$target_sync" 2> /dev/null)" ]]; then
             cp "$SYNC_SCRIPT" "$target_sync"
             chmod 755 "$target_sync"
             log_ok "Installed: $target_sync"
@@ -1621,7 +1671,7 @@ LOGROTATE
     log_info "Installing shell completions..."
 
     if [[ -d "$completion_dir" ]]; then
-        "$install_path" completions bash > "$completion_dir/dns-sync" 2>/dev/null
+        "$install_path" completions bash > "$completion_dir/dns-sync" 2> /dev/null
         chmod 644 "$completion_dir/dns-sync"
         log_ok "Created: $completion_dir/dns-sync"
     else
@@ -1630,7 +1680,7 @@ LOGROTATE
 
     # Also try to install zsh completion if available
     if [[ -d "/usr/share/zsh/site-functions" ]]; then
-        "$install_path" completions zsh > "/usr/share/zsh/site-functions/_dns-sync" 2>/dev/null
+        "$install_path" completions zsh > "/usr/share/zsh/site-functions/_dns-sync" 2> /dev/null
         log_ok "Created: /usr/share/zsh/site-functions/_dns-sync"
     fi
 
@@ -1691,7 +1741,10 @@ LOGROTATE
 }
 
 cmd_uninstall() {
-    [[ $EUID -ne 0 ]] && { log_error "Uninstall requires root privileges"; return 1; }
+    [[ $EUID -ne 0 ]] && {
+        log_error "Uninstall requires root privileges"
+        return 1
+    }
 
     print_header "Uninstalling DNS Sync"
 
@@ -1707,8 +1760,8 @@ cmd_uninstall() {
 
     # Stop and disable timer
     log_info "Stopping services..."
-    systemctl disable --now dns-sync.timer 2>/dev/null || true
-    systemctl disable dns-sync.service 2>/dev/null || true
+    systemctl disable --now dns-sync.timer 2> /dev/null || true
+    systemctl disable dns-sync.service 2> /dev/null || true
     log_ok "Services stopped"
 
     # Remove scripts
@@ -1729,8 +1782,8 @@ cmd_uninstall() {
     fi
 
     # Remove shell completions
-    rm -f /etc/bash_completion.d/dns-sync 2>/dev/null
-    rm -f /usr/share/zsh/site-functions/_dns-sync 2>/dev/null
+    rm -f /etc/bash_completion.d/dns-sync 2> /dev/null
+    rm -f /usr/share/zsh/site-functions/_dns-sync 2> /dev/null
     log_ok "Removed: shell completions"
 
     # Handle config and data based on --force flag
@@ -1783,13 +1836,16 @@ cmd_check() {
     setup_paths
     load_config
 
-    [[ -z "$CFG_REPO_URL" ]] && { log_error "Repository URL not configured."; return 1; }
+    [[ -z "$CFG_REPO_URL" ]] && {
+        log_error "Repository URL not configured."
+        return 1
+    }
 
     local result=0
     check_for_changes || result=$?
 
     case $result in
-        0)  # Changes detected
+        0) # Changes detected
             if [[ "$OPT_JSON" == "true" ]]; then
                 local local_h remote_h
                 local_h=$(get_local_hash)
@@ -1802,7 +1858,7 @@ cmd_check() {
             fi
             return 0
             ;;
-        1)  # No changes
+        1) # No changes
             if [[ "$OPT_JSON" == "true" ]]; then
                 local h
                 h=$(get_local_hash)
@@ -1812,7 +1868,7 @@ cmd_check() {
             fi
             return 1
             ;;
-        *)  # Error
+        *) # Error
             if [[ "$OPT_JSON" == "true" ]]; then
                 json_output "error" "Failed to check for changes"
             else
@@ -1831,7 +1887,10 @@ cmd_watch() {
     setup_paths
     load_config
 
-    [[ -z "$CFG_REPO_URL" ]] && { log_error "Repository URL not configured."; return 1; }
+    [[ -z "$CFG_REPO_URL" ]] && {
+        log_error "Repository URL not configured."
+        return 1
+    }
 
     check_deps || return $?
 
@@ -1860,9 +1919,9 @@ cmd_watch() {
             log_info "[$check_time] Changes detected, syncing..."
 
             # Acquire lock and sync
-            if acquire_lock 2>/dev/null; then
-                git_init >/dev/null 2>&1
-                if git_update && validate_env 2>/dev/null && sync_dns; then
+            if acquire_lock 2> /dev/null; then
+                git_init > /dev/null 2>&1
+                if git_update && validate_env 2> /dev/null && sync_dns; then
                     sync_count=$((sync_count + 1))
                     last_sync="$check_time"
                     log_ok "[$check_time] Sync #$sync_count completed"
@@ -1898,16 +1957,28 @@ cmd_sync() {
     setup_paths
     load_config
 
-    [[ -z "$CFG_REPO_URL" ]] && { log_error "Repository URL not configured. Set DNS_REPO_URL or edit config."; return 1; }
+    [[ -z "$CFG_REPO_URL" ]] && {
+        log_error "Repository URL not configured. Set DNS_REPO_URL or edit config."
+        return 1
+    }
 
     print_header "DNS GitOps Sync"
 
     check_deps || return $?
     acquire_lock || return $?
 
-    git_init || { log_error "Repository init failed"; return $E_ERROR; }
-    git_update || { log_error "Repository update failed"; return $E_ERROR; }
-    validate_env || { log_error "Validation failed"; return $E_ERROR; }
+    git_init || {
+        log_error "Repository init failed"
+        return $E_ERROR
+    }
+    git_update || {
+        log_error "Repository update failed"
+        return $E_ERROR
+    }
+    validate_env || {
+        log_error "Validation failed"
+        return $E_ERROR
+    }
 
     local result
     sync_dns
@@ -2101,11 +2172,26 @@ cmd_history() {
 
             local icon color
             case "$status" in
-                success)  icon="✓"; color="$C_GREEN" ;;
-                failure)  icon="✗"; color="$C_RED" ;;
-                rollback) icon="↺"; color="$C_YELLOW" ;;
-                restore)  icon="⟲"; color="$C_CYAN" ;;
-                *)        icon="•"; color="$C_NC" ;;
+                success)
+                    icon="✓"
+                    color="$C_GREEN"
+                    ;;
+                failure)
+                    icon="✗"
+                    color="$C_RED"
+                    ;;
+                rollback)
+                    icon="↺"
+                    color="$C_YELLOW"
+                    ;;
+                restore)
+                    icon="⟲"
+                    color="$C_CYAN"
+                    ;;
+                *)
+                    icon="•"
+                    color="$C_NC"
+                    ;;
             esac
 
             echo -e "  ${color}${icon}${C_NC} ${C_DIM}${ts}${C_NC} ${msg} ${C_DIM}(${commit})${C_NC}"
@@ -2115,7 +2201,7 @@ cmd_history() {
         local total
         total=$(wc -l < "$CFG_HISTORY_FILE")
         echo ""
-        log_info "Showing $((i-1)) of $total entries"
+        log_info "Showing $((i - 1)) of $total entries"
     fi
 }
 
@@ -2148,7 +2234,10 @@ cmd_metrics() {
             value=$(echo "$line" | cut -d' ' -f2)
             metrics+=("\"$name\": $value")
         done < "$CFG_METRICS_FILE"
-        echo "{$(IFS=,; echo "${metrics[*]}")}"
+        echo "{$(
+            IFS=,
+            echo "${metrics[*]}"
+        )}"
     else
         print_header "Prometheus Metrics"
         echo "File: $CFG_METRICS_FILE"
@@ -2167,7 +2256,10 @@ cmd_diff() {
     setup_paths
     load_config
 
-    [[ -z "$CFG_REPO_URL" ]] && { log_error "Repository URL not configured."; return 1; }
+    [[ -z "$CFG_REPO_URL" ]] && {
+        log_error "Repository URL not configured."
+        return 1
+    }
 
     print_header "DNS Changes Preview"
 
@@ -2351,22 +2443,71 @@ parse_args() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help)       cmd_help; exit 0 ;;
-            -v|--verbose)    OPT_VERBOSE=true; shift ;;
-            -q|--quiet)      OPT_QUIET=true; shift ;;
-            -n|--dry-run)    OPT_DRY_RUN=true; shift ;;
-            -f|--force)      OPT_FORCE=true; shift ;;
-            --no-restart)    OPT_NO_RESTART=true; shift ;;
-            --json)          OPT_JSON=true; shift ;;
-            --zone)          OPT_ZONES+=("$2"); shift 2 ;;
-            --config)        CFG_CONFIG_FILE="$2"; shift 2 ;;
-            --repo-url)      CFG_REPO_URL="$2"; shift 2 ;;
-            --branch)        CFG_REPO_BRANCH="$2"; shift 2 ;;
-            --ssh-key)       CFG_SSH_KEY="$2"; shift 2 ;;
-            --interval)      OPT_WATCH_INTERVAL="$2"; shift 2 ;;
-            --version)       echo "dns-sync $VERSION"; exit 0 ;;
-            -*)              log_error "Unknown option: $1"; echo "Try '$SCRIPT_NAME help'"; exit $E_ARGS ;;
-            *)               positional+=("$1"); shift ;;
+            -h | --help)
+                cmd_help
+                exit 0
+                ;;
+            -v | --verbose)
+                OPT_VERBOSE=true
+                shift
+                ;;
+            -q | --quiet)
+                OPT_QUIET=true
+                shift
+                ;;
+            -n | --dry-run)
+                OPT_DRY_RUN=true
+                shift
+                ;;
+            -f | --force)
+                OPT_FORCE=true
+                shift
+                ;;
+            --no-restart)
+                OPT_NO_RESTART=true
+                shift
+                ;;
+            --json)
+                OPT_JSON=true
+                shift
+                ;;
+            --zone)
+                OPT_ZONES+=("$2")
+                shift 2
+                ;;
+            --config)
+                CFG_CONFIG_FILE="$2"
+                shift 2
+                ;;
+            --repo-url)
+                CFG_REPO_URL="$2"
+                shift 2
+                ;;
+            --branch)
+                CFG_REPO_BRANCH="$2"
+                shift 2
+                ;;
+            --ssh-key)
+                CFG_SSH_KEY="$2"
+                shift 2
+                ;;
+            --interval)
+                OPT_WATCH_INTERVAL="$2"
+                shift 2
+                ;;
+            --version)
+                echo "dns-sync $VERSION"
+                exit 0
+                ;;
+            -*)
+                log_error "Unknown option: $1"
+                echo "Try '$SCRIPT_NAME help'"
+                exit $E_ARGS
+                ;;
+            *)
+                positional+=("$1")
+                shift
+                ;;
         esac
     done
 
@@ -2384,42 +2525,86 @@ main() {
 
     case "$COMMAND" in
         # Sync operations
-        sync)           cmd_sync ;;
-        check)          cmd_check ;;
-        watch)          cmd_watch ;;
-        diff)           cmd_diff ;;
+        sync) cmd_sync ;;
+        check) cmd_check ;;
+        watch) cmd_watch ;;
+        diff) cmd_diff ;;
 
         # Validation
-        validate)       setup_paths; load_config; validate_zones ;;
-        config-test)    setup_paths; load_config; validate_config ;;
+        validate)
+            setup_paths
+            load_config
+            validate_zones
+            ;;
+        config-test)
+            setup_paths
+            load_config
+            validate_config
+            ;;
 
         # Backup & Restore
-        backups)        setup_paths; load_config; list_backups ;;
-        restore)        setup_paths; load_config; [[ -n "$COMMAND_ARG" ]] && restore_backup "$COMMAND_ARG" || { log_error "Usage: dns-sync restore <number|filename>"; exit $E_ARGS; } ;;
+        backups)
+            setup_paths
+            load_config
+            list_backups
+            ;;
+        restore)
+            setup_paths
+            load_config
+            [[ -n "$COMMAND_ARG" ]] && restore_backup "$COMMAND_ARG" || {
+                log_error "Usage: dns-sync restore <number|filename>"
+                exit $E_ARGS
+            }
+            ;;
 
         # Information
-        health)         cmd_health ;;
-        status)         cmd_status ;;
-        zones)          setup_paths; load_config; list_zones ;;
-        history)        cmd_history "$COMMAND_ARG" ;;
-        metrics)        cmd_metrics ;;
+        health) cmd_health ;;
+        status) cmd_status ;;
+        zones)
+            setup_paths
+            load_config
+            list_zones
+            ;;
+        history) cmd_history "$COMMAND_ARG" ;;
+        metrics) cmd_metrics ;;
 
         # Repository
-        init)           setup_paths; load_config; check_deps && acquire_lock && git_init ;;
-        update)         setup_paths; load_config; check_deps && acquire_lock && git_init && git_update ;;
+        init)
+            setup_paths
+            load_config
+            check_deps && acquire_lock && git_init
+            ;;
+        update)
+            setup_paths
+            load_config
+            check_deps && acquire_lock && git_init && git_update
+            ;;
 
         # Installation
-        install)        setup_paths; cmd_install ;;
-        uninstall)      setup_paths; load_config; cmd_uninstall ;;
-        completions)    cmd_completions "$COMMAND_ARG" ;;
+        install)
+            setup_paths
+            cmd_install
+            ;;
+        uninstall)
+            setup_paths
+            load_config
+            cmd_uninstall
+            ;;
+        completions) cmd_completions "$COMMAND_ARG" ;;
 
         # Help
-        help|--help|-h) cmd_help ;;
-        version)        echo "dns-sync $VERSION"; exit 0 ;;
+        help | --help | -h) cmd_help ;;
+        version)
+            echo "dns-sync $VERSION"
+            exit 0
+            ;;
 
-        *)              log_error "Unknown command: $COMMAND"; echo "Try '$SCRIPT_NAME help'"; exit $E_ARGS ;;
+        *)
+            log_error "Unknown command: $COMMAND"
+            echo "Try '$SCRIPT_NAME help'"
+            exit $E_ARGS
+            ;;
     esac
 }
 
 main "$@"
-

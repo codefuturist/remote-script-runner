@@ -27,17 +27,20 @@ make format
 ### 📜 Shell Scripts (Bash/sh)
 
 #### ShellCheck
+
 **Purpose:** Static analysis for shell scripts
 **Configuration:** `.shellcheckrc`
 **Run:** `make lint-shellcheck` or `shellcheck scripts/**/*.sh`
 
 **Key Rules:**
+
 - SC2034: Unused variables (disabled for sourced files)
 - SC1090/SC1091: Source file following (disabled)
 - SC2155: Declare and assign separately
 - Enabled checks: deprecate-which, quote-safe-variables
 
 **Install:**
+
 ```bash
 # macOS
 brew install shellcheck
@@ -50,11 +53,13 @@ scoop install shellcheck
 ```
 
 #### shfmt
+
 **Purpose:** Shell script formatter
 **Configuration:** `.editorconfig` + pre-commit
 **Run:** `make format` or `shfmt -i 4 -ci -bn -sr -w scripts/**/*.sh`
 
 **Format Style:**
+
 - 4-space indentation
 - Case indent
 - Binary ops at start of line
@@ -62,6 +67,7 @@ scoop install shellcheck
 - Simplify code
 
 **Install:**
+
 ```bash
 # macOS
 brew install shfmt
@@ -75,11 +81,13 @@ go install mvdan.cc/sh/v3/cmd/shfmt@latest
 ### 💻 PowerShell Scripts
 
 #### PSScriptAnalyzer
+
 **Purpose:** PowerShell code quality and style
 **Configuration:** `.psscriptanalyzer/PSScriptAnalyzerSettings.psd1`
 **Run:** `make lint-powershell` or `tools/lint-powershell.sh`
 
 **Key Rules:**
+
 - Consistent indentation (4 spaces)
 - Brace placement (same line)
 - Consistent whitespace
@@ -89,6 +97,7 @@ go install mvdan.cc/sh/v3/cmd/shfmt@latest
 - Alignment of assignment statements
 
 **Install:**
+
 ```powershell
 Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force
 ```
@@ -98,11 +107,13 @@ Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force
 ### 🟨 JavaScript
 
 #### ESLint
+
 **Purpose:** JavaScript linting
 **Configuration:** `.eslintrc.json`
 **Run:** `npm run lint:js` or `make lint-javascript`
 
 **Key Rules:**
+
 - 2-space indentation
 - Single quotes (with escape exceptions)
 - Semicolons required
@@ -111,6 +122,7 @@ Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force
 - Max line length: 120 characters
 
 **Install:**
+
 ```bash
 npm install
 ```
@@ -120,11 +132,13 @@ npm install
 ### 📝 Markdown
 
 #### markdownlint
+
 **Purpose:** Markdown style and best practices
 **Configuration:** `.markdownlint.json`
 **Run:** `npm run lint:md` or `make lint-markdown`
 
 **Key Rules:**
+
 - ATX-style headers (#, ##, ###)
 - Fenced code blocks
 - No hard tabs
@@ -134,6 +148,7 @@ npm install
 - MD041 (first line heading) disabled
 
 **Install:**
+
 ```bash
 npm install
 # or
@@ -145,11 +160,13 @@ npm install -g markdownlint-cli
 ### 📄 YAML
 
 #### yamllint
+
 **Purpose:** YAML syntax and style
 **Configuration:** `.yamllint.yml`
 **Run:** `make lint-yaml` or `yamllint .`
 
 **Key Rules:**
+
 - 2-space indentation
 - Max line length: 120 (warning)
 - Consistent comments
@@ -158,6 +175,7 @@ npm install -g markdownlint-cli
 - Document start not required
 
 **Install:**
+
 ```bash
 # pip
 pip install yamllint
@@ -171,26 +189,31 @@ brew install yamllint
 ### 🔒 Security Scanning
 
 #### detect-secrets
+
 **Purpose:** Prevent committing secrets
 **Configuration:** `.secrets.baseline`
 **Run:** Automatic via pre-commit hooks
 
 **Features:**
+
 - Scans for passwords, API keys, tokens
 - Maintains baseline of known false positives
 - Runs on every commit
 
 **Install:**
+
 ```bash
 pip install detect-secrets
 ```
 
 #### gitleaks
+
 **Purpose:** Fast secret detection
 **Configuration:** Pre-commit hook
 **Run:** Automatic via pre-commit hooks
 
 **Install:**
+
 ```bash
 brew install gitleaks
 ```
@@ -200,11 +223,13 @@ brew install gitleaks
 ### 🔍 Additional Checks
 
 #### pre-commit hooks
+
 **Purpose:** Run multiple checks before commit
 **Configuration:** `.pre-commit-config.yaml`
 **Install:** `make setup-hooks` or `pre-commit install`
 
 **Hooks:**
+
 - Trailing whitespace
 - End-of-file fixer
 - YAML/JSON validation
@@ -220,11 +245,13 @@ brew install gitleaks
 - yamllint
 
 #### commitlint
+
 **Purpose:** Conventional commit messages
 **Configuration:** `commitlint.config.js`
 **Run:** Automatic via husky hooks
 
 **Format:**
+
 ```
 type(scope): subject
 
@@ -243,6 +270,7 @@ Examples:
 **Supported:** VS Code, IntelliJ, Sublime, Vim, etc.
 
 **Settings:**
+
 - UTF-8 encoding
 - LF line endings
 - Trim trailing whitespace
@@ -375,22 +403,26 @@ This is a very long line that exceeds the usual limit.
 ## Best Practices
 
 1. **Run linters before committing**
+
    ```bash
    make lint
    ```
 
 2. **Fix issues automatically when possible**
+
    ```bash
    make lint-fix
    make format
    ```
 
 3. **Install pre-commit hooks**
+
    ```bash
    make setup-hooks
    ```
 
 4. **Check formatting without changes**
+
    ```bash
    make format-check
    ```
@@ -412,6 +444,7 @@ This is a very long line that exceeds the usual limit.
 ### "Command not found: shellcheck"
 
 Install ShellCheck:
+
 ```bash
 brew install shellcheck          # macOS
 sudo apt-get install shellcheck  # Ubuntu/Debian
@@ -420,6 +453,7 @@ sudo apt-get install shellcheck  # Ubuntu/Debian
 ### "PSScriptAnalyzer module not found"
 
 Install the module:
+
 ```powershell
 Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force
 ```
@@ -427,6 +461,7 @@ Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force
 ### "npm ERR! Missing script: lint:js"
 
 Install dependencies:
+
 ```bash
 npm install
 ```
@@ -434,6 +469,7 @@ npm install
 ### Pre-commit hooks not running
 
 Install hooks:
+
 ```bash
 pre-commit install
 ```
@@ -441,6 +477,7 @@ pre-commit install
 ### EditorConfig not working
 
 Install extension for your editor:
+
 - VS Code: "EditorConfig for VS Code"
 - IntelliJ: Built-in support
 - Sublime: "EditorConfig"

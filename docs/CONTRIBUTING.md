@@ -21,15 +21,20 @@ Please be respectful and constructive in all interactions. We're all here to lea
 
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
+
    ```bash
    git clone https://github.com/YOUR-USERNAME/remote-script-runner.git
    cd remote-script-runner
    ```
+
 3. **Add the upstream remote**:
+
    ```bash
    git remote add upstream https://github.com/codefuturist/remote-script-runner.git
    ```
+
 4. **Set up the development environment**:
+
    ```bash
    make install
    ```
@@ -97,6 +102,7 @@ shfmt -i 4 -ci -bn -sr
 - `-sr`: Redirect operators followed by space
 
 **Format your code:**
+
 ```bash
 make format        # Auto-format all scripts
 make format-check  # Check without changing
@@ -183,6 +189,7 @@ Common scopes: `scripts`, `rsr`, `lib`, `test`, `ci`, `docs`
 ### Before Submitting
 
 1. **Create a feature branch**:
+
    ```bash
    git checkout -b feat/my-new-feature
    ```
@@ -190,6 +197,7 @@ Common scopes: `scripts`, `rsr`, `lib`, `test`, `ci`, `docs`
 2. **Make your changes** following the code style guidelines
 
 3. **Run all checks**:
+
    ```bash
    make all  # Runs lint, test, validate
    ```
@@ -197,6 +205,7 @@ Common scopes: `scripts`, `rsr`, `lib`, `test`, `ci`, `docs`
 4. **Commit your changes** using conventional commits
 
 5. **Push to your fork**:
+
    ```bash
    git push origin feat/my-new-feature
    ```
@@ -234,10 +243,12 @@ make test-verbose      # Verbose output
 Tests use [BATS](https://github.com/bats-core/bats-core) (Bash Automated Testing System).
 
 **Test file location:**
+
 - Unit tests: `test/unit/<script-name>.bats`
 - Integration tests: `test/integration/<feature>.bats`
 
 **Example test:**
+
 ```bash
 #!/usr/bin/env bats
 
@@ -266,6 +277,7 @@ teardown() {
 ### Test Helpers
 
 The `test/test_helper.bash` provides:
+
 - `setup_test_env` / `teardown_test_env`: Temporary directory management
 - `mock_command`: Create mock commands
 - `strip_colors`: Remove ANSI codes from output
@@ -300,6 +312,7 @@ cp scripts/bash/disk-cleanup.sh scripts/bash/my-new-script.sh
 ### 3. Update Registry
 
 Add to `scripts/registry.json`:
+
 ```json
 {
   "id": "my-script",
@@ -322,6 +335,7 @@ Add to `rsr` file in `get_script_path()` and command case statement.
 ### 5. Add Tests
 
 Create `test/unit/my-new-script.bats` with at least:
+
 - Help flag test
 - Syntax validation test
 - Basic functionality tests
@@ -340,4 +354,3 @@ make lint      # Check code quality
 - Start a [discussion](https://github.com/codefuturist/remote-script-runner/discussions) for questions
 
 Thank you for contributing! 🎉
-

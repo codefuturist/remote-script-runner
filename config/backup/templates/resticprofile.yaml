@@ -1,0 +1,331 @@
+# resticprofile.yaml - Resticprofile Configuration Template
+# Documentation: https://creativeprojects.github.io/resticprofile/
+#
+# Usage:
+#   resticprofile backup                    # Backup default profile
+#   resticprofile -n home backup            # Backup specific profile
+#   resticprofile -n home snapshots         # List snapshots
+#   resticprofile schedule --all            # Install all schedules
+#
+# Config location: ~/.config/resticprofile/profiles.yaml
+# Install: brew install creativeprojects/tap/resticprofile
+#          curl -sfL https://raw.githubusercontent.com/creativeprojects/resticprofile/master/install.sh | bash
+
+version: "1"
+
+# =============================================================================
+# Global Settings
+# =============================================================================
+
+global:
+  # Default command options
+  default-command: snapshots
+  # Initialize repo if missing
+  initialize: true
+  # Minimum restic version
+  min-version: "0.14.0"
+  # Priority (nice level)
+  priority: low
+  # Lock handling
+  restic-lock-retry-after: 1m
+  restic-stale-lock-age: 2h
+  # Logging
+  log: /var/log/resticprofile.log
+  # Shell to use for hooks
+  shell: bash
+
+# =============================================================================
+# Profile: Default
+# =============================================================================
+
+default:
+  repository: /backup/restic-repo
+  password-file: ~/.config/resticprofile/.password
+  # Or use environment: password-command: "echo $RESTIC_PASSWORD"
+
+  # Retention policy (applied with 'forget' command)
+  retention:
+    keep-daily: 7
+    keep-weekly: 4
+    keep-monthly: 6
+    keep-yearly: 1
+    prune: true
+
+  # Backup settings
+  backup:
+    source:
+      - ${HOME}
+    exclude:
+      - ".cache"
+      - ".local/share/Trash"
+      - "node_modules"
+      - ".npm"
+      - "__pycache__"
+      - "*.pyc"
+      - ".DS_Store"
+      - "Thumbs.db"
+      - ".venv"
+      - "venv"
+    exclude-caches: true
+    one-file-system: true
+    # Tags for organization
+    tag:
+      - home
+      - daily
+    # Run hooks
+    run-before:
+      - echo "Starting backup..."
+    run-after:
+      - echo "Backup completed"
+    run-after-fail:
+      - echo "Backup FAILED!" >&2
+    # Schedule (cron or systemd)
+    schedule:
+      - "*:00,30"  # Every 30 minutes
+    schedule-permission: user
+    schedule-log: /var/log/resticprofile-backup.log
+
+  # Check settings
+  check:
+    read-data-subset: "10%"
+    schedule:
+      - "Sun *:00"  # Weekly on Sunday
+    schedule-permission: user
+
+  # Forget settings
+  forget:
+    schedule:
+      - "daily"
+    schedule-permission: user
+
+# =============================================================================
+# Profile: Home
+# =============================================================================
+
+home:
+  inherit: default
+
+  backup:
+    source:
+      - ${HOME}/Documents
+      - ${HOME}/Desktop
+      - ${HOME}/Pictures
+      - ${HOME}/Music
+    tag:
+      - home
+      - personal
+    schedule:
+      - "0 2 * * *"  # Daily at 2 AM
+
+# =============================================================================
+# Profile: Developer
+# =============================================================================
+
+developer:
+  inherit: default
+  repository: /backup/dev-repo
+
+  backup:
+    source:
+      - ${HOME}/Developer
+      - ${HOME}/Projects
+      - ${HOME}/Code
+    exclude:
+      - "node_modules"
+      - "vendor"
+      - "target"
+      - "build"
+      - "dist"
+      - ".gradle"
+      - ".maven"
+      - ".venv"
+      - "venv"
+      - "__pycache__"
+      - ".idea"
+      - ".vscode"
+      - "*.log"
+    tag:
+      - developer
+      - code
+    schedule:
+      - "0 3 * * *"  # Daily at 3 AM
+
+  retention:
+    keep-daily: 14
+    keep-weekly: 8
+    keep-monthly: 12
+
+# =============================================================================
+# Profile: Server Config
+# =============================================================================
+
+server:
+  repository: sftp:backup@backup-server:/backup/server-config
+  password-file: /etc/resticprofile/.password
+
+  backup:
+    source:
+      - /etc
+      - /var/spool/cron
+      - /root
+    exclude:
+      - "/etc/shadow"
+      - "/etc/gshadow"
+      - "*.bak"
+      - "*~"
+    tag:
+      - server
+      - config
+    run-before:
+      - dpkg --get-selections > /tmp/packages.list
+      - systemctl list-unit-files --state=enabled > /tmp/services.list
+    run-after:
+      - rm -f /tmp/packages.list /tmp/services.list
+    schedule:
+      - "0 1 * * *"  # Daily at 1 AM
+    schedule-permission: system
+
+  retention:
+    keep-daily: 30
+    keep-weekly: 12
+    keep-monthly: 12
+    keep-yearly: 5
+
+# =============================================================================
+# Profile: Cloud Backup (S3)
+# =============================================================================
+
+cloud:
+  repository: s3:s3.amazonaws.com/${BACKUP_BUCKET}/restic
+  password-file: ~/.config/resticprofile/.password
+
+  # S3 credentials
+  env:
+    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+
+  backup:
+    source:
+      - ${HOME}/Documents
+      - ${HOME}/Pictures
+    tag:
+      - cloud
+      - offsite
+    schedule:
+      - "0 4 * * *"  # Daily at 4 AM
+
+  retention:
+    keep-daily: 7
+    keep-weekly: 4
+    keep-monthly: 12
+
+# =============================================================================
+# Profile: Backblaze B2
+# =============================================================================
+
+b2:
+  repository: b2:${B2_BUCKET}:/restic/${HOSTNAME}
+  password-file: ~/.config/resticprofile/.password
+
+  env:
+    B2_ACCOUNT_ID: ${B2_ACCOUNT_ID}
+    B2_ACCOUNT_KEY: ${B2_ACCOUNT_KEY}
+
+  backup:
+    source:
+      - ${HOME}
+    exclude:
+      - ".cache"
+      - "node_modules"
+      - ".venv"
+    tag:
+      - b2
+      - offsite
+    schedule:
+      - "0 5 * * 0"  # Weekly on Sunday at 5 AM
+
+# =============================================================================
+# Mixins (Reusable Configurations)
+# =============================================================================
+
+mixins:
+  standard-excludes:
+    backup:
+      exclude:
+        - ".cache"
+        - ".local/share/Trash"
+        - "node_modules"
+        - "__pycache__"
+        - ".DS_Store"
+        - "Thumbs.db"
+        - "*.log"
+        - "*.tmp"
+      exclude-caches: true
+
+  weekly-retention:
+    retention:
+      keep-daily: 7
+      keep-weekly: 4
+      keep-monthly: 6
+      keep-yearly: 1
+
+  monthly-retention:
+    retention:
+      keep-daily: 30
+      keep-weekly: 12
+      keep-monthly: 12
+      keep-yearly: 5
+
+# =============================================================================
+# Groups (Run Multiple Profiles)
+# =============================================================================
+
+groups:
+  # All local backups
+  local:
+    - home
+    - developer
+
+  # All offsite backups
+  offsite:
+    - cloud
+    - b2
+
+  # Everything
+  all:
+    - home
+    - developer
+    - server
+    - cloud
+
+# =============================================================================
+# Example Commands
+# =============================================================================
+#
+# Initial setup:
+#   resticprofile generate --random-key > ~/.config/resticprofile/.password
+#   resticprofile init                    # Initialize default repo
+#   resticprofile -n home init            # Initialize specific repo
+#
+# Backup operations:
+#   resticprofile backup                  # Backup default profile
+#   resticprofile -n home backup          # Backup specific profile
+#   resticprofile -n local backup         # Backup group of profiles
+#   resticprofile --dry-run backup        # Dry run
+#
+# List and restore:
+#   resticprofile snapshots               # List snapshots
+#   resticprofile -n home snapshots       # List for profile
+#   resticprofile -n home restore latest --target /restore
+#   resticprofile -n home mount /mnt/backup
+#
+# Maintenance:
+#   resticprofile check                   # Verify integrity
+#   resticprofile forget                  # Apply retention
+#   resticprofile prune                   # Free space
+#
+# Scheduling:
+#   resticprofile schedule --all          # Install all schedules
+#   resticprofile unschedule --all        # Remove all schedules
+#   resticprofile status                  # Show schedule status
+

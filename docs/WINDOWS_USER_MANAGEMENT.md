@@ -81,9 +81,11 @@ if (-not $isAdmin) {
 Windows OpenSSH has special handling for administrators:
 
 **Regular Users:**
+
 - Keys: `C:\Users\username\.ssh\authorized_keys`
 
 **Administrators:**
+
 - Keys: `C:\ProgramData\ssh\administrators_authorized_keys`
 - Requires special ACL permissions
 
@@ -324,6 +326,7 @@ Remove-RSRUser -Username "testuser" -RemoveHome
 **Problem:** "Cannot be loaded because running scripts is disabled"
 
 **Solution:**
+
 ```powershell
 # Set execution policy for current user
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
@@ -337,6 +340,7 @@ powershell -ExecutionPolicy Bypass -File .\rsr.ps1 usermgmt list
 **Problem:** "Access is denied"
 
 **Solution:**
+
 - Right-click PowerShell and select "Run as Administrator"
 - Or use `Start-Process powershell -Verb RunAs`
 
@@ -345,6 +349,7 @@ powershell -ExecutionPolicy Bypass -File .\rsr.ps1 usermgmt list
 **Problem:** "User 'john' already exists"
 
 **Solution:**
+
 ```powershell
 # Check if user exists
 rsr usermgmt list | Select-String "john"
@@ -361,6 +366,7 @@ rsr usermgmt create -u john
 **Problem:** SSH authentication fails
 
 **Solution:**
+
 ```powershell
 # Fix permissions
 rsr usermgmt ssh fix -u john
@@ -382,6 +388,7 @@ rsr usermgmt ssh list -u john
 **Problem:** Need to manage domain users
 
 **Solution:**
+
 ```powershell
 # Check if domain-joined
 (Get-WmiObject Win32_ComputerSystem).PartOfDomain
@@ -404,14 +411,14 @@ rsr usermgmt create -u domainuser  # Creates AD user if domain-joined
 # Create multiple users from CSV
 Import-Csv users.csv | ForEach-Object {
     Write-Host "Creating user: $($_.Username)"
-    
+
     $params = @{
         Username = $_.Username
         FullName = $_.FullName
     }
-    
+
     New-RSRUser @params
-    
+
     # Add to groups
     if ($_.Groups) {
         $_.Groups -split ';' | ForEach-Object {
@@ -439,7 +446,7 @@ Register-ScheduledTask -TaskName "RSR User Audit" `
 ```powershell
 Configuration RSRUserSetup {
     Import-DscResource -ModuleName PSDesiredStateConfiguration
-    
+
     Node localhost {
         Script CreateUsers {
             GetScript = { @{ Result = "" } }
@@ -474,8 +481,8 @@ Configuration RSRUserSetup {
 ## Support
 
 For Windows-specific issues:
-- GitHub Issues: https://github.com/codefuturist/remote-script-runner/issues
+
+- GitHub Issues: <https://github.com/codefuturist/remote-script-runner/issues>
 - Tag issues with `windows` label
 - Provide PowerShell version: `$PSVersionTable.PSVersion`
 - Specify Windows version: `[System.Environment]::OSVersion.Version`
-

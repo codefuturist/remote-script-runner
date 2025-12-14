@@ -162,7 +162,10 @@ parse_args() {
             --verbose) VERBOSE=true ;;
             --rollback) ROLLBACK=true ;;
             --help) show_help ;;
-            *) log_error "Unknown option: $1"; exit 1 ;;
+            *)
+                log_error "Unknown option: $1"
+                exit 1
+                ;;
         esac
         shift
     done
@@ -367,7 +370,7 @@ migrate_scripts() {
     # Clean up empty old directories
     log_info "Cleaning up old directories..."
     for dir in scripts/bash scripts/zsh scripts/fish scripts/sh scripts/powershell; do
-        if [[ -d "$dir" ]] && [[ -z "$(ls -A "$dir" 2>/dev/null)" ]]; then
+        if [[ -d "$dir" ]] && [[ -z "$(ls -A "$dir" 2> /dev/null)" ]]; then
             run_cmd "rmdir '$dir'"
             log_ok "Removed empty: $dir"
         fi
@@ -546,16 +549,16 @@ migrate_local_dirs() {
     local gitignore="$ROOT_DIR/.gitignore"
     local additions=()
 
-    if ! grep -q "^logs/$" "$gitignore" 2>/dev/null; then
+    if ! grep -q "^logs/$" "$gitignore" 2> /dev/null; then
         additions+=("logs/")
     fi
-    if ! grep -q "^!logs/.gitkeep$" "$gitignore" 2>/dev/null; then
+    if ! grep -q "^!logs/.gitkeep$" "$gitignore" 2> /dev/null; then
         additions+=("!logs/.gitkeep")
     fi
-    if ! grep -q "^tmp/$" "$gitignore" 2>/dev/null; then
+    if ! grep -q "^tmp/$" "$gitignore" 2> /dev/null; then
         additions+=("tmp/")
     fi
-    if ! grep -q "^!tmp/.gitkeep$" "$gitignore" 2>/dev/null; then
+    if ! grep -q "^!tmp/.gitkeep$" "$gitignore" 2> /dev/null; then
         additions+=("!tmp/.gitkeep")
     fi
 
@@ -845,4 +848,3 @@ EOF
 }
 
 main "$@"
-

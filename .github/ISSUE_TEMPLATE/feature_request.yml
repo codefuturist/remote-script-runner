@@ -1,7 +1,7 @@
 name: Feature Request
 description: Suggest a new feature or enhancement
-title: "[Feature]: "
-labels: ["enhancement", "triage"]
+title: '[Feature]: '
+labels: ['enhancement', 'triage']
 body:
   - type: markdown
     attributes:
@@ -74,4 +74,3 @@ body:
     attributes:
       label: Additional Context
       description: Any other context, mockups, or examples?
-

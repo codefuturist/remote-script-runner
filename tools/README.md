@@ -21,6 +21,7 @@ This tool verifies that package names are correct for each package manager by qu
 ## Supported Package Managers
 
 ### Tier 1 - Full API Verification (850+ packages)
+
 | Manager | Count | API | Status |
 |---------|-------|-----|--------|
 | brew | 315 | formulae.brew.sh | ✅ Full catalog |
@@ -40,6 +41,7 @@ This tool verifies that package names are correct for each package manager by qu
 | pipx | 1 | - | ⚠️ Uses PyPI |
 
 ### Tier 2 - Limited/Unverifiable
+
 - **apt**: No reliable public API (repository-dependent)
 - **dnf**: No reliable public API (repository-dependent)
 - **pipx**: Uses PyPI backend
@@ -143,9 +145,11 @@ python3 tools/verify-packages.py --ci --format json > verification-report.json
 ## Output Formats
 
 ### Text Format (Default)
+
 Human-readable console output with color-coded results.
 
 ### JSON Format
+
 ```json
 {
   "summary": {
@@ -168,6 +172,7 @@ Human-readable console output with color-coded results.
 ```
 
 ### Markdown Format
+
 GitHub-flavored markdown with tables, suitable for documentation or PR comments.
 
 ## Caching
@@ -248,8 +253,8 @@ class MyManagerValidator(PackageValidator):
         return result
 ```
 
-2. Register in `package_validators/__init__.py`
-3. Add to `verify-packages.py` validators dict
+1. Register in `package_validators/__init__.py`
+2. Add to `verify-packages.py` validators dict
 
 ## CI/CD Integration
 

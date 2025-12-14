@@ -16,6 +16,7 @@ sudo ./scripts/system/updates/system-update.sh --all --flatpak --snap --lang -y
 ## Common Use Cases
 
 ### 1. Check What Needs Updating (Safe, No Changes)
+
 ```bash
 # Linux
 ./scripts/system/updates/system-update.sh --check
@@ -28,6 +29,7 @@ sudo ./scripts/system/updates/system-update.sh --all --flatpak --snap --lang -y
 ```
 
 ### 2. Interactive Mode (Guided Menus)
+
 ```bash
 # Linux (will prompt for sudo when needed)
 ./scripts/system/updates/system-update.sh
@@ -40,6 +42,7 @@ sudo ./scripts/system/updates/system-update.sh --all --flatpak --snap --lang -y
 ```
 
 ### 3. Security Updates Only (Production Servers)
+
 ```bash
 # Linux
 sudo ./scripts/system/updates/system-update.sh --security -y
@@ -52,6 +55,7 @@ sudo ./scripts/system/updates/system-update.sh --security -y
 ```
 
 ### 4. Developer Workstation (Everything)
+
 ```bash
 # Linux
 sudo ./scripts/system/updates/system-update.sh \
@@ -67,6 +71,7 @@ sudo ./scripts/system/updates/system-update.sh \
 ```
 
 ### 5. Dry Run (See What Would Change)
+
 ```bash
 # Linux
 sudo ./scripts/system/updates/system-update.sh --all --flatpak --dry-run
@@ -81,6 +86,7 @@ sudo ./scripts/system/updates/system-update.sh --all --flatpak --dry-run
 ## What Gets Updated?
 
 ### Linux (`system-update.sh`)
+
 | Category | What's Included | Flag |
 |----------|----------------|------|
 | System Packages | apt/dnf/pacman/zypper/apk | default |
@@ -93,6 +99,7 @@ sudo ./scripts/system/updates/system-update.sh --all --flatpak --dry-run
 | Ruby | RubyGems | `--lang` or `--lang-only gem` |
 
 ### macOS (`system-update-macos.sh`)
+
 | Category | What's Included | Flag |
 |----------|----------------|------|
 | Homebrew Formulas | Command-line tools/libraries | default |
@@ -102,6 +109,7 @@ sudo ./scripts/system/updates/system-update.sh --all --flatpak --dry-run
 | Language Packages | pip, npm, cargo, gem | `--lang` |
 
 ### Windows (`System-Update.ps1`)
+
 | Category | What's Included | Flag |
 |----------|----------------|------|
 | winget | Windows Package Manager | default |
@@ -112,20 +120,23 @@ sudo ./scripts/system/updates/system-update.sh --all --flatpak --dry-run
 ## Prerequisites by Platform
 
 ### Linux
+
 - **Required**: Nothing! Works out of the box
-- **Optional**: 
+- **Optional**:
   - `flatpak` - For Flatpak updates
   - `snap` - For Snap updates
   - `fwupdmgr` - For firmware updates
   - `pip3`, `npm`, `cargo`, `gem` - For language packages
 
 ### macOS
+
 - **Required**: [Homebrew](https://brew.sh)
 - **Optional**:
   - `mas-cli` - For App Store: `brew install mas`
   - `pip3`, `npm`, `cargo`, `gem` - For language packages
 
 ### Windows
+
 - **Required**: Windows 10 1809+ or Windows 11
 - **Optional**:
   - `winget` - Usually pre-installed on Windows 11
@@ -135,16 +146,19 @@ sudo ./scripts/system/updates/system-update.sh --all --flatpak --dry-run
 ## One-Liner Installations
 
 ### Install mas-cli (macOS)
+
 ```bash
 brew install mas
 ```
 
 ### Install PSWindowsUpdate (Windows)
+
 ```powershell
 Install-Module PSWindowsUpdate -Force -Scope CurrentUser
 ```
 
 ### Install cargo-update (All platforms with Rust)
+
 ```bash
 cargo install cargo-update
 ```
@@ -152,13 +166,16 @@ cargo install cargo-update
 ## Automation Examples
 
 ### Linux Cron Job (Daily Security Updates)
+
 ```bash
 # Add to /etc/cron.d/system-update
 0 2 * * * root /path/to/system-update.sh --security -y >> /var/log/system-update.log 2>&1
 ```
 
 ### macOS LaunchAgent (Weekly Updates)
+
 Create `~/Library/LaunchAgents/com.rsr.update.plist`:
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -186,6 +203,7 @@ Create `~/Library/LaunchAgents/com.rsr.update.plist`:
 Load with: `launchctl load ~/Library/LaunchAgents/com.rsr.update.plist`
 
 ### Windows Scheduled Task
+
 ```powershell
 $action = New-ScheduledTaskAction -Execute 'PowerShell.exe' `
     -Argument '-File C:\path\to\System-Update.ps1 -All -Force'
@@ -197,22 +215,26 @@ Register-ScheduledTask -Action $action -Trigger $trigger `
 ## Troubleshooting
 
 ### "Package manager is locked"
+
 ```bash
 # Wait for other package operations to complete, or:
 sudo rm /var/lib/dpkg/lock*  # Debian/Ubuntu
 ```
 
 ### "Homebrew not found"
+
 ```bash
 # Install Homebrew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
 ### "winget: command not found"
+
 - Update Windows to latest version
 - Install App Installer from Microsoft Store
 
 ### "Permission denied"
+
 - Linux: Run with `sudo`
 - Windows: Run PowerShell as Administrator
 - macOS: Usually no sudo needed except for `--system`
@@ -238,6 +260,6 @@ cat scripts/system/updates/README.md
 ```
 
 ## Version
-Script Version: 1.0.0  
-Last Updated: 2025-12-11
 
+Script Version: 1.0.0
+Last Updated: 2025-12-11

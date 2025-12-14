@@ -24,11 +24,11 @@ _RSR_CORE_INTERACTIVE_LOADED=1
 if [[ -z "${_RSR_CORE_INIT_LOADED:-}" ]]; then
     _script_source="${BASH_SOURCE[0]:-${0:-}}"
     if [[ -n "${_script_source}" && "${_script_source}" != "bash" && "${_script_source}" != "-bash" ]]; then
-        _script_dir="$(cd "$(dirname "${_script_source}")" 2>/dev/null && pwd)" || _script_dir="./lib/core"
+        _script_dir="$(cd "$(dirname "${_script_source}")" 2> /dev/null && pwd)" || _script_dir="./lib/core"
     else
         _script_dir="./lib/core"
     fi
-    source "${_script_dir}/init.sh" 2>/dev/null || source "./lib/core/init.sh" 2>/dev/null || {
+    source "${_script_dir}/init.sh" 2> /dev/null || source "./lib/core/init.sh" 2> /dev/null || {
         echo "ERROR: RSR core/init.sh must be sourced first" >&2
         return 1
     }
@@ -99,17 +99,17 @@ rsr_prompt_confirm() {
     local hint response
 
     case "$default" in
-        y|Y|yes) hint="[Y/n]" ;;
-        n|N|no)  hint="[y/N]" ;;
-        *)       hint="[y/n]" ;;
+        y | Y | yes) hint="[Y/n]" ;;
+        n | N | no) hint="[y/N]" ;;
+        *) hint="[y/n]" ;;
     esac
 
     # Non-interactive mode: use default
     if ! rsr_should_interact; then
         case "$default" in
-            y|Y|yes) return 0 ;;
-            n|N|no)  return 1 ;;
-            *)       return 1 ;;
+            y | Y | yes) return 0 ;;
+            n | N | no) return 1 ;;
+            *) return 1 ;;
         esac
     fi
 
@@ -120,14 +120,14 @@ rsr_prompt_confirm() {
         # Empty response: use default
         if [[ -z "$response" && -n "$default" ]]; then
             case "$default" in
-                y|Y|yes) return 0 ;;
-                n|N|no)  return 1 ;;
+                y | Y | yes) return 0 ;;
+                n | N | no) return 1 ;;
             esac
         fi
 
         case "$response" in
-            y|Y|yes|YES) return 0 ;;
-            n|N|no|NO)   return 1 ;;
+            y | Y | yes | YES) return 0 ;;
+            n | N | no | NO) return 1 ;;
             *) printf "${RSR_COLOR_YELLOW}  Please answer yes or no${RSR_COLOR_RESET}\n" ;;
         esac
     done
@@ -167,7 +167,7 @@ rsr_prompt_input() {
 
         # Validate if validator provided
         if [[ -n "$validator" ]]; then
-            if "$validator" "$response" 2>/dev/null; then
+            if "$validator" "$response" 2> /dev/null; then
                 echo "$response"
                 return 0
             else
@@ -262,7 +262,7 @@ rsr_prompt_select() {
     # Render menu function
     _render_menu() {
         local i
-        for ((i=0; i<num_options; i++)); do
+        for ((i = 0; i < num_options; i++)); do
             printf "\r${RSR_CLEAR_LINE}"
             if [[ $i -eq $selected ]]; then
                 printf "  ${RSR_COLOR_CYAN}❯${RSR_COLOR_RESET} ${RSR_HIGHLIGHT}%s${RSR_HIGHLIGHT_OFF}\n" "${options[$i]}"
@@ -281,34 +281,34 @@ rsr_prompt_select() {
         read -rsn1 key
 
         case "$key" in
-            $'\x1b')  # Escape sequence
+            $'\x1b') # Escape sequence
                 read -rsn2 key
                 case "$key" in
-                    '[A')  # Up arrow
+                    '[A') # Up arrow
                         ((selected > 0)) && ((selected--))
                         ;;
-                    '[B')  # Down arrow
+                    '[B') # Down arrow
                         ((selected < num_options - 1)) && ((selected++))
                         ;;
                 esac
                 ;;
-            'k')  # Vim up
+            'k') # Vim up
                 ((selected > 0)) && ((selected--))
                 ;;
-            'j')  # Vim down
+            'j') # Vim down
                 ((selected < num_options - 1)) && ((selected++))
                 ;;
-            '')  # Enter
+            '') # Enter
                 break
                 ;;
-            'q')  # Quit
+            'q') # Quit
                 printf "${RSR_CURSOR_SHOW}"
                 return 1
                 ;;
         esac
 
         # Move cursor up to redraw
-        for ((i=0; i<num_options; i++)); do
+        for ((i = 0; i < num_options; i++)); do
             printf "${RSR_CURSOR_UP}"
         done
 
@@ -342,7 +342,7 @@ rsr_prompt_multiselect() {
     local key i
 
     # Initialize all unchecked
-    for ((i=0; i<num_options; i++)); do
+    for ((i = 0; i < num_options; i++)); do
         checked[$i]=0
     done
 
@@ -357,7 +357,7 @@ rsr_prompt_multiselect() {
     printf "${RSR_COLOR_CYAN}?${RSR_COLOR_RESET} %s ${RSR_COLOR_DIM}(↑/↓ navigate, Space toggle, Enter confirm)${RSR_COLOR_RESET}\n" "$title"
 
     _render_multiselect() {
-        for ((i=0; i<num_options; i++)); do
+        for ((i = 0; i < num_options; i++)); do
             printf "\r${RSR_CLEAR_LINE}"
             local checkbox="[ ]"
             [[ ${checked[$i]} -eq 1 ]] && checkbox="[${RSR_COLOR_GREEN}✓${RSR_COLOR_RESET}]"
@@ -385,14 +385,14 @@ rsr_prompt_multiselect() {
                 ;;
             'k') ((selected > 0)) && ((selected--)) ;;
             'j') ((selected < num_options - 1)) && ((selected++)) ;;
-            ' ')  # Space to toggle
+            ' ') # Space to toggle
                 if [[ ${checked[$selected]} -eq 0 ]]; then
                     checked[$selected]=1
                 else
                     checked[$selected]=0
                 fi
                 ;;
-            '')  # Enter
+            '') # Enter
                 break
                 ;;
             'q')
@@ -401,7 +401,7 @@ rsr_prompt_multiselect() {
                 ;;
         esac
 
-        for ((i=0; i<num_options; i++)); do
+        for ((i = 0; i < num_options; i++)); do
             printf "${RSR_CURSOR_UP}"
         done
 
@@ -412,7 +412,7 @@ rsr_prompt_multiselect() {
     trap - EXIT
 
     # Output selected items
-    for ((i=0; i<num_options; i++)); do
+    for ((i = 0; i < num_options; i++)); do
         [[ ${checked[$i]} -eq 1 ]] && echo "${options[$i]}"
     done
 }
@@ -442,9 +442,9 @@ rsr_spinner() {
 
     printf "${RSR_CURSOR_HIDE}"
 
-    while kill -0 $pid 2>/dev/null; do
+    while kill -0 $pid 2> /dev/null; do
         printf "\r${RSR_COLOR_CYAN}%s${RSR_COLOR_RESET} %s" "${spinner[$i]}" "$message"
-        i=$(( (i + 1) % ${#spinner[@]} ))
+        i=$(((i + 1) % ${#spinner[@]}))
         sleep 0.1
     done
 
@@ -491,7 +491,7 @@ rsr_progress_bar() {
 print_interactive_header() {
     local title="$1"
     local version="${2:-}"
-    
+
     printf "\n"
     printf "${RSR_COLOR_CYAN}${RSR_BOLD}┌─────────────────────────────────────────────────────────┐${RSR_COLOR_RESET}\n"
     printf "${RSR_COLOR_CYAN}${RSR_BOLD}│${RSR_COLOR_RESET}  ${RSR_BOLD}%s${RSR_COLOR_RESET}" "$title"
@@ -525,4 +525,3 @@ prompt_confirm() { rsr_prompt_confirm "$@"; }
 # =============================================================================
 
 rsr_log_debug "RSR Interactive Library loaded"
-

@@ -82,18 +82,18 @@ prompt() {
     local prompt_text="$1"
     local default="$2"
     local result
-    
+
     if [[ "$AUTO_YES" == "true" ]] && [[ -n "$default" ]]; then
         echo "$default"
         return
     fi
-    
+
     if [[ -n "$default" ]]; then
         printf "${CYAN}?${NC} %s ${DIM}[%s]${NC}: " "$prompt_text" "$default"
     else
         printf "${CYAN}?${NC} %s: " "$prompt_text"
     fi
-    
+
     read -r result
     echo "${result:-$default}"
 }
@@ -101,15 +101,15 @@ prompt() {
 confirm() {
     local prompt_text="$1"
     local default="${2:-n}"
-    
+
     if [[ "$AUTO_YES" == "true" ]]; then
         return 0
     fi
-    
+
     local yn
     printf "${CYAN}?${NC} %s ${DIM}[y/N]${NC}: " "$prompt_text"
     read -r yn
-    
+
     case "${yn:-$default}" in
         [Yy]*) return 0 ;;
         *) return 1 ;;
@@ -120,23 +120,23 @@ select_from_list() {
     local prompt_text="$1"
     shift
     local options=("$@")
-    
+
     echo
     echo "${CYAN}${prompt_text}${NC}"
     echo
-    
+
     local i=1
     for opt in "${options[@]}"; do
         printf "  ${DIM}%2d)${NC} %s\n" "$i" "$opt"
         ((i++))
     done
     echo
-    
+
     local selection
     while true; do
         printf "${CYAN}?${NC} Enter number ${DIM}[1-%d]${NC}: " "${#options[@]}"
         read -r selection
-        
+
         if [[ "$selection" =~ ^[0-9]+$ ]] && [ "$selection" -ge 1 ] && [ "$selection" -le "${#options[@]}" ]; then
             echo "${options[$((selection - 1))]}"
             return
@@ -152,19 +152,19 @@ select_from_list() {
 
 validate_script_name() {
     local name="$1"
-    
+
     # Check format (kebab-case)
     if ! [[ "$name" =~ ^[a-z][a-z0-9-]*$ ]]; then
         log_error "Script name must be lowercase kebab-case (e.g., my-script)"
         return 1
     fi
-    
+
     # Check if already exists
     if [[ -f "$ROOT_DIR/scripts/$CATEGORY/$SUBCATEGORY/$name.sh" ]]; then
         log_error "Script already exists: scripts/$CATEGORY/$SUBCATEGORY/$name.sh"
         return 1
     fi
-    
+
     return 0
 }
 
@@ -174,7 +174,7 @@ validate_script_name() {
 
 interactive_mode() {
     log_step "Script Configuration"
-    
+
     # Script name
     if [[ -z "$SCRIPT_NAME" ]]; then
         while true; do
@@ -184,15 +184,15 @@ interactive_mode() {
             fi
         done
     fi
-    
+
     # Category
     if [[ -z "$CATEGORY" ]]; then
         local categories=("${!CATEGORIES[@]}")
-        IFS=$'\n' categories=($(sort <<<"${categories[*]}"))
+        IFS=$'\n' categories=($(sort <<< "${categories[*]}"))
         unset IFS
         CATEGORY=$(select_from_list "Select category:" "${categories[@]}")
     fi
-    
+
     # Subcategory
     if [[ -z "$SUBCATEGORY" ]]; then
         local subcats=(${CATEGORIES[$CATEGORY]})
@@ -202,12 +202,12 @@ interactive_mode() {
             SUBCATEGORY=$(prompt "Subcategory" "general")
         fi
     fi
-    
+
     # Description
     if [[ -z "$DESCRIPTION" ]]; then
         DESCRIPTION=$(prompt "Description" "Brief description of the script")
     fi
-    
+
     echo
     log_step "Summary"
     echo
@@ -217,7 +217,7 @@ interactive_mode() {
     printf "  ${DIM}Description:${NC}  %s\n" "$DESCRIPTION"
     printf "  ${DIM}Path:${NC}         scripts/%s/%s/%s.sh\n" "$CATEGORY" "$SUBCATEGORY" "$SCRIPT_NAME"
     echo
-    
+
     if ! confirm "Create script with these settings?"; then
         log_warn "Cancelled"
         exit 0
@@ -231,41 +231,41 @@ interactive_mode() {
 create_script_file() {
     local script_dir="$ROOT_DIR/scripts/$CATEGORY/$SUBCATEGORY"
     local script_file="$script_dir/$SCRIPT_NAME.sh"
-    
+
     log_info "Creating script file..."
-    
+
     # Create directory
     mkdir -p "$script_dir"
-    
+
     # Generate from template
     local template="$TEMPLATE_DIR/bash-script.template.sh"
     if [[ ! -f "$template" ]]; then
         log_error "Template not found: $template"
         return 1
     fi
-    
+
     # Replace placeholders
     sed -e "s/{{SCRIPT_NAME}}/$SCRIPT_NAME/g" \
         -e "s/{{DESCRIPTION}}/$DESCRIPTION/g" \
-        -e "s/{{AUTHOR}}/$(git config user.name 2>/dev/null || echo "RSR Team")/g" \
+        -e "s/{{AUTHOR}}/$(git config user.name 2> /dev/null || echo "RSR Team")/g" \
         "$template" > "$script_file"
-    
+
     chmod +x "$script_file"
-    
+
     log_ok "Created: $script_file"
-    echo "       $(stat -f%z "$script_file" 2>/dev/null || stat -c%s "$script_file") bytes"
+    echo "       $(stat -f%z "$script_file" 2> /dev/null || stat -c%s "$script_file") bytes"
 }
 
 create_test_file() {
     if [[ "$SKIP_TESTS" == "true" ]]; then
         return
     fi
-    
+
     local test_dir="$ROOT_DIR/test/unit"
     local test_file="$test_dir/$SCRIPT_NAME.bats"
-    
+
     log_info "Creating test file..."
-    
+
     # Create test file
     cat > "$test_file" << EOF
 #!/usr/bin/env bats
@@ -327,10 +327,10 @@ teardown() {
 @test "$SCRIPT_NAME: script has required metadata headers" {
     run grep "^# @name" "\$ROOT_DIR/\$SCRIPT_PATH"
     assert_success
-    
+
     run grep "^# @description" "\$ROOT_DIR/\$SCRIPT_PATH"
     assert_success
-    
+
     run grep "^# @version" "\$ROOT_DIR/\$SCRIPT_PATH"
     assert_success
 }
@@ -350,7 +350,7 @@ teardown() {
 EOF
 
     chmod +x "$test_file"
-    
+
     log_ok "Created: $test_file"
     echo "       Test template with 8 basic tests"
 }
@@ -359,14 +359,14 @@ create_docs_stub() {
     if [[ "$SKIP_DOCS" == "true" ]]; then
         return
     fi
-    
+
     local docs_dir="$ROOT_DIR/docs/scripts"
     local docs_file="$docs_dir/$SCRIPT_NAME.md"
-    
+
     log_info "Creating documentation stub..."
-    
+
     mkdir -p "$docs_dir"
-    
+
     cat > "$docs_file" << EOF
 # $SCRIPT_NAME
 
@@ -445,20 +445,21 @@ add_to_registry() {
     if [[ "$UPDATE_REGISTRY" != "true" ]]; then
         return
     fi
-    
+
     log_info "Adding to registry.json..."
-    
+
     if [[ ! -f "$REGISTRY_FILE" ]]; then
         log_error "Registry file not found: $REGISTRY_FILE"
         return 1
     fi
-    
+
     # Generate script ID (remove .sh extension if present)
     local script_id="${SCRIPT_NAME%.sh}"
     local script_path="scripts/$CATEGORY/$SUBCATEGORY/$SCRIPT_NAME.sh"
-    
+
     # Create registry entry
-    local entry=$(cat << EOF
+    local entry=$(
+        cat << EOF
 {
   "id": "$script_id",
   "name": "$SCRIPT_NAME",
@@ -476,10 +477,10 @@ add_to_registry() {
   "tags": ["$CATEGORY", "$SUBCATEGORY"]
 }
 EOF
-)
-    
+    )
+
     # Add to registry (using jq)
-    if command -v jq >/dev/null 2>&1; then
+    if command -v jq > /dev/null 2>&1; then
         local temp_file
         temp_file=$(mktemp)
         jq --argjson entry "$entry" '.scripts += [$entry]' "$REGISTRY_FILE" > "$temp_file"
@@ -501,13 +502,13 @@ print_summary() {
     printf "${GREEN}${BOLD}✓ Script created successfully!${NC}\n"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo
-    
+
     echo "${BOLD}Next steps:${NC}"
     echo
     printf "  ${DIM}1.${NC} Edit your script:\n"
     printf "     ${CYAN}%s${NC}\n" "vim scripts/$CATEGORY/$SUBCATEGORY/$SCRIPT_NAME.sh"
     echo
-    
+
     if [[ "$SKIP_TESTS" != "true" ]]; then
         printf "  ${DIM}2.${NC} Add tests:\n"
         printf "     ${CYAN}%s${NC}\n" "vim test/unit/$SCRIPT_NAME.bats"
@@ -516,17 +517,17 @@ print_summary() {
         printf "     ${CYAN}%s${NC}\n" "./test/run_tests.sh test/unit/$SCRIPT_NAME.bats"
         echo
     fi
-    
+
     printf "  ${DIM}4.${NC} Validate:\n"
     printf "     ${CYAN}%s${NC}\n" "make lint test"
     echo
-    
+
     if [[ "$UPDATE_REGISTRY" != "true" ]]; then
         printf "  ${DIM}5.${NC} Add to registry:\n"
         printf "     ${CYAN}%s${NC}\n" "./tools/create-script.sh --update-registry"
         echo
     fi
-    
+
     echo "${DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo
 }
@@ -571,23 +572,23 @@ EOF
 parse_args() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help)
+            -h | --help)
                 show_help
                 exit 0
                 ;;
-            -n|--name)
+            -n | --name)
                 SCRIPT_NAME="$2"
                 shift 2
                 ;;
-            -c|--category)
+            -c | --category)
                 CATEGORY="$2"
                 shift 2
                 ;;
-            -s|--subcategory)
+            -s | --subcategory)
                 SUBCATEGORY="$2"
                 shift 2
                 ;;
-            -d|--description)
+            -d | --description)
                 DESCRIPTION="$2"
                 shift 2
                 ;;
@@ -603,7 +604,7 @@ parse_args() {
                 SKIP_DOCS=true
                 shift
                 ;;
-            -y|--yes)
+            -y | --yes)
                 AUTO_YES=true
                 shift
                 ;;
@@ -619,29 +620,29 @@ parse_args() {
 
 main() {
     parse_args "$@"
-    
+
     print_header
-    
+
     # Interactive mode if missing required info
     if [[ -z "$SCRIPT_NAME" ]] || [[ -z "$CATEGORY" ]] || [[ -z "$SUBCATEGORY" ]]; then
         interactive_mode
     fi
-    
+
     # Validate
     if ! validate_script_name "$SCRIPT_NAME"; then
         exit 1
     fi
-    
+
     echo
     log_step "Generating Files"
     echo
-    
+
     # Generate files
     create_script_file
     create_test_file
     create_docs_stub
     add_to_registry
-    
+
     # Summary
     print_summary
 }

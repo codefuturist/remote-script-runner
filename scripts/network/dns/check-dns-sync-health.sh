@@ -4,7 +4,7 @@
 
 LOGFILE="/var/log/gitops-sync.log"
 LAST_SUCCESS_FILE="/var/run/gitops-dns-last-success"
-MAX_AGE_MINUTES=15  # Alert if no successful sync in 15 minutes
+MAX_AGE_MINUTES=15 # Alert if no successful sync in 15 minutes
 
 echo "==================================="
 echo "DNS GitOps Sync Health Check"
@@ -12,7 +12,7 @@ echo "==================================="
 echo ""
 
 # Check if service is enabled
-TIMER_STATUS=$(systemctl is-active gitops-sync.timer 2>/dev/null)
+TIMER_STATUS=$(systemctl is-active gitops-sync.timer 2> /dev/null)
 if [ "$TIMER_STATUS" != "active" ]; then
     echo "❌ CRITICAL: gitops-sync.timer is not active"
     exit 2
@@ -25,16 +25,16 @@ if [ -f "$LOGFILE" ]; then
     if [ -n "$LAST_SUCCESS" ]; then
         echo "✓ Last Successful Sync:"
         echo "  $LAST_SUCCESS"
-        
+
         # Extract timestamp and calculate age
         TIMESTAMP=$(echo "$LAST_SUCCESS" | grep -oP '\[\K[0-9-]+ [0-9:]+')
         if [ -n "$TIMESTAMP" ]; then
-            LAST_SYNC_EPOCH=$(date -d "$TIMESTAMP" +%s 2>/dev/null)
+            LAST_SYNC_EPOCH=$(date -d "$TIMESTAMP" +%s 2> /dev/null)
             CURRENT_EPOCH=$(date +%s)
-            AGE_MINUTES=$(( ($CURRENT_EPOCH - $LAST_SYNC_EPOCH) / 60 ))
-            
+            AGE_MINUTES=$((($CURRENT_EPOCH - $LAST_SYNC_EPOCH) / 60))
+
             echo "  Age: $AGE_MINUTES minutes ago"
-            
+
             if [ $AGE_MINUTES -gt $MAX_AGE_MINUTES ]; then
                 echo "⚠️  WARNING: Last successful sync was over $MAX_AGE_MINUTES minutes ago"
             fi
@@ -70,7 +70,7 @@ if [ -n "$RECENT_WARNINGS" ]; then
 fi
 
 # Check zone file count
-ZONE_COUNT=$(find /opt/gitops/iac-catalog/environments/global/configurations/dns-zones -name "*.zone" -type f 2>/dev/null | wc -l)
+ZONE_COUNT=$(find /opt/gitops/iac-catalog/environments/global/configurations/dns-zones -name "*.zone" -type f 2> /dev/null | wc -l)
 echo "✓ Active Zones: $ZONE_COUNT"
 
 # Check last sync statistics

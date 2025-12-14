@@ -20,6 +20,7 @@ lib/
 ```
 
 **Benefits:**
+
 - **Code Reuse**: Common functionality shared across multiple scripts
 - **Maintainability**: Fix once, benefit everywhere
 - **Testability**: Libraries can be tested independently
@@ -28,12 +29,14 @@ lib/
 ### 2. Feature Scripts
 
 Scripts in `scripts/bash/` are thin wrappers that:
+
 1. Source required libraries
 2. Parse arguments and handle subcommands
 3. Call library functions
 4. Handle user interaction and output
 
 **Example Structure:**
+
 ```bash
 #!/bin/bash
 # Source libraries
@@ -50,6 +53,7 @@ source lib/interactive.sh
 ### 3. Central Registry
 
 The `scripts/registry.json` file serves as the single source of truth for:
+
 - Script metadata and versioning
 - Subcommands and options
 - Platform support
@@ -57,6 +61,7 @@ The `scripts/registry.json` file serves as the single source of truth for:
 - Tags for discovery
 
 **Benefits:**
+
 - Automated CLI generation
 - Consistent help output
 - Searchable script catalog
@@ -84,6 +89,7 @@ rsr usermgmt                    # Top-level command
 ```
 
 **Benefits:**
+
 - Natural command structure
 - Easy to extend
 - Self-documenting
@@ -115,25 +121,30 @@ remote-script-runner/
 ## Scaling Strategy
 
 ### Phase 1: Foundation (Current - 13 scripts)
+
 - ✅ Core libraries established
 - ✅ Registry structure defined
 - ✅ Subcommand pattern proven
 - ✅ Cross-platform support working
 
 ### Phase 2: Domain Coverage (20-50 scripts)
+
 Add domain libraries:
+
 - `lib/network.sh` - Network operations
 - `lib/storage.sh` - Storage & backup
 - `lib/services.sh` - Service management
 - `lib/monitoring.sh` - System monitoring
 
 ### Phase 3: Enterprise Features (50-100 scripts)
+
 - `lib/cloud.sh` - AWS, Azure, GCP operations
 - `lib/kubernetes.sh` - K8s management
 - `lib/database.sh` - DB administration
 - `lib/security.sh` - Security hardening
 
 ### Phase 4: Full Coverage (100-200+ scripts)
+
 - Specialized industry scripts
 - Compliance automation
 - Advanced orchestration
@@ -148,6 +159,7 @@ Add domain libraries:
 | > 1000 lines | Split into subdirectory |
 
 **Example split:**
+
 ```
 lib/users/
 ├── accounts.sh    # User CRUD operations
@@ -159,7 +171,9 @@ lib/users/
 ## Cross-Platform Strategy
 
 ### OS Detection
+
 Every library starts with OS detection:
+
 ```bash
 _detect_os() {
     case "$(uname -s)" in
@@ -171,7 +185,9 @@ _detect_os() {
 ```
 
 ### Platform-Specific Implementations
+
 Use internal functions with OS suffix:
+
 ```bash
 # Public API
 user_create() {
@@ -187,7 +203,9 @@ _user_create_linux() { ... }
 ```
 
 ### Compatibility Matrix
+
 Track support in registry:
+
 ```json
 {
   "platforms": {
@@ -201,7 +219,9 @@ Track support in registry:
 ## Error Handling
 
 ### Exit Codes
+
 Standardized across all scripts:
+
 ```bash
 EXIT_OK=0              # Success
 EXIT_ERROR=1           # General error
@@ -212,7 +232,9 @@ EXIT_CONFLICT=5        # Resource conflict
 ```
 
 ### Error Messages
+
 Always informative with actionable guidance:
+
 ```bash
 log_error "User 'john' does not exist"
 log_info "Create with: rsr usermgmt create -u john"
@@ -222,7 +244,9 @@ exit $EXIT_NOT_FOUND
 ## Testing Strategy
 
 ### Unit Tests
+
 Test library functions in isolation:
+
 ```bash
 # test/unit/users.bats
 @test "user_exists returns 0 for existing user" {
@@ -232,7 +256,9 @@ Test library functions in isolation:
 ```
 
 ### Integration Tests
+
 Test full script workflows:
+
 ```bash
 # test/integration/user-management.bats
 @test "create and delete user workflow" {
@@ -242,7 +268,9 @@ Test full script workflows:
 ```
 
 ### Cross-Platform CI
+
 Test on multiple OS in CI/CD:
+
 ```yaml
 strategy:
   matrix:
@@ -253,7 +281,9 @@ strategy:
 ## Documentation Standards
 
 ### Script Headers
+
 Every script includes structured metadata:
+
 ```bash
 # =============================================================================
 # @id           usermgmt
@@ -271,7 +301,9 @@ Every script includes structured metadata:
 ```
 
 ### Function Documentation
+
 Library functions are documented:
+
 ```bash
 # Create user (cross-platform)
 # Usage: user_create "username" [options]
@@ -281,7 +313,9 @@ user_create() { ... }
 ```
 
 ### User Documentation
+
 Each major feature has a guide:
+
 - Quick start examples
 - Complete reference
 - Best practices
@@ -291,7 +325,9 @@ Each major feature has a guide:
 ## Performance Considerations
 
 ### Lazy Loading
+
 Libraries only load what's needed:
+
 ```bash
 # Don't load heavy dependencies upfront
 if [[ "$SUBCOMMAND" == "audit" ]]; then
@@ -300,7 +336,9 @@ fi
 ```
 
 ### Caching
+
 Cache expensive operations:
+
 ```bash
 # Cache OS detection
 _USERS_OS=""
@@ -311,7 +349,9 @@ _detect_os() {
 ```
 
 ### Parallel Execution
+
 Support concurrent operations where safe:
+
 ```bash
 # Batch operations can run in parallel
 for user in "${users[@]}"; do
@@ -323,7 +363,9 @@ wait
 ## Security Best Practices
 
 ### Input Validation
+
 Always validate user input:
+
 ```bash
 if [[ ! "$username" =~ ^[a-z][a-z0-9_-]{2,31}$ ]]; then
     log_error "Invalid username format"
@@ -332,7 +374,9 @@ fi
 ```
 
 ### Privilege Checking
+
 Check permissions early:
+
 ```bash
 check_root() {
     if [[ $EUID -ne 0 ]]; then
@@ -344,7 +388,9 @@ check_root() {
 ```
 
 ### Safe Defaults
+
 Always use safe defaults:
+
 ```bash
 DRY_RUN=false          # Require explicit --execute
 VERBOSE=false          # Minimal output by default
@@ -352,7 +398,9 @@ INTERACTIVE=auto       # Auto-detect if appropriate
 ```
 
 ### Dry Run Support
+
 All destructive operations support dry-run:
+
 ```bash
 if [[ "$DRY_RUN" == "true" ]]; then
     log_info "[DRY RUN] Would delete user: $username"
@@ -363,7 +411,9 @@ fi
 ## Extensibility
 
 ### Plugin Architecture
+
 Future support for custom extensions:
+
 ```bash
 # Load custom plugins from ~/.rsr/plugins/
 for plugin in ~/.rsr/plugins/*.sh; do
@@ -372,7 +422,9 @@ done
 ```
 
 ### Hook System
+
 Allow scripts to define hooks:
+
 ```bash
 # Pre-execution hook
 if [[ "$(type -t pre_user_create)" == "function" ]]; then
@@ -381,7 +433,9 @@ fi
 ```
 
 ### Custom Templates
+
 Support user-defined templates:
+
 ```bash
 # Load custom permission templates
 [[ -f ~/.rsr/templates/permissions.conf ]] && \
@@ -391,7 +445,9 @@ Support user-defined templates:
 ## Monitoring & Observability
 
 ### Structured Logging
+
 Support multiple output formats:
+
 ```bash
 if [[ "$LOG_FORMAT" == "json" ]]; then
     echo "{\"level\":\"info\",\"message\":\"$msg\",\"timestamp\":\"$(date -Iseconds)\"}"
@@ -401,7 +457,9 @@ fi
 ```
 
 ### Metrics Collection
+
 Optional metrics for automation:
+
 ```bash
 # Export metrics in Prometheus format
 cat << EOF
@@ -411,7 +469,9 @@ EOF
 ```
 
 ### Audit Trails
+
 All operations can log to audit:
+
 ```bash
 audit_log() {
     local action="$1"
@@ -423,6 +483,7 @@ audit_log() {
 ## Future Enhancements
 
 ### Planned Features
+
 1. **Web UI** - Browse and execute scripts from browser
 2. **Remote Execution** - Execute scripts on remote hosts via SSH
 3. **Schedule Manager** - Cron-like scheduling for scripts
@@ -463,6 +524,7 @@ audit_log() {
 ## Conclusion
 
 This architecture enables RSR to scale from tens to hundreds of scripts while maintaining:
+
 - **Code Quality**: Reusable libraries, consistent patterns
 - **User Experience**: Intuitive subcommands, helpful output
 - **Maintainability**: Clear organization, comprehensive tests
@@ -471,4 +533,3 @@ This architecture enables RSR to scale from tens to hundreds of scripts while ma
 - **Security**: Input validation, privilege checking, audit trails
 
 The foundation is solid for building a comprehensive system administration toolkit that serves both individual sysadmins and large enterprise deployments.
-

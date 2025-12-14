@@ -64,7 +64,7 @@ log_error() { printf "${RED}✗${NC} %s\n" "$1"; }
 
 # Check if PowerShell Core is installed
 check_pwsh() {
-    if ! command -v pwsh >/dev/null 2>&1; then
+    if ! command -v pwsh > /dev/null 2>&1; then
         log_error "PowerShell Core (pwsh) is not installed"
         echo ""
         echo "Install PowerShell Core:"
@@ -223,4 +223,3 @@ main() {
 }
 
 main
-

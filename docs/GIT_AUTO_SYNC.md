@@ -6,17 +6,17 @@
 
 ## Features
 
-✅ **Multi-Repository Support** - Sync multiple repositories simultaneously  
-✅ **Daemon Mode** - Continuous background synchronization  
-✅ **Git LFS Support** - Automatic LFS file synchronization  
-✅ **Multiple Sync Modes** - Safe, force, and pull strategies  
-✅ **Internet Detection** - Waits for connectivity before syncing  
-✅ **Retry Logic** - Exponential backoff on failures  
-✅ **Lock Management** - Prevents concurrent sync processes  
-✅ **Post-Sync Hooks** - Execute custom scripts after sync  
-✅ **Metrics & Reporting** - JSON metrics file for monitoring  
-✅ **Structured Logging** - Timestamped logs with log levels  
-✅ **Remote Execution** - Run via curl for easy deployment  
+✅ **Multi-Repository Support** - Sync multiple repositories simultaneously
+✅ **Daemon Mode** - Continuous background synchronization
+✅ **Git LFS Support** - Automatic LFS file synchronization
+✅ **Multiple Sync Modes** - Safe, force, and pull strategies
+✅ **Internet Detection** - Waits for connectivity before syncing
+✅ **Retry Logic** - Exponential backoff on failures
+✅ **Lock Management** - Prevents concurrent sync processes
+✅ **Post-Sync Hooks** - Execute custom scripts after sync
+✅ **Metrics & Reporting** - JSON metrics file for monitoring
+✅ **Structured Logging** - Timestamped logs with log levels
+✅ **Remote Execution** - Run via curl for easy deployment
 
 ## Installation
 
@@ -506,8 +506,9 @@ chmod 600 repos.json
 ## Support
 
 For issues, questions, or contributions:
-- GitHub Issues: https://github.com/yourusername/remote-script-runner/issues
-- Documentation: https://codefuturist.github.io/remote-script-runner/
+
+- GitHub Issues: <https://github.com/yourusername/remote-script-runner/issues>
+- Documentation: <https://codefuturist.github.io/remote-script-runner/>
 
 ## License
 

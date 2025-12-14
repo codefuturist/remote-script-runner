@@ -36,6 +36,7 @@ sudo rsr ssh-server configure
 ```
 
 The wizard guides you through configuring:
+
 - SSH port
 - Root login settings
 - Password authentication
@@ -61,6 +62,7 @@ sudo rsr ssh-server harden
 ### Installation & Setup
 
 #### install
+
 Install SSH server on the system.
 
 ```bash
@@ -72,6 +74,7 @@ sudo rsr ssh-server install
 ```
 
 **Platforms:**
+
 - **Linux**: Installs `openssh-server` via package manager
 - **macOS**: SSH is built-in, command ensures it's available
 - **Windows**: Installs OpenSSH Server via Windows Capability
@@ -79,6 +82,7 @@ sudo rsr ssh-server install
 ### Service Control
 
 #### start
+
 Start SSH server service.
 
 ```bash
@@ -86,6 +90,7 @@ sudo rsr ssh-server start
 ```
 
 #### stop
+
 Stop SSH server service (will disconnect all users).
 
 ```bash
@@ -95,6 +100,7 @@ sudo rsr ssh-server stop
 **Safety:** Prompts for confirmation before stopping.
 
 #### restart
+
 Restart SSH server to apply configuration changes.
 
 ```bash
@@ -102,6 +108,7 @@ sudo rsr ssh-server restart
 ```
 
 #### enable
+
 Enable SSH server to start automatically at boot.
 
 ```bash
@@ -109,6 +116,7 @@ sudo rsr ssh-server enable
 ```
 
 #### disable
+
 Disable automatic start at boot.
 
 ```bash
@@ -116,6 +124,7 @@ sudo rsr ssh-server disable
 ```
 
 #### status
+
 Show comprehensive SSH server status.
 
 ```bash
@@ -123,6 +132,7 @@ rsr ssh-server status
 ```
 
 **Output includes:**
+
 - Installation status & version
 - Running status
 - Boot enabled status
@@ -133,6 +143,7 @@ rsr ssh-server status
 ### Configuration Management
 
 #### config get
+
 Get value of configuration setting.
 
 ```bash
@@ -142,6 +153,7 @@ rsr ssh-server config get PasswordAuthentication
 ```
 
 #### config set
+
 Set configuration value.
 
 ```bash
@@ -159,6 +171,7 @@ sudo rsr ssh-server config set ClientAliveInterval 300
 ```
 
 **Safety:**
+
 - Automatically backs up configuration before changes
 - Validates configuration syntax after changes
 - Shows command to restart service
@@ -179,6 +192,7 @@ sudo rsr ssh-server config set ClientAliveInterval 300
 | X11Forwarding | yes/no | Allow X11 forwarding |
 
 #### config backup
+
 Backup current SSH configuration.
 
 ```bash
@@ -188,6 +202,7 @@ sudo rsr ssh-server config backup
 **Output:** Backup file path (keeps last 10 backups)
 
 #### config restore
+
 Restore SSH configuration from most recent backup.
 
 ```bash
@@ -195,6 +210,7 @@ sudo rsr ssh-server config restore
 ```
 
 #### config validate
+
 Validate SSH configuration syntax.
 
 ```bash
@@ -204,6 +220,7 @@ rsr ssh-server config validate
 **Returns:** Exit code 0 if valid, 1 if errors found
 
 #### config show
+
 Show full SSH configuration (excluding comments/empty lines).
 
 ```bash
@@ -213,6 +230,7 @@ rsr ssh-server config show
 ### Security & Hardening
 
 #### harden
+
 Apply comprehensive security hardening.
 
 ```bash
@@ -220,6 +238,7 @@ sudo rsr ssh-server harden
 ```
 
 **What it does:**
+
 - Calls the dedicated `ssh-hardening.sh` script if available
 - Otherwise applies basic hardening:
   - Disables root login
@@ -233,6 +252,7 @@ sudo rsr ssh-server harden
 **See also:** `rsr ssh-harden` for advanced hardening options with fail2ban, port changes, etc.
 
 #### audit
+
 Run security audit showing current security configuration.
 
 ```bash
@@ -240,11 +260,13 @@ rsr ssh-server audit
 ```
 
 **Output:**
+
 - All security-relevant settings
 - Failed login attempt count
 - Security recommendations
 
 #### score
+
 Show security score (0-100) with grade.
 
 ```bash
@@ -252,6 +274,7 @@ rsr ssh-server score
 ```
 
 **Scoring:**
+
 - 90-100: Grade A (Excellent)
 - 80-89: Grade B (Good)
 - 70-79: Grade C (Fair)
@@ -259,6 +282,7 @@ rsr ssh-server score
 - 0-59: Grade F (Failing)
 
 **Deductions:**
+
 - Root login enabled: -20
 - Password auth enabled: -15
 - Empty passwords allowed: -30
@@ -271,6 +295,7 @@ rsr ssh-server score
 ### Testing & Diagnostics
 
 #### test
+
 Test SSH connection to a host.
 
 ```bash
@@ -287,6 +312,7 @@ rsr ssh-server test myserver.com 2222
 **Tests:** Network connectivity to SSH port (does not test authentication)
 
 #### connections
+
 Show active SSH connections.
 
 ```bash
@@ -296,6 +322,7 @@ rsr ssh-server connections
 **Output:** List of active TCP connections on SSH port
 
 #### logs
+
 Show SSH server logs.
 
 ```bash
@@ -307,11 +334,13 @@ rsr ssh-server logs 100
 ```
 
 **Sources:**
+
 - Linux: `/var/log/auth.log` or `/var/log/secure` or `journalctl`
 - macOS: `/var/log/system.log`
 - Windows: Event Log (Security)
 
 #### failed
+
 Show failed login attempts.
 
 ```bash
@@ -319,6 +348,7 @@ rsr ssh-server failed
 ```
 
 **Output:**
+
 - Total failed attempt count
 - Last 10 failed login attempts with timestamp, username, IP
 
@@ -447,18 +477,21 @@ rsr ssh-server config get AllowUsers
 ### Linux
 
 **Package Managers:**
+
 - Debian/Ubuntu: `apt-get install openssh-server`
 - RHEL/Rocky/Alma: `yum/dnf install openssh-server`
 - Arch: `pacman -S openssh`
 - openSUSE: `zypper install openssh`
 
 **Service Names:**
+
 - Most: `sshd`
 - Debian/Ubuntu: `ssh` or `sshd`
 
 **Config Path:** `/etc/ssh/sshd_config`
 
 **Log Paths:**
+
 - Debian/Ubuntu: `/var/log/auth.log`
 - RHEL/Rocky: `/var/log/secure`
 - With systemd: `journalctl -u sshd`

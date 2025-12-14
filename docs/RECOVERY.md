@@ -21,6 +21,7 @@ wget -qO- https://codefuturist.github.io/remote-script-runner/recover.sh | sh
 The recovery script provides several options:
 
 ### 1. Restore from Backup (Recommended)
+
 If a backup exists from your last update, you can instantly restore it:
 
 ```bash
@@ -34,6 +35,7 @@ chmod +x ~/.local/bin/rsr
 ```
 
 ### 2. Download Fresh Copy
+
 Get a clean installation from GitHub:
 
 ```bash
@@ -47,6 +49,7 @@ chmod +x ~/.local/bin/rsr
 ```
 
 ### 3. Fresh Install
+
 Completely reinstall rsr:
 
 ```bash
@@ -60,6 +63,7 @@ curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash
 **Cause:** rsr was deleted or path is incorrect
 
 **Solution:**
+
 ```bash
 # Fresh install
 curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash
@@ -70,6 +74,7 @@ curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash
 **Cause:** File got corrupted or bad update
 
 **Solution:**
+
 ```bash
 # Restore from backup
 mv ~/.local/bin/rsr.backup ~/.local/bin/rsr
@@ -84,6 +89,7 @@ chmod +x ~/.local/bin/rsr
 **Cause:** Broken internal logic
 
 **Solution:**
+
 ```bash
 # Use recovery script
 curl -fsSL https://codefuturist.github.io/remote-script-runner/recover.sh | sh
@@ -95,6 +101,7 @@ curl -fsSL https://codefuturist.github.io/remote-script-runner/recover.sh | sh
 **Cause:** Bad update or network interruption
 
 **Solution:**
+
 ```bash
 # Backup should exist automatically
 mv ~/.local/bin/rsr.backup ~/.local/bin/rsr
@@ -110,6 +117,7 @@ If automated recovery doesn't work, here are the manual steps:
 ### Step 1: Check Installation Location
 
 Common locations:
+
 - `~/.local/bin/rsr`
 - `/usr/local/bin/rsr`
 - Custom: `$(which rsr)`
@@ -121,18 +129,21 @@ ls -la ~/.local/bin/rsr*
 ```
 
 You should see:
+
 - `rsr` (current - possibly broken)
 - `rsr.backup` (previous working version)
 
 ### Step 3: Restore or Replace
 
 **If backup exists:**
+
 ```bash
 cp ~/.local/bin/rsr.backup ~/.local/bin/rsr
 chmod +x ~/.local/bin/rsr
 ```
 
 **If no backup:**
+
 ```bash
 curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr -o ~/.local/bin/rsr
 chmod +x ~/.local/bin/rsr
@@ -150,6 +161,7 @@ rsr health -a
 To minimize the chance of issues:
 
 1. **Test updates in dry-run mode:**
+
    ```bash
    rsr self-update --check
    ```
@@ -160,6 +172,7 @@ To minimize the chance of issues:
    - Never delete until confirming new version works
 
 3. **Verify after update:**
+
    ```bash
    rsr --version
    rsr list
@@ -169,14 +182,16 @@ To minimize the chance of issues:
 
 rsr includes multiple layers of protection:
 
-### During Update:
+### During Update
+
 1. ✅ **Download Validation** - Verifies file before replacing
 2. ✅ **Automatic Backup** - Creates backup before update
 3. ✅ **Syntax Check** - Tests new version with `--version`
 4. ✅ **Auto Rollback** - Restores backup if validation fails
 5. ✅ **Atomic Operations** - Uses `mv` for safe replacement
 
-### Error Messages Include Recovery Instructions:
+### Error Messages Include Recovery Instructions
+
 ```
 ✗ New version failed validation test!
 ▸ Rolling back to previous version...
@@ -188,9 +203,9 @@ rsr includes multiple layers of protection:
 
 If you're still having issues:
 
-1. **GitHub Issues:** https://github.com/codefuturist/remote-script-runner/issues
-2. **Documentation:** https://codefuturist.github.io/remote-script-runner
-3. **Recovery Script:** https://codefuturist.github.io/remote-script-runner/recover.sh
+1. **GitHub Issues:** <https://github.com/codefuturist/remote-script-runner/issues>
+2. **Documentation:** <https://codefuturist.github.io/remote-script-runner>
+3. **Recovery Script:** <https://codefuturist.github.io/remote-script-runner/recover.sh>
 
 ## Recovery Script Features
 
@@ -224,11 +239,13 @@ rsr --version
 ## Summary
 
 **Quick Recovery:** Use the automated recovery script
+
 ```bash
 curl -fsSL https://codefuturist.github.io/remote-script-runner/recover.sh | sh
 ```
 
 **Manual Recovery:** Restore backup or download fresh
+
 ```bash
 # Restore backup
 mv ~/.local/bin/rsr.backup ~/.local/bin/rsr
@@ -239,6 +256,7 @@ chmod +x ~/.local/bin/rsr
 ```
 
 **Prevention:** Always check before updating
+
 ```bash
 rsr self-update --check
 ```

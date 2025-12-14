@@ -25,7 +25,7 @@ set -eo pipefail
 
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -383,18 +383,51 @@ cmd_create() {
 parse_create_args() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help) usage_create ;;
-            -u|--username) USERNAME="$2"; shift 2 ;;
-            -c|--comment) USER_COMMENT="$2"; shift 2 ;;
-            -s|--shell) USER_SHELL="$2"; shift 2 ;;
-            --home) USER_HOME="$2"; shift 2 ;;
-            --uid) USER_UID="$2"; shift 2 ;;
-            --gid) USER_GID="$2"; shift 2 ;;
-            -g|--groups) IFS=',' read -ra USER_GROUPS <<< "$2"; shift 2 ;;
-            --no-create-home) CREATE_HOME=false; shift ;;
-            -p|--password) PASSWORD="$2"; shift 2 ;;
-            --generate) PASSWORD_LENGTH=16; shift ;;
-            --force-change) FORCE_CHANGE=true; shift ;;
+            -h | --help) usage_create ;;
+            -u | --username)
+                USERNAME="$2"
+                shift 2
+                ;;
+            -c | --comment)
+                USER_COMMENT="$2"
+                shift 2
+                ;;
+            -s | --shell)
+                USER_SHELL="$2"
+                shift 2
+                ;;
+            --home)
+                USER_HOME="$2"
+                shift 2
+                ;;
+            --uid)
+                USER_UID="$2"
+                shift 2
+                ;;
+            --gid)
+                USER_GID="$2"
+                shift 2
+                ;;
+            -g | --groups)
+                IFS=',' read -ra USER_GROUPS <<< "$2"
+                shift 2
+                ;;
+            --no-create-home)
+                CREATE_HOME=false
+                shift
+                ;;
+            -p | --password)
+                PASSWORD="$2"
+                shift 2
+                ;;
+            --generate)
+                PASSWORD_LENGTH=16
+                shift
+                ;;
+            --force-change)
+                FORCE_CHANGE=true
+                shift
+                ;;
             *) shift ;;
         esac
     done
@@ -409,9 +442,15 @@ cmd_delete() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help) usage_delete ;;
-            -u|--username) USERNAME="$2"; shift 2 ;;
-            --remove-home) remove_home=true; shift ;;
+            -h | --help) usage_delete ;;
+            -u | --username)
+                USERNAME="$2"
+                shift 2
+                ;;
+            --remove-home)
+                remove_home=true
+                shift
+                ;;
             *) shift ;;
         esac
     done
@@ -528,9 +567,15 @@ cmd_list() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help) usage_list ;;
-            -a|--all) show_all=true; shift ;;
-            --sudo) show_sudo=true; shift ;;
+            -h | --help) usage_list ;;
+            -a | --all)
+                show_all=true
+                shift
+                ;;
+            --sudo)
+                show_sudo=true
+                shift
+                ;;
             *) shift ;;
         esac
     done
@@ -591,8 +636,15 @@ cmd_password_reset() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -u|--username) USERNAME="$2"; shift 2 ;;
-            -p|--password) PASSWORD="$2"; set_password=true; shift 2 ;;
+            -u | --username)
+                USERNAME="$2"
+                shift 2
+                ;;
+            -p | --password)
+                PASSWORD="$2"
+                set_password=true
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -664,9 +716,18 @@ cmd_password_generate() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -u|--username) USERNAME="$2"; shift 2 ;;
-            -l|--length) length="$2"; shift 2 ;;
-            --set) set_generated=true; shift ;;
+            -u | --username)
+                USERNAME="$2"
+                shift 2
+                ;;
+            -l | --length)
+                length="$2"
+                shift 2
+                ;;
+            --set)
+                set_generated=true
+                shift
+                ;;
             *) shift ;;
         esac
     done
@@ -715,8 +776,8 @@ cmd_password_policy() {
 
         case "$(uname -s)" in
             Darwin)
-                pwpolicy -getaccountpolicies 2>/dev/null || \
-                    log_warn "Password policy not available"
+                pwpolicy -getaccountpolicies 2> /dev/null \
+                    || log_warn "Password policy not available"
                 ;;
             Linux)
                 if [[ -f /etc/login.defs ]]; then
@@ -754,8 +815,14 @@ cmd_group() {
 cmd_group_create() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -g|--group) GROUPNAME="$2"; shift 2 ;;
-            --gid) GROUP_GID="$2"; shift 2 ;;
+            -g | --group)
+                GROUPNAME="$2"
+                shift 2
+                ;;
+            --gid)
+                GROUP_GID="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -793,8 +860,14 @@ cmd_group_create() {
 cmd_group_add() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -u|--username) USERNAME="$2"; shift 2 ;;
-            -g|--group) GROUPNAME="$2"; shift 2 ;;
+            -u | --username)
+                USERNAME="$2"
+                shift 2
+                ;;
+            -g | --group)
+                GROUPNAME="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -824,8 +897,14 @@ cmd_group_add() {
 cmd_group_remove() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -u|--username) USERNAME="$2"; shift 2 ;;
-            -g|--group) GROUPNAME="$2"; shift 2 ;;
+            -u | --username)
+                USERNAME="$2"
+                shift 2
+                ;;
+            -g | --group)
+                GROUPNAME="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -855,7 +934,10 @@ cmd_group_remove() {
 cmd_group_list() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -g|--group) GROUPNAME="$2"; shift 2 ;;
+            -g | --group)
+                GROUPNAME="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -900,7 +982,7 @@ cmd_group_show() {
     fi
 
     local groups_output
-    groups_output=$(groups "$USERNAME" 2>/dev/null)
+    groups_output=$(groups "$USERNAME" 2> /dev/null)
 
     echo "$groups_output"
 }
@@ -924,10 +1006,22 @@ cmd_permission() {
 cmd_permission_set() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -p|--path) PERMISSION_PATH="$2"; shift 2 ;;
-            -m|--mode) PERMISSION_MODE="$2"; shift 2 ;;
-            -o|--owner) PERMISSION_OWNER="$2"; shift 2 ;;
-            -R|--recursive) PERMISSION_RECURSIVE=true; shift ;;
+            -p | --path)
+                PERMISSION_PATH="$2"
+                shift 2
+                ;;
+            -m | --mode)
+                PERMISSION_MODE="$2"
+                shift 2
+                ;;
+            -o | --owner)
+                PERMISSION_OWNER="$2"
+                shift 2
+                ;;
+            -R | --recursive)
+                PERMISSION_RECURSIVE=true
+                shift
+                ;;
             *) shift ;;
         esac
     done
@@ -974,7 +1068,10 @@ cmd_permission_set() {
 cmd_permission_get() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -p|--path) PERMISSION_PATH="$2"; shift 2 ;;
+            -p | --path)
+                PERMISSION_PATH="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -999,8 +1096,14 @@ cmd_permission_template() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -p|--path) PERMISSION_PATH="$2"; shift 2 ;;
-            -t|--template) template="$2"; shift 2 ;;
+            -p | --path)
+                PERMISSION_PATH="$2"
+                shift 2
+                ;;
+            -t | --template)
+                template="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -1064,10 +1167,10 @@ cmd_ssh() {
 }
 
 cmd_ssh_generate() {
-    local key_type="ed25519"         # Default to ed25519 (recommended)
-    local purpose="default"          # Default purpose
-    local key_bits="4096"            # Only used for RSA keys
-    local rounds="100"               # KDF rounds for ed25519/ecdsa
+    local key_type="ed25519" # Default to ed25519 (recommended)
+    local purpose="default"  # Default purpose
+    local key_bits="4096"    # Only used for RSA keys
+    local rounds="100"       # KDF rounds for ed25519/ecdsa
     local comment=""
     local passphrase=""
     local generate_passphrase=false
@@ -1080,20 +1183,62 @@ cmd_ssh_generate() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -u|--username) USERNAME="$2"; shift 2 ;;
-            -t|--type) key_type="$2"; shift 2 ;;
-            -p|--purpose) purpose="$2"; shift 2 ;;
-            -b|--bits) key_bits="$2"; shift 2 ;;
-            -a|--rounds) rounds="$2"; shift 2 ;;
-            -c|--comment) comment="$2"; shift 2 ;;
-            -P|--passphrase) passphrase="$2"; shift 2 ;;
-            -G|--generate-passphrase) generate_passphrase=true; shift ;;
-            -L|--passphrase-length) passphrase_length="$2"; shift 2 ;;
-            -S|--sops) encrypt_with_sops=true; shift ;;
-            --sops-age) sops_age="$2"; shift 2 ;;
-            -O|--output-passphrase) output_passphrase=true; shift ;;
-            -f|--file) key_file="$2"; shift 2 ;;
-            -H|--hostname) hostname_override="$2"; shift 2 ;;
+            -u | --username)
+                USERNAME="$2"
+                shift 2
+                ;;
+            -t | --type)
+                key_type="$2"
+                shift 2
+                ;;
+            -p | --purpose)
+                purpose="$2"
+                shift 2
+                ;;
+            -b | --bits)
+                key_bits="$2"
+                shift 2
+                ;;
+            -a | --rounds)
+                rounds="$2"
+                shift 2
+                ;;
+            -c | --comment)
+                comment="$2"
+                shift 2
+                ;;
+            -P | --passphrase)
+                passphrase="$2"
+                shift 2
+                ;;
+            -G | --generate-passphrase)
+                generate_passphrase=true
+                shift
+                ;;
+            -L | --passphrase-length)
+                passphrase_length="$2"
+                shift 2
+                ;;
+            -S | --sops)
+                encrypt_with_sops=true
+                shift
+                ;;
+            --sops-age)
+                sops_age="$2"
+                shift 2
+                ;;
+            -O | --output-passphrase)
+                output_passphrase=true
+                shift
+                ;;
+            -f | --file)
+                key_file="$2"
+                shift 2
+                ;;
+            -H | --hostname)
+                hostname_override="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -1212,9 +1357,18 @@ cmd_ssh_add() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -u|--username) USERNAME="$2"; shift 2 ;;
-            -k|--key) key_content="$2"; shift 2 ;;
-            -f|--file) key_file="$2"; shift 2 ;;
+            -u | --username)
+                USERNAME="$2"
+                shift 2
+                ;;
+            -k | --key)
+                key_content="$2"
+                shift 2
+                ;;
+            -f | --file)
+                key_file="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -1267,8 +1421,14 @@ cmd_ssh_remove() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -u|--username) USERNAME="$2"; shift 2 ;;
-            -i|--identifier) identifier="$2"; shift 2 ;;
+            -u | --username)
+                USERNAME="$2"
+                shift 2
+                ;;
+            -i | --identifier)
+                identifier="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -1312,8 +1472,14 @@ cmd_ssh_list() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -u|--username) USERNAME="$2"; shift 2 ;;
-            -f|--fingerprints) show_fingerprints=true; shift ;;
+            -u | --username)
+                USERNAME="$2"
+                shift 2
+                ;;
+            -f | --fingerprints)
+                show_fingerprints=true
+                shift
+                ;;
             *) shift ;;
         esac
     done
@@ -1351,8 +1517,14 @@ cmd_ssh_copy() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -s|--source) source_user="$2"; shift 2 ;;
-            -d|--dest) dest_user="$2"; shift 2 ;;
+            -s | --source)
+                source_user="$2"
+                shift 2
+                ;;
+            -d | --dest)
+                dest_user="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -1450,8 +1622,14 @@ cmd_session_list() {
 cmd_session_history() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -u|--username) SESSION_USERNAME="$2"; shift 2 ;;
-            -n|--lines) SESSION_LINES="$2"; shift 2 ;;
+            -u | --username)
+                SESSION_USERNAME="$2"
+                shift 2
+                ;;
+            -n | --lines)
+                SESSION_LINES="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -1469,7 +1647,10 @@ cmd_session_history() {
 cmd_session_failures() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -n|--lines) SESSION_LINES="$2"; shift 2 ;;
+            -n | --lines)
+                SESSION_LINES="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -1514,7 +1695,10 @@ cmd_audit() {
 parse_username_arg() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -u|--username) USERNAME="$2"; shift 2 ;;
+            -u | --username)
+                USERNAME="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -1536,12 +1720,27 @@ main() {
     # Parse global options first
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help) usage ;;
-            -v|--verbose) VERBOSE=true; shift ;;
-            -d|--dry-run) DRY_RUN=true; shift ;;
-            -i|--interactive) INTERACTIVE=true; shift ;;
-            --no-interactive) INTERACTIVE=false; shift ;;
-            -y|--yes) RSR_YES=1; shift ;;
+            -h | --help) usage ;;
+            -v | --verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -d | --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            -i | --interactive)
+                INTERACTIVE=true
+                shift
+                ;;
+            --no-interactive)
+                INTERACTIVE=false
+                shift
+                ;;
+            -y | --yes)
+                RSR_YES=1
+                shift
+                ;;
             -*) shift ;; # Skip other flags for now
             *)
                 SUBCOMMAND="$1"
@@ -1581,4 +1780,3 @@ main() {
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
 fi
-

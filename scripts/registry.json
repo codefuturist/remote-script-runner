@@ -378,17 +378,17 @@
       "name": "Unified Backup",
       "command": "backup",
       "aliases": ["backup", "backup-unified", "bkp"],
-      "description": "Unified backup system supporting rsync, rclone, restic, borg, kopia, Time Machine",
+      "description": "Unified backup system supporting rsync, rclone, restic, borg, kopia, Time Machine, Windows Backup",
       "example": "rsr backup run --source /home --dest /backup --tool restic",
       "category": "backup",
       "subcategory": "tools",
       "path": "scripts/backup/tools/backup-unified.sh",
-      "powershell": "backup/tools/windows-backup.ps1",
+      "powershell": "scripts/backup/tools/backup-unified.ps1",
       "version": "1.0.0",
       "platforms": ["linux", "macos", "windows"],
       "requires": ["bash 4.0+|PowerShell 5.1+"],
       "sudo": "optional",
-      "tags": ["backup", "rsync", "rclone", "restic", "borg", "kopia", "deduplication", "encryption"]
+      "tags": ["backup", "rsync", "rclone", "restic", "borg", "kopia", "deduplication", "encryption", "vss", "robocopy"]
     },
     {
       "id": "rsync-backup",
@@ -501,6 +501,23 @@
       "requires": ["PowerShell 5.1+"],
       "sudo": "required",
       "tags": ["backup", "windows", "vss", "robocopy", "file-history", "wbadmin"]
+    },
+    {
+      "id": "backup-wrappers",
+      "name": "Backup Wrappers",
+      "command": "backup-wrapper",
+      "aliases": ["backup-wrapper", "backup-wrappers", "autorestic", "borgmatic", "resticprofile"],
+      "description": "Manage config-driven backup wrappers (autorestic, borgmatic, resticprofile)",
+      "example": "rsr backup-wrapper status",
+      "category": "backup",
+      "subcategory": "tools",
+      "path": "scripts/backup/tools/backup-wrappers.sh",
+      "powershell": "scripts/backup/tools/backup-wrappers.ps1",
+      "version": "1.0.0",
+      "platforms": ["linux", "macos", "windows"],
+      "requires": ["bash 4.0+|PowerShell 5.1+"],
+      "sudo": "none",
+      "tags": ["backup", "autorestic", "borgmatic", "resticprofile", "kopia", "yaml", "config"]
     }
   ]
 }

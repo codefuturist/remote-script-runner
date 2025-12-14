@@ -17,6 +17,7 @@ The RSR update system provides unified, user-friendly update management across a
 ## Quick Start
 
 ### Linux
+
 ```bash
 # Interactive mode
 sudo ./scripts/system/updates/system-update.sh
@@ -32,6 +33,7 @@ sudo ./scripts/system/updates/system-update.sh --security -y
 ```
 
 ### macOS
+
 ```bash
 # Interactive mode
 ./scripts/system/updates/system-update-macos.sh
@@ -47,6 +49,7 @@ sudo ./scripts/system/updates/system-update.sh --security -y
 ```
 
 ### Windows (PowerShell)
+
 ```powershell
 # Interactive mode
 .\scripts\system\updates\System-Update.ps1
@@ -66,18 +69,21 @@ sudo ./scripts/system/updates/system-update.sh --security -y
 ### Linux (system-update.sh)
 
 **Core Features:**
+
 - Automatic package manager detection (apt, dnf, yum, pacman, zypper, apk)
 - System package updates
 - Security-only updates
 - Reboot detection and management
 
 **Extended Features:**
+
 - ✅ Flatpak application updates
-- ✅ Snap package updates  
+- ✅ Snap package updates
 - ✅ Firmware updates via fwupd
 - ✅ Language package managers (pip, npm, cargo, gem)
 
 **Options:**
+
 ```bash
 -h, --help              Show help message
 -v, --verbose           Enable verbose output
@@ -101,17 +107,20 @@ sudo ./scripts/system/updates/system-update.sh --security -y
 ### macOS (system-update-macos.sh)
 
 **Core Features:**
+
 - Homebrew formula updates
 - Homebrew Cask (application) updates
 - Mac App Store updates (requires mas-cli)
 - macOS system updates (softwareupdate)
 
 **Extended Features:**
+
 - ✅ Language package managers (pip, npm, cargo, gem)
 - ✅ Automatic cleanup after updates
 - ✅ Application version tracking
 
 **Options:**
+
 ```bash
 -h, --help              Show help message
 -v, --verbose           Enable verbose output
@@ -130,23 +139,27 @@ sudo ./scripts/system/updates/system-update.sh --security -y
 ```
 
 **Requirements:**
-- Homebrew: https://brew.sh
+
+- Homebrew: <https://brew.sh>
 - mas-cli (optional): `brew install mas`
 
 ### Windows (System-Update.ps1)
 
 **Core Features:**
+
 - winget package updates
 - Chocolatey package updates
 - Scoop package updates (planned)
 - Windows Update (via PSWindowsUpdate module)
 
 **Extended Features:**
+
 - ✅ Language package managers (pip, npm, cargo, gem)
 - ✅ Reboot detection and management
 - ✅ Administrator privilege detection
 
 **Options:**
+
 ```powershell
 -Check                  Check for available updates only
 -List                   List all available updates
@@ -161,8 +174,9 @@ sudo ./scripts/system/updates/system-update.sh --security -y
 ```
 
 **Requirements:**
+
 - winget (Windows 10 1809+)
-- Chocolatey (optional): https://chocolatey.org/install
+- Chocolatey (optional): <https://chocolatey.org/install>
 - PSWindowsUpdate module (optional): `Install-Module PSWindowsUpdate`
 
 ## Usage Examples
@@ -183,6 +197,7 @@ sudo ./scripts/system/updates/system-update.sh
 ```
 
 The interactive mode will:
+
 1. Check for available updates across all sources
 2. Display update counts by category
 3. Offer menu-driven update options
@@ -192,6 +207,7 @@ The interactive mode will:
 ### Automated Updates
 
 #### Linux - Full System Update
+
 ```bash
 # Update everything with language packages
 sudo ./scripts/system/updates/system-update.sh \
@@ -204,6 +220,7 @@ sudo ./scripts/system/updates/system-update.sh \
 ```
 
 #### Linux - Security Updates Only
+
 ```bash
 # Security updates for critical systems
 sudo ./scripts/system/updates/system-update.sh \
@@ -213,6 +230,7 @@ sudo ./scripts/system/updates/system-update.sh \
 ```
 
 #### macOS - Developer Workstation
+
 ```bash
 # Update Homebrew, casks, and development tools
 ./scripts/system/updates/system-update-macos.sh \
@@ -223,6 +241,7 @@ sudo ./scripts/system/updates/system-update.sh \
 ```
 
 #### Windows - Comprehensive Update
+
 ```powershell
 # Update all sources including Windows Update
 .\scripts\system\updates\System-Update.ps1 `
@@ -334,6 +353,7 @@ sudo ./scripts/system/updates/system-update.sh \
 ## Exit Codes
 
 ### Linux
+
 - `0` - Updates completed successfully
 - `1` - General error
 - `2` - Invalid arguments
@@ -345,6 +365,7 @@ sudo ./scripts/system/updates/system-update.sh \
 - `100` - No updates available
 
 ### macOS & Windows
+
 - `0` - Success
 - `1` - Error
 - `2` - Invalid arguments
@@ -365,6 +386,7 @@ rsr update --all --lang
 ## Supported Platforms
 
 ### Linux
+
 - ✅ Debian/Ubuntu (apt)
 - ✅ RHEL/CentOS/Fedora (dnf/yum)
 - ✅ Arch Linux (pacman)
@@ -372,10 +394,12 @@ rsr update --all --lang
 - ✅ Alpine (apk)
 
 ### macOS
+
 - ✅ macOS 10.12+ (Sierra and later)
 - ✅ Apple Silicon and Intel
 
 ### Windows
+
 - ✅ Windows 10 1809+
 - ✅ Windows 11
 - ✅ Windows Server 2019+
@@ -383,6 +407,7 @@ rsr update --all --lang
 ## Troubleshooting
 
 ### Linux: Package Manager Locked
+
 ```bash
 # Check for running package managers
 ps aux | grep -E 'apt|dnf|yum|pacman'
@@ -392,6 +417,7 @@ sudo rm /var/lib/dpkg/lock*  # Debian/Ubuntu
 ```
 
 ### macOS: Homebrew Issues
+
 ```bash
 # Update Homebrew itself
 brew update
@@ -404,6 +430,7 @@ brew reinstall mas
 ```
 
 ### Windows: Module Not Found
+
 ```powershell
 # Install PSWindowsUpdate
 Install-Module PSWindowsUpdate -Force -Scope CurrentUser
@@ -470,6 +497,6 @@ Part of the Remote Script Runner (RSR) project.
 ## Support
 
 For issues, questions, or contributions:
+
 - GitHub Issues: [remote-script-runner/issues](https://github.com/codefuturist/remote-script-runner/issues)
 - Documentation: [RSR Docs](https://scripts.pandia.io/docs)
-

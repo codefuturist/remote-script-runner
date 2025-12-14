@@ -116,7 +116,7 @@ make all
 param(
     [Parameter(Mandatory=$true)]
     [string]$RequiredParam,
-    
+
     [Parameter(Mandatory=$false)]
     [switch]$OptionalSwitch
 )
@@ -151,11 +151,11 @@ param(
     [Parameter(Mandatory=$true)]
     [ValidateNotNullOrEmpty()]
     [string]$ServerName,
-    
+
     [Parameter(Mandatory=$false)]
     [ValidateSet('Production', 'Staging', 'Development')]
     [string]$Environment = 'Development',
-    
+
     [Parameter(Mandatory=$false)]
     [ValidateRange(1, 65535)]
     [int]$Port = 22
@@ -223,21 +223,21 @@ Describe 'Install-OpenSSH.ps1' {
         It 'Should accept ClientOnly parameter' {
             { & $script:scriptPath -ClientOnly -WhatIf } | Should -Not -Throw
         }
-        
+
         It 'Should require administrator privileges' {
             # Test implementation
         }
     }
-    
+
     Context 'Function Behavior' {
         BeforeEach {
             # Setup before each test
         }
-        
+
         It 'Should log messages correctly' {
             # Test implementation
         }
-        
+
         AfterEach {
             # Cleanup after each test
         }
@@ -378,4 +378,3 @@ As the project grows:
 3. **Document complex functions** with comprehensive examples
 4. **Review and update** PSScriptAnalyzer rules quarterly
 5. **Share knowledge** through team reviews and pair programming
-

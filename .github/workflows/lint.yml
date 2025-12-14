@@ -20,11 +20,13 @@ jobs:
       - name: Run ShellCheck on rsr
         run: shellcheck -x --severity=warning rsr
 
-      - name: Run ShellCheck on bash scripts
-        run: shellcheck -x --severity=warning scripts/bash/*.sh
+      - name: Run ShellCheck on scripts
+        run: |
+          find scripts -name '*.sh' -type f ! -path '*/_archive/*' ! -path '*/_templates/*' -print0 | xargs -0 shellcheck -x --severity=warning
 
       - name: Run ShellCheck on lib scripts
-        run: shellcheck -x --severity=warning lib/*.sh
+        run: |
+          find lib -name '*.sh' -type f ! -path '*/_archive/*' -print0 | xargs -0 shellcheck -x --severity=warning
 
       - name: Run ShellCheck on tools
         run: shellcheck -x --severity=warning tools/*.sh
@@ -43,7 +45,10 @@ jobs:
 
       - name: Check formatting
         run: |
-          ~/.local/bin/shfmt -i 4 -ci -bn -sr -d rsr scripts/bash/*.sh lib/*.sh tools/*.sh
+          # Find all shell scripts excluding archive/template dirs
+          SCRIPTS=$(find scripts -name '*.sh' -type f ! -path '*/_archive/*' ! -path '*/_templates/*')
+          LIB_SCRIPTS=$(find lib -name '*.sh' -type f ! -path '*/_archive/*')
+          ~/.local/bin/shfmt -i 4 -ci -bn -sr -d rsr $SCRIPTS $LIB_SCRIPTS tools/*.sh
 
   syntax-check:
     name: Syntax Check
@@ -55,18 +60,18 @@ jobs:
       - name: Check rsr syntax (POSIX sh)
         run: sh -n rsr
 
-      - name: Check bash scripts syntax
+      - name: Check scripts syntax
         run: |
-          for script in scripts/bash/*.sh; do
+          find scripts -name '*.sh' -type f ! -path '*/_archive/*' ! -path '*/_templates/*' | while read script; do
             echo "Checking $script..."
             bash -n "$script"
           done
 
       - name: Check lib scripts syntax
         run: |
-          for script in lib/*.sh; do
+          find lib -name '*.sh' -type f ! -path '*/_archive/*' | while read script; do
             echo "Checking $script..."
-            sh -n "$script"
+            bash -n "$script"
           done
 
   commitlint:
@@ -119,7 +124,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           Import-Module PSScriptAnalyzer
 
-          $scripts = Get-ChildItem -Path scripts/powershell -Filter '*.ps1' -File
+          $scripts = Get-ChildItem -Path lib/powershell -Filter '*.ps1' -File -Recurse
           $totalIssues = 0
           $hasErrors = $false
 
@@ -165,4 +170,3 @@ jobs:
           } else {
               Write-Host "✓ All PowerShell scripts passed linting" -ForegroundColor Green
           }
-

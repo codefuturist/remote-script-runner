@@ -59,6 +59,7 @@ uv run tools/verify_packages.py --help
 ```
 
 UV automatically:
+
 1. Creates a virtual environment (`.venv/`)
 2. Installs dependencies from `pyproject.toml`
 3. Runs the script in the isolated environment
@@ -124,6 +125,7 @@ uv run tools/verify_packages.py
 ```
 
 UV handles:
+
 - ✅ Virtual environment creation
 - ✅ Dependency installation
 - ✅ Python version management
@@ -147,6 +149,7 @@ tools/
 ### Issue: "uv: command not found"
 
 **Solution**: Install UV first
+
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
@@ -154,6 +157,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ### Issue: "No Python interpreter found"
 
 **Solution**: UV will automatically download and install Python
+
 ```bash
 uv python install 3.11
 ```
@@ -161,6 +165,7 @@ uv python install 3.11
 ### Issue: Dependencies not found
 
 **Solution**: Sync dependencies from lockfile
+
 ```bash
 cd tools && uv sync
 ```
@@ -168,6 +173,7 @@ cd tools && uv sync
 ### Issue: Need to use legacy pip workflow
 
 **Solution**: requirements.txt still works
+
 ```bash
 pip install -r tools/requirements.txt
 python3 tools/verify_packages.py
@@ -222,6 +228,7 @@ python3 tools/verify_packages.py
 ```
 
 However, we strongly recommend migrating to UV for:
+
 - ⚡ Faster dependency resolution
 - 🔒 Reproducible builds (lockfile)
 - 🎯 Automatic environment management

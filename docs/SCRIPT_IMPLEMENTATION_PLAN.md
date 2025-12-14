@@ -20,6 +20,7 @@ This document contains the detailed implementation plan for 10 high-priority sys
 ## 1. Disk Cleanup (`cleanup`)
 
 ### Metadata
+
 ```bash
 # @id           cleanup
 # @name         disk-cleanup
@@ -32,6 +33,7 @@ This document contains the detailed implementation plan for 10 high-priority sys
 ```
 
 ### CLI Options
+
 | Short | Long | Argument | Description |
 |-------|------|----------|-------------|
 | `-h` | `--help` | | Display help message |
@@ -45,6 +47,7 @@ This document contains the detailed implementation plan for 10 high-priority sys
 | | `--aggressive` | | Include user caches and deeper cleaning |
 
 ### Sections
+
 - `tmp` - Temporary files (/tmp, /var/tmp)
 - `cache` - Package manager cache
 - `logs` - Old/rotated log files
@@ -54,6 +57,7 @@ This document contains the detailed implementation plan for 10 high-priority sys
 - `coredumps` - Core dump files
 
 ### Features
+
 - [x] Auto-detect package manager (apt, yum, dnf, pacman, zypper)
 - [x] Dry-run mode by default (safe)
 - [x] Show disk space before/after with savings
@@ -63,6 +67,7 @@ This document contains the detailed implementation plan for 10 high-priority sys
 - [x] Summary table at end
 
 ### Exit Codes
+
 | Code | Meaning |
 |------|---------|
 | 0 | Success |
@@ -72,6 +77,7 @@ This document contains the detailed implementation plan for 10 high-priority sys
 | 4 | Partial cleanup (some tasks failed) |
 
 ### Example Usage
+
 ```bash
 rsr cleanup -d -a                    # Dry run all cleanup tasks
 rsr cleanup -x -s cache -s logs      # Execute cache and log cleanup
@@ -84,6 +90,7 @@ sudo rsr cleanup -x -s kernels -k 2  # Remove old kernels, keep 2
 ## 2. SSL Certificate Checker (`ssl`)
 
 ### Metadata
+
 ```bash
 # @id           ssl
 # @name         ssl-checker
@@ -96,6 +103,7 @@ sudo rsr cleanup -x -s kernels -k 2  # Remove old kernels, keep 2
 ```
 
 ### CLI Options
+
 | Short | Long | Argument | Description |
 |-------|------|----------|-------------|
 | `-h` | `--help` | | Display help message |
@@ -112,6 +120,7 @@ sudo rsr cleanup -x -s kernels -k 2  # Remove old kernels, keep 2
 | | `--json` | | Output in JSON format |
 
 ### Features
+
 - [x] Check certificate expiry with days remaining
 - [x] Color-coded status (green >30d, yellow 7-30d, red <7d)
 - [x] Validate certificate chain
@@ -124,6 +133,7 @@ sudo rsr cleanup -x -s kernels -k 2  # Remove old kernels, keep 2
 - [x] JSON output for monitoring
 
 ### Exit Codes
+
 | Code | Meaning |
 |------|---------|
 | 0 | All certificates valid (> warn days) |
@@ -135,6 +145,7 @@ sudo rsr cleanup -x -s kernels -k 2  # Remove old kernels, keep 2
 | 6 | Chain validation failed |
 
 ### Example Usage
+
 ```bash
 rsr ssl -d example.com                      # Check single domain
 rsr ssl -d example.com -d api.example.com   # Check multiple domains
@@ -149,6 +160,7 @@ rsr ssl -d example.com --json               # JSON output for scripting
 ## 3. User Audit (`users`)
 
 ### Metadata
+
 ```bash
 # @id           users
 # @name         user-audit
@@ -161,6 +173,7 @@ rsr ssl -d example.com --json               # JSON output for scripting
 ```
 
 ### CLI Options
+
 | Short | Long | Argument | Description |
 |-------|------|----------|-------------|
 | `-h` | `--help` | | Display help message |
@@ -178,6 +191,7 @@ rsr ssl -d example.com --json               # JSON output for scripting
 | | `--json` | | Output in JSON format |
 
 ### Sections
+
 - `accounts` - List all user accounts with details
 - `sudo` - Sudo/wheel group membership
 - `passwords` - Password status and expiry
@@ -186,6 +200,7 @@ rsr ssl -d example.com --json               # JSON output for scripting
 - `orphans` - Orphaned files scan
 
 ### Features
+
 - [x] List all users with UID, GID, shell, home
 - [x] Identify sudo/wheel group users
 - [x] Find users with UID 0 (root equivalents)
@@ -198,6 +213,7 @@ rsr ssl -d example.com --json               # JSON output for scripting
 - [x] Color-coded security warnings
 
 ### Exit Codes
+
 | Code | Meaning |
 |------|---------|
 | 0 | Audit complete, no critical issues |
@@ -208,6 +224,7 @@ rsr ssl -d example.com --json               # JSON output for scripting
 | 5 | Warnings found (non-critical) |
 
 ### Example Usage
+
 ```bash
 rsr users -a                    # Full user audit
 rsr users -s sudo -s passwords  # Check sudo and password status
@@ -222,6 +239,7 @@ sudo rsr users -a --json        # Full audit with JSON output
 ## 4. System Update (`update`)
 
 ### Metadata
+
 ```bash
 # @id           update
 # @name         system-update
@@ -234,6 +252,7 @@ sudo rsr users -a --json        # Full audit with JSON output
 ```
 
 ### CLI Options
+
 | Short | Long | Argument | Description |
 |-------|------|----------|-------------|
 | `-h` | `--help` | | Display help message |
@@ -251,6 +270,7 @@ sudo rsr users -a --json        # Full audit with JSON output
 | | `--json` | | Output in JSON format |
 
 ### Features
+
 - [x] Auto-detect package manager (apt, yum, dnf, pacman, zypper, apk)
 - [x] List available updates with current/new version
 - [x] Show security updates separately
@@ -262,6 +282,7 @@ sudo rsr users -a --json        # Full audit with JSON output
 - [x] Show download size and disk space needed
 
 ### Exit Codes
+
 | Code | Meaning |
 |------|---------|
 | 0 | Updates completed successfully |
@@ -275,6 +296,7 @@ sudo rsr users -a --json        # Full audit with JSON output
 | 100 | No updates available |
 
 ### Example Usage
+
 ```bash
 rsr update -c                       # Check for updates
 rsr update -l                       # List available updates
@@ -290,6 +312,7 @@ sudo rsr update -a -e nginx         # Update all except nginx
 ## 5. Security Audit (`audit`)
 
 ### Metadata
+
 ```bash
 # @id           audit
 # @name         security-audit
@@ -302,6 +325,7 @@ sudo rsr update -a -e nginx         # Update all except nginx
 ```
 
 ### CLI Options
+
 | Short | Long | Argument | Description |
 |-------|------|----------|-------------|
 | `-h` | `--help` | | Display help message |
@@ -316,6 +340,7 @@ sudo rsr update -a -e nginx         # Update all except nginx
 | | `--cis` | | Include CIS benchmark references |
 
 ### Sections
+
 - `ports` - Open ports and listening services
 - `auth` - Authentication failures and brute force
 - `files` - File permissions, world-writable, SUID/SGID
@@ -327,6 +352,7 @@ sudo rsr update -a -e nginx         # Update all except nginx
 - `kernel` - Kernel security settings
 
 ### Features
+
 - [x] Scan open ports and identify processes
 - [x] Check failed login attempts
 - [x] Find world-writable files/directories
@@ -339,6 +365,7 @@ sudo rsr update -a -e nginx         # Update all except nginx
 - [x] Summary with total issues by severity
 
 ### Exit Codes
+
 | Code | Meaning |
 |------|---------|
 | 0 | No security issues found |
@@ -351,6 +378,7 @@ sudo rsr update -a -e nginx         # Update all except nginx
 | 7 | Low severity issues found |
 
 ### Example Usage
+
 ```bash
 rsr audit -a                        # Full security audit
 rsr audit -s ports -s auth          # Check ports and authentication
@@ -365,6 +393,7 @@ rsr audit -a -r /tmp/audit.html --format html  # HTML report
 ## 6. Network Diagnostics (`netdiag`)
 
 ### Metadata
+
 ```bash
 # @id           netdiag
 # @name         network-diagnostics
@@ -377,6 +406,7 @@ rsr audit -a -r /tmp/audit.html --format html  # HTML report
 ```
 
 ### CLI Options
+
 | Short | Long | Argument | Description |
 |-------|------|----------|-------------|
 | `-h` | `--help` | | Display help message |
@@ -398,6 +428,7 @@ rsr audit -a -r /tmp/audit.html --format html  # HTML report
 | | `--json` | | Output in JSON format |
 
 ### Sections
+
 - `connectivity` - Basic internet connectivity
 - `dns` - DNS resolution tests
 - `gateway` - Default gateway check
@@ -407,6 +438,7 @@ rsr audit -a -r /tmp/audit.html --format html  # HTML report
 - `routing` - Routing table
 
 ### Features
+
 - [x] Ping multiple hosts with latency stats
 - [x] DNS resolution test (multiple resolvers)
 - [x] Check default gateway
@@ -419,6 +451,7 @@ rsr audit -a -r /tmp/audit.html --format html  # HTML report
 - [x] Color-coded status output
 
 ### Exit Codes
+
 | Code | Meaning |
 |------|---------|
 | 0 | All tests passed |
@@ -429,6 +462,7 @@ rsr audit -a -r /tmp/audit.html --format html  # HTML report
 | 5 | Port connectivity failed |
 
 ### Example Usage
+
 ```bash
 rsr netdiag -a                              # Full diagnostics
 rsr netdiag --ping google.com,cloudflare.com  # Ping specific hosts
@@ -444,6 +478,7 @@ rsr netdiag -a --json                       # JSON output
 ## 7. SSH Hardening (`ssh-harden`)
 
 ### Metadata
+
 ```bash
 # @id           ssh-harden
 # @name         ssh-hardening
@@ -456,6 +491,7 @@ rsr netdiag -a --json                       # JSON output
 ```
 
 ### CLI Options
+
 | Short | Long | Argument | Description |
 |-------|------|----------|-------------|
 | `-h` | `--help` | | Display help message |
@@ -478,6 +514,7 @@ rsr netdiag -a --json                       # JSON output
 | | `--rollback` | | Rollback to previous configuration |
 
 ### Features
+
 - [x] Show current SSH configuration status
 - [x] Disable root login (PermitRootLogin no)
 - [x] Disable password authentication
@@ -492,6 +529,7 @@ rsr netdiag -a --json                       # JSON output
 - [x] Warn if changes would lock out current user
 
 ### Exit Codes
+
 | Code | Meaning |
 |------|---------|
 | 0 | Hardening applied successfully |
@@ -504,6 +542,7 @@ rsr netdiag -a --json                       # JSON output
 | 7 | Rollback required |
 
 ### Example Usage
+
 ```bash
 rsr ssh-harden --status                 # Show current config status
 rsr ssh-harden -a -d                    # Dry run all hardening
@@ -519,6 +558,7 @@ sudo rsr ssh-harden --rollback          # Rollback changes
 ## 8. Firewall Setup (`firewall`)
 
 ### Metadata
+
 ```bash
 # @id           firewall
 # @name         firewall-setup
@@ -531,6 +571,7 @@ sudo rsr ssh-harden --rollback          # Rollback changes
 ```
 
 ### CLI Options
+
 | Short | Long | Argument | Description |
 |-------|------|----------|-------------|
 | `-h` | `--help` | | Display help message |
@@ -552,6 +593,7 @@ sudo rsr ssh-harden --rollback          # Rollback changes
 | | `--no-ipv6` | | Disable IPv6 |
 
 ### Presets
+
 - `minimal` - SSH only (port 22)
 - `web` - SSH, HTTP, HTTPS (22, 80, 443)
 - `database` - SSH + MySQL/PostgreSQL (localhost only)
@@ -559,6 +601,7 @@ sudo rsr ssh-harden --rollback          # Rollback changes
 - `mail` - SSH + SMTP, IMAP, POP3 with SSL
 
 ### Features
+
 - [x] Auto-detect firewall (ufw, firewalld, iptables, nftables)
 - [x] Apply preset profiles
 - [x] Allow/deny specific ports
@@ -571,6 +614,7 @@ sudo rsr ssh-harden --rollback          # Rollback changes
 - [x] IPv6 support
 
 ### Exit Codes
+
 | Code | Meaning |
 |------|---------|
 | 0 | Firewall configured successfully |
@@ -582,6 +626,7 @@ sudo rsr ssh-harden --rollback          # Rollback changes
 | 6 | Would lock out SSH (aborted) |
 
 ### Example Usage
+
 ```bash
 rsr firewall --status                   # Show current status
 rsr firewall -p web -d                  # Dry run web preset
@@ -597,6 +642,7 @@ sudo rsr firewall --backup /tmp/fw.bak  # Backup rules
 ## 9. Configuration Backup (`backup`)
 
 ### Metadata
+
 ```bash
 # @id           backup
 # @name         config-backup
@@ -609,6 +655,7 @@ sudo rsr firewall --backup /tmp/fw.bak  # Backup rules
 ```
 
 ### CLI Options
+
 | Short | Long | Argument | Description |
 |-------|------|----------|-------------|
 | `-h` | `--help` | | Display help message |
@@ -628,6 +675,7 @@ sudo rsr firewall --backup /tmp/fw.bak  # Backup rules
 | `-d` | `--dry-run` | | Show what would be backed up |
 
 ### Sections
+
 - `etc` - /etc directory (system configuration)
 - `packages` - Installed package list with versions
 - `crontabs` - All user and system crontabs
@@ -638,6 +686,7 @@ sudo rsr firewall --backup /tmp/fw.bak  # Backup rules
 - `database` - Database configs (not data)
 
 ### Features
+
 - [x] Backup /etc with configurable excludes
 - [x] Export installed package list
 - [x] Backup all crontabs
@@ -652,6 +701,7 @@ sudo rsr firewall --backup /tmp/fw.bak  # Backup rules
 - [x] Verify backup integrity
 
 ### Exit Codes
+
 | Code | Meaning |
 |------|---------|
 | 0 | Backup completed successfully |
@@ -665,6 +715,7 @@ sudo rsr firewall --backup /tmp/fw.bak  # Backup rules
 | 8 | Restore failed |
 
 ### Example Usage
+
 ```bash
 rsr backup -a -d                        # Dry run full backup
 sudo rsr backup -a                      # Full backup
@@ -680,6 +731,7 @@ sudo rsr backup --restore /var/backups/rsr/backup-20240120.tar.gz
 ## 10. Database Backup (`db-backup`)
 
 ### Metadata
+
 ```bash
 # @id           db-backup
 # @name         database-backup
@@ -692,6 +744,7 @@ sudo rsr backup --restore /var/backups/rsr/backup-20240120.tar.gz
 ```
 
 ### CLI Options
+
 | Short | Long | Argument | Description |
 |-------|------|----------|-------------|
 | `-h` | `--help` | | Display help message |
@@ -718,6 +771,7 @@ sudo rsr backup --restore /var/backups/rsr/backup-20240120.tar.gz
 | | `--dry-run` | | Show what would be done |
 
 ### Features
+
 - [x] Auto-detect database type
 - [x] MySQL/MariaDB dump (mysqldump)
 - [x] PostgreSQL dump (pg_dump)
@@ -733,6 +787,7 @@ sudo rsr backup --restore /var/backups/rsr/backup-20240120.tar.gz
 - [x] Verify backup integrity
 
 ### Exit Codes
+
 | Code | Meaning |
 |------|---------|
 | 0 | Backup completed successfully |
@@ -747,6 +802,7 @@ sudo rsr backup --restore /var/backups/rsr/backup-20240120.tar.gz
 | 9 | Restore failed |
 
 ### Example Usage
+
 ```bash
 rsr db-backup --mysql -A                # Backup all MySQL databases
 rsr db-backup --postgresql -d myapp     # Backup specific PostgreSQL DB
@@ -807,6 +863,7 @@ When implementing, add each script to `scripts/registry.json`:
 - [ ] 10. `db-backup` (database-backup.sh)
 
 After each script:
+
 - [ ] Add to `scripts/registry.json`
 - [ ] Run `./tools/validate.sh`
 - [ ] Run `./tools/build-registry.sh`
@@ -820,6 +877,7 @@ After each script:
 All scripts should follow these patterns from existing scripts:
 
 ### Script Header
+
 ```bash
 #!/usr/bin/env bash
 # @id           <id>
@@ -835,6 +893,7 @@ set -euo pipefail
 ```
 
 ### Color Setup
+
 ```bash
 setup_colors() {
     if [[ -t 1 ]]; then
@@ -853,6 +912,7 @@ setup_colors() {
 ```
 
 ### Logging Functions
+
 ```bash
 log_info()  { printf "${BLUE}▸${NC} %s\n" "$1"; }
 log_ok()    { printf "${GREEN}✓${NC} %s\n" "$1"; }
@@ -862,6 +922,7 @@ log_debug() { [[ "${VERBOSE:-0}" == "1" ]] && printf "${DIM}  %s${NC}\n" "$1"; }
 ```
 
 ### Help Function
+
 ```bash
 show_help() {
     cat << EOF
@@ -883,14 +944,15 @@ EOF
 ```
 
 ### Main Function Pattern
+
 ```bash
 main() {
     setup_colors
     parse_args "$@"
-    
+
     # Show help if requested
     [[ "${SHOW_HELP:-0}" == "1" ]] && show_help && exit 0
-    
+
     # Main logic here
     ...
 }

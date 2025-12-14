@@ -11,24 +11,28 @@ Successfully implemented comprehensive Windows support for RSR user management w
 ### Core Components
 
 **1. PowerShell Library (`lib/users.ps1` - 800+ lines)**
+
 - Complete Windows user management API
 - Mirrors bash `lib/users.sh` functionality
 - 40+ functions covering all operations
 - Cross-compatible function names (Test-RSR*, New-RSR*, Get-RSR*)
 
 **2. Windows User Management Script (`scripts/powershell/UserManagement.ps1` - 1000+ lines)**
+
 - Full-featured PowerShell script
 - Identical subcommand structure to bash version
 - Complete argument parsing
 - Error handling and validation
 
 **3. Windows Entry Points**
+
 - `rsr.ps1` - PowerShell entry point
 - `rsr.cmd` - Batch wrapper for Command Prompt
 
 ### Key Features
 
 ✅ **True Single Entry Point**
+
 ```bash
 # Same command syntax on ALL platforms:
 rsr usermgmt create -u john -c "John Doe"
@@ -48,6 +52,7 @@ rsr usermgmt ssh add -u john -f key.pub
 | Permissions | ✅ | ✅ | ✅ ACLs |
 
 ✅ **Windows-Specific Capabilities**
+
 - Local user management via `New-LocalUser`, `Set-LocalUser`
 - Domain user support (when AD module available)
 - Windows ACL permissions
@@ -392,7 +397,6 @@ To start using on Windows:
 
 ---
 
-**Implementation Status:** ✅ COMPLETE  
-**Quality:** ⭐⭐⭐⭐⭐ Production Ready  
+**Implementation Status:** ✅ COMPLETE
+**Quality:** ⭐⭐⭐⭐⭐ Production Ready
 **Platform Coverage:** Linux + macOS + Windows
-

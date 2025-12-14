@@ -7,6 +7,7 @@ Git Auto-Sync now includes **lightweight change detection** that allows frequent
 ## How It Works
 
 ### Traditional Approach (Resource Intensive)
+
 ```bash
 Every 300 seconds:
   1. git fetch (downloads pack files, refs, objects) ~5-20 MB network
@@ -14,21 +15,24 @@ Every 300 seconds:
   3. Validation
   4. Post-hooks
 ```
+
 **Resource usage**: High network, high disk I/O, high CPU for large repos
 
 ### Optimized Approach (Lightweight)
+
 ```bash
 Every 30 seconds (Quick Check):
   1. git ls-remote (only fetches ref hashes) ~1-2 KB network
   2. Compare with last known hash
   3. Skip sync if no changes
-  
+
 Every 300 seconds OR when changes detected (Full Sync):
   1. git fetch (only if needed)
   2. git reset --hard
   3. Validation
   4. Post-hooks
 ```
+
 **Resource usage**: Minimal network, no disk I/O unless changes detected
 
 ## Benefits
@@ -65,6 +69,7 @@ Every 300 seconds OR when changes detected (Full Sync):
 ```
 
 **Timeline**:
+
 ```
 00:00 - Quick check (1 KB network) - No changes
 00:30 - Quick check (1 KB network) - No changes
@@ -123,6 +128,7 @@ Every 300 seconds OR when changes detected (Full Sync):
 ## Real-World Performance
 
 ### Test Environment
+
 - **Repository size**: 100 MB (50 DNS zone files)
 - **Network**: 100 Mbps
 - **Check interval**: 30 seconds
@@ -131,8 +137,9 @@ Every 300 seconds OR when changes detected (Full Sync):
 ### Results
 
 **Without Quick Check** (5 minute interval):
+
 ```
-Network usage: 
+Network usage:
   - 12 checks/hour × 5 MB = 60 MB/hour
   - 1,440 MB/day (1.4 GB/day)
 
@@ -141,6 +148,7 @@ Resource usage: HIGH
 ```
 
 **With Quick Check** (30 second interval):
+
 ```
 Network usage:
   - 120 quick checks/hour × 1 KB = 120 KB/hour
@@ -166,6 +174,7 @@ Resource usage: MINIMAL
 ```
 
 Use this for:
+
 - Very small repositories (<1 MB)
 - Repositories that change on every commit
 - Testing/debugging
@@ -182,6 +191,7 @@ Use this for:
 ```
 
 Recommendations:
+
 - **DNS/critical configs**: 15-30 seconds
 - **Application configs**: 30-60 seconds
 - **Large repos/low priority**: 60-120 seconds
@@ -194,7 +204,7 @@ You can set different intervals by running multiple instances with different con
 # Critical DNS zones - check every 15s
 git-auto-sync.sh --daemon --config /etc/sync/dns.json &
 
-# App configs - check every 60s  
+# App configs - check every 60s
 git-auto-sync.sh --daemon --config /etc/sync/app.json &
 ```
 
@@ -216,12 +226,14 @@ top -p $(cat /tmp/git-auto-sync.pid)
 ### Expected Resource Usage
 
 **Idle (no changes)**:
+
 - CPU: <0.1%
 - Memory: ~10-20 MB
 - Network: 1-2 KB per check
 - Disk I/O: Minimal (only reading refs)
 
 **During sync (changes detected)**:
+
 - CPU: 5-20% (during validation)
 - Memory: 20-50 MB
 - Network: Varies by repo size
@@ -254,9 +266,11 @@ If you're still seeing too many full syncs:
 
 1. Verify quick_check is enabled in config
 2. Check that git ls-remote works:
+
    ```bash
    git ls-remote origin refs/heads/main
    ```
+
 3. Ensure network connectivity is stable
 
 ### False Change Detection

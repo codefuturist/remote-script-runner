@@ -6,6 +6,7 @@
 ## Executive Summary
 
 Found **68 packages** that appear in multiple YAML profile files:
+
 - 🔴 **5 critical** - Duplicates within the same file
 - ⚠️ **10 redundant** - Identical packages in multiple files (can be consolidated)
 - ℹ️ **53 intentional** - Same package with different configurations (likely intentional for different use cases)
@@ -15,22 +16,27 @@ Found **68 packages** that appear in multiple YAML profile files:
 These packages appear multiple times in the **same YAML file** (likely errors):
 
 ### 1. rclone (backup-sync.yaml)
+
 - Appears 3 times in the same file
 - **Action Required**: Merge into single entry
 
 ### 2. tabby (productivity.yaml)
+
 - Appears 2 times in the same file
 - **Action Required**: Remove duplicate
 
 ### 3. sshfs (network.yaml)
+
 - Appears 2 times in the same file
 - **Action Required**: Remove duplicate
 
 ### 4. macfuse (network.yaml)
+
 - Appears 2 times in the same file
 - **Action Required**: Remove duplicate
 
 ### 5. winfsp (network.yaml)
+
 - Appears 2 times in the same file
 - **Action Required**: Remove duplicate
 
@@ -41,7 +47,9 @@ These packages have **identical configurations** across multiple files and could
 ### High Priority (4 files)
 
 #### 1. jq - YAML/JSON processor
+
 **Found in**: core.yaml, development.yaml, example-multimethod.yaml, minimal.yaml
+
 ```yaml
 name: jq
 description: JSON processor
@@ -49,10 +57,13 @@ brew: jq
 apt: jq
 dnf: jq
 ```
+
 **Recommendation**: Keep in `core.yaml` only (it's already in minimal). Remove from development and example-multimethod.
 
 #### 2. htop - System monitor
+
 **Found in**: development.yaml, example-multimethod.yaml, minimal.yaml, monitoring.yaml
+
 ```yaml
 name: htop
 description: Interactive process viewer
@@ -60,35 +71,43 @@ brew: htop
 apt: htop
 dnf: htop
 ```
+
 **Recommendation**: Keep in `monitoring.yaml` and `minimal.yaml`. Remove from development and example.
 
 ### Medium Priority (3 files)
 
 #### 3. openssl - Cryptography toolkit
+
 **Found in**: network.yaml, security.yaml, webserver.yaml
 **Recommendation**: Keep in `security.yaml` only. Reference from other profiles.
 
 #### 4. fd - Fast find alternative
+
 **Found in**: development.yaml, example-multimethod.yaml, productivity.yaml
 **Recommendation**: Keep in `productivity.yaml` only.
 
 #### 5. mtr - Network diagnostic tool
+
 **Found in**: monitoring.yaml, network.yaml, server.yaml
 **Recommendation**: Keep in `monitoring.yaml` and `network.yaml` (both valid use cases).
 
 #### 6. rsync - File synchronization
+
 **Found in**: backup-sync.yaml, development.yaml, server.yaml
 **Recommendation**: Keep in `backup-sync.yaml` (primary use case).
 
 #### 7. unzip - Extract zip archives
+
 **Found in**: core.yaml, development.yaml, minimal.yaml
 **Recommendation**: Keep in `core.yaml` only.
 
 #### 8. zip - Create zip archives
+
 **Found in**: core.yaml, development.yaml, minimal.yaml
 **Recommendation**: Keep in `core.yaml` only.
 
 #### 9. yq - YAML processor
+
 **Found in**: core.yaml, development.yaml, kubernetes.yaml
 **Recommendation**: Keep in `core.yaml` (most complete config).
 
@@ -116,16 +135,19 @@ These 53 packages appear in multiple files but with **different package manager 
 ### Examples of Valid Duplicates
 
 #### git (development.yaml vs minimal.yaml)
+
 - **development.yaml**: Full configuration with all package managers
 - **minimal.yaml**: Basic configuration for minimal installs
 - **Status**: ✅ Valid - Different scopes
 
 #### vault (devops.yaml vs kubernetes.yaml)
+
 - **devops.yaml**: Full HashiCorp Vault with Windows support
 - **kubernetes.yaml**: Kubernetes-focused subset
 - **Status**: ✅ Valid - Different contexts
 
 #### trivy (docker.yaml vs kubernetes.yaml)
+
 - **docker.yaml**: Docker-specific scanner
 - **kubernetes.yaml**: Kubernetes-specific scanner with install script
 - **Status**: ✅ Valid - Different use cases
@@ -190,6 +212,7 @@ These 53 packages appear in multiple files but with **different package manager 
 ### Immediate Actions (Critical)
 
 1. **Fix within-file duplicates**:
+
    ```bash
    # Check and fix these files
    - backup-sync.yaml (rclone - 3 times)
@@ -199,14 +222,15 @@ These 53 packages appear in multiple files but with **different package manager 
 
 ### Short-term Actions (Redundant Duplicates)
 
-2. **Consolidate identical packages**:
+1. **Consolidate identical packages**:
    - Move `jq` to `core.yaml` only
    - Move `htop` to `monitoring.yaml` only
    - Move `fd` to `productivity.yaml` only
    - Remove redundant `zip`/`unzip` from development.yaml
    - Consolidate `yq` in `core.yaml`
 
-3. **Create profile inheritance** (if not already supported):
+2. **Create profile inheritance** (if not already supported):
+
    ```yaml
    # Instead of duplicating packages, reference other profiles
    includes:
@@ -215,15 +239,16 @@ These 53 packages appear in multiple files but with **different package manager 
 
 ### Long-term Actions (Documentation)
 
-4. **Document intentional duplicates**:
+1. **Document intentional duplicates**:
    - Add comments explaining why packages appear in multiple files
    - Example:
+
      ```yaml
      # trivy appears in both docker.yaml and kubernetes.yaml
      # with different configurations for each use case
      ```
 
-5. **Create a deduplication policy**:
+2. **Create a deduplication policy**:
    - Core utilities → `core.yaml` or `minimal.yaml`
    - Specialized tools → specific profile only
    - Cross-cutting tools → document why duplicated
@@ -231,15 +256,18 @@ These 53 packages appear in multiple files but with **different package manager 
 ## Impact Analysis
 
 ### Storage/Maintenance Impact
+
 - **10 redundant packages** × average 5 lines each = ~50 lines of duplicate code
 - **5 critical duplicates** = potential configuration errors
 
 ### User Impact
+
 - Minimal - users typically use specific profiles, not all
 - May cause confusion when same package configured differently
 - Could lead to installation conflicts if multiple profiles used
 
 ### CI/CD Impact
+
 - Package verification runs on all profiles
 - Duplicates increase verification time slightly
 - May cause confusion in "not found" reports if one location has wrong name

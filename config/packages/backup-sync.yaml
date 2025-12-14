@@ -79,6 +79,39 @@ groups:
         brew: burp
         apt: burp
 
+      - name: autorestic
+        description: Config-driven restic backup wrapper with YAML configuration
+        brew: autorestic
+        scoop: autorestic
+        choco: autorestic
+        script: curl -s https://raw.githubusercontent.com/cupcakearmy/autorestic/master/install.sh | bash
+        script_windows: Invoke-WebRequest -Uri "https://github.com/cupcakearmy/autorestic/releases/latest/download/autorestic_windows_amd64.exe" -OutFile "$env:LOCALAPPDATA\Microsoft\WindowsApps\autorestic.exe"
+        note: "YAML-driven restic wrapper - https://autorestic.vercel.app"
+
+      - name: borgmatic
+        description: Config-driven borgbackup wrapper with YAML configuration
+        brew: borgmatic
+        apt: borgmatic
+        dnf: borgmatic
+        pacman: borgmatic
+        pip: borgmatic
+        note: "YAML-driven borg wrapper - https://torsion.org/borgmatic/"
+
+      - name: resticprofile
+        description: Configuration profiles manager for restic (cross-platform)
+        brew: creativeprojects/tap/resticprofile
+        scoop: resticprofile
+        choco: resticprofile
+        script: curl -sfL https://raw.githubusercontent.com/creativeprojects/resticprofile/master/install.sh | bash
+        note: "Enterprise-grade restic profiles - https://creativeprojects.github.io/resticprofile/"
+
+      - name: rustic
+        description: Fast, encrypted, deduplicated backups (Rust restic alternative with native YAML)
+        brew: rustic-rs/rustic/rustic-rs
+        cargo: rustic-rs
+        script: curl -sL https://github.com/rustic-rs/rustic/releases/latest/download/rustic-linux-x86_64.tar.gz | tar xz -C /usr/local/bin
+        note: "Rust-based restic alternative with native config - https://rustic.cli.rs"
+
       - name: rdiff-backup
         description: Reverse differential backup
         brew: rdiff-backup

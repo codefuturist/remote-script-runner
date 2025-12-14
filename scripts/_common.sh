@@ -31,13 +31,13 @@ _get_script_dir() {
     local src="${BASH_SOURCE[1]:-${BASH_SOURCE[0]:-$0}}"
     # Check if running via pipe (sh/bash are shell names, not paths)
     if [[ -n "$src" ]] && [[ "$src" != "bash" ]] && [[ "$src" != "sh" ]] && [[ "$src" != "-bash" ]] && [[ "$src" != "-sh" ]]; then
-        dirname "$(cd "$(dirname "$src")" 2>/dev/null && pwd 2>/dev/null)" 2>/dev/null || echo ""
+        dirname "$(cd "$(dirname "$src")" 2> /dev/null && pwd 2> /dev/null)" 2> /dev/null || echo ""
     else
         echo ""
     fi
 }
 
-export -f _get_script_dir 2>/dev/null || true
+export -f _get_script_dir 2> /dev/null || true
 
 # =============================================================================
 # Path Detection
@@ -58,7 +58,7 @@ _find_scripts_root() {
 
 # Determine script and root directories
 if [[ -n "${BASH_SOURCE[0]:-}" ]] && [[ "${BASH_SOURCE[0]}" != "bash" ]] && [[ "${BASH_SOURCE[0]}" != "sh" ]] && [[ "${BASH_SOURCE[0]}" != "-bash" ]] && [[ "${BASH_SOURCE[0]}" != "-sh" ]]; then
-    RSR_COMMON_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)/$(basename "${BASH_SOURCE[0]}")"
+    RSR_COMMON_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2> /dev/null && pwd)/$(basename "${BASH_SOURCE[0]}")"
     RSR_SCRIPTS_ROOT="$(dirname "$RSR_COMMON_FILE")"
 else
     RSR_SCRIPTS_ROOT="$(_find_scripts_root)"
@@ -125,9 +125,9 @@ rsr_get_script_meta() {
 
     [[ -f "$file" ]] || return 1
 
-    grep -E "^#[[:space:]]*@${key}[[:space:]]+" "$file" 2>/dev/null | \
-        sed -E "s/^#[[:space:]]*@${key}[[:space:]]+//" | \
-        head -1
+    grep -E "^#[[:space:]]*@${key}[[:space:]]+" "$file" 2> /dev/null \
+        | sed -E "s/^#[[:space:]]*@${key}[[:space:]]+//" \
+        | head -1
 }
 
 # =============================================================================
@@ -164,4 +164,3 @@ rsr_get_shell_script() {
 # =============================================================================
 
 rsr_log_debug "RSR common initialized (scripts: $RSR_SCRIPTS_ROOT)"
-

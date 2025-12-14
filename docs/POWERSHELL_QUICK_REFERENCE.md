@@ -83,12 +83,14 @@ winget install Microsoft.PowerShell
 ```
 
 Modules auto-install on first run:
+
 - PSScriptAnalyzer
 - Pester
 
 ## ✅ What Gets Checked
 
 ### Linting (PSScriptAnalyzer)
+
 - ✅ Code style (indentation, braces, casing)
 - ✅ Best practices (error handling, parameter validation)
 - ✅ Security issues (hardcoded values, credentials)
@@ -96,6 +98,7 @@ Modules auto-install on first run:
 - ✅ Naming conventions (approved verbs, PascalCase)
 
 ### Testing (Pester)
+
 - ✅ Script structure and existence
 - ✅ Parameter types and validation
 - ✅ Function presence and naming
@@ -107,11 +110,13 @@ Modules auto-install on first run:
 ### Workflows
 
 **`.github/workflows/lint.yml`**
+
 - Job: `psscriptanalyzer`
 - Platform: Ubuntu
 - Runs on: Push to main/develop, PRs
 
 **`.github/workflows/test.yml`**
+
 - Job: `test-powershell`
 - Platforms: Ubuntu, macOS, Windows
 - Runs on: Push to main/develop, PRs
@@ -130,6 +135,7 @@ Tests and lint results upload as artifacts automatically.
 ## 🐛 Common Issues
 
 ### PowerShell not found
+
 ```bash
 # Check installation
 command -v pwsh
@@ -138,13 +144,16 @@ command -v pwsh
 ```
 
 ### Module not found
+
 Modules auto-install. If issues occur:
+
 ```bash
 pwsh -Command "Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser"
 pwsh -Command "Install-Module -Name Pester -Force -Scope CurrentUser -SkipPublisherCheck"
 ```
 
 ### Tests fail with WhatIf errors
+
 Scripts may not support `-WhatIf`. Tests validate structure, not execution.
 
 ## 📚 Documentation
@@ -169,4 +178,3 @@ Scripts may not support `-WhatIf`. Tests validate structure, not execution.
 ---
 
 **Quick Check**: `make lint-powershell test-powershell` ✨
-

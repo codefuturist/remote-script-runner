@@ -19,12 +19,14 @@ curl -fsSL https://example.com/script.sh | bash -s -- -u admin -p production
 ```
 
 **👍 Pros:**
+
 - **Straightforward** – everybody recognizes the classic "curl | bash" one-liner
 - **Simplest quoting**: after `--`, everything is `$1 $2...` in the remote script; no need to think about `$0`
 - **Retains pipeline context** – because the script runs on bash's stdin, it's in the same process group as the caller, so a single tee, redirection or ctrl-c stops the whole thing
 - **Works inside a heredoc**: easy to embed in CI YAMLs or docs
 
 **👎 Cons:**
+
 - **Requires a pipe** – some locked-down environments (certain sudoers rules, SELinux policies, or SSH ForceCommand) disallow unapproved pipes
 - **No chance to checksum first** unless you split it into two commands or sub-shell it (which starts to defeat the simplicity)
 - **`$0` is "bash"** – the downloaded script sees `$0` as bash, so if it relies on its own filename it has to derive it some other way
@@ -36,11 +38,13 @@ bash -c "$(curl -fsSL https://example.com/script.sh)" -- script-name -u admin -p
 ```
 
 **👍 Pros:**
+
 - **Pipe-free** – nothing after the URL needs a pipe, which can sidestep locked-down shells or awkward copy-and-paste situations where the pipe char gets mangled
 - **You control `$0`** – supply a meaningful label (or leave it blank) so logging inside the remote script shows what you want
 - **Can be wrapped in `$( ... )`** inside another command because it's just an argument to bash
 
 **👎 Cons:**
+
 - **Quoting discipline** – the embedded script lives inside a double-quoted string, so any embedded `$`, back-ticks or `\` must be escaped properly
 - **Less obvious to casual readers** why the `--` is there and how `$0` ends up being the next word
 - **Long command line in ps/top**: the entire script body ends up in `/proc/<pid>/cmdline`, which can look messy and may exceed ARG_MAX for very large scripts
@@ -52,10 +56,12 @@ bash -c "$(curl -fsSL https://example.com/script.sh)" -- script-name -u admin -p
 ```
 
 **👍 Pros:**
+
 - **Works today** – if you already deployed it, nothing is wrong with it functionally
 - **Shorter than pattern 2** when you only need positional args (`$1`, `$2`...) and don't care about `$0`
 
 **👎 Cons:**
+
 - **Confusing semantics** – the `-s` after the script string is not an option to your remote script but becomes `$0`; real parameters start at `$1`. People reading logs will wonder why `$0` is "-s"
 - **Hard to scale** – add one more flag and suddenly you need to remember where to shift things
 - **Easy to break** if the remote script relies on `$0` being a path or meaningful label

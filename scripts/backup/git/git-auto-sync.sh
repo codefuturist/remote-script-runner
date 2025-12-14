@@ -50,26 +50,26 @@ if [[ "$OS" == "linux" ]]; then
         . /etc/os-release
         DISTRO="$ID"
         DISTRO_VERSION="${VERSION_ID:-unknown}"
-        
+
         # Determine family
         case "$ID" in
-            debian|ubuntu|linuxmint|pop|elementary)
+            debian | ubuntu | linuxmint | pop | elementary)
                 DISTRO_FAMILY="debian"
                 PACKAGE_MANAGER="apt"
                 ;;
-            rhel|centos|fedora|rocky|alma|ol)
+            rhel | centos | fedora | rocky | alma | ol)
                 DISTRO_FAMILY="rhel"
-                if command -v dnf >/dev/null 2>&1; then
+                if command -v dnf > /dev/null 2>&1; then
                     PACKAGE_MANAGER="dnf"
                 else
                     PACKAGE_MANAGER="yum"
                 fi
                 ;;
-            sles|opensuse*|suse)
+            sles | opensuse* | suse)
                 DISTRO_FAMILY="suse"
                 PACKAGE_MANAGER="zypper"
                 ;;
-            arch|manjaro|endeavouros)
+            arch | manjaro | endeavouros)
                 DISTRO_FAMILY="arch"
                 PACKAGE_MANAGER="pacman"
                 ;;
@@ -92,12 +92,12 @@ if [[ "$OS" == "linux" ]]; then
         DISTRO_FAMILY="debian"
         PACKAGE_MANAGER="apt"
     fi
-    
+
     # Detect init system
-    if command -v systemctl >/dev/null 2>&1 && systemctl --version >/dev/null 2>&1; then
+    if command -v systemctl > /dev/null 2>&1 && systemctl --version > /dev/null 2>&1; then
         INIT_SYSTEM="systemd"
     elif [ -d /etc/init.d ] && [ -f /etc/init.d/cron ]; then
-        if command -v rc-service >/dev/null 2>&1; then
+        if command -v rc-service > /dev/null 2>&1; then
             INIT_SYSTEM="openrc"
         else
             INIT_SYSTEM="sysvinit"
@@ -109,8 +109,8 @@ elif [[ "$OS" == "macos" ]]; then
     DISTRO_FAMILY="macos"
     PACKAGE_MANAGER="brew"
     INIT_SYSTEM="launchd"
-    
-    if command -v sw_vers >/dev/null 2>&1; then
+
+    if command -v sw_vers > /dev/null 2>&1; then
         MACOS_VERSION=$(sw_vers -productVersion)
         MACOS_NAME=$(sw_vers -productName)
     fi
@@ -118,29 +118,29 @@ elif [[ "$OS" == "windows" ]]; then
     # Windows detection
     DISTRO="windows"
     DISTRO_FAMILY="windows"
-    
+
     # Detect Windows environment
     if [[ -n "${MSYSTEM:-}" ]]; then
-        PACKAGE_MANAGER="pacman"  # MSYS2
+        PACKAGE_MANAGER="pacman" # MSYS2
         WINDOWS_ENV="msys2"
-    elif command -v cygcheck >/dev/null 2>&1; then
-        PACKAGE_MANAGER="apt-cyg"  # Cygwin
+    elif command -v cygcheck > /dev/null 2>&1; then
+        PACKAGE_MANAGER="apt-cyg" # Cygwin
         WINDOWS_ENV="cygwin"
-    elif command -v wsl.exe >/dev/null 2>&1; then
-        PACKAGE_MANAGER="apt"  # WSL
+    elif command -v wsl.exe > /dev/null 2>&1; then
+        PACKAGE_MANAGER="apt" # WSL
         WINDOWS_ENV="wsl"
     else
-        PACKAGE_MANAGER="choco"  # Chocolatey
+        PACKAGE_MANAGER="choco" # Chocolatey
         WINDOWS_ENV="native"
     fi
-    
+
     INIT_SYSTEM="windows-service"
-    
+
     # Get Windows version if available
-    if command -v wmic >/dev/null 2>&1; then
-        WINDOWS_VERSION=$(wmic os get Caption /value 2>/dev/null | grep "Caption" | cut -d= -f2 | tr -d '\r')
-    elif command -v powershell.exe >/dev/null 2>&1; then
-        WINDOWS_VERSION=$(powershell.exe -Command "[System.Environment]::OSVersion.VersionString" 2>/dev/null | tr -d '\r\n')
+    if command -v wmic > /dev/null 2>&1; then
+        WINDOWS_VERSION=$(wmic os get Caption /value 2> /dev/null | grep "Caption" | cut -d= -f2 | tr -d '\r')
+    elif command -v powershell.exe > /dev/null 2>&1; then
+        WINDOWS_VERSION=$(powershell.exe -Command "[System.Environment]::OSVersion.VersionString" 2> /dev/null | tr -d '\r\n')
     fi
 fi
 
@@ -180,9 +180,9 @@ elif [[ "$OS" == "windows" ]]; then
         # Native Windows, MSYS2, or Cygwin
         if [[ -n "${LOCALAPPDATA:-}" ]]; then
             # Convert Windows path to Unix-style
-            LOCALAPPDATA_UNIX=$(cygpath -u "$LOCALAPPDATA" 2>/dev/null || echo "$LOCALAPPDATA")
-            PROGRAMDATA_UNIX=$(cygpath -u "${PROGRAMDATA:-C:\\ProgramData}" 2>/dev/null || echo "/c/ProgramData")
-            
+            LOCALAPPDATA_UNIX=$(cygpath -u "$LOCALAPPDATA" 2> /dev/null || echo "$LOCALAPPDATA")
+            PROGRAMDATA_UNIX=$(cygpath -u "${PROGRAMDATA:-C:\\ProgramData}" 2> /dev/null || echo "/c/ProgramData")
+
             RUNTIME_DIR="$LOCALAPPDATA_UNIX/git-auto-sync/cache"
             STATE_DIR="$LOCALAPPDATA_UNIX/git-auto-sync"
             LOG_DIR="$LOCALAPPDATA_UNIX/git-auto-sync/logs"
@@ -208,14 +208,14 @@ elif [[ "$OS" == "linux" ]]; then
         LOG_DIR="/var/log/git-auto-sync"
         DEFAULT_CONFIG_DIR="/etc/git-auto-sync"
         DEFAULT_CONFIG_FILE="config.yaml"
-        
+
         # Environment file location varies by distro
         if [[ "$DISTRO_FAMILY" == "rhel" ]] || [[ "$DISTRO_FAMILY" == "suse" ]]; then
             ENV_FILE="/etc/sysconfig/git-auto-sync"
         else
             ENV_FILE="/etc/default/git-auto-sync"
         fi
-        
+
         # Service locations
         if [[ "$INIT_SYSTEM" == "systemd" ]]; then
             SYSTEMD_DIR="/etc/systemd/system"
@@ -230,7 +230,7 @@ elif [[ "$OS" == "linux" ]]; then
         DEFAULT_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/git-auto-sync"
         DEFAULT_CONFIG_FILE="config.yaml"
         ENV_FILE="$DEFAULT_CONFIG_DIR/environment"
-        
+
         # User service
         if [[ "$INIT_SYSTEM" == "systemd" ]]; then
             SYSTEMD_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
@@ -239,7 +239,7 @@ elif [[ "$OS" == "linux" ]]; then
 fi
 
 # Create directories if they don't exist
-mkdir -p "$RUNTIME_DIR" "$STATE_DIR" "$LOG_DIR" 2>/dev/null || true
+mkdir -p "$RUNTIME_DIR" "$STATE_DIR" "$LOG_DIR" 2> /dev/null || true
 
 LOCK_FILE="$RUNTIME_DIR/git-auto-sync.lock"
 PID_FILE="$RUNTIME_DIR/git-auto-sync.pid"
@@ -313,13 +313,13 @@ log_with_timestamp() {
     local timestamp
     timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     local message="[%s] [%s] %s\n"
-    
+
     # Log to stdout
     printf "$message" "$timestamp" "$level" "$*"
-    
+
     # Also log to file if LOG_FILE is set
     if [[ -n "${LOG_FILE:-}" ]] && [[ -w "$(dirname "$LOG_FILE")" ]]; then
-        printf "$message" "$timestamp" "$level" "$*" >> "$LOG_FILE" 2>/dev/null || true
+        printf "$message" "$timestamp" "$level" "$*" >> "$LOG_FILE" 2> /dev/null || true
     fi
 }
 
@@ -355,7 +355,7 @@ create_lock() {
     local lockfile="$1"
     local max_wait=30
     local waited=0
-    
+
     while [ -f "$lockfile" ]; do
         if [ $waited -ge $max_wait ]; then
             log_error "Lock file exists after ${max_wait}s. Another sync may be running."
@@ -365,7 +365,7 @@ create_lock() {
         sleep 1
         ((waited++))
     done
-    
+
     echo $$ > "$lockfile"
     log_debug "Lock acquired: $lockfile"
     return 0
@@ -399,19 +399,19 @@ trap cleanup EXIT INT TERM
 check_internet_connection() {
     local max_retries=5
     local retry_delay=2
-    
-    for ((i=1; i<=max_retries; i++)); do
-        if ping -c 1 -W 2 1.1.1.1 >/dev/null 2>&1 || ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then
+
+    for ((i = 1; i <= max_retries; i++)); do
+        if ping -c 1 -W 2 1.1.1.1 > /dev/null 2>&1 || ping -c 1 -W 2 8.8.8.8 > /dev/null 2>&1; then
             log_debug "Internet connection verified"
             return 0
         fi
-        
+
         if [ $i -lt $max_retries ]; then
             log_warn "No internet connection, retrying ($i/$max_retries)..."
             sleep $retry_delay
         fi
     done
-    
+
     log_error "No internet connection detected after $max_retries attempts"
     return 1
 }
@@ -424,21 +424,21 @@ check_internet_connection() {
 validate_files() {
     local repo_path="$1"
     local validator="${2:-}"
-    
+
     if [[ -z "$validator" ]]; then
         log_debug "No custom validator specified, using default checks"
         return 0
     fi
-    
+
     if [[ ! -f "$validator" ]] && [[ ! -x "$validator" ]]; then
         log_warn "Validator not found or not executable: $validator"
         return 0
     fi
-    
+
     log_info "Running validation: $validator"
-    
+
     cd "$repo_path"
-    
+
     if "$validator" "$repo_path"; then
         log_ok "Validation passed"
         return 0
@@ -452,35 +452,35 @@ validate_files() {
 validate_dns_zones() {
     local repo_path="$1"
     local errors=0
-    
+
     log_info "Validating DNS zone files..."
-    
+
     # Check for common DNS files
     while IFS= read -r -d '' zone_file; do
         log_debug "Checking: $zone_file"
-        
+
         # Check if named-checkzone is available
-        if command -v named-checkzone >/dev/null 2>&1; then
+        if command -v named-checkzone > /dev/null 2>&1; then
             local zone_name
             zone_name=$(basename "$zone_file" .zone)
-            
-            if ! named-checkzone "$zone_name" "$zone_file" >/dev/null 2>&1; then
+
+            if ! named-checkzone "$zone_name" "$zone_file" > /dev/null 2>&1; then
                 log_error "Invalid zone file: $zone_file"
                 ((errors++))
             fi
         else
             # Basic syntax check if named-checkzone not available
-            if ! grep -q "SOA\|NS\|A\|AAAA" "$zone_file" 2>/dev/null; then
+            if ! grep -q "SOA\|NS\|A\|AAAA" "$zone_file" 2> /dev/null; then
                 log_warn "Suspicious zone file (no common records): $zone_file"
             fi
         fi
-    done < <(find "$repo_path" -name "*.zone" -o -name "db.*" 2>/dev/null -print0)
-    
+    done < <(find "$repo_path" -name "*.zone" -o -name "db.*" -print0 2> /dev/null)
+
     if [[ $errors -gt 0 ]]; then
         log_error "Found $errors invalid zone file(s)"
         return 1
     fi
-    
+
     log_ok "All DNS zones are valid"
     return 0
 }
@@ -489,31 +489,31 @@ validate_dns_zones() {
 validate_yaml_files() {
     local repo_path="$1"
     local errors=0
-    
+
     log_info "Validating YAML files..."
-    
+
     while IFS= read -r -d '' yaml_file; do
         log_debug "Checking: $yaml_file"
-        
+
         # Try python yaml validation first
-        if command -v python3 >/dev/null 2>&1; then
-            if ! python3 -c "import yaml; yaml.safe_load(open('$yaml_file'))" 2>/dev/null; then
+        if command -v python3 > /dev/null 2>&1; then
+            if ! python3 -c "import yaml; yaml.safe_load(open('$yaml_file'))" 2> /dev/null; then
                 log_error "Invalid YAML: $yaml_file"
                 ((errors++))
             fi
-        elif command -v yq >/dev/null 2>&1; then
-            if ! yq eval '.' "$yaml_file" >/dev/null 2>&1; then
+        elif command -v yq > /dev/null 2>&1; then
+            if ! yq eval '.' "$yaml_file" > /dev/null 2>&1; then
                 log_error "Invalid YAML: $yaml_file"
                 ((errors++))
             fi
         fi
-    done < <(find "$repo_path" -name "*.yaml" -o -name "*.yml" 2>/dev/null -print0)
-    
+    done < <(find "$repo_path" -name "*.yaml" -o -name "*.yml" -print0 2> /dev/null)
+
     if [[ $errors -gt 0 ]]; then
         log_error "Found $errors invalid YAML file(s)"
         return 1
     fi
-    
+
     log_ok "All YAML files are valid"
     return 0
 }
@@ -522,30 +522,30 @@ validate_yaml_files() {
 validate_json_files() {
     local repo_path="$1"
     local errors=0
-    
+
     log_info "Validating JSON files..."
-    
+
     while IFS= read -r -d '' json_file; do
         log_debug "Checking: $json_file"
-        
-        if command -v jq >/dev/null 2>&1; then
-            if ! jq empty "$json_file" 2>/dev/null; then
+
+        if command -v jq > /dev/null 2>&1; then
+            if ! jq empty "$json_file" 2> /dev/null; then
                 log_error "Invalid JSON: $json_file"
                 ((errors++))
             fi
-        elif command -v python3 >/dev/null 2>&1; then
-            if ! python3 -c "import json; json.load(open('$json_file'))" 2>/dev/null; then
+        elif command -v python3 > /dev/null 2>&1; then
+            if ! python3 -c "import json; json.load(open('$json_file'))" 2> /dev/null; then
                 log_error "Invalid JSON: $json_file"
                 ((errors++))
             fi
         fi
-    done < <(find "$repo_path" -name "*.json" 2>/dev/null -print0)
-    
+    done < <(find "$repo_path" -name "*.json" -print0 2> /dev/null)
+
     if [[ $errors -gt 0 ]]; then
         log_error "Found $errors invalid JSON file(s)"
         return 1
     fi
-    
+
     log_ok "All JSON files are valid"
     return 0
 }
@@ -564,50 +564,50 @@ check_remote_changes() {
     local remote="$1"
     local branch="$2"
     local repo_name="$3"
-    
+
     log_debug "Quick-checking remote for changes: $remote/$branch"
-    
+
     # Get remote hash without fetching
     local remote_hash
-    remote_hash=$(timeout 10 git ls-remote "$remote" "refs/heads/$branch" 2>/dev/null | cut -f1)
-    
+    remote_hash=$(timeout 10 git ls-remote "$remote" "refs/heads/$branch" 2> /dev/null | cut -f1)
+
     if [[ -z "$remote_hash" ]]; then
         log_debug "Could not get remote hash, will do full fetch"
-        return 0  # Assume changes, do full sync
+        return 0 # Assume changes, do full sync
     fi
-    
+
     local last_hash="${REPO_LAST_REMOTE_HASH[$repo_name]:-}"
-    
+
     if [[ -z "$last_hash" ]]; then
         log_debug "First check for $repo_name, storing hash: ${remote_hash:0:8}"
         REPO_LAST_REMOTE_HASH[$repo_name]="$remote_hash"
-        return 0  # First run, do full sync
+        return 0 # First run, do full sync
     fi
-    
+
     if [[ "$remote_hash" != "$last_hash" ]]; then
         log_info "Remote changes detected: ${last_hash:0:8} → ${remote_hash:0:8}"
         REPO_LAST_REMOTE_HASH[$repo_name]="$remote_hash"
-        return 0  # Changes detected
+        return 0 # Changes detected
     fi
-    
+
     log_debug "No remote changes detected (${remote_hash:0:8})"
-    return 1  # No changes
+    return 1 # No changes
 }
 
 get_current_branch() {
-    git rev-parse --abbrev-ref HEAD 2>/dev/null || echo ""
+    git rev-parse --abbrev-ref HEAD 2> /dev/null || echo ""
 }
 
 get_current_commit() {
-    git rev-parse --short HEAD 2>/dev/null || echo ""
+    git rev-parse --short HEAD 2> /dev/null || echo ""
 }
 
 is_repo_clean() {
-    git diff-index --quiet HEAD 2>/dev/null
+    git diff-index --quiet HEAD 2> /dev/null
 }
 
 has_git_lfs() {
-    git lfs version >/dev/null 2>&1
+    git lfs version > /dev/null 2>&1
 }
 
 is_lfs_enabled() {
@@ -617,17 +617,17 @@ is_lfs_enabled() {
 
 remote_exists() {
     local remote="$1"
-    git remote get-url "$remote" >/dev/null 2>&1
+    git remote get-url "$remote" > /dev/null 2>&1
 }
 
 get_repo_stats() {
     local path="$1"
     local file_count
     local size_kb
-    
+
     file_count=$(git ls-files | wc -l | tr -d ' ')
-    size_kb=$(du -sk "$path" 2>/dev/null | cut -f1 || echo "0")
-    
+    size_kb=$(du -sk "$path" 2> /dev/null | cut -f1 || echo "0")
+
     printf '{"files":%d,"size_kb":%d}' "$file_count" "$size_kb"
 }
 
@@ -636,55 +636,55 @@ create_backup() {
     local backup_dir="${repo_path}/.git-auto-sync-backups"
     local timestamp
     timestamp=$(date '+%Y%m%d-%H%M%S')
-    
+
     # Create backup dir if we have permissions
-    if ! mkdir -p "$backup_dir" 2>/dev/null; then
+    if ! mkdir -p "$backup_dir" 2> /dev/null; then
         log_warn "Cannot create backup directory (permission denied), using alternate location"
         backup_dir="$STATE_DIR/backups/$(basename "$repo_path")"
-        mkdir -p "$backup_dir" 2>/dev/null || {
+        mkdir -p "$backup_dir" 2> /dev/null || {
             log_error "Cannot create backup directory anywhere"
             return 1
         }
     fi
-    
+
     cd "$repo_path"
     local current_commit
     current_commit=$(get_current_commit)
-    
+
     # Store commit hash for rollback
     echo "$current_commit" > "$backup_dir/last-good-commit-${timestamp}"
-    
+
     # Keep only last 5 backups
-    ls -t "$backup_dir"/last-good-commit-* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
-    
+    ls -t "$backup_dir"/last-good-commit-* 2> /dev/null | tail -n +6 | xargs rm -f 2> /dev/null || true
+
     log_debug "Backup created: $current_commit"
 }
 
 rollback_to_backup() {
     local repo_path="$1"
     local backup_dir="${repo_path}/.git-auto-sync-backups"
-    
+
     if [[ ! -d "$backup_dir" ]]; then
         log_error "No backup directory found"
         return 1
     fi
-    
+
     cd "$repo_path"
-    
+
     # Find most recent backup
     local latest_backup
-    latest_backup=$(ls -t "$backup_dir"/last-good-commit-* 2>/dev/null | head -1)
-    
+    latest_backup=$(ls -t "$backup_dir"/last-good-commit-* 2> /dev/null | head -1)
+
     if [[ -z "$latest_backup" ]]; then
         log_error "No backup found for rollback"
         return 1
     fi
-    
+
     local backup_commit
     backup_commit=$(cat "$latest_backup")
-    
+
     log_warn "Rolling back to: $backup_commit"
-    
+
     if git reset --hard "$backup_commit"; then
         log_ok "Rollback successful"
         return 0
@@ -707,12 +707,12 @@ sync_repository() {
     local use_lfs="${REPO_LFS_ENABLED[$repo_name]:-false}"
     local post_hook="${REPO_HOOKS[$repo_name]:-}"
     local validator="${REPO_VALIDATORS[$repo_name]:-}"
-    
+
     log_info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     log_info "Syncing repository: ${BOLD}$repo_name${NC}"
     log_info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     log_debug "Path: $repo_path | Branch: $branch | Mode: $mode"
-    
+
     # Check retry count
     local retry_count="${REPO_RETRY_COUNT[$repo_name]:-0}"
     if [[ $retry_count -ge $MAX_VALIDATION_RETRIES ]]; then
@@ -721,31 +721,31 @@ sync_repository() {
         log_warn "Manual intervention required. Fix the issue and retry."
         return 1
     fi
-    
+
     # Verify repository exists
     if ! is_git_repo "$repo_path"; then
         log_error "Not a git repository: $repo_path"
         REPO_LAST_ERROR[$repo_name]="Not a git repository"
         return 1
     fi
-    
+
     cd "$repo_path" || return 1
-    
+
     # Create backup before sync
     if [[ "$ROLLBACK_ON_FAILURE" == "true" ]]; then
         create_backup "$repo_path"
     fi
-    
+
     # Store initial state
     local old_commit
     old_commit=$(get_current_commit)
-    
+
     # Verify remote exists
     if ! remote_exists "$remote"; then
         log_error "Remote '$remote' does not exist"
         return 1
     fi
-    
+
     # Quick check for changes (if enabled)
     local skip_sync=false
     if [[ "$QUICK_CHECK_ENABLED" == "true" ]]; then
@@ -754,7 +754,7 @@ sync_repository() {
             skip_sync=true
         fi
     fi
-    
+
     # Skip full sync if no changes detected
     if [[ "$skip_sync" == "true" ]]; then
         # Update stats to show we checked
@@ -763,7 +763,7 @@ sync_repository() {
         log_debug "Repository stats: $stats"
         return 0
     fi
-    
+
     # Fetch with retry (only if changes detected or quick check disabled)
     log_info "Fetching from $remote..."
     if ! retry_command $DEFAULT_RETRY_ATTEMPTS $DEFAULT_RETRY_DELAY \
@@ -771,7 +771,7 @@ sync_repository() {
         log_error "Failed to fetch from $remote"
         return 1
     fi
-    
+
     # Handle local changes based on mode
     case "$mode" in
         safe)
@@ -779,22 +779,22 @@ sync_repository() {
                 log_warn "Repository has uncommitted changes, stashing..."
                 git stash push -m "Auto-stash by git-auto-sync at $(date '+%Y-%m-%d %H:%M:%S')" || true
             fi
-            
+
             # Try fast-forward merge
-            if git merge --ff-only "$remote/$branch" 2>/dev/null; then
+            if git merge --ff-only "$remote/$branch" 2> /dev/null; then
                 log_debug "Fast-forward merge successful"
             else
                 log_warn "Fast-forward not possible, using reset"
                 git reset --hard "$remote/$branch"
             fi
             ;;
-            
+
         force)
             log_info "Force mode: resetting to $remote/$branch"
             git reset --hard "$remote/$branch"
             git clean -fdx
             ;;
-            
+
         pull)
             log_info "Pull mode: pulling from $remote/$branch"
             git checkout -qf "$branch"
@@ -803,13 +803,13 @@ sync_repository() {
                 git reset --hard "$remote/$branch"
             }
             ;;
-            
+
         *)
             log_error "Unknown sync mode: $mode"
             return 1
             ;;
     esac
-    
+
     # Git LFS sync
     if [ "$use_lfs" = "true" ] && has_git_lfs && is_lfs_enabled "$repo_path"; then
         log_info "Syncing Git LFS files..."
@@ -817,36 +817,36 @@ sync_repository() {
             timeout "$DEFAULT_GIT_TIMEOUT" git lfs fetch "$remote" "$branch"; then
             log_warn "Git LFS fetch failed"
         fi
-        
+
         if ! git lfs pull; then
             log_warn "Git LFS pull failed"
         fi
     fi
-    
+
     # Get new state
     local new_commit
     new_commit=$(get_current_commit)
-    
+
     # Report changes
     local has_changes=false
     if [ "$old_commit" != "$new_commit" ]; then
         log_success "Repository updated: $old_commit → $new_commit"
         has_changes=true
-        
+
         # Show commit log
         if [ "$LOG_LEVEL" = "DEBUG" ]; then
-            git log --oneline "$old_commit..$new_commit" 2>/dev/null || true
+            git log --oneline "$old_commit..$new_commit" 2> /dev/null || true
         fi
     else
         log_info "Repository already up to date"
     fi
-    
+
     # Validate repository contents if changes were made or validation previously failed
     if [[ "$VALIDATION_ENABLED" == "true" ]] && [[ "$has_changes" == "true" || "${REPO_VALIDATION_FAILED[$repo_name]:-false}" == "true" ]]; then
         log_info "Validating repository contents..."
-        
+
         local validation_result=0
-        
+
         # Run custom validator if specified
         if [[ -n "$validator" ]]; then
             if ! validate_files "$repo_path" "$validator"; then
@@ -857,25 +857,25 @@ sync_repository() {
             if ! validate_json_files "$repo_path"; then
                 validation_result=1
             fi
-            
+
             if ! validate_yaml_files "$repo_path"; then
                 validation_result=1
             fi
-            
+
             # DNS-specific validation if zone files present
-            if find "$repo_path" -name "*.zone" -o -name "db.*" 2>/dev/null | grep -q .; then
+            if find "$repo_path" -name "*.zone" -o -name "db.*" 2> /dev/null | grep -q .; then
                 if ! validate_dns_zones "$repo_path"; then
                     validation_result=1
                 fi
             fi
         fi
-        
+
         if [[ $validation_result -ne 0 ]]; then
             log_error "Validation failed for $repo_name"
             REPO_VALIDATION_FAILED[$repo_name]="true"
             REPO_LAST_ERROR[$repo_name]="Validation failed"
             REPO_RETRY_COUNT[$repo_name]=$((retry_count + 1))
-            
+
             # Rollback if enabled
             if [[ "$ROLLBACK_ON_FAILURE" == "true" ]]; then
                 log_warn "Rolling back changes due to validation failure..."
@@ -885,14 +885,14 @@ sync_repository() {
                     log_error "Rollback failed! Manual intervention required"
                 fi
             fi
-            
+
             # Check if we should retry
             if [[ $((retry_count + 1)) -lt $MAX_VALIDATION_RETRIES ]]; then
                 log_info "Will retry on next sync cycle (attempt $((retry_count + 2))/$MAX_VALIDATION_RETRIES)"
             else
                 log_error "Max retries reached. Manual fix required."
             fi
-            
+
             return 1
         else
             log_ok "Validation passed"
@@ -901,7 +901,7 @@ sync_repository() {
             REPO_LAST_ERROR[$repo_name]=""
         fi
     fi
-    
+
     # Execute post-sync hook (only if validation passed)
     if [ -n "$post_hook" ] && [ -x "$post_hook" ]; then
         log_info "Executing post-sync hook: $post_hook"
@@ -911,12 +911,12 @@ sync_repository() {
             # Don't rollback for hook failures, just warn
         fi
     fi
-    
+
     # Get statistics
     local stats
     stats=$(get_repo_stats "$repo_path")
     log_debug "Repository stats: $stats"
-    
+
     return 0
 }
 
@@ -929,7 +929,7 @@ retry_command() {
     local delay="$2"
     shift 2
     local attempt=1
-    
+
     while [ $attempt -le "$max_attempts" ]; do
         if "$@"; then
             return 0
@@ -942,7 +942,7 @@ retry_command() {
             ((attempt++))
         fi
     done
-    
+
     return 1
 }
 
@@ -954,26 +954,26 @@ retry_command() {
 parse_yaml() {
     local yaml_file="$1"
     local query="$2"
-    
+
     # Try yq first (recommended)
-    if command -v yq >/dev/null 2>&1; then
-        yq eval "$query" "$yaml_file" 2>/dev/null
+    if command -v yq > /dev/null 2>&1; then
+        yq eval "$query" "$yaml_file" 2> /dev/null
         return $?
     fi
-    
+
     # Try python as fallback
-    if command -v python3 >/dev/null 2>&1; then
-        python3 << PYEOF 2>/dev/null
+    if command -v python3 > /dev/null 2>&1; then
+        python3 << PYEOF 2> /dev/null
 import yaml, sys
 try:
     with open('$yaml_file', 'r') as f:
         data = yaml.safe_load(f)
-    
+
     # Simple query parser for basic paths like .validation.enabled
     query = '$query'.strip('.')
     parts = query.split('.')
     result = data
-    
+
     for part in parts:
         # Handle array indices like repositories[0]
         if '[' in part:
@@ -982,10 +982,10 @@ try:
             result = result[key][idx]
         else:
             result = result.get(part, None) if isinstance(result, dict) else None
-            
+
         if result is None:
             break
-    
+
     if result is not None:
         if isinstance(result, bool):
             print('true' if result else 'false')
@@ -998,10 +998,10 @@ except:
 PYEOF
         return $?
     fi
-    
+
     # Try ruby as last resort
-    if command -v ruby >/dev/null 2>&1; then
-        ruby << 'RBEOF' 2>/dev/null
+    if command -v ruby > /dev/null 2>&1; then
+        ruby << 'RBEOF' 2> /dev/null
 require 'yaml'
 data = YAML.load_file('$yaml_file')
 # Basic query support
@@ -1009,43 +1009,43 @@ puts data # Simplified
 RBEOF
         return $?
     fi
-    
+
     return 1
 }
 
 load_config_file() {
     local config_file="$1"
-    
+
     if [ ! -f "$config_file" ]; then
         log_error "Configuration file not found: $config_file"
         return 1
     fi
-    
+
     log_info "Loading YAML configuration from: $config_file"
-    
+
     # Check if YAML parser is available
-    if ! command -v yq >/dev/null 2>&1 && ! command -v python3 >/dev/null 2>&1; then
+    if ! command -v yq > /dev/null 2>&1 && ! command -v python3 > /dev/null 2>&1; then
         log_error "YAML parser required. Please install: yq or python3-yaml"
         log_info "  Debian/Ubuntu: sudo apt install yq"
         log_info "  or: sudo apt install python3-yaml"
         return 1
     fi
-    
+
     # Get repository count
     local repo_count
     repo_count=$(parse_yaml "$config_file" ".repositories | length")
-    
+
     if [[ -z "$repo_count" ]] || [[ "$repo_count" == "0" ]]; then
         log_error "No repositories found in configuration"
         return 1
     fi
-    
+
     log_info "Found $repo_count repository/repositories in configuration"
-    
+
     # Load repositories
-    for ((i=0; i<repo_count; i++)); do
+    for ((i = 0; i < repo_count; i++)); do
         local name path branch remote mode use_lfs post_hook validator
-        
+
         name=$(parse_yaml "$config_file" ".repositories[$i].name")
         path=$(parse_yaml "$config_file" ".repositories[$i].path")
         branch=$(parse_yaml "$config_file" ".repositories[$i].branch")
@@ -1054,7 +1054,7 @@ load_config_file() {
         use_lfs=$(parse_yaml "$config_file" ".repositories[$i].use_lfs")
         post_hook=$(parse_yaml "$config_file" ".repositories[$i].post_hook")
         validator=$(parse_yaml "$config_file" ".repositories[$i].validator")
-        
+
         # Set defaults
         [[ -z "$branch" ]] || [[ "$branch" == "null" ]] && branch="main"
         [[ -z "$remote" ]] || [[ "$remote" == "null" ]] && remote="origin"
@@ -1062,30 +1062,30 @@ load_config_file() {
         [[ -z "$use_lfs" ]] || [[ "$use_lfs" == "null" ]] && use_lfs="false"
         [[ "$post_hook" == "null" ]] && post_hook=""
         [[ "$validator" == "null" ]] && validator=""
-        
+
         add_repository "$name" "$path" "$branch" "$remote" "$mode" "$use_lfs" "$post_hook" "$validator"
     done
-    
+
     # Load global validation settings
     local val_enabled val_retries val_rollback
     val_enabled=$(parse_yaml "$config_file" ".validation.enabled")
     val_retries=$(parse_yaml "$config_file" ".validation.max_retries")
     val_rollback=$(parse_yaml "$config_file" ".validation.rollback_on_failure")
-    
+
     [[ -n "$val_enabled" ]] && [[ "$val_enabled" != "null" ]] && VALIDATION_ENABLED="$val_enabled"
     [[ -n "$val_retries" ]] && [[ "$val_retries" != "null" ]] && MAX_VALIDATION_RETRIES="$val_retries"
     [[ -n "$val_rollback" ]] && [[ "$val_rollback" != "null" ]] && ROLLBACK_ON_FAILURE="$val_rollback"
-    
+
     log_debug "Validation: enabled=$VALIDATION_ENABLED, max_retries=$MAX_VALIDATION_RETRIES, rollback=$ROLLBACK_ON_FAILURE"
-    
+
     # Load quick check settings
     local qc_enabled qc_interval
     qc_enabled=$(parse_yaml "$config_file" ".quick_check.enabled")
     qc_interval=$(parse_yaml "$config_file" ".quick_check.interval")
-    
+
     [[ -n "$qc_enabled" ]] && [[ "$qc_enabled" != "null" ]] && QUICK_CHECK_ENABLED="$qc_enabled"
     [[ -n "$qc_interval" ]] && [[ "$qc_interval" != "null" ]] && QUICK_CHECK_INTERVAL="$qc_interval"
-    
+
     log_debug "Quick check: enabled=$QUICK_CHECK_ENABLED, interval=${QUICK_CHECK_INTERVAL}s"
 }
 
@@ -1098,7 +1098,7 @@ add_repository() {
     local use_lfs="${6:-false}"
     local post_hook="${7:-}"
     local validator="${8:-}"
-    
+
     REPOS+=("$name")
     REPO_PATHS[$name]="$path"
     REPO_BRANCHES[$name]="$branch"
@@ -1110,7 +1110,7 @@ add_repository() {
     REPO_RETRY_COUNT[$name]=0
     REPO_LAST_ERROR[$name]=""
     REPO_VALIDATION_FAILED[$name]="false"
-    
+
     log_debug "Added repository: $name at $path"
 }
 
@@ -1122,8 +1122,8 @@ update_metrics() {
     local repo_name="$1"
     local status="$2"
     local commit="${3:-}"
-    
-    cat > "$METRICS_FILE" <<EOF
+
+    cat > "$METRICS_FILE" << EOF
 {
   "daemon": {
     "started_at": "$START_TIME",
@@ -1154,7 +1154,7 @@ print_summary() {
     log_info "Total repositories: ${#REPOS[@]}"
     log_info "Successful: $SUCCESSFUL_SYNCS"
     log_info "Failed: $FAILED_SYNCS"
-    log_info "Duration: $(($(date +%s) - $(date -j -f "%Y-%m-%dT%H:%M:%S" "${START_TIME%.*}" +%s 2>/dev/null || date +%s)))s"
+    log_info "Duration: $(($(date +%s) - $(date -j -f "%Y-%m-%dT%H:%M:%S" "${START_TIME%.*}" +%s 2> /dev/null || date +%s)))s"
 }
 
 # =============================================================================
@@ -1166,26 +1166,26 @@ sync_all_repositories() {
     log_info "║         Git Auto-Sync v$VERSION                         ║"
     log_info "╚════════════════════════════════════════════════════════╝"
     log_info "Started at: $(date '+%Y-%m-%d %H:%M:%S')"
-    
+
     START_TIME=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
     TOTAL_SYNCS=$((TOTAL_SYNCS + 1))
-    
+
     # Check internet connection first
     if ! check_internet_connection; then
         log_error "Cannot proceed without internet connection"
         FAILED_SYNCS=$((FAILED_SYNCS + 1))
         return 1
     fi
-    
+
     # Acquire lock
     if ! create_lock "$LOCK_FILE"; then
         log_error "Failed to acquire lock"
         FAILED_SYNCS=$((FAILED_SYNCS + 1))
         return 1
     fi
-    
+
     local failed_repos=()
-    
+
     # Sync each repository
     for repo_name in "${REPOS[@]}"; do
         log_info ""
@@ -1197,23 +1197,23 @@ sync_all_repositories() {
             FAILED_SYNCS=$((FAILED_SYNCS + 1))
             update_metrics "$repo_name" "failed" ""
         fi
-        
+
         # Small delay between repositories
         sleep 1
     done
-    
+
     # Release lock
     remove_lock "$LOCK_FILE"
-    
+
     # Print summary
     print_summary
-    
+
     # Report failed repositories
     if [ ${#failed_repos[@]} -gt 0 ]; then
         log_error "Failed repositories: ${failed_repos[*]}"
         return 1
     fi
-    
+
     log_success "All repositories synced successfully"
     return 0
 }
@@ -1224,23 +1224,23 @@ sync_all_repositories() {
 
 run_daemon() {
     local interval="${1:-$DEFAULT_SYNC_INTERVAL}"
-    
+
     log_info "Starting daemon mode (interval: ${interval}s)"
-    
+
     if [[ "$QUICK_CHECK_ENABLED" == "true" ]]; then
         log_info "Quick check enabled (lightweight check every ${QUICK_CHECK_INTERVAL}s, full sync every ${interval}s)"
     fi
-    
+
     # Write PID file
     echo $$ > "$PID_FILE"
-    
+
     local cycle_count=0
     local quick_checks_per_full_sync=$((interval / QUICK_CHECK_INTERVAL))
-    
+
     # Continuous sync loop
     while true; do
         ((cycle_count++))
-        
+
         # Determine if this is a full sync or quick check
         if [[ "$QUICK_CHECK_ENABLED" == "true" ]] && [[ $((cycle_count % quick_checks_per_full_sync)) -ne 0 ]]; then
             log_debug "Quick check cycle #$cycle_count"
@@ -1252,14 +1252,14 @@ run_daemon() {
             QUICK_CHECK_ENABLED="false"
             sync_all_repositories || log_warn "Sync cycle failed, continuing..."
             QUICK_CHECK_ENABLED="$temp_quick_check"
-            cycle_count=0  # Reset counter after full sync
+            cycle_count=0 # Reset counter after full sync
         fi
-        
+
         # Always run at least the check
         if [[ "$QUICK_CHECK_ENABLED" == "true" ]]; then
             sync_all_repositories || log_warn "Check cycle failed, continuing..."
         fi
-        
+
         # Wait based on interval
         local wait_time
         if [[ "$QUICK_CHECK_ENABLED" == "true" ]]; then
@@ -1267,7 +1267,7 @@ run_daemon() {
         else
             wait_time="$interval"
         fi
-        
+
         log_debug "Waiting ${wait_time}s until next check..."
         sleep "$wait_time"
     done
@@ -1278,7 +1278,7 @@ run_daemon() {
 # =============================================================================
 
 show_usage() {
-    cat <<EOF
+    cat << EOF
 ${BOLD}Git Auto-Sync v${VERSION}${NC}
 Production-grade Git repository synchronization with validation & error recovery
 
@@ -1342,11 +1342,11 @@ ${BOLD}CONFIGURATION FILE (YAML):${NC}
       enabled: true
       max_retries: 3
       rollback_on_failure: true
-    
+
     quick_check:
       enabled: true
       interval: 30
-    
+
     repositories:
       - name: dns-zones
         path: /etc/bind/zones
@@ -1391,32 +1391,32 @@ parse_arguments() {
     local post_hook=""
     local sync_interval="$DEFAULT_SYNC_INTERVAL"
     local repo_counter=0
-    
+
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -c|--config)
+            -c | --config)
                 CONFIG_FILE="$2"
                 shift 2
                 ;;
-            -d|--daemon)
+            -d | --daemon)
                 DAEMON_MODE=true
                 shift
                 ;;
-            -i|--interval)
+            -i | --interval)
                 sync_interval="$2"
                 shift 2
                 ;;
-            -r|--repo)
+            -r | --repo)
                 repo_path="$2"
                 ((repo_counter++))
                 add_repository "repo-$repo_counter" "$repo_path" "$branch" "$remote" "$mode" "$use_lfs" "$post_hook"
                 shift 2
                 ;;
-            -b|--branch)
+            -b | --branch)
                 branch="$2"
                 shift 2
                 ;;
-            -m|--mode)
+            -m | --mode)
                 mode="$2"
                 shift 2
                 ;;
@@ -1424,7 +1424,7 @@ parse_arguments() {
                 remote="$2"
                 shift 2
                 ;;
-            -l|--lfs)
+            -l | --lfs)
                 use_lfs="true"
                 shift
                 ;;
@@ -1432,11 +1432,11 @@ parse_arguments() {
                 post_hook="$2"
                 shift 2
                 ;;
-            -v|--verbose)
+            -v | --verbose)
                 LOG_LEVEL="DEBUG"
                 shift
                 ;;
-            -h|--help)
+            -h | --help)
                 show_usage
                 exit 0
                 ;;
@@ -1451,19 +1451,19 @@ parse_arguments() {
                 ;;
         esac
     done
-    
+
     # Load config file if provided
     if [ -n "$CONFIG_FILE" ]; then
         load_config_file "$CONFIG_FILE"
     fi
-    
+
     # Validate we have at least one repository
     if [ ${#REPOS[@]} -eq 0 ]; then
         log_error "No repositories configured. Use -r or --config"
         show_usage
         exit 1
     fi
-    
+
     # Run sync
     if [ "$DAEMON_MODE" = true ]; then
         run_daemon "$sync_interval"

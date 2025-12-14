@@ -25,6 +25,7 @@ RSR uses two complementary hook systems:
 2. **pre-commit** - Comprehensive checks with auto-fix
 
 Both systems are designed to be **developer-friendly**:
+
 - ✅ Non-blocking warnings (errors only for critical issues)
 - ✅ Generous timeouts (30-120 seconds)
 - ✅ Auto-fix where possible
@@ -57,6 +58,7 @@ Located in `.husky/` directory. Fast, shell-based hooks.
 | Debug code | Warning | No | ❌ No |
 
 **Skip this hook:**
+
 ```bash
 git commit --no-verify
 # or
@@ -64,6 +66,7 @@ HUSKY=0 git commit
 ```
 
 **Example output:**
+
 ```
 🔍 Running pre-commit checks...
 
@@ -91,17 +94,20 @@ HUSKY=0 git commit
 **Can fail:** No (warnings only)
 
 **Checks:**
+
 - ✅ Conventional Commits format (warning)
 - ✅ Message length (warning)
 - ✅ WIP commit detection (warning)
 - ✅ Issue reference detection (info)
 
 **Skip this hook:**
+
 ```bash
 git commit --no-verify
 ```
 
 **Example output:**
+
 ```
 📝 Validating commit message...
 
@@ -134,6 +140,7 @@ git commit --no-verify
 | Dependencies | N/A | ℹ️ Info only |
 
 **Features:**
+
 - Runs tests if available
 - Runs linters
 - Tests build
@@ -141,11 +148,13 @@ git commit --no-verify
 - **Interactive confirmation** if warnings found
 
 **Skip this hook:**
+
 ```bash
 git push --no-verify
 ```
 
 **Example output:**
+
 ```
 🚀 Running pre-push checks...
 
@@ -172,6 +181,7 @@ git push --no-verify
 **Can fail:** No (informational only)
 
 **Detects changes in:**
+
 - 📦 Package dependencies (package.json, etc.)
 - 🗄️ Database migrations
 - ⚙️ Configuration files
@@ -181,6 +191,7 @@ git push --no-verify
 - 📋 Schema/models
 
 **Example output:**
+
 ```
 🔄 Post-merge checks...
 
@@ -273,6 +284,7 @@ All hooks have generous timeouts to prevent hanging:
 ### Adjusting Timeouts
 
 **Husky hooks** - Edit `.husky/<hook-name>`:
+
 ```bash
 # Change this line
 TIMEOUT_SECONDS=30
@@ -325,6 +337,7 @@ git push
 ### Fixing Hook Failures
 
 **Registry sync failed:**
+
 ```bash
 make build-registry
 git add rsr scripts/registry.json
@@ -332,6 +345,7 @@ git commit --amend --no-edit
 ```
 
 **Shell syntax error:**
+
 ```bash
 bash -n scripts/problematic.sh  # Find error
 # Fix the syntax error
@@ -340,6 +354,7 @@ git commit --amend --no-edit
 ```
 
 **Tests failed:**
+
 ```bash
 make test  # Run tests locally
 # Fix failing tests
@@ -348,6 +363,7 @@ git commit --amend --no-edit
 ```
 
 **Linters failed:**
+
 ```bash
 make lint-fix  # Auto-fix
 make format    # Format code
@@ -362,6 +378,7 @@ git commit --amend --no-edit
 ### When to Skip
 
 ✅ **OK to skip:**
+
 - WIP commits on feature branch
 - Emergency hotfixes
 - Merge commits
@@ -369,6 +386,7 @@ git commit --amend --no-edit
 - When hooks are broken
 
 ❌ **Don't skip:**
+
 - Final commits before PR
 - Commits to main/master
 - Release commits
@@ -377,23 +395,27 @@ git commit --amend --no-edit
 ### How to Skip
 
 **Skip specific hook (pre-commit framework):**
+
 ```bash
 SKIP=shellcheck git commit -m "commit"
 SKIP=shellcheck,yamllint git commit -m "commit"
 ```
 
 **Skip all pre-commit hooks:**
+
 ```bash
 git commit --no-verify
 ```
 
 **Skip all husky hooks:**
+
 ```bash
 HUSKY=0 git commit
 HUSKY=0 git push
 ```
 
 **Disable hooks temporarily:**
+
 ```bash
 # Disable
 mv .git/hooks/pre-commit .git/hooks/pre-commit.disabled
@@ -410,6 +432,7 @@ mv .git/hooks/pre-commit.disabled .git/hooks/pre-commit
 
 **Cause:** Check exceeded timeout limit
 **Solution:**
+
 1. Increase timeout in `.husky/<hook-name>`
 2. Or skip with `--no-verify`
 
@@ -417,6 +440,7 @@ mv .git/hooks/pre-commit.disabled .git/hooks/pre-commit
 
 **Cause:** Output may be truncated
 **Solution:**
+
 ```bash
 # Run hook manually to see full output
 bash .husky/pre-commit
@@ -431,6 +455,7 @@ pre-commit run --all-files
 
 **Cause:** Hooks not installed
 **Solution:**
+
 ```bash
 make setup-hooks
 # or
@@ -442,6 +467,7 @@ pre-commit install
 
 **Cause:** Hooks not executable
 **Solution:**
+
 ```bash
 chmod +x .husky/*
 ```
@@ -450,6 +476,7 @@ chmod +x .husky/*
 
 **Cause:** Circular dependency in build process
 **Solution:**
+
 ```bash
 # Build registry
 make build-registry
@@ -479,6 +506,7 @@ git commit --no-verify -m "fix: update registry"
 ## Best Practices
 
 1. **Run hooks locally before pushing**
+
    ```bash
    pre-commit run --all-files
    ```
@@ -488,18 +516,21 @@ git commit --no-verify -m "fix: update registry"
    - Easier to fix issues
 
 3. **Fix auto-fixable issues**
+
    ```bash
    make lint-fix
    make format
    ```
 
 4. **Use WIP commits on feature branches**
+
    ```bash
    git commit --no-verify -m "WIP: testing"
    # Squash before merging
    ```
 
 5. **Test changes before committing**
+
    ```bash
    make lint
    make test

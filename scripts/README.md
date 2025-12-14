@@ -69,11 +69,13 @@ scripts/
 ## Naming Conventions
 
 ### Directory Names
+
 - **Category**: Broad functional area (e.g., `security`, `system`, `network`)
 - **Subcategory**: Specific function within category (e.g., `audit`, `hardening`)
 - Use lowercase with hyphens if needed
 
 ### File Names
+
 - Use lowercase with hyphens: `script-name.sh`
 - Include extension: `.sh` for bash, `.ps1` for PowerShell
 - Cross-platform scripts share the same base name
@@ -81,6 +83,7 @@ scripts/
 ## Creating New Scripts
 
 1. **Copy the template**:
+
    ```bash
    cp scripts/_templates/bash-script.template.sh scripts/category/subcategory/my-script.sh
    ```
@@ -91,6 +94,7 @@ scripts/
    - `{{AUTHOR}}` → Your name
 
 3. **Register in registry.json** (REQUIRED):
+
    ```json
    {
      "id": "my-script",
@@ -111,12 +115,15 @@ scripts/
    ```
 
 4. **Generate code from registry**:
+
    ```bash
    make build-registry
    ```
+
    This auto-updates the `rsr` entrypoint with your new script.
 
 5. **Test the script**:
+
    ```bash
    ./rsr my-cmd --help
    ```
@@ -124,6 +131,7 @@ scripts/
 ## Using Scripts
 
 ### Direct Execution
+
 ```bash
 # Run from repository root
 ./scripts/security/audit/security-audit.sh --help
@@ -133,6 +141,7 @@ bash scripts/system/health/system-health-check.sh -a
 ```
 
 ### With RSR CLI (if installed)
+
 ```bash
 rsr security-audit --help
 rsr system-health -a
@@ -156,6 +165,7 @@ fi
 ```
 
 ### Available RSR Modules
+
 - `validate` - Input validation functions
 - `interactive` - Interactive prompts (bash 4+ only)
 - `users` - User/group management
@@ -165,10 +175,12 @@ fi
 ## Cross-Platform Support
 
 Scripts with both `.sh` and `.ps1` versions:
+
 - `security/ssh/ssh-server` (.sh + .ps1)
 - `users/management/user-management` (.sh + .ps1)
 
 PowerShell scripts use the RSR PowerShell module:
+
 ```powershell
 Import-Module "$PSScriptRoot/../../../lib/powershell/RSR.psd1"
 ```
@@ -176,6 +188,7 @@ Import-Module "$PSScriptRoot/../../../lib/powershell/RSR.psd1"
 ## Registry (registry.json)
 
 The registry provides metadata for all scripts:
+
 - Script ID (unique identifier)
 - Command and aliases for routing
 - Display name and description
@@ -191,11 +204,13 @@ The registry provides metadata for all scripts:
 The `rsr` entrypoint script is automatically generated from `registry.json`:
 
 **What gets auto-generated:**
+
 - Script path mappings (`get_script_path` function)
 - Script list output (`list_scripts` function)
 - Command routing (`main` case statement)
 
 **How to update:**
+
 ```bash
 # After modifying registry.json
 make build-registry
@@ -215,9 +230,9 @@ A pre-commit hook automatically checks if `registry.json` and `rsr` are in sync.
 ## Archive
 
 The `_archive/` directory contains:
+
 - Old directory structure (for reference)
 - Previous versions of scripts
 - Deprecated scripts
 
 This directory is excluded from the main workflow.
-

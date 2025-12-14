@@ -60,29 +60,29 @@ log_debug() { printf "${DIM}[debug]${NC} %s\n" "$1" >&2; }
 
 check_dependencies() {
     local missing=0
-    
-    if ! command -v jq &>/dev/null; then
+
+    if ! command -v jq &> /dev/null; then
         log_error "jq is required but not installed"
         echo "  Install with: brew install jq (macOS) or apt install jq (Linux)"
         missing=1
     fi
-    
+
     if [ ! -f "$REGISTRY_FILE" ]; then
         log_error "Registry file not found: $REGISTRY_FILE"
         missing=1
     fi
-    
+
     if [ ! -f "$RSR_FILE" ]; then
         log_error "RSR file not found: $RSR_FILE"
         missing=1
     fi
-    
+
     if [ $missing -eq 1 ]; then
         exit 1
     fi
-    
+
     # Validate JSON
-    if ! jq empty "$REGISTRY_FILE" 2>/dev/null; then
+    if ! jq empty "$REGISTRY_FILE" 2> /dev/null; then
         log_error "Invalid JSON in $REGISTRY_FILE"
         exit 1
     fi
@@ -96,36 +96,36 @@ generate_script_mappings() {
     local output=""
     local script_count
     script_count=$(jq '.scripts | length' "$REGISTRY_FILE")
-    
+
     log_debug "Generating mappings for $script_count scripts..."
-    
+
     # Header comments
     output+="    ${MAPPINGS_BEGIN}\n"
     output+="    # This section is auto-generated from scripts/registry.json\n"
     output+="    # DO NOT EDIT MANUALLY - Run: make build-registry\n"
     output+="    case \"\$script_name\" in\n"
-    
+
     # Generate case entries for each script
     for ((i = 0; i < script_count; i++)); do
         local command
         command=$(jq -r ".scripts[$i].command" "$REGISTRY_FILE")
         local path
         path=$(jq -r ".scripts[$i].path" "$REGISTRY_FILE")
-        
+
         if [ -n "$command" ] && [ "$command" != "null" ]; then
             output+="        ${command})\n"
             output+="            echo \"${path}\"\n"
             output+="            ;;\n"
         fi
     done
-    
+
     # Default case
     output+="        *)\n"
     output+="            echo \"\"\n"
     output+="            ;;\n"
     output+="    esac\n"
     output+="    ${MAPPINGS_END}"
-    
+
     echo -e "$output"
 }
 
@@ -133,14 +133,14 @@ generate_script_list() {
     local output=""
     local script_count
     script_count=$(jq '.scripts | length' "$REGISTRY_FILE")
-    
+
     log_debug "Generating list for $script_count scripts..."
-    
+
     # Header comments
     output+="    ${LIST_BEGIN}\n"
     output+="    # This section is auto-generated from scripts/registry.json\n"
     output+="    # DO NOT EDIT MANUALLY - Run: make build-registry\n"
-    
+
     # Generate list entries for each script
     for ((i = 0; i < script_count; i++)); do
         local command
@@ -151,7 +151,7 @@ generate_script_list() {
         description=$(jq -r ".scripts[$i].description" "$REGISTRY_FILE")
         local example
         example=$(jq -r ".scripts[$i].example" "$REGISTRY_FILE")
-        
+
         if [ -n "$command" ] && [ "$command" != "null" ]; then
             # Format name to fit in column (pad to 12 chars)
             output+="    printf \"  \\\${GREEN}${command}\\\${NC}      ${name}\\\\n\"\n"
@@ -163,9 +163,9 @@ generate_script_list() {
             fi
         fi
     done
-    
+
     output+="    ${LIST_END}"
-    
+
     echo -e "$output"
 }
 
@@ -173,15 +173,15 @@ generate_command_routing() {
     local output=""
     local script_count
     script_count=$(jq '.scripts | length' "$REGISTRY_FILE")
-    
+
     log_debug "Generating routing for $script_count scripts..."
-    
+
     # Header comments
     output+="    ${ROUTING_BEGIN}\n"
     output+="    # This section is auto-generated from scripts/registry.json\n"
     output+="    # DO NOT EDIT MANUALLY - Run: make build-registry\n"
     output+="    case \"\$COMMAND\" in\n"
-    
+
     # Special cases first (non-script commands)
     output+="        menu | interactive)\n"
     output+="            run_menu\n"
@@ -189,24 +189,24 @@ generate_command_routing() {
     output+="        self-update | upgrade)\n"
     output+="            self_update \"\$@\"\n"
     output+="            ;;\n"
-    
+
     # Generate routing for each script
     for ((i = 0; i < script_count; i++)); do
         local command
         command=$(jq -r ".scripts[$i].command" "$REGISTRY_FILE")
         local aliases
         aliases=$(jq -r ".scripts[$i].aliases | join(\" | \")" "$REGISTRY_FILE")
-        
+
         if [ -n "$aliases" ] && [ "$aliases" != "null" ]; then
             output+="        ${aliases})\n"
             output+="            run_script \"${command}\" \"\$@\"\n"
             output+="            ;;\n"
         fi
     done
-    
+
     # End marker (list | ls is NOT auto-generated, it's manually maintained)
     output+="        ${ROUTING_END}\n"
-    
+
     echo -e "$output"
 }
 
@@ -219,17 +219,17 @@ update_section() {
     local begin_marker="$2"
     local end_marker="$3"
     local new_content="$4"
-    
+
     if ! grep -q "$begin_marker" "$file"; then
         log_error "Marker '$begin_marker' not found in $file"
         return 1
     fi
-    
+
     if ! grep -q "$end_marker" "$file"; then
         log_error "Marker '$end_marker' not found in $file"
         return 1
     fi
-    
+
     # Create temporary files
     local temp_file
     temp_file=$(mktemp)
@@ -237,16 +237,16 @@ update_section() {
     local end_pattern
     local begin_line
     local end_line
-    
+
     # Find line numbers of markers
     begin_line=$(grep -n "$begin_marker" "$file" | head -1 | cut -d: -f1)
     end_line=$(grep -n "$end_marker" "$file" | head -1 | cut -d: -f1)
-    
+
     if [ -z "$begin_line" ] || [ -z "$end_line" ]; then
         log_error "Could not find marker line numbers"
         return 1
     fi
-    
+
     # Build the replacement: everything before begin_marker + new content + everything after end_marker onwards
     {
         # Lines before the begin marker (not including the marker itself)
@@ -259,14 +259,14 @@ update_section() {
             tail -n "+$((end_line + 1))" "$file"
         fi
     } > "$temp_file"
-    
+
     if [ $? -eq 0 ]; then
         if [ "$DRY_RUN" -eq 1 ]; then
             log_debug "Would update section in $file"
             rm "$temp_file"
         else
             # Preserve permissions
-            chmod --reference="$file" "$temp_file" 2>/dev/null || chmod +x "$temp_file"
+            chmod --reference="$file" "$temp_file" 2> /dev/null || chmod +x "$temp_file"
             mv "$temp_file" "$file"
             log_debug "Updated section in $file"
         fi
@@ -280,17 +280,17 @@ update_section() {
 
 validate_syntax() {
     local file="$1"
-    
+
     log_debug "Validating shell syntax..."
-    
+
     # Try with sh -n first (POSIX compatibility)
-    if ! sh -n "$file" 2>/tmp/rsr_syntax_err.txt; then
+    if ! sh -n "$file" 2> /tmp/rsr_syntax_err.txt; then
         log_error "Syntax validation failed for $file"
         cat /tmp/rsr_syntax_err.txt >&2
         rm -f /tmp/rsr_syntax_err.txt
         return 1
     fi
-    
+
     rm -f /tmp/rsr_syntax_err.txt
     log_debug "Syntax validation passed"
     return 0
@@ -301,7 +301,7 @@ check_if_synced() {
     local begin_marker="$2"
     local end_marker="$3"
     local expected_content="$4"
-    
+
     # Extract current content between markers
     local current_content
     current_content=$(awk -v begin="$begin_marker" -v end="$end_marker" '
@@ -309,7 +309,7 @@ check_if_synced() {
         $0 ~ end { printing=0 }
         printing { print }
     ' "$file")
-    
+
     # Compare (normalize whitespace)
     if [ "$(echo "$current_content" | tr -d '[:space:]')" = "$(echo -e "$expected_content" | tr -d '[:space:]')" ]; then
         return 0
@@ -341,22 +341,22 @@ ${BOLD}Examples:${NC}
 ${BOLD}Integration:${NC}
   Add to Makefile:  make build-registry
   Add to pre-commit: $(basename "$0") --check
-  
+
 EOF
 }
 
 parse_args() {
     while [ $# -gt 0 ]; do
         case "$1" in
-            --dry-run|-n)
+            --dry-run | -n)
                 DRY_RUN=1
                 shift
                 ;;
-            --check|-c)
+            --check | -c)
                 CHECK_MODE=1
                 shift
                 ;;
-            -h|--help)
+            -h | --help)
                 show_usage
                 exit 0
                 ;;
@@ -371,7 +371,7 @@ parse_args() {
 
 main() {
     parse_args "$@"
-    
+
     if [ "$CHECK_MODE" -eq 1 ]; then
         log_info "Checking registry sync..."
     elif [ "$DRY_RUN" -eq 1 ]; then
@@ -380,45 +380,45 @@ main() {
         log_info "Building from registry..."
     fi
     echo
-    
+
     check_dependencies
-    
+
     local script_count
     script_count=$(jq '.scripts | length' "$REGISTRY_FILE")
     log_ok "Found $script_count scripts in registry"
     echo
-    
+
     # Generate new content
     log_info "Generating code sections..."
     local new_mappings
-    new_mappings=$(generate_script_mappings 2>/dev/null)
+    new_mappings=$(generate_script_mappings 2> /dev/null)
     local new_list
-    new_list=$(generate_script_list 2>/dev/null)
+    new_list=$(generate_script_list 2> /dev/null)
     local new_routing
-    new_routing=$(generate_command_routing 2>/dev/null)
+    new_routing=$(generate_command_routing 2> /dev/null)
     log_ok "Code generation complete"
     echo
-    
+
     # Check mode: verify sync
     if [ "$CHECK_MODE" -eq 1 ]; then
         log_info "Verifying sync..."
         local out_of_sync=0
-        
+
         if ! check_if_synced "$RSR_FILE" "$MAPPINGS_BEGIN" "$MAPPINGS_END" "$new_mappings"; then
             log_warn "Script mappings are out of sync"
             out_of_sync=1
         fi
-        
+
         if ! check_if_synced "$RSR_FILE" "$LIST_BEGIN" "$LIST_END" "$new_list"; then
             log_warn "Script list is out of sync"
             out_of_sync=1
         fi
-        
+
         if ! check_if_synced "$RSR_FILE" "$ROUTING_BEGIN" "$ROUTING_END" "$new_routing"; then
             log_warn "Command routing is out of sync"
             out_of_sync=1
         fi
-        
+
         if [ $out_of_sync -eq 1 ]; then
             echo
             log_error "Files are out of sync with registry.json"
@@ -429,7 +429,7 @@ main() {
             exit 0
         fi
     fi
-    
+
     # Update or preview
     if [ "$DRY_RUN" -eq 1 ]; then
         log_info "Would update the following sections:"
@@ -443,15 +443,15 @@ main() {
         echo "---"
         exit 0
     fi
-    
+
     # Backup original
     local backup_file="${RSR_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
     cp "$RSR_FILE" "$backup_file"
     log_info "Created backup: $backup_file"
-    
+
     # Update sections
     log_info "Updating rsr file..."
-    
+
     if update_section "$RSR_FILE" "$MAPPINGS_BEGIN" "$MAPPINGS_END" "$new_mappings"; then
         log_ok "Updated script mappings"
     else
@@ -459,7 +459,7 @@ main() {
         mv "$backup_file" "$RSR_FILE"
         exit 1
     fi
-    
+
     if update_section "$RSR_FILE" "$LIST_BEGIN" "$LIST_END" "$new_list"; then
         log_ok "Updated script list"
     else
@@ -467,7 +467,7 @@ main() {
         mv "$backup_file" "$RSR_FILE"
         exit 1
     fi
-    
+
     if update_section "$RSR_FILE" "$ROUTING_BEGIN" "$ROUTING_END" "$new_routing"; then
         log_ok "Updated command routing"
     else
@@ -475,16 +475,16 @@ main() {
         mv "$backup_file" "$RSR_FILE"
         exit 1
     fi
-    
+
     echo
-    
+
     # Validate syntax - temp disabled
     validate_syntax "$RSR_FILE" || true
     log_warn "Validation skipped for debugging"
-    
+
     # Cleanup backup if everything succeeded
     rm "$backup_file"
-    
+
     echo
     log_ok "Build complete! All sections updated successfully."
     echo

@@ -39,6 +39,7 @@
 ### 🟡 Medium Priority - Windows-Specific Tools
 
 #### 1. WinSCP (Windows)
+
 **Status**: ⚠️ Missing
 **Priority**: HIGH
 **Why Add**: Most popular Windows SFTP/SCP client
@@ -55,11 +56,13 @@
 ```
 
 **Use Cases**:
+
 - Windows users needing SFTP/SCP
 - Scripted file transfers on Windows
 - Both GUI and command-line usage
 
 #### 2. PuTTY (Windows)
+
 **Status**: ⚠️ Missing
 **Priority**: MEDIUM
 **Why Add**: Standard SSH/SFTP toolkit for Windows
@@ -76,17 +79,20 @@
 ```
 
 **Tools Included**:
+
 - `putty.exe` - SSH client
 - `pscp.exe` - SCP command-line client
 - `psftp.exe` - SFTP command-line client
 - `puttygen.exe` - Key generator
 
 #### 3. pscp (PuTTY SCP)
+
 **Status**: ⚠️ Missing (bundled with PuTTY)
 **Priority**: LOW
 **Note**: Should be mentioned in PuTTY description
 
 #### 4. psftp (PuTTY SFTP)
+
 **Status**: ⚠️ Missing (bundled with PuTTY)
 **Priority**: LOW
 **Note**: Should be mentioned in PuTTY description
@@ -94,6 +100,7 @@
 ### 🟢 Low Priority - Already Covered
 
 #### 5. scp (OpenSSH)
+
 **Status**: ✅ Already available via `openssh-client`
 **Location**: network.yaml
 **Note**: Could add explicit entry or clarify in description
@@ -109,6 +116,7 @@
 ```
 
 #### 6. ftp (basic)
+
 **Status**: ⚠️ Not explicitly listed
 **Priority**: VERY LOW
 **Note**: Usually pre-installed, not recommended (insecure)
@@ -120,12 +128,14 @@
 **Issue**: `curl` and `wget` support SFTP but descriptions don't mention it
 
 **Current**:
+
 ```yaml
 - name: curl
   description: Data transfer tool supporting multiple protocols
 ```
 
 **Recommended**:
+
 ```yaml
 - name: curl
   description: Data transfer tool (HTTP, FTP, SFTP, SCP, and more)
@@ -133,12 +143,14 @@
 ```
 
 **Current**:
+
 ```yaml
 - name: wget
   description: Non-interactive network downloader
 ```
 
 **Recommended**:
+
 ```yaml
 - name: wget
   description: Non-interactive downloader (HTTP, HTTPS, FTP)
@@ -150,6 +162,7 @@
 **Issue**: `scp` not explicitly mentioned
 
 **Recommendation**: Add note to `openssh-client`:
+
 ```yaml
 - name: openssh-client
   description: OpenSSH client (includes ssh, scp, sftp, ssh-keygen)
@@ -164,6 +177,7 @@
 ### Linux/macOS ✅ Well Covered
 
 **Available**:
+
 - ✅ `sftp` - Interactive SFTP
 - ✅ `scp` - Quick file copy (via openssh-client)
 - ✅ `lftp` - Advanced scripting
@@ -176,12 +190,14 @@
 ### Windows ⚠️ Gaps
 
 **Available**:
+
 - ✅ `lftp` - Advanced scripting
 - ✅ `rsync` - Via Cygwin/WSL
 - ✅ `curl` - SFTP support
 - ✅ `openssh` - Windows 10+ includes OpenSSH
 
 **Missing**:
+
 - ❌ `winscp` - Most popular Windows SFTP tool
 - ❌ `putty` - Standard SSH/SCP/SFTP toolkit
 
@@ -291,21 +307,25 @@ Add explicit `scp` entry (optional):
 ### For Linux/macOS Users
 
 1. **Quick file copy**: Use `scp`
+
    ```bash
    scp file.txt user@server:/path/
    ```
 
 2. **Directory sync**: Use `rsync`
+
    ```bash
    rsync -avz /local/dir/ user@server:/remote/dir/
    ```
 
 3. **Interactive browsing**: Use `sftp` or `lftp`
+
    ```bash
    lftp sftp://user@server
    ```
 
 4. **Mount remote FS**: Use `sshfs`
+
    ```bash
    sshfs user@server:/path /local/mount
    ```
@@ -313,16 +333,19 @@ Add explicit `scp` entry (optional):
 ### For Windows Users
 
 1. **GUI + scripting**: Use WinSCP (once added)
+
    ```cmd
    winscp.com /command "open sftp://user@server" "get file.txt" "exit"
    ```
 
 2. **Quick command-line**: Use PuTTY pscp (once added)
+
    ```cmd
    pscp file.txt user@server:/path/
    ```
 
 3. **Modern Windows 10+**: Use built-in OpenSSH
+
    ```cmd
    scp file.txt user@server:/path/
    ```
@@ -330,10 +353,12 @@ Add explicit `scp` entry (optional):
 ## Conclusion
 
 **Current State**: ✅ **GOOD**
+
 - Excellent Unix/Linux/macOS coverage
 - Basic Windows coverage via OpenSSH
 
 **Recommended Actions**:
+
 1. ✅ **Add WinSCP** to network.yaml (High Priority)
 2. ✅ **Add PuTTY** to network.yaml (Medium Priority)
 3. ✅ **Update curl description** to mention SFTP support

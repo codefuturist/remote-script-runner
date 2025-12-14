@@ -59,6 +59,7 @@ launchctl load ~/Library/LaunchAgents/com.gitautosync.agent.plist
 ### macOS File Locations
 
 #### System-Level (requires sudo)
+
 ```
 Configuration:    /usr/local/etc/git-auto-sync/config.yaml
 Environment:      /usr/local/etc/git-auto-sync/environment
@@ -69,6 +70,7 @@ Binary:           /usr/local/bin/git-auto-sync.sh
 ```
 
 #### User-Level (no sudo)
+
 ```
 Configuration:    ~/Library/Application Support/git-auto-sync/config.yaml
 Environment:      ~/Library/Application Support/git-auto-sync/environment
@@ -230,6 +232,7 @@ cp examples/config.yaml ~/.config/git-auto-sync/
 ### Windows File Locations
 
 #### Git Bash / Native Windows
+
 ```
 Configuration:    %LOCALAPPDATA%\git-auto-sync\config.yaml
                   (typically C:\Users\<username>\AppData\Local\git-auto-sync\)
@@ -240,6 +243,7 @@ Binary:           C:\ProgramData\git-auto-sync\git-auto-sync.sh
 ```
 
 #### WSL2
+
 ```
 Configuration:    /etc/git-auto-sync/config.yaml (system)
                   ~/.config/git-auto-sync/config.yaml (user)
@@ -249,6 +253,7 @@ Logs:             /var/log/git-auto-sync/ (system)
 ```
 
 #### MSYS2
+
 ```
 Configuration:    ~/.config/git-auto-sync/config.yaml
 Logs:             ~/.local/state/git-auto-sync/logs/
@@ -310,6 +315,7 @@ ps aux | grep git-auto-sync
 ### Package Installation on Windows
 
 #### Git Bash
+
 ```bash
 # Install Python for Windows from python.org
 pip install pyyaml
@@ -319,16 +325,19 @@ pip install pyyaml
 ```
 
 #### WSL2
+
 ```bash
 sudo apt install git yq python3-yaml
 ```
 
 #### MSYS2
+
 ```bash
 pacman -S git yq python-yaml
 ```
 
 #### Cygwin
+
 ```bash
 # Use Cygwin setup.exe to install:
 # - git
@@ -384,18 +393,21 @@ repositories:
 ### Path Considerations
 
 #### Linux
+
 ```yaml
 path: /etc/config
 path: /home/user/repos/project
 ```
 
 #### macOS
+
 ```yaml
 path: /usr/local/etc/config
 path: /Users/username/repos/project
 ```
 
 #### Windows (Git Bash)
+
 ```yaml
 path: /c/ProgramData/config
 path: /c/Users/username/repos/project
@@ -404,6 +416,7 @@ path: ~/repos/project
 ```
 
 #### Windows (WSL2)
+
 ```yaml
 path: /mnt/c/Users/username/repos/project  # Windows drives
 path: /home/username/repos/project         # WSL filesystem
@@ -479,12 +492,14 @@ wsl --list --verbose
 ## Platform-Specific Notes
 
 ### macOS
+
 - **Bash Version**: macOS ships with Bash 3.2 (GPL2). For Bash 5+, use Homebrew
 - **SIP (System Integrity Protection)**: Limits modification of /usr/bin. Use /usr/local/bin instead
 - **Gatekeeper**: May need to approve the script on first run
 - **launchd**: More lightweight than SystemD, ideal for macOS
 
 ### Windows
+
 - **Line Endings**: Git for Windows handles CRLF/LF conversion automatically
 - **Path Separators**: Use forward slashes (/) in Git Bash/WSL, even on Windows
 - **Permissions**: Windows permissions differ from Unix. Consider ACLs for shared repos
@@ -494,13 +509,13 @@ wsl --list --verbose
 
 ## Summary
 
-✅ **Linux**: Full support with SystemD/OpenRC  
-✅ **macOS**: Native launchd integration, Homebrew support  
-✅ **Windows**: Git Bash, WSL2, MSYS2, Task Scheduler support  
+✅ **Linux**: Full support with SystemD/OpenRC
+✅ **macOS**: Native launchd integration, Homebrew support
+✅ **Windows**: Git Bash, WSL2, MSYS2, Task Scheduler support
 
-🎯 **Universal Configuration**: Same YAML format across all platforms  
-🎯 **Platform-Aware**: Automatically adapts to OS conventions  
-🎯 **Service Integration**: Native service management on each platform  
-🎯 **No-Sudo Options**: User-level installation available on all platforms  
+🎯 **Universal Configuration**: Same YAML format across all platforms
+🎯 **Platform-Aware**: Automatically adapts to OS conventions
+🎯 **Service Integration**: Native service management on each platform
+🎯 **No-Sudo Options**: User-level installation available on all platforms
 
 git-auto-sync now works seamlessly on Linux, macOS, and Windows! 🚀

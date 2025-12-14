@@ -21,11 +21,13 @@ curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/m
 ## Features
 
 ### Industry Standard
+
 - Uses standard BIND zone files
 - Compatible with existing DNS tools
 - RFC 1035 compliant
 
 ### Validation & Safety
+
 - Pre-validates ALL zones before applying
 - Only applies if 100% valid
 - Destination config never touched until validated
@@ -33,6 +35,7 @@ curl -fsSL https://raw.githubusercontent.com/codefuturist/remote-script-runner/m
 - Auto-restore on failure
 
 ### Monitoring
+
 - Dedicated log file (`/var/log/dns-sync.log`)
 - Health check command
 - Systemd integration
@@ -123,6 +126,7 @@ api           3600    IN  CNAME  server2
 ```
 
 Place zone files in:
+
 ```
 /opt/gitops/iac-catalog/environments/global/configurations/dns-zones/
 ```
@@ -132,18 +136,21 @@ Place zone files in:
 The system validates in 3 phases:
 
 **Phase 1: Pre-Validation**
+
 - Parse all zone files
 - Validate DNS records
 - Check hostname format
 - Verify IP addresses
 
 **Phase 2: Conversion**
+
 - Convert to Pi-hole format
 - Resolve CNAME chains
 - Detect circular references
 - Cache validated config
 
 **Phase 3: Application**
+
 - Create backup
 - Apply changes
 - Verify written content
@@ -278,8 +285,8 @@ sudo /opt/gitops/dns-sync.sh init
 
 ## Support & Documentation
 
-- **GitHub**: https://github.com/codefuturist/remote-script-runner
-- **Issues**: https://github.com/codefuturist/remote-script-runner/issues
+- **GitHub**: <https://github.com/codefuturist/remote-script-runner>
+- **Issues**: <https://github.com/codefuturist/remote-script-runner/issues>
 
 ## Features Summary
 

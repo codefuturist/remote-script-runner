@@ -19,8 +19,8 @@ _RSR_MODULE_USERS_LOADED=1
 
 # Ensure core is loaded
 if [ -z "${_RSR_CORE_INIT_LOADED:-}" ]; then
-    _script_dir="$(cd "$(dirname "$0")" 2>/dev/null && pwd)" || _script_dir="."
-    . "${_script_dir}/../core/init.sh" 2>/dev/null || . "./lib/core/init.sh" 2>/dev/null || {
+    _script_dir="$(cd "$(dirname "$0")" 2> /dev/null && pwd)" || _script_dir="."
+    . "${_script_dir}/../core/init.sh" 2> /dev/null || . "./lib/core/init.sh" 2> /dev/null || {
         echo "ERROR: RSR core/init.sh must be sourced first" >&2
         return 1
     }
@@ -54,10 +54,10 @@ rsr_user_exists() {
 
     case "$(_rsr_users_os)" in
         darwin)
-            dscl . -list /Users 2>/dev/null | grep -q "^${_username}$"
+            dscl . -list /Users 2> /dev/null | grep -q "^${_username}$"
             ;;
-        linux|freebsd)
-            id "$_username" >/dev/null 2>&1
+        linux | freebsd)
+            id "$_username" > /dev/null 2>&1
             ;;
         *)
             return 1
@@ -74,15 +74,15 @@ rsr_user_info() {
     case "$(_rsr_users_os)" in
         darwin)
             if rsr_user_exists "$_username"; then
-                _uid=$(dscl . -read "/Users/$_username" UniqueID 2>/dev/null | awk '{print $2}')
-                _gid=$(dscl . -read "/Users/$_username" PrimaryGroupID 2>/dev/null | awk '{print $2}')
-                _home=$(dscl . -read "/Users/$_username" NFSHomeDirectory 2>/dev/null | awk '{print $2}')
-                _shell=$(dscl . -read "/Users/$_username" UserShell 2>/dev/null | awk '{print $2}')
+                _uid=$(dscl . -read "/Users/$_username" UniqueID 2> /dev/null | awk '{print $2}')
+                _gid=$(dscl . -read "/Users/$_username" PrimaryGroupID 2> /dev/null | awk '{print $2}')
+                _home=$(dscl . -read "/Users/$_username" NFSHomeDirectory 2> /dev/null | awk '{print $2}')
+                _shell=$(dscl . -read "/Users/$_username" UserShell 2> /dev/null | awk '{print $2}')
                 echo "${_uid}:${_gid}:${_home}:${_shell}"
             fi
             ;;
-        linux|freebsd)
-            getent passwd "$_username" 2>/dev/null | awk -F: '{print $3":"$4":"$6":"$7}'
+        linux | freebsd)
+            getent passwd "$_username" 2> /dev/null | awk -F: '{print $3":"$4":"$6":"$7}'
             ;;
     esac
 }
@@ -94,10 +94,10 @@ rsr_user_uid() {
 
     case "$(_rsr_users_os)" in
         darwin)
-            dscl . -read "/Users/$_username" UniqueID 2>/dev/null | awk '{print $2}'
+            dscl . -read "/Users/$_username" UniqueID 2> /dev/null | awk '{print $2}'
             ;;
-        linux|freebsd)
-            id -u "$_username" 2>/dev/null
+        linux | freebsd)
+            id -u "$_username" 2> /dev/null
             ;;
     esac
 }
@@ -109,10 +109,10 @@ rsr_user_home() {
 
     case "$(_rsr_users_os)" in
         darwin)
-            dscl . -read "/Users/$_username" NFSHomeDirectory 2>/dev/null | awk '{print $2}'
+            dscl . -read "/Users/$_username" NFSHomeDirectory 2> /dev/null | awk '{print $2}'
             ;;
-        linux|freebsd)
-            getent passwd "$_username" 2>/dev/null | cut -d: -f6
+        linux | freebsd)
+            getent passwd "$_username" 2> /dev/null | cut -d: -f6
             ;;
     esac
 }
@@ -124,10 +124,10 @@ rsr_user_shell() {
 
     case "$(_rsr_users_os)" in
         darwin)
-            dscl . -read "/Users/$_username" UserShell 2>/dev/null | awk '{print $2}'
+            dscl . -read "/Users/$_username" UserShell 2> /dev/null | awk '{print $2}'
             ;;
-        linux|freebsd)
-            getent passwd "$_username" 2>/dev/null | cut -d: -f7
+        linux | freebsd)
+            getent passwd "$_username" 2> /dev/null | cut -d: -f7
             ;;
     esac
 }
@@ -141,9 +141,9 @@ rsr_user_shell() {
 rsr_user_list_all() {
     case "$(_rsr_users_os)" in
         darwin)
-            dscl . -list /Users 2>/dev/null | grep -v "^_" | sort
+            dscl . -list /Users 2> /dev/null | grep -v "^_" | sort
             ;;
-        linux|freebsd)
+        linux | freebsd)
             awk -F: '{print $1}' /etc/passwd | sort
             ;;
     esac
@@ -154,10 +154,10 @@ rsr_user_list_all() {
 rsr_user_list_humans() {
     case "$(_rsr_users_os)" in
         darwin)
-            dscl . -list /Users UniqueID 2>/dev/null | awk '$2 >= 500 || $2 == 0 {print $1}' | \
-                grep -v "^_" | grep -v "^nobody$" | grep -v "^Guest$" | sort
+            dscl . -list /Users UniqueID 2> /dev/null | awk '$2 >= 500 || $2 == 0 {print $1}' \
+                | grep -v "^_" | grep -v "^nobody$" | grep -v "^Guest$" | sort
             ;;
-        linux|freebsd)
+        linux | freebsd)
             awk -F: '($3 >= 1000 || $3 == 0) && $1 != "nobody" {print $1}' /etc/passwd | sort
             ;;
     esac
@@ -168,9 +168,9 @@ rsr_user_list_humans() {
 rsr_user_list_system() {
     case "$(_rsr_users_os)" in
         darwin)
-            dscl . -list /Users UniqueID 2>/dev/null | awk '$2 > 0 && $2 < 500 {print $1}' | sort
+            dscl . -list /Users UniqueID 2> /dev/null | awk '$2 > 0 && $2 < 500 {print $1}' | sort
             ;;
-        linux|freebsd)
+        linux | freebsd)
             awk -F: '$3 > 0 && $3 < 1000 {print $1}' /etc/passwd | sort
             ;;
     esac
@@ -198,12 +198,30 @@ rsr_user_create() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --uid)       _uid="$2"; shift 2 ;;
-            --gid)       _gid="$2"; shift 2 ;;
-            --home)      _home="$2"; shift 2 ;;
-            --shell)     _shell="$2"; shift 2 ;;
-            --comment)   _comment="$2"; shift 2 ;;
-            --no-create-home) _create_home=0; shift ;;
+            --uid)
+                _uid="$2"
+                shift 2
+                ;;
+            --gid)
+                _gid="$2"
+                shift 2
+                ;;
+            --home)
+                _home="$2"
+                shift 2
+                ;;
+            --shell)
+                _shell="$2"
+                shift 2
+                ;;
+            --comment)
+                _comment="$2"
+                shift 2
+                ;;
+            --no-create-home)
+                _create_home=0
+                shift
+                ;;
             *) shift ;;
         esac
     done
@@ -247,7 +265,7 @@ _rsr_user_create_darwin() {
 
     # Get next available UID if not specified
     if [ -z "$_uid" ]; then
-        _uid=$(dscl . -list /Users UniqueID 2>/dev/null | awk '$2 >= 500 {print $2}' | sort -n | tail -1)
+        _uid=$(dscl . -list /Users UniqueID 2> /dev/null | awk '$2 >= 500 {print $2}' | sort -n | tail -1)
         _uid=$((_uid + 1))
     fi
 
@@ -310,7 +328,10 @@ rsr_user_delete() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --remove-home) _remove_home=1; shift ;;
+            --remove-home)
+                _remove_home=1
+                shift
+                ;;
             *) shift ;;
         esac
     done
@@ -322,7 +343,7 @@ rsr_user_delete() {
 
     # Safety check
     case "$_username" in
-        root|Administrator)
+        root | Administrator)
             rsr_log_error "Cannot delete system user '$_username'"
             return "$RSR_EXIT_PERMISSION"
             ;;
@@ -450,7 +471,7 @@ rsr_user_set_password() {
             read -r _password
             dscl . -passwd "/Users/$_username" "$_password"
             ;;
-        linux|freebsd)
+        linux | freebsd)
             chpasswd
             ;;
     esac
@@ -483,8 +504,8 @@ rsr_user_expire_password() {
     case "$(_rsr_users_os)" in
         darwin)
             # macOS doesn't have chage, use pwpolicy
-            pwpolicy -u "$_username" -setpolicy "newPasswordRequired=1" 2>/dev/null || \
-                rsr_log_warn "Password expiry may not be supported"
+            pwpolicy -u "$_username" -setpolicy "newPasswordRequired=1" 2> /dev/null \
+                || rsr_log_warn "Password expiry may not be supported"
             ;;
         linux)
             chage -d 0 "$_username"
@@ -507,10 +528,10 @@ rsr_group_exists() {
 
     case "$(_rsr_users_os)" in
         darwin)
-            dscl . -list /Groups 2>/dev/null | grep -q "^${_groupname}$"
+            dscl . -list /Groups 2> /dev/null | grep -q "^${_groupname}$"
             ;;
-        linux|freebsd)
-            getent group "$_groupname" >/dev/null 2>&1
+        linux | freebsd)
+            getent group "$_groupname" > /dev/null 2>&1
             ;;
     esac
 }
@@ -524,7 +545,10 @@ rsr_group_create() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --gid) _gid="$2"; shift 2 ;;
+            --gid)
+                _gid="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -537,7 +561,7 @@ rsr_group_create() {
     case "$(_rsr_users_os)" in
         darwin)
             if [ -z "$_gid" ]; then
-                _gid=$(dscl . -list /Groups PrimaryGroupID 2>/dev/null | awk '{print $2}' | sort -n | tail -1)
+                _gid=$(dscl . -list /Groups PrimaryGroupID 2> /dev/null | awk '{print $2}' | sort -n | tail -1)
                 _gid=$((_gid + 1))
             fi
             dscl . -create "/Groups/$_groupname"
@@ -648,10 +672,10 @@ rsr_user_groups() {
 
     case "$(_rsr_users_os)" in
         darwin)
-            id -Gn "$_username" 2>/dev/null | tr ' ' '\n' | sort
+            id -Gn "$_username" 2> /dev/null | tr ' ' '\n' | sort
             ;;
-        linux|freebsd)
-            id -Gn "$_username" 2>/dev/null | tr ' ' '\n' | sort
+        linux | freebsd)
+            id -Gn "$_username" 2> /dev/null | tr ' ' '\n' | sort
             ;;
     esac
 }
@@ -661,9 +685,9 @@ rsr_user_groups() {
 rsr_group_list_all() {
     case "$(_rsr_users_os)" in
         darwin)
-            dscl . -list /Groups 2>/dev/null | grep -v "^_" | sort
+            dscl . -list /Groups 2> /dev/null | grep -v "^_" | sort
             ;;
-        linux|freebsd)
+        linux | freebsd)
             awk -F: '{print $1}' /etc/group | sort
             ;;
     esac
@@ -685,9 +709,9 @@ rsr_user_last_login() {
     _username="$1"
 
     if rsr_has_command lastlog; then
-        lastlog -u "$_username" 2>/dev/null | tail -1
+        lastlog -u "$_username" 2> /dev/null | tail -1
     elif rsr_has_command last; then
-        last -1 "$_username" 2>/dev/null | head -1
+        last -1 "$_username" 2> /dev/null | head -1
     else
         echo "unknown"
     fi
@@ -705,14 +729,14 @@ rsr_user_has_sudo() {
     case "$(_rsr_users_os)" in
         darwin)
             # Check admin group
-            dscl . -read "/Groups/admin" GroupMembership 2>/dev/null | grep -q "$_username"
+            dscl . -read "/Groups/admin" GroupMembership 2> /dev/null | grep -q "$_username"
             ;;
         linux)
             # Check sudo or wheel group
-            id -nG "$_username" 2>/dev/null | grep -qE '\b(sudo|wheel)\b'
+            id -nG "$_username" 2> /dev/null | grep -qE '\b(sudo|wheel)\b'
             ;;
         freebsd)
-            id -nG "$_username" 2>/dev/null | grep -q '\bwheel\b'
+            id -nG "$_username" 2> /dev/null | grep -q '\bwheel\b'
             ;;
     esac
 }
@@ -759,11 +783,11 @@ rsr_user_revoke_sudo() {
 
     case "$(_rsr_users_os)" in
         darwin)
-            dscl . -delete /Groups/admin GroupMembership "$_username" 2>/dev/null
+            dscl . -delete /Groups/admin GroupMembership "$_username" 2> /dev/null
             ;;
         linux)
-            gpasswd -d "$_username" sudo 2>/dev/null
-            gpasswd -d "$_username" wheel 2>/dev/null
+            gpasswd -d "$_username" sudo 2> /dev/null
+            gpasswd -d "$_username" wheel 2> /dev/null
             ;;
         freebsd)
             pw groupmod wheel -d "$_username"
@@ -776,4 +800,3 @@ rsr_user_revoke_sudo() {
 # =============================================================================
 
 rsr_log_debug "RSR Users Module v${_RSR_USERS_VERSION} loaded"
-

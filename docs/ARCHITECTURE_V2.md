@@ -152,6 +152,7 @@ automation-platform/
 ## Key Design Principles
 
 ### 1. **Separation of Concerns**
+
 ```python
 # lib/common/logging.py
 """
@@ -168,14 +169,14 @@ class AutomationLogger:
             service=service_name,
             environment=os.getenv("ENVIRONMENT", "dev")
         )
-    
+
     def log_operation(self, operation: str, **kwargs):
         """Log with automatic timing and error handling"""
         start_time = time.time()
         correlation_id = kwargs.get('correlation_id', generate_id())
-        
+
         try:
-            self.logger.info(f"Starting {operation}", 
+            self.logger.info(f"Starting {operation}",
                            correlation_id=correlation_id, **kwargs)
             yield
             self.logger.info(f"Completed {operation}",
@@ -190,6 +191,7 @@ class AutomationLogger:
 ```
 
 ### 2. **Configuration Management**
+
 ```yaml
 # config/environments/prod/config.yaml
 # Production configuration with security-first approach
@@ -205,13 +207,14 @@ monitoring:
   enabled: true
   metrics_endpoint: "https://metrics.internal:9090"
   log_level: "INFO"
-  
+
 rate_limits:
   api_calls_per_minute: 100
   concurrent_executions: 10
 ```
 
 ### 3. **Error Handling Pattern**
+
 ```python
 # scripts/deployment/deploy.py
 """
@@ -225,7 +228,7 @@ class DeploymentManager:
     def __init__(self):
         self.logger = AutomationLogger("deployment")
         self.health_check_retries = 5
-        
+
     @exponential_backoff(max_retries=3)
     def deploy(self, service: str, version: str) -> bool:
         """
@@ -233,29 +236,29 @@ class DeploymentManager:
         Includes pre-flight checks, gradual rollout, and validation.
         """
         previous_version = self.get_current_version(service)
-        
+
         try:
             # Pre-deployment validation
             self.validate_deployment(service, version)
-            
+
             # Create deployment checkpoint for rollback
             checkpoint = self.create_checkpoint(service)
-            
+
             # Gradual rollout with canary deployment
             self.canary_deploy(service, version, traffic_percentage=10)
-            
+
             if not self.validate_canary_metrics(service):
                 raise DeploymentError("Canary validation failed")
-            
+
             # Full deployment
             self.full_deploy(service, version)
-            
+
             # Post-deployment validation
             if not self.health_check(service):
                 raise HealthCheckError("Post-deployment health check failed")
-                
+
             return True
-            
+
         except Exception as e:
             self.logger.error("Deployment failed, initiating rollback",
                             service=service,
@@ -266,43 +269,44 @@ class DeploymentManager:
 ```
 
 ### 4. **Makefile for Developer Experience**
+
 ```makefile
 # Makefile - One-stop shop for common tasks
 .PHONY: help setup test lint deploy
 
 help: ## Show this help message
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+ @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 setup: ## Set up development environment
-	@echo "Setting up development environment..."
-	python -m venv venv
-	./venv/bin/pip install -r requirements-dev.txt
-	pre-commit install
-	cp .env.example .env
-	@echo "Setup complete! Activate with: source venv/bin/activate"
+ @echo "Setting up development environment..."
+ python -m venv venv
+ ./venv/bin/pip install -r requirements-dev.txt
+ pre-commit install
+ cp .env.example .env
+ @echo "Setup complete! Activate with: source venv/bin/activate"
 
 test: ## Run all tests with coverage
-	pytest tests/ --cov=scripts --cov=lib --cov-report=html --cov-report=term
+ pytest tests/ --cov=scripts --cov=lib --cov-report=html --cov-report=term
 
 lint: ## Run all linting checks
-	black scripts/ lib/ tests/
-	isort scripts/ lib/ tests/
-	flake8 scripts/ lib/ tests/
-	mypy scripts/ lib/
-	bandit -r scripts/ lib/  # Security linting
+ black scripts/ lib/ tests/
+ isort scripts/ lib/ tests/
+ flake8 scripts/ lib/ tests/
+ mypy scripts/ lib/
+ bandit -r scripts/ lib/  # Security linting
 
 validate: ## Validate configurations and schemas
-	python tools/scripts/validate.py --config config/
-	yamllint config/
-	jsonschema -i config/defaults/base.yaml config/schemas/config.schema.json
+ python tools/scripts/validate.py --config config/
+ yamllint config/
+ jsonschema -i config/defaults/base.yaml config/schemas/config.schema.json
 
 deploy-dry-run: ## Dry-run deployment
-	python scripts/deployment/deploy.py --dry-run --env=$(ENV)
+ python scripts/deployment/deploy.py --dry-run --env=$(ENV)
 
 monitor: ## Open monitoring dashboard
-	@echo "Opening monitoring dashboards..."
-	open http://localhost:3000/grafana
-	open http://localhost:5601/kibana
+ @echo "Opening monitoring dashboards..."
+ open http://localhost:3000/grafana
+ open http://localhost:5601/kibana
 ```
 
 ## Benefits of This Structure
@@ -316,4 +320,3 @@ monitor: ## Open monitoring dashboard
 7. **Developer Experience**: Consistent patterns, helpful tooling, and clear documentation
 
 This structure grows naturally with your automation needs while maintaining clarity and preventing technical debt accumulation.
-

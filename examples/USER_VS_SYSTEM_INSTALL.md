@@ -24,6 +24,7 @@ Git Auto-Sync supports both **user-level** and **system-level** installations, a
 ### When to Use
 
 ✅ **Perfect for:**
+
 - Managing repositories in your home directory
 - Development environments
 - Personal projects
@@ -32,6 +33,7 @@ Git Auto-Sync supports both **user-level** and **system-level** installations, a
 - Per-user Git repository synchronization
 
 ❌ **Not suitable for:**
+
 - System-wide services
 - Repositories outside your home directory
 - Services that must run before user login
@@ -112,6 +114,7 @@ launchctl load ~/Library/LaunchAgents/com.user.git-auto-sync.plist
 ### When to Use
 
 ✅ **Perfect for:**
+
 - System-wide configuration management
 - DNS zone synchronization (`/etc/bind/zones`)
 - Web server configs (`/etc/nginx`, `/var/www`)
@@ -120,6 +123,7 @@ launchctl load ~/Library/LaunchAgents/com.user.git-auto-sync.plist
 - Services that must run on boot
 
 ❌ **Not suitable for:**
+
 - Personal user repositories
 - When you don't have root access
 
@@ -297,6 +301,7 @@ systemctl --user start git-auto-sync
 ### Permission Denied Errors
 
 **User mode:**
+
 ```bash
 # Check ownership
 ls -la ~/repository/
@@ -309,6 +314,7 @@ ls -ld ~/.config/git-auto-sync/
 ```
 
 **System mode:**
+
 ```bash
 # Repository should be accessible by sync user
 sudo -u git-sync ls -la /etc/bind/zones/
@@ -323,12 +329,14 @@ sudo setenforce 0  # Temporarily for testing
 ### Lock File Issues
 
 **User mode:**
+
 ```bash
 # Remove stale lock
 rm ~/.cache/git-auto-sync/git-auto-sync.lock
 ```
 
 **System mode:**
+
 ```bash
 # Remove stale lock
 sudo rm /var/run/git-auto-sync/git-auto-sync.lock
@@ -337,6 +345,7 @@ sudo rm /var/run/git-auto-sync/git-auto-sync.lock
 ### Service Not Starting
 
 **User mode (SystemD):**
+
 ```bash
 # Check service status
 systemctl --user status git-auto-sync
@@ -349,6 +358,7 @@ loginctl enable-linger $USER
 ```
 
 **System mode (SystemD):**
+
 ```bash
 # Check service status
 sudo systemctl status git-auto-sync

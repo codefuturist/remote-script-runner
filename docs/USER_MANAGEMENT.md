@@ -5,6 +5,7 @@ The Remote Script Runner (RSR) provides comprehensive cross-platform user manage
 ## Overview
 
 The user management system provides a unified interface for:
+
 - **Account Lifecycle**: Create, delete, modify, lock/unlock user accounts
 - **Password Management**: Reset passwords, enforce policies, manage expiration
 - **Group Management**: Create groups, manage membership
@@ -81,6 +82,7 @@ sudo rsr usermgmt audit
 ### Account Management
 
 #### create
+
 Create a new user account with optional configuration.
 
 ```bash
@@ -101,6 +103,7 @@ sudo rsr usermgmt create -u username --no-create-home
 ```
 
 **Options:**
+
 - `-u, --username USER` - Username (required)
 - `-c, --comment TEXT` - Full name or GECOS field
 - `-s, --shell SHELL` - Login shell (default: /bin/bash)
@@ -114,6 +117,7 @@ sudo rsr usermgmt create -u username --no-create-home
 - `--force-change` - Force password change on first login
 
 #### delete
+
 Delete a user account, optionally removing home directory.
 
 ```bash
@@ -125,10 +129,12 @@ sudo rsr usermgmt delete -u username --remove-home
 ```
 
 **Options:**
+
 - `-u, --username USER` - Username (required)
 - `--remove-home` - Remove home directory and mail spool
 
 #### lock / unlock
+
 Disable or enable user login.
 
 ```bash
@@ -140,6 +146,7 @@ sudo rsr usermgmt unlock -u username
 ```
 
 #### list
+
 List user accounts with details.
 
 ```bash
@@ -156,6 +163,7 @@ rsr usermgmt list --sudo
 ### Password Management
 
 #### password reset
+
 Reset a user's password interactively or with specified value.
 
 ```bash
@@ -167,6 +175,7 @@ sudo rsr usermgmt password reset -u username -p newpassword
 ```
 
 #### password expire
+
 Force password change on next login.
 
 ```bash
@@ -174,6 +183,7 @@ sudo rsr usermgmt password expire -u username
 ```
 
 #### password generate
+
 Generate secure random passwords.
 
 ```bash
@@ -188,6 +198,7 @@ sudo rsr usermgmt password generate -u username --set
 ```
 
 #### password policy
+
 View password policy settings.
 
 ```bash
@@ -201,6 +212,7 @@ rsr usermgmt password policy -u username
 ### Group Management
 
 #### group create
+
 Create a new group.
 
 ```bash
@@ -212,6 +224,7 @@ sudo rsr usermgmt group create -g groupname --gid 2000
 ```
 
 #### group add
+
 Add user to a group.
 
 ```bash
@@ -219,6 +232,7 @@ sudo rsr usermgmt group add -u username -g groupname
 ```
 
 #### group remove
+
 Remove user from a group.
 
 ```bash
@@ -226,6 +240,7 @@ sudo rsr usermgmt group remove -u username -g groupname
 ```
 
 #### group list
+
 List members of a group.
 
 ```bash
@@ -233,6 +248,7 @@ rsr usermgmt group list -g groupname
 ```
 
 #### group show
+
 Show all groups a user belongs to.
 
 ```bash
@@ -242,6 +258,7 @@ rsr usermgmt group show -u username
 ### Permission Management
 
 #### permission set
+
 Set file or directory permissions and ownership.
 
 ```bash
@@ -256,12 +273,14 @@ sudo rsr usermgmt permission set -p /path/to/dir -m 755 -R
 ```
 
 **Options:**
+
 - `-p, --path PATH` - File or directory path (required)
 - `-m, --mode MODE` - Permission mode (e.g., 755, 644)
 - `-o, --owner OWNER` - Owner in format user:group
 - `-R, --recursive` - Apply recursively
 
 #### permission get
+
 Display current permissions of a file or directory.
 
 ```bash
@@ -269,6 +288,7 @@ rsr usermgmt permission get -p /path/to/file
 ```
 
 #### permission template
+
 Apply predefined permission templates.
 
 ```bash
@@ -286,6 +306,7 @@ sudo rsr usermgmt permission template -p /etc/service.conf -t service
 ```
 
 **Available Templates:**
+
 - `web` - Web server files (755, www-data:www-data)
 - `shared` - Shared directories (775)
 - `private` - Private directories (700)
@@ -294,6 +315,7 @@ sudo rsr usermgmt permission template -p /etc/service.conf -t service
 ### SSH Key Management
 
 #### ssh generate
+
 Generate SSH key pair for a user.
 
 ```bash
@@ -311,12 +333,14 @@ sudo rsr usermgmt ssh generate -u username -t ed25519 -c "user@company.com"
 ```
 
 **Key Types:**
+
 - `rsa` - RSA keys (default 4096 bits)
 - `ed25519` - Ed25519 keys (modern, faster, more secure)
 - `ecdsa` - ECDSA keys
 - `dsa` - DSA keys (legacy, not recommended)
 
 #### ssh add
+
 Add SSH public key to user's authorized_keys.
 
 ```bash
@@ -331,12 +355,14 @@ cat ~/.ssh/id_rsa.pub | sudo rsr usermgmt ssh add -u username -k "$(cat)"
 ```
 
 **Features:**
+
 - Validates key format before adding
 - Checks for duplicate keys
 - Sets proper permissions (600 for authorized_keys)
 - Creates .ssh directory if needed
 
 #### ssh remove
+
 Remove SSH key from authorized_keys.
 
 ```bash
@@ -351,10 +377,12 @@ sudo rsr usermgmt ssh remove -u username -i "AAAAB3NzaC1yc2E"
 ```
 
 **Safety:**
+
 - Creates backup (.authorized_keys.backup) before removal
 - Validates match before deletion
 
 #### ssh list
+
 List authorized SSH keys for a user.
 
 ```bash
@@ -369,6 +397,7 @@ rsr usermgmt ssh list -u username | wc -l
 ```
 
 #### ssh copy
+
 Copy SSH keys from one user to another.
 
 ```bash
@@ -380,6 +409,7 @@ sudo rsr usermgmt ssh copy -s admin -d deploy
 ```
 
 #### ssh validate
+
 Validate authorized_keys file format.
 
 ```bash
@@ -390,6 +420,7 @@ rsr usermgmt ssh validate -u username
 ```
 
 #### ssh fix
+
 Fix SSH directory and file permissions.
 
 ```bash
@@ -398,6 +429,7 @@ sudo rsr usermgmt ssh fix -u username
 ```
 
 **What it fixes:**
+
 - `.ssh/` directory → 700
 - `authorized_keys` → 600
 - Private keys (`id_*`) → 600
@@ -409,6 +441,7 @@ sudo rsr usermgmt ssh fix -u username
 ### Session Monitoring
 
 #### session list
+
 List currently active user sessions.
 
 ```bash
@@ -416,6 +449,7 @@ rsr usermgmt session list
 ```
 
 #### session history
+
 View login history for all users or specific user.
 
 ```bash
@@ -430,6 +464,7 @@ rsr usermgmt session history -u username -n 20
 ```
 
 #### session failures
+
 View failed login attempts.
 
 ```bash
@@ -497,6 +532,7 @@ fi
 ### Available Library Functions
 
 **User Functions:**
+
 - `user_exists "username"` - Check if user exists
 - `user_get_info "username"` - Get user info (uid:gid:home:shell)
 - `user_list_humans` - List human users (UID >= 500/1000)
@@ -509,6 +545,7 @@ fi
 - `user_has_sudo "username"` - Check sudo access
 
 **Password Functions:**
+
 - `password_set "username"` - Set password (interactive)
 - `password_set_string "username" "password"` - Set password (programmatic)
 - `password_generate [length]` - Generate random password
@@ -516,6 +553,7 @@ fi
 - `password_get_expiry "username"` - Get expiry info (Linux)
 
 **Group Functions:**
+
 - `group_exists "groupname"` - Check if group exists
 - `group_create "groupname" [--gid GID]` - Create group
 - `group_add_member "groupname" "username"` - Add user to group
@@ -523,16 +561,19 @@ fi
 - `group_list_members "groupname"` - List group members
 
 **Permission Functions:**
+
 - `permission_set "path" "mode" ["owner:group"]` - Set permissions
 - `permission_set_recursive "path" "mode" ["owner:group"]` - Set recursively
 
 **Session Functions:**
+
 - `session_list` - List active sessions
 - `session_list_detailed` - List with details
 - `login_history ["username"] [lines]` - Get login history
 - `login_failures [lines]` - Get failed login attempts
 
 **SSH Key Functions:**
+
 - `ssh_generate_key "username" [--type TYPE] [--bits BITS] [--comment COMMENT]` - Generate key pair
 - `ssh_add_key "username" "public_key_content"` - Add key to authorized_keys
 - `ssh_add_key_file "username" "/path/to/key.pub"` - Add key from file
@@ -585,6 +626,7 @@ sudo rsr usermgmt create -u newuser -g sudo,docker --dry-run
 ### Common Issues
 
 **"User already exists" error:**
+
 ```bash
 # Check if user exists
 rsr usermgmt list | grep username
@@ -594,12 +636,14 @@ sudo rsr usermgmt delete -u username
 ```
 
 **Permission denied:**
+
 ```bash
 # Most operations require root
 sudo rsr usermgmt create -u username
 ```
 
 **Group doesn't exist:**
+
 ```bash
 # Create group first
 sudo rsr usermgmt group create -g groupname
@@ -609,11 +653,13 @@ sudo rsr usermgmt group add -u username -g groupname
 ```
 
 **macOS-specific issues:**
+
 - Some operations require Full Disk Access in System Preferences
 - `sysadminctl` requires authentication even with sudo
 - Use `dscl` for programmatic access
 
 **Linux distribution differences:**
+
 - RHEL/CentOS use `wheel` group instead of `sudo`
 - Alpine Linux uses `busybox` utilities
 - Arch Linux may have different default paths
@@ -630,7 +676,7 @@ sudo rsr usermgmt group add -u username -g groupname
       -c "Deployment User" \
       -g docker \
       --generate > /tmp/deploy_password
-    
+
     # Store password in secrets manager
     aws secretsmanager create-secret \
       --name deploy-password \
@@ -680,6 +726,6 @@ To extend the user management functionality:
 ## Support
 
 For issues, feature requests, or questions:
-- GitHub Issues: https://github.com/codefuturist/remote-script-runner/issues
-- Documentation: https://codefuturist.github.io/remote-script-runner/
 
+- GitHub Issues: <https://github.com/codefuturist/remote-script-runner/issues>
+- Documentation: <https://codefuturist.github.io/remote-script-runner/>

@@ -29,7 +29,7 @@ echo -e "${BOLD}╚════════════════════�
 echo ""
 
 # Detect OS using RSR library if available
-if type rsr_detect_os &>/dev/null; then
+if type rsr_detect_os &> /dev/null; then
     OS=$(rsr_detect_os)
     echo -e "${GREEN}✓${NC} Operating System: $OS (detected via RSR library)"
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -48,7 +48,7 @@ else
 fi
 
 # Show detected architecture
-if type rsr_detect_arch &>/dev/null; then
+if type rsr_detect_arch &> /dev/null; then
     ARCH=$(rsr_detect_arch)
     echo -e "${GREEN}✓${NC} Architecture: $ARCH"
 fi
@@ -58,7 +58,7 @@ echo ""
 # Handle macOS
 if [[ "$OS" == "darwin" ]] || [[ "$OS" == "macos" ]]; then
     echo -e "${BOLD}macOS Detection:${NC}"
-    if command -v sw_vers >/dev/null 2>&1; then
+    if command -v sw_vers > /dev/null 2>&1; then
         MACOS_VERSION=$(sw_vers -productVersion)
         MACOS_NAME=$(sw_vers -productName)
         echo -e "${GREEN}✓${NC} Version: $MACOS_NAME $MACOS_VERSION"
@@ -66,7 +66,7 @@ if [[ "$OS" == "darwin" ]] || [[ "$OS" == "macos" ]]; then
 
     echo ""
     echo -e "${GREEN}✓${NC} Package Manager: Homebrew (brew)"
-    if command -v brew >/dev/null 2>&1; then
+    if command -v brew > /dev/null 2>&1; then
         BREW_VERSION=$(brew --version | head -1)
         echo -e "  Installed: $BREW_VERSION"
     else
@@ -95,24 +95,24 @@ if [[ "$OS" == "darwin" ]] || [[ "$OS" == "macos" ]]; then
     # YAML parsers
     echo ""
     echo -e "${BOLD}YAML Parser Detection:${NC}"
-    if command -v yq >/dev/null 2>&1; then
+    if command -v yq > /dev/null 2>&1; then
         YQ_VERSION=$(yq --version 2>&1 | head -1)
         echo -e "${GREEN}✓${NC} yq: $YQ_VERSION"
     else
         echo -e "${YELLOW}⚠${NC}  yq: Not installed (brew install yq)"
     fi
 
-    if command -v python3 >/dev/null 2>&1; then
-        if python3 -c "import yaml" 2>/dev/null; then
-            YAML_VERSION=$(python3 -c "import yaml; print(yaml.__version__)" 2>/dev/null || echo "unknown")
+    if command -v python3 > /dev/null 2>&1; then
+        if python3 -c "import yaml" 2> /dev/null; then
+            YAML_VERSION=$(python3 -c "import yaml; print(yaml.__version__)" 2> /dev/null || echo "unknown")
             echo -e "${GREEN}✓${NC} python3-yaml: version $YAML_VERSION"
         else
             echo -e "${YELLOW}⚠${NC}  python3-yaml: Not installed (pip3 install pyyaml)"
         fi
     fi
 
-    if command -v ruby >/dev/null 2>&1; then
-        if ruby -ryaml -e 'exit 0' 2>/dev/null; then
+    if command -v ruby > /dev/null 2>&1; then
+        if ruby -ryaml -e 'exit 0' 2> /dev/null; then
             echo -e "${GREEN}✓${NC} ruby-yaml: Available (built-in)"
         fi
     fi
@@ -142,11 +142,11 @@ if [[ "$OS" == "windows" ]]; then
         WINDOWS_ENV="MSYS2"
         echo -e "${GREEN}✓${NC} Environment: MSYS2 ($MSYSTEM)"
         PACKAGE_MANAGER="pacman"
-    elif command -v cygcheck >/dev/null 2>&1; then
+    elif command -v cygcheck > /dev/null 2>&1; then
         WINDOWS_ENV="Cygwin"
         echo -e "${GREEN}✓${NC} Environment: Cygwin"
         PACKAGE_MANAGER="apt-cyg"
-    elif command -v wsl.exe >/dev/null 2>&1; then
+    elif command -v wsl.exe > /dev/null 2>&1; then
         WINDOWS_ENV="WSL"
         echo -e "${GREEN}✓${NC} Environment: Windows Subsystem for Linux (WSL)"
         PACKAGE_MANAGER="apt"
@@ -157,8 +157,8 @@ if [[ "$OS" == "windows" ]]; then
     fi
 
     # Windows version
-    if command -v powershell.exe >/dev/null 2>&1; then
-        WIN_VERSION=$(powershell.exe -Command "[System.Environment]::OSVersion.VersionString" 2>/dev/null | tr -d '\r\n' | head -1)
+    if command -v powershell.exe > /dev/null 2>&1; then
+        WIN_VERSION=$(powershell.exe -Command "[System.Environment]::OSVersion.VersionString" 2> /dev/null | tr -d '\r\n' | head -1)
         echo -e "${GREEN}✓${NC} Windows Version: $WIN_VERSION"
     fi
 
@@ -183,17 +183,17 @@ if [[ "$OS" == "windows" ]]; then
     # YAML parsers
     echo ""
     echo -e "${BOLD}YAML Parser Detection:${NC}"
-    if command -v yq >/dev/null 2>&1; then
+    if command -v yq > /dev/null 2>&1; then
         YQ_VERSION=$(yq --version 2>&1 | head -1)
         echo -e "${GREEN}✓${NC} yq: $YQ_VERSION"
     else
         echo -e "${YELLOW}⚠${NC}  yq: Not installed"
     fi
 
-    if command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
+    if command -v python3 > /dev/null 2>&1 || command -v python > /dev/null 2>&1; then
         PYTHON_CMD=$(command -v python3 || command -v python)
-        if $PYTHON_CMD -c "import yaml" 2>/dev/null; then
-            YAML_VERSION=$($PYTHON_CMD -c "import yaml; print(yaml.__version__)" 2>/dev/null || echo "unknown")
+        if $PYTHON_CMD -c "import yaml" 2> /dev/null; then
+            YAML_VERSION=$($PYTHON_CMD -c "import yaml; print(yaml.__version__)" 2> /dev/null || echo "unknown")
             echo -e "${GREEN}✓${NC} python-yaml: version $YAML_VERSION"
         else
             echo -e "${YELLOW}⚠${NC}  python-yaml: Not installed (pip install pyyaml)"
@@ -250,23 +250,23 @@ if [ -f /etc/os-release ]; then
 
     # Determine family
     case "$ID" in
-        debian|ubuntu|linuxmint|pop|elementary)
+        debian | ubuntu | linuxmint | pop | elementary)
             DISTRO_FAMILY="debian"
             PACKAGE_MANAGER="apt"
             ;;
-        rhel|centos|fedora|rocky|alma|ol)
+        rhel | centos | fedora | rocky | alma | ol)
             DISTRO_FAMILY="rhel"
-            if command -v dnf >/dev/null 2>&1; then
+            if command -v dnf > /dev/null 2>&1; then
                 PACKAGE_MANAGER="dnf"
             else
                 PACKAGE_MANAGER="yum"
             fi
             ;;
-        sles|opensuse*|suse)
+        sles | opensuse* | suse)
             DISTRO_FAMILY="suse"
             PACKAGE_MANAGER="zypper"
             ;;
-        arch|manjaro|endeavouros)
+        arch | manjaro | endeavouros)
             DISTRO_FAMILY="arch"
             PACKAGE_MANAGER="pacman"
             ;;
@@ -302,12 +302,12 @@ echo -e "${GREEN}✓${NC} Package Manager: $PACKAGE_MANAGER"
 
 # Detect init system
 echo ""
-if command -v systemctl >/dev/null 2>&1 && systemctl --version >/dev/null 2>&1; then
+if command -v systemctl > /dev/null 2>&1 && systemctl --version > /dev/null 2>&1; then
     INIT_SYSTEM="systemd"
     SYSTEMD_VERSION=$(systemctl --version | head -1 | awk '{print $2}')
     echo -e "${GREEN}✓${NC} Init System: SystemD (version $SYSTEMD_VERSION)"
 elif [ -d /etc/init.d ] && [ -f /etc/init.d/cron ]; then
-    if command -v rc-service >/dev/null 2>&1; then
+    if command -v rc-service > /dev/null 2>&1; then
         INIT_SYSTEM="openrc"
         echo -e "${GREEN}✓${NC} Init System: OpenRC"
     else
@@ -322,16 +322,16 @@ fi
 # Detect YAML parser
 echo ""
 echo -e "${BOLD}YAML Parser Detection:${NC}"
-if command -v yq >/dev/null 2>&1; then
+if command -v yq > /dev/null 2>&1; then
     YQ_VERSION=$(yq --version 2>&1 | head -1)
     echo -e "${GREEN}✓${NC} yq: $YQ_VERSION"
 else
     echo -e "${YELLOW}⚠${NC}  yq: Not installed"
 fi
 
-if command -v python3 >/dev/null 2>&1; then
-    if python3 -c "import yaml" 2>/dev/null; then
-        YAML_VERSION=$(python3 -c "import yaml; print(yaml.__version__)" 2>/dev/null || echo "unknown")
+if command -v python3 > /dev/null 2>&1; then
+    if python3 -c "import yaml" 2> /dev/null; then
+        YAML_VERSION=$(python3 -c "import yaml; print(yaml.__version__)" 2> /dev/null || echo "unknown")
         echo -e "${GREEN}✓${NC} python3-yaml: version $YAML_VERSION"
     else
         echo -e "${YELLOW}⚠${NC}  python3-yaml: Not installed"
@@ -340,8 +340,8 @@ else
     echo -e "${YELLOW}⚠${NC}  python3: Not installed"
 fi
 
-if command -v ruby >/dev/null 2>&1; then
-    if ruby -ryaml -e 'exit 0' 2>/dev/null; then
+if command -v ruby > /dev/null 2>&1; then
+    if ruby -ryaml -e 'exit 0' 2> /dev/null; then
         echo -e "${GREEN}✓${NC} ruby-yaml: Available"
     else
         echo -e "${YELLOW}⚠${NC}  ruby-yaml: Not available"

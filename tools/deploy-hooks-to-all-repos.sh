@@ -44,11 +44,11 @@ while [[ $# -gt 0 ]]; do
             REPO_FILTER="$2"
             shift 2
             ;;
-        --verbose|-v)
+        --verbose | -v)
             VERBOSE=true
             shift
             ;;
-        --help|-h)
+        --help | -h)
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
@@ -123,41 +123,41 @@ echo ""
 deploy_hooks_to_repo() {
     local repo_path="$1"
     local repo_name=$(basename "$repo_path")
-    
+
     # Skip if doesn't match filter
     if [ -n "$REPO_FILTER" ] && [[ ! "$repo_name" =~ $REPO_FILTER ]]; then
         log_verbose "Skipped $repo_name (doesn't match filter)"
         return 1
     fi
-    
+
     # Skip if not a git repo
     if [ ! -d "$repo_path/.git" ]; then
         log_verbose "Skipped $repo_name (not a git repo)"
         return 1
     fi
-    
+
     # Skip source repo
     if [ "$repo_path" = "$SOURCE_REPO" ]; then
         log_verbose "Skipped $repo_name (source repo)"
         return 1
     fi
-    
+
     # ONLY UPDATE REPOS THAT ALREADY HAVE HOOKS
     local has_hooks=false
     if [ -d "$repo_path/.husky" ] || [ -f "$repo_path/.pre-commit-config.yaml" ] || [ -f "$repo_path/.git/hooks/pre-commit" ]; then
         has_hooks=true
     fi
-    
+
     if [ "$has_hooks" = false ]; then
         log_verbose "Skipped $repo_name (no existing hooks)"
         return 1
     fi
-    
+
     TOTAL_REPOS=$((TOTAL_REPOS + 1))
-    
+
     echo ""
     info "Processing: $repo_name"
-    
+
     if [ "$DRY_RUN" = true ]; then
         echo "  Would copy:"
         echo "    - .husky/ hooks"
@@ -172,27 +172,27 @@ deploy_hooks_to_repo() {
         UPDATED_REPOS=$((UPDATED_REPOS + 1))
         return 0
     fi
-    
+
     # Create .husky directory if it doesn't exist
     if [ ! -d "$repo_path/.husky" ]; then
         log_verbose "Creating .husky directory"
         mkdir -p "$repo_path/.husky"
     fi
-    
+
     # Copy husky hooks
     log_verbose "Copying .husky hooks"
-    cp -r "$SOURCE_REPO/.husky/_" "$repo_path/.husky/" 2>/dev/null || true
+    cp -r "$SOURCE_REPO/.husky/_" "$repo_path/.husky/" 2> /dev/null || true
     cp "$SOURCE_REPO/.husky/pre-commit" "$repo_path/.husky/"
     cp "$SOURCE_REPO/.husky/commit-msg" "$repo_path/.husky/"
     cp "$SOURCE_REPO/.husky/pre-push" "$repo_path/.husky/"
     cp "$SOURCE_REPO/.husky/post-merge" "$repo_path/.husky/"
-    
+
     # Make hooks executable
     chmod +x "$repo_path/.husky/pre-commit"
     chmod +x "$repo_path/.husky/commit-msg"
     chmod +x "$repo_path/.husky/pre-push"
     chmod +x "$repo_path/.husky/post-merge"
-    
+
     # Copy .pre-commit-config.yaml if repo doesn't have one
     if [ ! -f "$repo_path/.pre-commit-config.yaml" ]; then
         log_verbose "Creating .pre-commit-config.yaml"
@@ -200,13 +200,13 @@ deploy_hooks_to_repo() {
     else
         log_verbose "Skipping .pre-commit-config.yaml (already exists)"
     fi
-    
+
     # Copy documentation if docs directory exists
     if [ -d "$repo_path/docs" ]; then
         log_verbose "Copying GIT_HOOKS.md to docs/"
         cp "$SOURCE_REPO/docs/GIT_HOOKS.md" "$repo_path/docs/"
     fi
-    
+
     # Check if package.json exists and needs husky
     if [ -f "$repo_path/package.json" ]; then
         if ! grep -q '"husky"' "$repo_path/package.json"; then
@@ -214,7 +214,7 @@ deploy_hooks_to_repo() {
             echo "       Run: cd $repo_path && npm install --save-dev husky && npx husky install"
         fi
     fi
-    
+
     success "Updated $repo_name"
     UPDATED_REPOS=$((UPDATED_REPOS + 1))
     return 0

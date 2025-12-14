@@ -25,7 +25,7 @@ set -eo pipefail
 
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -161,16 +161,31 @@ parse_args() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help) show_help; exit 0 ;;
-            -v|--verbose) VERBOSE=true; shift ;;
-            --add|--remove|--set-default|--path)
+            -h | --help)
+                show_help
+                exit 0
+                ;;
+            -v | --verbose)
+                VERBOSE=true
+                shift
+                ;;
+            --add | --remove | --set-default | --path)
                 DEST_PATH="$2"
                 ACTION="${1#--}"
                 shift 2
                 ;;
-            --source) RESTORE_PATH="$2"; shift 2 ;;
-            --target) RESTORE_TARGET="$2"; shift 2 ;;
-            --date) SNAPSHOT_DATE="$2"; shift 2 ;;
+            --source)
+                RESTORE_PATH="$2"
+                shift 2
+                ;;
+            --target)
+                RESTORE_TARGET="$2"
+                shift 2
+                ;;
+            --date)
+                SNAPSHOT_DATE="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -189,7 +204,7 @@ cmd_status() {
 
     # Basic status
     local enabled
-    enabled=$(tmutil destinationinfo 2>/dev/null | grep -c "Name" || echo "0")
+    enabled=$(tmutil destinationinfo 2> /dev/null | grep -c "Name" || echo "0")
 
     if [[ "$enabled" -gt 0 ]]; then
         log_ok "Time Machine is configured"
@@ -205,7 +220,7 @@ cmd_status() {
 
     # Destinations
     echo "Backup Destinations:"
-    tmutil destinationinfo 2>/dev/null | while read -r line; do
+    tmutil destinationinfo 2> /dev/null | while read -r line; do
         echo "  $line"
     done
 
@@ -213,17 +228,17 @@ cmd_status() {
 
     # Current backup status
     local phase
-    phase=$(tmutil currentphase 2>/dev/null || echo "Idle")
+    phase=$(tmutil currentphase 2> /dev/null || echo "Idle")
     echo "Current Phase: $phase"
 
     # Last backup
     local latest
-    latest=$(tmutil latestbackup 2>/dev/null || echo "No backups")
+    latest=$(tmutil latestbackup 2> /dev/null || echo "No backups")
     echo "Latest Backup: $latest"
 
     # Auto backup status
     local auto
-    auto=$(defaults read /Library/Preferences/com.apple.TimeMachine AutoBackup 2>/dev/null || echo "1")
+    auto=$(defaults read /Library/Preferences/com.apple.TimeMachine AutoBackup 2> /dev/null || echo "1")
     if [[ "$auto" == "1" ]]; then
         echo "Auto Backup: Enabled"
     else
@@ -232,7 +247,7 @@ cmd_status() {
 
     # Local snapshots
     local snapshots
-    snapshots=$(tmutil listlocalsnapshots / 2>/dev/null | wc -l | tr -d ' ')
+    snapshots=$(tmutil listlocalsnapshots / 2> /dev/null | wc -l | tr -d ' ')
     echo "Local Snapshots: $snapshots"
 }
 
@@ -269,7 +284,7 @@ cmd_list() {
     echo "═══ Time Machine Backups ═══"
     echo ""
 
-    tmutil listbackups 2>/dev/null | while read -r backup; do
+    tmutil listbackups 2> /dev/null | while read -r backup; do
         local date
         date=$(basename "$backup")
         echo "  • $date"
@@ -308,7 +323,7 @@ cmd_destinations() {
             tmutil setdestination "$DEST_PATH"
             log_ok "Default destination set"
             ;;
-        list|*)
+        list | *)
             echo ""
             echo "═══ Backup Destinations ═══"
             echo ""
@@ -348,8 +363,8 @@ cmd_exclusions() {
     local exclude_plist="/Library/Preferences/com.apple.TimeMachine.plist"
 
     if [[ -f "$exclude_plist" ]]; then
-        defaults read /Library/Preferences/com.apple.TimeMachine ExcludeByPath 2>/dev/null | \
-            grep -v "^(" | grep -v "^)" | sed 's/^[[:space:]]*/  /' | sed 's/,$//' | sed 's/"//g'
+        defaults read /Library/Preferences/com.apple.TimeMachine ExcludeByPath 2> /dev/null \
+            | grep -v "^(" | grep -v "^)" | sed 's/^[[:space:]]*/  /' | sed 's/,$//' | sed 's/"//g'
     fi
 
     echo ""
@@ -373,9 +388,9 @@ cmd_restore() {
     # Find the backup path
     local backup_base
     if [[ -n "$SNAPSHOT_DATE" ]] && [[ "$SNAPSHOT_DATE" != "latest" ]]; then
-        backup_base=$(tmutil listbackups 2>/dev/null | grep "$SNAPSHOT_DATE" | head -1)
+        backup_base=$(tmutil listbackups 2> /dev/null | grep "$SNAPSHOT_DATE" | head -1)
     else
-        backup_base=$(tmutil latestbackup 2>/dev/null)
+        backup_base=$(tmutil latestbackup 2> /dev/null)
     fi
 
     if [[ -z "$backup_base" ]]; then
@@ -400,7 +415,7 @@ cmd_restore() {
 
 cmd_compare() {
     local latest
-    latest=$(tmutil latestbackup 2>/dev/null)
+    latest=$(tmutil latestbackup 2> /dev/null)
 
     if [[ -z "$latest" ]]; then
         log_error "No backup available for comparison"
@@ -427,7 +442,7 @@ cmd_delete() {
     check_root
 
     local backup
-    backup=$(tmutil listbackups 2>/dev/null | grep "$SNAPSHOT_DATE" | head -1)
+    backup=$(tmutil listbackups 2> /dev/null | grep "$SNAPSHOT_DATE" | head -1)
 
     if [[ -z "$backup" ]]; then
         log_error "Backup not found for date: $SNAPSHOT_DATE"
@@ -470,4 +485,3 @@ main() {
 }
 
 main "$@"
-

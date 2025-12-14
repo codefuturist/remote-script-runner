@@ -29,6 +29,7 @@ curl -fsSL https://codefuturist.github.io/remote-script-runner/rsr | sh -s -- he
 ```
 
 **Available commands:**
+
 ```bash
 rsr health -a                    # Run all health checks
 rsr health -s cpu -s memory      # Specific checks
@@ -84,6 +85,7 @@ See [`scripts/README.md`](scripts/README.md) for details on shell-specific featu
 #### For Local Use (after cloning repository)
 
 **run-script.sh** - Interactive CLI with menu:
+
 ```bash
 # Show interactive menu (default when no args)
 ./run-script.sh
@@ -94,6 +96,7 @@ See [`scripts/README.md`](scripts/README.md) for details on shell-specific featu
 ```
 
 **run** - Simple CLI for quick access:
+
 ```bash
 # Quick health check
 ./run health -a
@@ -106,6 +109,7 @@ See [`scripts/README.md`](scripts/README.md) for details on shell-specific featu
 #### For Remote Use (without cloning repository)
 
 **🚀 One-liner Installation:**
+
 ```bash
 # Install remote-runner to ~/.local/bin/remote-runner
 curl -fsSL https://codefuturist.github.io/remote-script-runner/install.sh | bash
@@ -116,6 +120,7 @@ remote-runner setup -d -u admin -p production nginx
 ```
 
 **⚡ Direct Execution (no installation):**
+
 ```bash
 # Run health check directly
 curl -fsSL https://codefuturist.github.io/remote-script-runner/remote-runner.sh | bash -s -- health -a
@@ -128,6 +133,7 @@ curl -fsSL https://codefuturist.github.io/remote-script-runner/remote-runner.sh 
 ```
 
 **📥 Download and Reuse:**
+
 ```bash
 # Download once
 curl -fsSL https://codefuturist.github.io/remote-script-runner/remote-runner.sh -o remote-runner.sh
@@ -170,7 +176,7 @@ A comprehensive system health monitoring script that can check:
 #### Available Checks
 
 - `cpu` - CPU usage and load average
-- `memory` - Memory usage statistics  
+- `memory` - Memory usage statistics
 - `disk` - Disk usage for all mounted filesystems
 - `network` - Network interface statistics
 - `services` - Check status of common services
@@ -212,7 +218,7 @@ A server configuration script that simulates setting up a server environment wit
 #### Available Packages
 
 - `nginx` - Web server
-- `docker` - Container platform  
+- `docker` - Container platform
 - `nodejs` - JavaScript runtime
 - `python3` - Python programming language
 - `git` - Version control system
@@ -229,7 +235,7 @@ A server configuration script that simulates setting up a server environment wit
 ./server-setup.sh -u dev -p development nodejs git vim htop
 ./server-setup.sh -d -u admin -p production -i nginx -i docker  # Dry run
 
-# Remote execution  
+# Remote execution
 /bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/server-setup.sh)" -- -u admin -p production -i nginx docker
 /bin/bash -c "$(curl -fsSL https://codefuturist.github.io/remote-script-runner/server-setup.sh)" -- -d -v -u dev nodejs python3 git
 ```
@@ -249,18 +255,21 @@ A comprehensive cross-platform user management system with support for Linux and
 #### Subcommands
 
 **Account Management:**
+
 - `create` - Create user account with groups, passwords, custom settings
 - `delete` - Delete user account with optional home removal
 - `lock` / `unlock` - Disable/enable user login
 - `list` - List users with filtering options
 
 **Password Management:**
+
 - `password reset` - Reset user password
 - `password expire` - Force password change on next login
 - `password generate` - Generate secure random passwords
 - `password policy` - View password policy settings
 
 **Group Management:**
+
 - `group create` - Create new group
 - `group add` - Add user to group
 - `group remove` - Remove user from group
@@ -268,11 +277,13 @@ A comprehensive cross-platform user management system with support for Linux and
 - `group show` - Show user's groups
 
 **Permission Management:**
+
 - `permission set` - Set file/folder permissions and ownership
 - `permission get` - View current permissions
 - `permission template` - Apply permission templates (web, shared, private, service)
 
 **SSH Key Management:**
+
 - `ssh generate` - Generate SSH key pair for user
 - `ssh add` - Add public key to authorized_keys
 - `ssh remove` - Remove key from authorized_keys
@@ -282,11 +293,13 @@ A comprehensive cross-platform user management system with support for Linux and
 - `ssh fix` - Fix SSH directory permissions
 
 **Session Monitoring:**
+
 - `session list` - List active user sessions
 - `session history` - View login history
 - `session failures` - Show failed login attempts
 
 **Audit:**
+
 - `audit` - Run comprehensive user security audit
 
 #### Quick Examples
@@ -328,14 +341,15 @@ sudo rsr usermgmt audit
 
 #### Features
 
-✅ **Cross-Platform**: Full support for Linux, macOS, and Windows  
-✅ **Comprehensive**: Account, password, group, permission, SSH key, and session management  
-✅ **Safe**: Dry-run mode, confirmations, input validation  
-✅ **Modern**: Subcommand structure, colored output, helpful error messages  
-✅ **Scriptable**: Library functions (`lib/users.sh` and `lib/users.ps1`) for custom scripts  
+✅ **Cross-Platform**: Full support for Linux, macOS, and Windows
+✅ **Comprehensive**: Account, password, group, permission, SSH key, and session management
+✅ **Safe**: Dry-run mode, confirmations, input validation
+✅ **Modern**: Subcommand structure, colored output, helpful error messages
+✅ **Scriptable**: Library functions (`lib/users.sh` and `lib/users.ps1`) for custom scripts
 ✅ **Documented**: Extensive guides and examples
 
 **Platform-Specific:**
+
 - **Linux/macOS**: Uses bash (`lib/users.sh`) with `useradd`, `dscl`, etc.
 - **Windows**: Uses PowerShell (`lib/users.ps1`) with `New-LocalUser`, `Get-LocalUser`, etc.
 - **Same Commands**: Identical syntax across all platforms
@@ -360,26 +374,31 @@ Complete SSH server management with installation, configuration, hardening, and 
 #### Subcommands
 
 **Installation & Setup:**
+
 - `install` - Install SSH server
 - `enable` - Enable at boot
 - `start` - Start service
 
 **Service Control:**
+
 - `start/stop/restart` - Service control
 - `status` - Show comprehensive status
 - `enable/disable` - Boot configuration
 
 **Configuration:**
+
 - `config get/set` - Get/set configuration values
 - `config backup/restore` - Backup and restore
 - `config validate` - Validate syntax
 
 **Security & Hardening:**
+
 - `harden` - Apply security hardening (integrates with ssh-hardening script)
 - `audit` - Run security audit
 - `score` - Show security score (0-100)
 
 **Testing & Diagnostics:**
+
 - `test [host] [port]` - Test SSH connection
 - `connections` - Show active connections
 - `logs [lines]` - Show SSH logs
@@ -417,19 +436,21 @@ rsr ssh-server test myserver.com
 
 #### Features
 
-✅ **Cross-Platform**: Full support for Linux, macOS, and Windows  
-✅ **Complete Management**: Install, configure, control, monitor SSH servers  
-✅ **Security Hardening**: Integrated with ssh-hardening script + security scoring  
-✅ **Safe Operations**: Automatic backups, validation, confirmations  
-✅ **Diagnostics**: Connection testing, log viewing, failed login tracking  
+✅ **Cross-Platform**: Full support for Linux, macOS, and Windows
+✅ **Complete Management**: Install, configure, control, monitor SSH servers
+✅ **Security Hardening**: Integrated with ssh-hardening script + security scoring
+✅ **Safe Operations**: Automatic backups, validation, confirmations
+✅ **Diagnostics**: Connection testing, log viewing, failed login tracking
 ✅ **Modern**: Subcommand structure, colored output, helpful messages
 
 **Platform-Specific:**
+
 - **Linux**: Package manager integration, systemd/init.d support
 - **macOS**: Built-in SSH with launchd control
 - **Windows**: OpenSSH Server via Windows Capability
 
 **Integration:**
+
 - Works with `rsr ssh-harden` for advanced hardening
 - Compatible with `rsr usermgmt ssh` for user key management
 - Supports Ansible, Docker, CI/CD workflows
@@ -595,7 +616,7 @@ fi
 log() {
     local level="$1"
     local message="$2"
-    
+
     if [[ "$OUTPUT_FORMAT" == "json" ]]; then
         echo "{\"level\":\"$level\",\"message\":\"$message\"}"
     else

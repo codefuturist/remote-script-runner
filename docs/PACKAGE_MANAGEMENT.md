@@ -6,6 +6,7 @@
 ## Overview
 
 Comprehensive cross-platform package management system with:
+
 - **Multi-method installation**: Specify different installation methods per package (homebrew, winget, apt, etc.)
 - **Automatic fallback**: Try multiple methods until one succeeds
 - **Windows support**: Added winget (Windows Package Manager) alongside Chocolatey
@@ -318,18 +319,21 @@ RUN RSR_PKG_AUTO_INSTALL=1 RSR_PKG_CONFIRM=0 \
 ## Benefits
 
 ### For Users
+
 - ✅ Simple, consistent interface across platforms
 - ✅ Predefined profiles for common use cases
 - ✅ Interactive prompts for missing dependencies
 - ✅ No manual package manager commands needed
 
 ### For Developers
+
 - ✅ Easy dependency declaration in scripts
 - ✅ Automatic package name translation
 - ✅ Cross-platform compatibility
 - ✅ Testable with dry-run mode
 
 ### For Operations
+
 - ✅ Automated dependency installation
 - ✅ CI/CD friendly (auto-install mode)
 - ✅ Consistent environment setup
@@ -352,6 +356,7 @@ packages:
 ```
 
 **Benefits:**
+
 - Single profile works across macOS, Linux, and Windows
 - Automatic fallback if preferred method unavailable
 - Handles platform-specific package naming (e.g., `fd` vs `fd-find`)
@@ -359,6 +364,7 @@ packages:
 ### Windows Package Manager (winget)
 
 Added full support for winget:
+
 - Automatic detection (prioritized over Chocolatey on Windows 11+)
 - Install, remove, check, version, and cache operations
 - Integration with multi-method system
@@ -366,6 +372,7 @@ Added full support for winget:
 ### Method Selection Logic
 
 New functions:
+
 - `rsr_pkg_install_with_method()` - Install using specific method
 - `rsr_pkg_try_methods()` - Try multiple methods in order
 - `rsr_pkg_available_methods()` - List available methods
@@ -377,6 +384,7 @@ Smart handling for minimal systems where YAML parser dependencies might be missi
 **Problem:** Can't offer to install a missing package if the parser itself is missing.
 
 **Solution:** Three-tier parser architecture:
+
 1. **Full parser** - Uses sed/grep/awk for extended format support
 2. **Pure-shell parser** - POSIX builtins only, no external deps
 3. **Bootstrap installer** - Direct package installation without parsing
@@ -390,12 +398,14 @@ rsr_pkg_bootstrap
 ```
 
 The bootstrap process:
+
 1. Detects missing core tools (sed, grep, awk)
 2. Attempts automatic installation via detected package manager
 3. Falls back to pure-shell parser if tools unavailable
 4. Installs `bootstrap.yaml` profile (simple format only)
 
 New functions:
+
 - `rsr_pkg_bootstrap()` - Bootstrap system with core tools
 - `rsr_pkg_needs_bootstrap()` - Check if bootstrap needed
 - `rsr_pkg_bootstrap_install()` - Direct install without YAML
@@ -404,6 +414,7 @@ New functions:
 ### Updated Profiles
 
 Profiles updated with multi-method definitions:
+
 - `kubernetes.yaml` - kubectl, helm, k9s, kubectx
 - `devops.yaml` - terraform, ansible, vault, awscli
 - `docker.yaml` - docker, docker-compose, podman
@@ -447,6 +458,7 @@ platforms:
 ## Summary
 
 ✅ **Complete package management system implemented**
+
 - 13 predefined package profiles
 - Cross-platform support (Linux, macOS, Windows)
 - Interactive dependency handling
@@ -455,4 +467,3 @@ platforms:
 - Full integration with RSR library
 
 **Status**: Ready for production use! 🎉
-

@@ -270,6 +270,7 @@ krew: kubectl
 **Explanation**: Normal for apt/dnf packages (no public API)
 
 These managers depend on repository configuration:
+
 - `apt`: Requires specific PPAs or sources
 - `dnf`: Requires Fedora/RHEL repositories
 - `yum`: Legacy, repo-dependent
@@ -279,11 +280,13 @@ These managers depend on repository configuration:
 ### Issue: Slow Verification
 
 **Causes**:
+
 - First run downloads full Homebrew catalog (~8,000 formulas)
 - Network latency for API calls
 - Rate limiting throttling
 
 **Solutions**:
+
 - Cache is saved after first run (faster subsequent runs)
 - Use `--manager` flag to verify specific manager only
 - Run during off-peak hours for better API performance
@@ -352,6 +355,7 @@ packages:
 ### 4. Review Verification Reports
 
 Weekly verification helps catch:
+
 - Deprecated packages
 - Renamed packages
 - Moved packages (e.g., formula → cask)
@@ -371,6 +375,7 @@ Weekly verification helps catch:
 ### Handling Rate Limits
 
 The tool automatically:
+
 1. Caches results for 24 hours
 2. Detects rate limiting (HTTP 403/429)
 3. Marks subsequent packages as "unverifiable"
@@ -420,7 +425,7 @@ class MyManagerValidator(PackageValidator):
             return result
 ```
 
-2. Register in `__init__.py`:
+1. Register in `__init__.py`:
 
 ```python
 from .my_manager_validator import MyManagerValidator
@@ -428,7 +433,7 @@ from .my_manager_validator import MyManagerValidator
 __all__ = [..., 'MyManagerValidator']
 ```
 
-3. Add to `verify-packages.py`:
+1. Add to `verify-packages.py`:
 
 ```python
 def _init_validators(self):

@@ -11,6 +11,8 @@
 #   - Retention policies
 #   - Pre/post hooks
 #   - Verification and restore
+#   - Notifications (desktop, email, webhook)
+#   - Health checks and diagnostics
 
 # =============================================================================
 # Guard: Prevent double-sourcing
@@ -21,8 +23,8 @@ _RSR_MODULE_BACKUP_LOADED=1
 
 # Ensure core is loaded
 if [ -z "${_RSR_CORE_INIT_LOADED:-}" ]; then
-    _script_dir="$(cd "$(dirname "$0")" 2>/dev/null && pwd)" || _script_dir="."
-    . "${_script_dir}/../core/init.sh" 2>/dev/null || . "./lib/core/init.sh" 2>/dev/null || {
+    _script_dir="$(cd "$(dirname "$0")" 2> /dev/null && pwd)" || _script_dir="."
+    . "${_script_dir}/../core/init.sh" 2> /dev/null || . "./lib/core/init.sh" 2> /dev/null || {
         echo "ERROR: RSR core/init.sh must be sourced first" >&2
         return 1
     }
@@ -46,14 +48,14 @@ RSR_BACKUP_TOOLS="restic rclone borg kopia rsync"
 rsr_backup_tool_installed() {
     _tool="$1"
     case "$_tool" in
-        rsync)      rsr_has_command rsync ;;
-        rclone)     rsr_has_command rclone ;;
-        restic)     rsr_has_command restic ;;
-        borg)       rsr_has_command borg ;;
-        kopia)      rsr_has_command kopia ;;
+        rsync) rsr_has_command rsync ;;
+        rclone) rsr_has_command rclone ;;
+        restic) rsr_has_command restic ;;
+        borg) rsr_has_command borg ;;
+        kopia) rsr_has_command kopia ;;
         timemachine) [ "$(rsr_detect_os)" = "darwin" ] && rsr_has_command tmutil ;;
-        duplicity)  rsr_has_command duplicity ;;
-        *)          return 1 ;;
+        duplicity) rsr_has_command duplicity ;;
+        *) return 1 ;;
     esac
 }
 
@@ -63,22 +65,22 @@ rsr_backup_tool_version() {
     _tool="$1"
     case "$_tool" in
         rsync)
-            rsync --version 2>/dev/null | head -1 | awk '{print $3}'
+            rsync --version 2> /dev/null | head -1 | awk '{print $3}'
             ;;
         rclone)
-            rclone version 2>/dev/null | head -1 | awk '{print $2}' | tr -d 'v'
+            rclone version 2> /dev/null | head -1 | awk '{print $2}' | tr -d 'v'
             ;;
         restic)
-            restic version 2>/dev/null | awk '{print $2}'
+            restic version 2> /dev/null | awk '{print $2}'
             ;;
         borg)
-            borg --version 2>/dev/null | awk '{print $2}'
+            borg --version 2> /dev/null | awk '{print $2}'
             ;;
         kopia)
-            kopia --version 2>/dev/null | awk '{print $1}'
+            kopia --version 2> /dev/null | awk '{print $1}'
             ;;
         timemachine)
-            sw_vers -productVersion 2>/dev/null || echo "unknown"
+            sw_vers -productVersion 2> /dev/null || echo "unknown"
             ;;
         *)
             echo "unknown"
@@ -172,15 +174,15 @@ rsr_backup_repo_exists() {
 
     case "$_tool" in
         restic)
-            restic -r "$_repo" snapshots --json >/dev/null 2>&1
+            restic -r "$_repo" snapshots --json > /dev/null 2>&1
             ;;
         borg)
-            borg info "$_repo" >/dev/null 2>&1
+            borg info "$_repo" > /dev/null 2>&1
             ;;
         kopia)
-            kopia repository status --path "$_repo" >/dev/null 2>&1
+            kopia repository status --path "$_repo" > /dev/null 2>&1
             ;;
-        rclone|rsync)
+        rclone | rsync)
             [ -d "$_repo" ]
             ;;
         *)
@@ -252,9 +254,9 @@ rsr_backup_list() {
     _repo="$2"
 
     case "$_tool" in
-        rsync|rclone)
+        rsync | rclone)
             # Show directory listing for non-versioned tools
-            ls -la "$_repo" 2>/dev/null
+            ls -la "$_repo" 2> /dev/null
             ;;
         restic)
             restic -r "$_repo" snapshots
@@ -266,7 +268,7 @@ rsr_backup_list() {
             kopia snapshot list
             ;;
         timemachine)
-            tmutil listbackups 2>/dev/null
+            tmutil listbackups 2> /dev/null
             ;;
         *)
             rsr_log_error "Unknown tool: $_tool"
@@ -324,7 +326,7 @@ rsr_backup_prune() {
     rsr_log_info "Applying retention policy..."
 
     case "$_tool" in
-        rsync|rclone)
+        rsync | rclone)
             rsr_log_warn "Retention not supported for $_tool (no versioning)"
             ;;
         restic)
@@ -368,7 +370,7 @@ rsr_backup_verify() {
     rsr_log_info "Verifying backup integrity..."
 
     case "$_tool" in
-        rsync|rclone)
+        rsync | rclone)
             rsr_log_warn "Verification not directly supported for $_tool"
             [ -d "$_repo" ] && rsr_log_ok "Destination exists"
             ;;
@@ -407,8 +409,8 @@ rsr_backup_stats() {
     _repo="$2"
 
     case "$_tool" in
-        rsync|rclone)
-            du -sh "$_repo" 2>/dev/null
+        rsync | rclone)
+            du -sh "$_repo" 2> /dev/null
             ;;
         restic)
             restic -r "$_repo" stats
@@ -451,7 +453,7 @@ rsr_backup_load_profile() {
 # Usage: rsr_backup_list_profiles
 rsr_backup_list_profiles() {
     if [ -d "$RSR_BACKUP_PROFILE_DIR" ]; then
-        ls -1 "$RSR_BACKUP_PROFILE_DIR"/*.conf 2>/dev/null | xargs -n1 basename 2>/dev/null | sed 's/\.conf$//'
+        ls -1 "$RSR_BACKUP_PROFILE_DIR"/*.conf 2> /dev/null | xargs -n1 basename 2> /dev/null | sed 's/\.conf$//'
     else
         rsr_log_warn "No profiles directory found"
     fi
@@ -551,7 +553,7 @@ rsr_backup_install_tool() {
         linux)
             _distro=$(rsr_detect_distro)
             case "$_distro" in
-                debian|ubuntu)
+                debian | ubuntu)
                     sudo apt-get update && sudo apt-get install -y "$_tool"
                     ;;
                 fedora)
@@ -671,5 +673,285 @@ WantedBy=multi-user.target
 EOF
 }
 
-rsr_log_debug "RSR Backup module v$_RSR_BACKUP_VERSION loaded"
+# =============================================================================
+# Notifications
+# =============================================================================
 
+# Send backup notification
+# Usage: rsr_backup_notify "success" "Backup completed" "Details..."
+rsr_backup_notify() {
+    _status="$1" # success, warning, error
+    _title="$2"
+    _message="$3"
+    _os=$(rsr_detect_os)
+
+    # Desktop notification
+    case "$_os" in
+        darwin)
+            # macOS notification
+            if rsr_has_command osascript; then
+                osascript -e "display notification \"$_message\" with title \"$_title\""
+            fi
+            ;;
+        linux)
+            # Linux notification (notify-send)
+            if rsr_has_command notify-send; then
+                _icon="dialog-information"
+                [ "$_status" = "error" ] && _icon="dialog-error"
+                [ "$_status" = "warning" ] && _icon="dialog-warning"
+                notify-send -i "$_icon" "$_title" "$_message"
+            fi
+            ;;
+    esac
+
+    # Email notification (if configured)
+    if [ -n "${RSR_BACKUP_EMAIL:-}" ]; then
+        rsr_backup_send_email "$_status" "$_title" "$_message"
+    fi
+
+    # Webhook notification (if configured)
+    if [ -n "${RSR_BACKUP_WEBHOOK:-}" ]; then
+        rsr_backup_send_webhook "$_status" "$_title" "$_message"
+    fi
+}
+
+# Send email notification
+# Usage: rsr_backup_send_email "success" "Backup completed" "Details..."
+rsr_backup_send_email() {
+    _status="$1"
+    _title="$2"
+    _message="$3"
+    _email="${RSR_BACKUP_EMAIL:-}"
+
+    [ -z "$_email" ] && return 1
+
+    if rsr_has_command mail; then
+        echo "$_message" | mail -s "[$_status] $_title" "$_email"
+    elif rsr_has_command sendmail; then
+        printf "Subject: [%s] %s\n\n%s" "$_status" "$_title" "$_message" | sendmail "$_email"
+    fi
+}
+
+# Send webhook notification
+# Usage: rsr_backup_send_webhook "success" "Backup completed" "Details..."
+rsr_backup_send_webhook() {
+    _status="$1"
+    _title="$2"
+    _message="$3"
+    _webhook="${RSR_BACKUP_WEBHOOK:-}"
+
+    [ -z "$_webhook" ] && return 1
+
+    if rsr_has_command curl; then
+        _json="{\"status\":\"$_status\",\"title\":\"$_title\",\"message\":\"$_message\",\"timestamp\":\"$(date -Iseconds)\",\"host\":\"$(hostname)\"}"
+        curl -s -X POST -H "Content-Type: application/json" -d "$_json" "$_webhook" > /dev/null 2>&1
+    fi
+}
+
+# =============================================================================
+# Health Checks & Diagnostics
+# =============================================================================
+
+# Run backup health check
+# Usage: rsr_backup_health_check [profile_name]
+rsr_backup_health_check() {
+    _profile="${1:-}"
+    _issues=0
+
+    echo "═══ Backup Health Check ═══"
+    echo ""
+
+    # Check 1: Backup tools installed
+    echo "Backup Tools:"
+    _tools_found=0
+    for _tool in $RSR_BACKUP_TOOLS; do
+        if rsr_backup_tool_installed "$_tool"; then
+            _version=$(rsr_backup_tool_version "$_tool")
+            echo "  ✓ $_tool ($_version)"
+            _tools_found=1
+        fi
+    done
+
+    if [ "$_tools_found" -eq 0 ]; then
+        echo "  ✗ No backup tools installed!"
+        _issues=$((_issues + 1))
+    fi
+    echo ""
+
+    # Check 2: Profile configuration
+    if [ -n "$_profile" ]; then
+        echo "Profile: $_profile"
+        _profile_file="$RSR_BACKUP_PROFILE_DIR/${_profile}.conf"
+
+        if [ -f "$_profile_file" ]; then
+            echo "  ✓ Profile file exists"
+
+            # Source profile and check paths
+            . "$_profile_file"
+
+            # Check source paths
+            for _src in $BACKUP_SOURCES; do
+                if [ -e "$_src" ]; then
+                    echo "  ✓ Source accessible: $_src"
+                else
+                    echo "  ✗ Source not found: $_src"
+                    _issues=$((_issues + 1))
+                fi
+            done
+
+            # Check destination
+            if [ -n "${BACKUP_REPO:-}" ]; then
+                # For local paths, check existence
+                case "$BACKUP_REPO" in
+                    /*)
+                        if [ -d "$BACKUP_REPO" ] || [ -w "$(dirname "$BACKUP_REPO")" ]; then
+                            echo "  ✓ Destination accessible: $BACKUP_REPO"
+                        else
+                            echo "  ⚠ Destination may need initialization: $BACKUP_REPO"
+                        fi
+                        ;;
+                    *)
+                        echo "  ○ Remote destination: $BACKUP_REPO"
+                        ;;
+                esac
+            fi
+        else
+            echo "  ✗ Profile file not found"
+            _issues=$((_issues + 1))
+        fi
+        echo ""
+    fi
+
+    # Check 3: Recent backups
+    echo "Recent Backup Activity:"
+    _backup_log="${RSR_LOG_DIR:-/var/log/rsr}/backup.log"
+    if [ -f "$_backup_log" ]; then
+        _last_backup=$(tail -1 "$_backup_log" 2> /dev/null)
+        if [ -n "$_last_backup" ]; then
+            echo "  Last entry: $_last_backup"
+        fi
+    else
+        echo "  ○ No backup log found"
+    fi
+    echo ""
+
+    # Check 4: Disk space
+    echo "Disk Space:"
+    if [ -n "${BACKUP_REPO:-}" ]; then
+        case "$BACKUP_REPO" in
+            /*)
+                if [ -d "$BACKUP_REPO" ]; then
+                    _usage=$(df -h "$BACKUP_REPO" 2> /dev/null | tail -1 | awk '{print $5}')
+                    _available=$(df -h "$BACKUP_REPO" 2> /dev/null | tail -1 | awk '{print $4}')
+                    if [ -n "$_usage" ]; then
+                        echo "  Destination: $_usage used, $_available available"
+                        # Warn if over 90%
+                        _pct=$(echo "$_usage" | tr -d '%')
+                        if [ "$_pct" -gt 90 ]; then
+                            echo "  ⚠ Low disk space warning!"
+                            _issues=$((_issues + 1))
+                        fi
+                    fi
+                fi
+                ;;
+        esac
+    fi
+    echo ""
+
+    # Check 5: Scheduled tasks
+    echo "Scheduled Backups:"
+    _os=$(rsr_detect_os)
+    case "$_os" in
+        darwin)
+            _jobs=$(launchctl list 2> /dev/null | grep -c "rsr.backup" || echo "0")
+            echo "  LaunchAgent jobs: $_jobs"
+            ;;
+        linux)
+            if rsr_has_command systemctl; then
+                _jobs=$(systemctl list-timers 2> /dev/null | grep -c "rsr-backup" || echo "0")
+                echo "  Systemd timers: $_jobs"
+            fi
+            _cron_jobs=$(crontab -l 2> /dev/null | grep -c "rsr backup" || echo "0")
+            echo "  Cron jobs: $_cron_jobs"
+            ;;
+    esac
+    echo ""
+
+    # Summary
+    echo "─────────────────────────"
+    if [ "$_issues" -eq 0 ]; then
+        echo "Health check: PASSED ✓"
+    else
+        echo "Health check: $_issues issue(s) found ⚠"
+    fi
+
+    return "$_issues"
+}
+
+# Get backup statistics summary
+# Usage: rsr_backup_summary "restic" "/backup/repo"
+rsr_backup_summary() {
+    _tool="$1"
+    _repo="$2"
+
+    echo "═══ Backup Summary ═══"
+    echo ""
+    echo "Tool: $_tool"
+    echo "Repository: $_repo"
+    echo ""
+
+    case "$_tool" in
+        restic)
+            if [ -n "${RESTIC_PASSWORD:-}" ]; then
+                _snapshots=$(restic -r "$_repo" snapshots --json 2> /dev/null | grep -c '"id"' || echo "0")
+                echo "Snapshots: $_snapshots"
+                restic -r "$_repo" stats --mode raw-data 2> /dev/null | head -10
+            fi
+            ;;
+        borg)
+            if [ -n "${BORG_PASSPHRASE:-}" ]; then
+                borg info "$_repo" 2> /dev/null | head -20
+            fi
+            ;;
+        kopia)
+            kopia repository status 2> /dev/null | head -10
+            ;;
+        *)
+            if [ -d "$_repo" ]; then
+                _size=$(du -sh "$_repo" 2> /dev/null | cut -f1)
+                echo "Size: $_size"
+                _count=$(find "$_repo" -type f 2> /dev/null | wc -l | tr -d ' ')
+                echo "Files: $_count"
+            fi
+            ;;
+    esac
+}
+
+# Quick backup status check
+# Usage: if rsr_backup_is_running; then echo "Backup in progress"; fi
+rsr_backup_is_running() {
+    # Check for common backup processes
+    pgrep -x "restic" > /dev/null 2>&1 && return 0
+    pgrep -x "borg" > /dev/null 2>&1 && return 0
+    pgrep -x "kopia" > /dev/null 2>&1 && return 0
+    pgrep -x "rclone" > /dev/null 2>&1 && return 0
+    pgrep -f "rsync.*--delete" > /dev/null 2>&1 && return 0
+    return 1
+}
+
+# Get last backup time from log
+# Usage: last_time=$(rsr_backup_last_time "profile_name")
+rsr_backup_last_time() {
+    _profile="${1:-}"
+    _backup_log="${RSR_LOG_DIR:-$HOME/.local/share/rsr}/backup.log"
+
+    if [ -f "$_backup_log" ]; then
+        if [ -n "$_profile" ]; then
+            grep "$_profile" "$_backup_log" 2> /dev/null | tail -1 | awk '{print $1, $2}'
+        else
+            tail -1 "$_backup_log" 2> /dev/null | awk '{print $1, $2}'
+        fi
+    fi
+}
+
+rsr_log_debug "RSR Backup module v$_RSR_BACKUP_VERSION loaded"

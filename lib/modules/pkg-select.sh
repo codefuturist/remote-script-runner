@@ -27,8 +27,8 @@ _RSR_PKG_SELECT_VERSION="1.0.0"
 # Ensure core modules are loaded
 _pkg_select_script_dir="${BASH_SOURCE[0]%/*}"
 if [[ -z "${_RSR_CORE_INIT_LOADED:-}" ]]; then
-    source "${_pkg_select_script_dir}/../core/init.sh" 2>/dev/null || \
-    source "./lib/core/init.sh" 2>/dev/null || {
+    source "${_pkg_select_script_dir}/../core/init.sh" 2> /dev/null \
+        || source "./lib/core/init.sh" 2> /dev/null || {
         echo "ERROR: RSR core/init.sh must be sourced first" >&2
         return 1
     }
@@ -36,8 +36,8 @@ fi
 
 # Source interactive module for TUI functions
 if [[ -z "${_RSR_CORE_INTERACTIVE_LOADED:-}" ]]; then
-    source "${_pkg_select_script_dir}/../core/interactive.sh" 2>/dev/null || \
-    source "./lib/core/interactive.sh" 2>/dev/null || {
+    source "${_pkg_select_script_dir}/../core/interactive.sh" 2> /dev/null \
+        || source "./lib/core/interactive.sh" 2> /dev/null || {
         rsr_log_error "RSR interactive module required"
         return 1
     }
@@ -45,8 +45,8 @@ fi
 
 # Source packages module for installation functions
 if [[ -z "${_RSR_MODULE_PACKAGES_LOADED:-}" ]]; then
-    source "${_pkg_select_script_dir}/packages.sh" 2>/dev/null || \
-    source "./lib/modules/packages.sh" 2>/dev/null || {
+    source "${_pkg_select_script_dir}/packages.sh" 2> /dev/null \
+        || source "./lib/modules/packages.sh" 2> /dev/null || {
         rsr_log_error "RSR packages module required"
         return 1
     }
@@ -102,19 +102,22 @@ _rsr_pkg_select_build_cache() {
     case "$mgr" in
         brew)
             # Get both formulae and casks
-            _PKG_SELECT_INSTALLED_CACHE=$(brew list --formula -1 2>/dev/null; brew list --cask -1 2>/dev/null)
+            _PKG_SELECT_INSTALLED_CACHE=$(
+                brew list --formula -1 2> /dev/null
+                brew list --cask -1 2> /dev/null
+            )
             ;;
         apt)
-            _PKG_SELECT_INSTALLED_CACHE=$(dpkg-query -W -f='${Package}\n' 2>/dev/null)
+            _PKG_SELECT_INSTALLED_CACHE=$(dpkg-query -W -f='${Package}\n' 2> /dev/null)
             ;;
-        dnf|yum)
-            _PKG_SELECT_INSTALLED_CACHE=$(rpm -qa --qf '%{NAME}\n' 2>/dev/null)
+        dnf | yum)
+            _PKG_SELECT_INSTALLED_CACHE=$(rpm -qa --qf '%{NAME}\n' 2> /dev/null)
             ;;
         pacman)
-            _PKG_SELECT_INSTALLED_CACHE=$(pacman -Qq 2>/dev/null)
+            _PKG_SELECT_INSTALLED_CACHE=$(pacman -Qq 2> /dev/null)
             ;;
         apk)
-            _PKG_SELECT_INSTALLED_CACHE=$(apk info -q 2>/dev/null)
+            _PKG_SELECT_INSTALLED_CACHE=$(apk info -q 2> /dev/null)
             ;;
         *)
             _PKG_SELECT_INSTALLED_CACHE=""
@@ -128,7 +131,7 @@ _rsr_pkg_select_is_installed() {
 
     if [[ -z "$_PKG_SELECT_INSTALLED_CACHE" ]]; then
         # Fallback: check if command exists
-        command -v "$pkg" &>/dev/null
+        command -v "$pkg" &> /dev/null
         return
     fi
 
@@ -152,7 +155,7 @@ _rsr_pkg_select_list_profiles() {
         [[ "$name" == "methods" || "$name" == "bootstrap" || "$name" == "example-multimethod" ]] && continue
 
         local desc
-        desc=$(grep -m1 '^description:' "$f" 2>/dev/null | sed 's/^description:[[:space:]]*//' | tr -d '"')
+        desc=$(grep -m1 '^description:' "$f" 2> /dev/null | sed 's/^description:[[:space:]]*//' | tr -d '"')
         printf "%s|%s\n" "$name" "${desc:-No description}"
     done | sort
 }
@@ -169,9 +172,9 @@ _rsr_pkg_select_parse_yaml() {
 
     [[ ! -f "$yaml_file" ]] && return 1
 
-    local in_top_packages=0     # In top-level packages: section
-    local in_groups=0           # In groups: section
-    local in_group_packages=0   # In a group's packages: subsection
+    local in_top_packages=0   # In top-level packages: section
+    local in_groups=0         # In groups: section
+    local in_group_packages=0 # In a group's packages: subsection
     local current_name=""
     local current_desc=""
     local indent_level=0
@@ -179,7 +182,7 @@ _rsr_pkg_select_parse_yaml() {
     while IFS= read -r line || [[ -n "$line" ]]; do
         # Skip comments and empty lines
         [[ "$line" =~ ^[[:space:]]*# ]] && continue
-        [[ -z "${line// }" ]] && continue
+        [[ -z "${line// /}" ]] && continue
 
         # Calculate indentation
         local stripped="${line#"${line%%[![:space:]]*}"}"
@@ -290,7 +293,7 @@ _rsr_pkg_select_apply_filter() {
     local query_lower
     query_lower=$(echo "$_PKG_SELECT_SEARCH" | tr '[:upper:]' '[:lower:]')
 
-    for ((i=0; i<${#_PKG_SELECT_PACKAGES[@]}; i++)); do
+    for ((i = 0; i < ${#_PKG_SELECT_PACKAGES[@]}; i++)); do
         if [[ -z "$_PKG_SELECT_SEARCH" ]]; then
             _PKG_SELECT_FILTERED+=($i)
         else
@@ -351,14 +354,14 @@ _rsr_pkg_select_render_list() {
 
     if ((total == 0)); then
         printf "${RSR_CLEAR_LINE}  ${RSR_COLOR_DIM}No packages match '%s'${RSR_COLOR_RESET}\n" "$_PKG_SELECT_SEARCH"
-        for ((i=1; i<max_visible; i++)); do
+        for ((i = 1; i < max_visible; i++)); do
             printf "${RSR_CLEAR_LINE}\n"
         done
         printf "\n\n"
         return
     fi
 
-    for ((vi=visible_start; vi<visible_end; vi++)); do
+    for ((vi = visible_start; vi < visible_end; vi++)); do
         local i=${_PKG_SELECT_FILTERED[$vi]}
         local name="${_PKG_SELECT_PACKAGES[$i]}"
         local desc="${_PKG_SELECT_DESCRIPTIONS[$i]}"
@@ -401,7 +404,7 @@ _rsr_pkg_select_render_list() {
     done
 
     # Pad remaining lines
-    for ((vi=visible_end; vi<visible_start + max_visible; vi++)); do
+    for ((vi = visible_end; vi < visible_start + max_visible; vi++)); do
         printf "${RSR_CLEAR_LINE}\n"
     done
 
@@ -421,7 +424,7 @@ _rsr_pkg_select_render_list() {
 
 _rsr_pkg_select_clear_list() {
     local lines=$(($RSR_PKG_SELECT_MAX_VISIBLE + 3))
-    for ((i=0; i<lines; i++)); do
+    for ((i = 0; i < lines; i++)); do
         printf "${RSR_CURSOR_UP}${RSR_CLEAR_LINE}"
     done
 }
@@ -441,16 +444,16 @@ _rsr_pkg_select_handle_input() {
     # Search mode
     if ((_PKG_SELECT_SEARCH_MODE == 1)); then
         case "$key" in
-            $'\x1b')  # Escape
+            $'\x1b') # Escape
                 _PKG_SELECT_SEARCH_MODE=0
                 ;;
-            $'\x7f'|$'\b')  # Backspace
+            $'\x7f' | $'\b') # Backspace
                 if [[ -n "$_PKG_SELECT_SEARCH" ]]; then
                     _PKG_SELECT_SEARCH="${_PKG_SELECT_SEARCH%?}"
                     _rsr_pkg_select_apply_filter
                 fi
                 ;;
-            '')  # Enter
+            '') # Enter
                 _PKG_SELECT_SEARCH_MODE=0
                 ;;
             *)
@@ -465,19 +468,19 @@ _rsr_pkg_select_handle_input() {
 
     # Normal mode
     case "$key" in
-        $'\x1b')  # Escape sequence (arrow keys) or plain Escape
+        $'\x1b') # Escape sequence (arrow keys) or plain Escape
             # Read next 2 chars for arrow key sequence
             read -rsn2 seq_rest
             case "$seq_rest" in
-                '[A')  # Up
+                '[A') # Up
                     ((_PKG_SELECT_CURRENT > 0)) && ((_PKG_SELECT_CURRENT--))
                     ((_PKG_SELECT_CURRENT < _PKG_SELECT_SCROLL)) && ((_PKG_SELECT_SCROLL--))
                     ;;
-                '[B')  # Down
+                '[B') # Down
                     ((_PKG_SELECT_CURRENT < total - 1)) && ((_PKG_SELECT_CURRENT++))
                     ((_PKG_SELECT_CURRENT >= _PKG_SELECT_SCROLL + max_visible)) && ((_PKG_SELECT_SCROLL++))
                     ;;
-                *)  # Plain Escape or unknown - clear filter
+                *) # Plain Escape or unknown - clear filter
                     if [[ -n "$_PKG_SELECT_SEARCH" ]]; then
                         _PKG_SELECT_SEARCH=""
                         _rsr_pkg_select_apply_filter
@@ -485,18 +488,18 @@ _rsr_pkg_select_handle_input() {
                     ;;
             esac
             ;;
-        'k')  # Vim up
+        'k') # Vim up
             ((_PKG_SELECT_CURRENT > 0)) && ((_PKG_SELECT_CURRENT--))
             ((_PKG_SELECT_CURRENT < _PKG_SELECT_SCROLL)) && ((_PKG_SELECT_SCROLL--))
             ;;
-        'j')  # Vim down
+        'j') # Vim down
             ((_PKG_SELECT_CURRENT < total - 1)) && ((_PKG_SELECT_CURRENT++))
             ((_PKG_SELECT_CURRENT >= _PKG_SELECT_SCROLL + max_visible)) && ((_PKG_SELECT_SCROLL++))
             ;;
-        '/')  # Enter search mode
+        '/') # Enter search mode
             _PKG_SELECT_SEARCH_MODE=1
             ;;
-        ' '|'x'|'t')  # Toggle
+        ' ' | 'x' | 't') # Toggle
             if ((total > 0)); then
                 local real_idx=${_PKG_SELECT_FILTERED[$_PKG_SELECT_CURRENT]}
                 if ((_PKG_SELECT_SELECTED[real_idx] == 0)); then
@@ -506,20 +509,20 @@ _rsr_pkg_select_handle_input() {
                 fi
             fi
             ;;
-        'a')  # Select all (filtered)
+        'a') # Select all (filtered)
             for idx in "${_PKG_SELECT_FILTERED[@]}"; do
                 _PKG_SELECT_SELECTED[$idx]=1
             done
             ;;
-        'n')  # Select none (filtered)
+        'n') # Select none (filtered)
             for idx in "${_PKG_SELECT_FILTERED[@]}"; do
                 _PKG_SELECT_SELECTED[$idx]=0
             done
             ;;
-        'q')  # Quit
+        'q') # Quit
             return 1
             ;;
-        '')  # Enter - confirm
+        '') # Enter - confirm
             return 2
             ;;
     esac
@@ -555,7 +558,7 @@ _rsr_pkg_select_profile() {
     printf "${RSR_COLOR_DIM}↑/↓ navigate | Enter select | q quit${RSR_COLOR_RESET}\n\n"
 
     while true; do
-        for ((i=0; i<total; i++)); do
+        for ((i = 0; i < total; i++)); do
             printf "${RSR_CLEAR_LINE}"
             if ((i == selected)); then
                 printf "  ${RSR_COLOR_CYAN}❯${RSR_COLOR_RESET} ${_PKG_SEL_REVERSE}%-18s${_PKG_SEL_REVERSE_OFF} ${RSR_COLOR_DIM}%s${RSR_COLOR_RESET}\n" "${profiles[$i]}" "${descs[$i]}"
@@ -575,12 +578,15 @@ _rsr_pkg_select_profile() {
                 ;;
             'k') ((selected > 0)) && ((selected--)) ;;
             'j') ((selected < total - 1)) && ((selected++)) ;;
-            'q') printf "${RSR_CURSOR_SHOW}"; return 1 ;;
+            'q')
+                printf "${RSR_CURSOR_SHOW}"
+                return 1
+                ;;
             '') break ;;
         esac
 
         # Move cursor up to redraw
-        for ((i=0; i<total; i++)); do
+        for ((i = 0; i < total; i++)); do
             printf "${RSR_CURSOR_UP}"
         done
     done
@@ -597,7 +603,7 @@ _rsr_pkg_select_profile() {
 _rsr_pkg_select_show_summary() {
     local -a to_install=()
 
-    for ((i=0; i<${#_PKG_SELECT_PACKAGES[@]}; i++)); do
+    for ((i = 0; i < ${#_PKG_SELECT_PACKAGES[@]}; i++)); do
         if ((_PKG_SELECT_SELECTED[i] == 1 && _PKG_SELECT_INSTALLED[i] == 0)); then
             to_install+=("${_PKG_SELECT_PACKAGES[$i]}")
         fi
@@ -624,7 +630,7 @@ _rsr_pkg_select_show_summary() {
 _rsr_pkg_select_run_install() {
     local -a to_install=()
 
-    for ((i=0; i<${#_PKG_SELECT_PACKAGES[@]}; i++)); do
+    for ((i = 0; i < ${#_PKG_SELECT_PACKAGES[@]}; i++)); do
         if ((_PKG_SELECT_SELECTED[i] == 1 && _PKG_SELECT_INSTALLED[i] == 0)); then
             to_install+=("${_PKG_SELECT_PACKAGES[$i]}")
         fi
@@ -637,7 +643,7 @@ _rsr_pkg_select_run_install() {
 
     for pkg in "${to_install[@]}"; do
         printf "${RSR_COLOR_CYAN}▸${RSR_COLOR_RESET} Installing %s..." "$pkg"
-        if rsr_pkg_install "$pkg" 2>/dev/null; then
+        if rsr_pkg_install "$pkg" 2> /dev/null; then
             printf " ${RSR_COLOR_GREEN}done${RSR_COLOR_RESET}\n"
             ((success++))
         else

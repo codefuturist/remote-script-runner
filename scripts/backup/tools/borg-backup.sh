@@ -25,7 +25,7 @@ set -eo pipefail
 
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -176,7 +176,7 @@ parse_args() {
     # Check for command
     if [[ $# -gt 0 ]] && [[ ! "$1" =~ ^- ]]; then
         case "$1" in
-            create|extract|list|init|check|prune|info|mount|diff|delete|compact|key)
+            create | extract | list | init | check | prune | info | mount | diff | delete | compact | key)
                 COMMAND="$1"
                 shift
                 ;;
@@ -185,32 +185,111 @@ parse_args() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help) show_help; exit 0 ;;
-            -v|--verbose) VERBOSE=true; shift ;;
-            -d|--dry-run) DRY_RUN=true; shift ;;
-            -r|--repo) REPO="$2"; shift 2 ;;
-            -a|--archive) ARCHIVE_NAME="$2"; shift 2 ;;
-            -p|--password) PASSWORD="$2"; shift 2 ;;
-            -x|--exclude) EXCLUDE_PATTERNS+=("$2"); shift 2 ;;
-            --exclude-from) EXCLUDE_FILE="$2"; shift 2 ;;
-            -C|--compression) COMPRESSION="$2"; shift 2 ;;
-            -e|--encryption) ENCRYPTION="$2"; shift 2 ;;
-            --append-only) APPEND_ONLY=true; shift ;;
-            --one-file-system) ONE_FILE_SYSTEM=true; shift ;;
-            --checkpoint) CHECKPOINT_INTERVAL="$2"; shift 2 ;;
-            --no-progress) PROGRESS=false; shift ;;
-            --list) LIST_FILES=true; shift ;;
-            --json) JSON_OUTPUT=true; shift ;;
-            --remote-path) REMOTE_PATH="$2"; shift 2 ;;
-            --rsh) RSH="$2"; shift 2 ;;
-            --target) TARGET="$2"; shift 2 ;;
-            --keep-daily) KEEP_DAILY="$2"; shift 2 ;;
-            --keep-weekly) KEEP_WEEKLY="$2"; shift 2 ;;
-            --keep-monthly) KEEP_MONTHLY="$2"; shift 2 ;;
-            --keep-yearly) KEEP_YEARLY="$2"; shift 2 ;;
-            --) shift; PATHS+=("$@"); break ;;
-            -*) log_error "Unknown option: $1"; exit 1 ;;
-            *) PATHS+=("$1"); shift ;;
+            -h | --help)
+                show_help
+                exit 0
+                ;;
+            -v | --verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -d | --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            -r | --repo)
+                REPO="$2"
+                shift 2
+                ;;
+            -a | --archive)
+                ARCHIVE_NAME="$2"
+                shift 2
+                ;;
+            -p | --password)
+                PASSWORD="$2"
+                shift 2
+                ;;
+            -x | --exclude)
+                EXCLUDE_PATTERNS+=("$2")
+                shift 2
+                ;;
+            --exclude-from)
+                EXCLUDE_FILE="$2"
+                shift 2
+                ;;
+            -C | --compression)
+                COMPRESSION="$2"
+                shift 2
+                ;;
+            -e | --encryption)
+                ENCRYPTION="$2"
+                shift 2
+                ;;
+            --append-only)
+                APPEND_ONLY=true
+                shift
+                ;;
+            --one-file-system)
+                ONE_FILE_SYSTEM=true
+                shift
+                ;;
+            --checkpoint)
+                CHECKPOINT_INTERVAL="$2"
+                shift 2
+                ;;
+            --no-progress)
+                PROGRESS=false
+                shift
+                ;;
+            --list)
+                LIST_FILES=true
+                shift
+                ;;
+            --json)
+                JSON_OUTPUT=true
+                shift
+                ;;
+            --remote-path)
+                REMOTE_PATH="$2"
+                shift 2
+                ;;
+            --rsh)
+                RSH="$2"
+                shift 2
+                ;;
+            --target)
+                TARGET="$2"
+                shift 2
+                ;;
+            --keep-daily)
+                KEEP_DAILY="$2"
+                shift 2
+                ;;
+            --keep-weekly)
+                KEEP_WEEKLY="$2"
+                shift 2
+                ;;
+            --keep-monthly)
+                KEEP_MONTHLY="$2"
+                shift 2
+                ;;
+            --keep-yearly)
+                KEEP_YEARLY="$2"
+                shift 2
+                ;;
+            --)
+                shift
+                PATHS+=("$@")
+                break
+                ;;
+            -*)
+                log_error "Unknown option: $1"
+                exit 1
+                ;;
+            *)
+                PATHS+=("$1")
+                shift
+                ;;
         esac
     done
 
@@ -444,7 +523,7 @@ main() {
     parse_args "$@"
 
     # Check borg is installed
-    if ! command -v borg &>/dev/null; then
+    if ! command -v borg &> /dev/null; then
         log_error "borg is not installed"
         log_info "Install with: brew install borgbackup (macOS) or apt install borgbackup (Linux)"
         exit 1
@@ -475,4 +554,3 @@ main() {
 }
 
 main "$@"
-

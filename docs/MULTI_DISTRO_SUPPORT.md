@@ -7,6 +7,7 @@ git-auto-sync supports multiple Linux distributions with automatic detection and
 ## Supported Distributions
 
 ### Debian Family
+
 - **Debian** (8+, Jessie and newer)
 - **Ubuntu** (15.04+)
 - **Linux Mint**
@@ -14,6 +15,7 @@ git-auto-sync supports multiple Linux distributions with automatic detection and
 - **Elementary OS**
 
 ### Red Hat Family
+
 - **RHEL** (Red Hat Enterprise Linux 7+)
 - **CentOS** (7+)
 - **Fedora** (all recent versions)
@@ -22,15 +24,18 @@ git-auto-sync supports multiple Linux distributions with automatic detection and
 - **Oracle Linux**
 
 ### SUSE Family
+
 - **openSUSE** (Leap, Tumbleweed)
 - **SLES** (SUSE Linux Enterprise Server)
 
 ### Arch Family
+
 - **Arch Linux**
 - **Manjaro**
 - **EndeavourOS**
 
 ### Other
+
 - **Alpine Linux**
 - **Gentoo**
 
@@ -48,6 +53,7 @@ The script automatically detects:
 ### Configuration File Locations
 
 #### Debian/Ubuntu Family
+
 ```
 /etc/git-auto-sync/config.yaml          # Main configuration
 /etc/default/git-auto-sync              # Environment variables
@@ -55,6 +61,7 @@ The script automatically detects:
 ```
 
 #### RHEL/CentOS/Fedora Family
+
 ```
 /etc/git-auto-sync/config.yaml          # Main configuration
 /etc/sysconfig/git-auto-sync            # Environment variables (RHEL convention)
@@ -62,6 +69,7 @@ The script automatically detects:
 ```
 
 #### SUSE Family
+
 ```
 /etc/git-auto-sync/config.yaml          # Main configuration
 /etc/sysconfig/git-auto-sync            # Environment variables (SUSE convention)
@@ -69,12 +77,14 @@ The script automatically detects:
 ```
 
 #### Alpine Linux (OpenRC)
+
 ```
 /etc/git-auto-sync/config.yaml          # Main configuration
 /etc/init.d/git-auto-sync               # OpenRC init script
 ```
 
 #### Arch Linux
+
 ```
 /etc/git-auto-sync/config.yaml          # Main configuration
 /etc/default/git-auto-sync              # Environment variables
@@ -86,6 +96,7 @@ The script automatically detects:
 ### YAML Parser (Required)
 
 #### Debian/Ubuntu
+
 ```bash
 # Option 1: yq (recommended)
 sudo apt update
@@ -96,6 +107,7 @@ sudo apt install python3-yaml
 ```
 
 #### RHEL/CentOS/Fedora
+
 ```bash
 # Fedora/RHEL 8+
 sudo dnf install yq
@@ -107,6 +119,7 @@ sudo yum install python3-pyyaml
 ```
 
 #### SUSE/openSUSE
+
 ```bash
 sudo zypper install yq
 # or
@@ -114,6 +127,7 @@ sudo zypper install python3-PyYAML
 ```
 
 #### Arch Linux
+
 ```bash
 sudo pacman -S yq
 # or
@@ -121,6 +135,7 @@ sudo pacman -S python-yaml
 ```
 
 #### Alpine Linux
+
 ```bash
 sudo apk add yq
 # or
@@ -130,27 +145,32 @@ sudo apk add py3-yaml
 ### Git (Required)
 
 #### Debian/Ubuntu
+
 ```bash
 sudo apt install git
 ```
 
 #### RHEL/CentOS/Fedora
+
 ```bash
 sudo dnf install git     # Fedora/RHEL 8+
 sudo yum install git     # CentOS 7/RHEL 7
 ```
 
 #### SUSE/openSUSE
+
 ```bash
 sudo zypper install git
 ```
 
 #### Arch Linux
+
 ```bash
 sudo pacman -S git
 ```
 
 #### Alpine Linux
+
 ```bash
 sudo apk add git
 ```
@@ -271,6 +291,7 @@ bash scripts/bash/detect-distro.sh
 ```
 
 Output example:
+
 ```
 ╔═══════════════════════════════════════════════════════════════╗
 ║           Linux Distribution Detection                         ║
@@ -372,6 +393,7 @@ repositories:
 ```
 
 Environment files vary by distro but have the same variables:
+
 - `/etc/default/git-auto-sync` (Debian, Ubuntu, Arch)
 - `/etc/sysconfig/git-auto-sync` (RHEL, CentOS, Fedora, SUSE)
 
@@ -426,20 +448,24 @@ sudo -u git-sync /usr/local/bin/git-auto-sync.sh --config /etc/git-auto-sync/con
 ## Distribution-Specific Notes
 
 ### RHEL/CentOS
+
 - Uses `/etc/sysconfig/` instead of `/etc/default/`
 - SELinux may need configuration for git operations
 - RHEL 7 uses Python 3.6, ensure python3-pyyaml is installed
 
 ### Alpine Linux
+
 - Uses OpenRC instead of SystemD
 - Lightweight, minimal dependencies
 - Uses musl libc instead of glibc
 
 ### Arch Linux
+
 - Rolling release, always latest packages
 - Package names may differ (python-yaml vs python3-yaml)
 
 ### SUSE
+
 - Uses `/etc/sysconfig/` like RHEL
 - zypper package manager
 
@@ -464,6 +490,7 @@ RUN dnf install -y git python3-pyyaml
 ## Summary
 
 git-auto-sync automatically adapts to your Linux distribution:
+
 - ✓ Auto-detects distribution family
 - ✓ Uses correct package manager
 - ✓ Follows distro-specific file layout conventions

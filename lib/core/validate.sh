@@ -20,8 +20,8 @@ _RSR_CORE_VALIDATE_LOADED=1
 
 # Ensure core init is loaded
 if [ -z "${_RSR_CORE_INIT_LOADED:-}" ]; then
-    _script_dir="$(cd "$(dirname "$0")" 2>/dev/null && pwd)" || _script_dir="."
-    . "${_script_dir}/init.sh" 2>/dev/null || . "./lib/core/init.sh" 2>/dev/null || {
+    _script_dir="$(cd "$(dirname "$0")" 2> /dev/null && pwd)" || _script_dir="."
+    . "${_script_dir}/init.sh" 2> /dev/null || . "./lib/core/init.sh" 2> /dev/null || {
         echo "ERROR: RSR core/init.sh must be sourced first" >&2
         return 1
     }
@@ -191,7 +191,7 @@ rsr_validate_ipv4() {
     IFS="$_IFS"
 
     for _octet in "$1" "$2" "$3" "$4"; do
-        [ "$_octet" -ge 0 ] 2>/dev/null && [ "$_octet" -le 255 ] 2>/dev/null || return 1
+        [ "$_octet" -ge 0 ] 2> /dev/null && [ "$_octet" -le 255 ] 2> /dev/null || return 1
     done
 
     return 0
@@ -226,7 +226,7 @@ rsr_validate_port() {
     echo "$_port" | grep -qE '^[0-9]+$' || return 1
 
     # Check range (1-65535)
-    [ "$_port" -ge 1 ] 2>/dev/null && [ "$_port" -le 65535 ] 2>/dev/null
+    [ "$_port" -ge 1 ] 2> /dev/null && [ "$_port" -le 65535 ] 2> /dev/null
 }
 
 # Validate URL format (basic)
@@ -249,7 +249,7 @@ rsr_validate_integer() {
 # Validate positive integer
 # Usage: rsr_validate_positive_integer "123"
 rsr_validate_positive_integer() {
-    echo "$1" | grep -qE '^[0-9]+$' && [ "$1" -gt 0 ] 2>/dev/null
+    echo "$1" | grep -qE '^[0-9]+$' && [ "$1" -gt 0 ] 2> /dev/null
 }
 
 # Validate integer in range
@@ -260,7 +260,7 @@ rsr_validate_integer_range() {
     _max="$3"
 
     rsr_validate_integer "$_num" || return 1
-    [ "$_num" -ge "$_min" ] 2>/dev/null && [ "$_num" -le "$_max" ] 2>/dev/null
+    [ "$_num" -ge "$_min" ] 2> /dev/null && [ "$_num" -le "$_max" ] 2> /dev/null
 }
 
 # =============================================================================
@@ -310,4 +310,3 @@ rsr_validate_not_empty() {
 # =============================================================================
 
 rsr_log_debug "RSR Validation Library loaded"
-

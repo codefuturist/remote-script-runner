@@ -1,0 +1,241 @@
+# borgmatic.yaml - Borgmatic Configuration Template
+# Documentation: https://torsion.org/borgmatic/
+#
+# Usage:
+#   borgmatic                           # Run backup
+#   borgmatic list                      # List archives
+#   borgmatic extract --archive latest  # Restore latest
+#   borgmatic check                     # Verify repository
+#
+# Config location: ~/.config/borgmatic/config.yaml
+# Install: pip install borgmatic borgbackup
+#          brew install borgmatic borgbackup
+
+# =============================================================================
+# Source Directories
+# =============================================================================
+
+source_directories:
+  - ${HOME}
+  - ${HOME}/Documents
+  - ${HOME}/Developer
+
+# =============================================================================
+# Repositories (Backup Destinations)
+# =============================================================================
+
+repositories:
+  # Local repository
+  - path: /backup/borg-repo
+    label: local
+
+  # Remote via SSH
+  - path: ssh://backup@backup-server/./borg-repo
+    label: remote
+
+  # BorgBase (managed borg hosting)
+  # - path: ssh://xxxxx@xxxxx.repo.borgbase.com/./repo
+  #   label: borgbase
+
+# =============================================================================
+# Excludes
+# =============================================================================
+
+exclude_patterns:
+  # Cache and temp files
+  - "*.pyc"
+  - "*.pyo"
+  - "*/__pycache__"
+  - "*.cache"
+  - ".cache"
+  - ".local/share/Trash"
+  - ".Trash"
+
+  # OS files
+  - ".DS_Store"
+  - "Thumbs.db"
+  - "desktop.ini"
+
+  # Development
+  - "node_modules"
+  - ".npm"
+  - ".yarn"
+  - "vendor"
+  - "target"
+  - "build"
+  - "dist"
+  - ".gradle"
+  - ".maven"
+
+  # Virtual environments
+  - ".venv"
+  - "venv"
+  - "env"
+  - ".virtualenv"
+
+  # IDE
+  - ".idea"
+  - ".vscode"
+  - "*.swp"
+  - "*.swo"
+  - "*~"
+
+  # Large files
+  - "*.iso"
+  - "*.dmg"
+  - "*.vmdk"
+
+  # Logs and temp
+  - "*.log"
+  - "*.tmp"
+  - "/tmp/*"
+
+exclude_caches: true
+exclude_if_present:
+  - .nobackup
+  - .borgexclude
+
+# =============================================================================
+# Retention Policy
+# =============================================================================
+
+keep_daily: 7
+keep_weekly: 4
+keep_monthly: 6
+keep_yearly: 1
+
+# =============================================================================
+# Storage Options
+# =============================================================================
+
+encryption_passcommand: "echo ${BORG_PASSPHRASE}"
+# Or use a file:
+# encryption_passphrase: "${BORG_PASSPHRASE}"
+
+compression: auto,zstd
+# Options: none, lz4, zstd, zlib, lzma, auto,{algorithm},{level}
+
+archive_name_format: "{hostname}-{now:%Y-%m-%d-%H%M%S}"
+
+# =============================================================================
+# Consistency Checks
+# =============================================================================
+
+checks:
+  - name: repository
+    frequency: 2 weeks
+  - name: archives
+    frequency: 1 month
+  - name: data
+    frequency: 3 months
+  - name: extract
+    frequency: 6 months
+
+check_last: 3
+
+# =============================================================================
+# Hooks
+# =============================================================================
+
+before_backup:
+  - echo "Starting backup at $(date)"
+  # Dump package lists
+  # - dpkg --get-selections > /backup/packages.list
+
+after_backup:
+  - echo "Backup completed at $(date)"
+
+on_error:
+  - echo "Backup FAILED at $(date)" >&2
+  # Send notification
+  # - /usr/local/bin/notify-backup-failure.sh
+
+before_prune:
+  - echo "Pruning old archives..."
+
+after_prune:
+  - echo "Prune completed"
+
+before_compact:
+  - echo "Compacting repository..."
+
+after_compact:
+  - echo "Compact completed"
+
+before_check:
+  - echo "Checking repository integrity..."
+
+after_check:
+  - echo "Check completed"
+
+# =============================================================================
+# Notifications (optional)
+# =============================================================================
+
+# Healthchecks.io
+# healthchecks:
+#   ping_url: https://hc-ping.com/your-uuid-here
+#   send_logs: true
+#   states:
+#     - start
+#     - finish
+#     - fail
+
+# Ntfy
+# ntfy:
+#   topic: backup-notifications
+#   server: https://ntfy.sh
+#   start:
+#     title: Backup starting
+#     priority: low
+#   finish:
+#     title: Backup completed
+#     priority: default
+#   fail:
+#     title: Backup FAILED
+#     priority: high
+
+# Cronitor
+# cronitor:
+#   ping_url: https://cronitor.link/p/xxxxx/xxxxxx
+
+# PagerDuty
+# pagerduty:
+#   integration_key: your-integration-key
+
+# =============================================================================
+# Extra borg options
+# =============================================================================
+
+extra_borg_options:
+  create: --stats --progress
+  prune: --stats
+  init: --make-parent-dirs
+
+# =============================================================================
+# Example Commands
+# =============================================================================
+#
+# Initial setup:
+#   borgmatic init --encryption repokey-blake2
+#   borgmatic config validate
+#
+# Backup operations:
+#   borgmatic                           # Full backup
+#   borgmatic --verbosity 1             # Verbose
+#   borgmatic --dry-run                 # Dry run
+#
+# List and restore:
+#   borgmatic list                      # List archives
+#   borgmatic info                      # Repository info
+#   borgmatic extract --archive latest --destination /restore
+#   borgmatic mount --archive latest --mount-point /mnt/backup
+#
+# Maintenance:
+#   borgmatic check                     # Verify integrity
+#   borgmatic prune                     # Apply retention
+#   borgmatic compact                   # Free space
+#
+# Scheduling (systemd):
+#   systemctl enable --now borgmatic.timer
+

@@ -19,7 +19,7 @@ set -eo pipefail
 
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -158,7 +158,7 @@ EOF
 }
 
 # Logging functions (use RSR if available)
-if type rsr_log_info &>/dev/null; then
+if type rsr_log_info &> /dev/null; then
     log_info() { rsr_log_info "$1"; }
     log_ok() { rsr_log_ok "$1"; }
     log_warn() { rsr_log_warn "$1"; }
@@ -1184,7 +1184,7 @@ main() {
     fi
 
     # Run interactive mode if enabled
-    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &>/dev/null && rsr_is_interactive; then
+    if [[ "$INTERACTIVE" == "true" ]] && type -t rsr_is_interactive &> /dev/null && rsr_is_interactive; then
         # Refresh packages first (if we have permission)
         if [[ $EUID -eq 0 ]]; then
             refresh_packages

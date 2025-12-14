@@ -3,6 +3,7 @@
 ## Quick Commands
 
 ### Account Management
+
 ```bash
 # Create user
 sudo rsr usermgmt create -u john -c "John Doe" -g sudo,docker --generate
@@ -21,6 +22,7 @@ rsr usermgmt list --all       # Including system users
 ```
 
 ### Password Management
+
 ```bash
 # Reset password (interactive)
 sudo rsr usermgmt password reset -u john
@@ -40,6 +42,7 @@ rsr usermgmt password policy
 ```
 
 ### Group Management
+
 ```bash
 # Create group
 sudo rsr usermgmt group create -g developers
@@ -58,6 +61,7 @@ rsr usermgmt group show -u john
 ```
 
 ### Permission Management
+
 ```bash
 # Set permissions
 sudo rsr usermgmt permission set -p /var/www -m 755 -o www-data:www-data
@@ -73,12 +77,14 @@ rsr usermgmt permission get -p /var/www
 ```
 
 **Available Templates:**
+
 - `web` - 755, www-data:www-data
 - `shared` - 775
 - `private` - 700
 - `service` - 644
 
 ### SSH Key Management
+
 ```bash
 # Generate SSH key
 sudo rsr usermgmt ssh generate -u john -t ed25519
@@ -112,6 +118,7 @@ sudo rsr usermgmt ssh fix -u john
 ```
 
 ### Session Monitoring
+
 ```bash
 # Active sessions
 rsr usermgmt session list
@@ -125,6 +132,7 @@ rsr usermgmt session failures
 ```
 
 ### Audit
+
 ```bash
 # Full audit
 sudo rsr usermgmt audit
@@ -133,6 +141,7 @@ sudo rsr usermgmt audit
 ## Common Workflows
 
 ### New Employee Onboarding
+
 ```bash
 # Create user with all access
 sudo rsr usermgmt create -u jane \
@@ -147,6 +156,7 @@ sudo rsr usermgmt permission template -p /var/www -t web
 ```
 
 ### Employee Departure
+
 ```bash
 # Lock account immediately
 sudo rsr usermgmt lock -u john
@@ -160,6 +170,7 @@ sudo rsr usermgmt delete -u john --remove-home
 ```
 
 ### Batch User Creation
+
 ```bash
 # Create users.csv:
 # john,John Doe,sudo
@@ -172,6 +183,7 @@ done < users.csv
 ```
 
 ### Password Rotation
+
 ```bash
 # Force all users to change password
 for user in $(rsr usermgmt list | awk '{print $1}' | tail -n +2); do
@@ -180,6 +192,7 @@ done
 ```
 
 ### Security Audit
+
 ```bash
 # List sudo users
 rsr usermgmt list --sudo
@@ -192,6 +205,7 @@ sudo rsr usermgmt audit
 ```
 
 ### SSH Key Setup
+
 ```bash
 # Setup new user with SSH key
 sudo rsr usermgmt create -u deploy -c "Deploy User" --no-create-home
@@ -209,6 +223,7 @@ sudo rsr usermgmt ssh fix -u deploy
 ```
 
 ### Server Access Management
+
 ```bash
 # Grant user SSH access
 sudo rsr usermgmt create -u contractor -g developers
@@ -225,6 +240,7 @@ sudo rsr usermgmt delete -u contractor --remove-home
 ## Global Options
 
 All commands support:
+
 - `-h, --help` - Show help
 - `-v, --verbose` - Verbose output
 - `-d, --dry-run` - Preview changes
@@ -234,21 +250,25 @@ All commands support:
 ## Safety Tips
 
 1. **Always use dry-run first:**
+
    ```bash
    sudo rsr usermgmt delete -u john --remove-home --dry-run
    ```
 
 2. **Generate strong passwords:**
+
    ```bash
    rsr usermgmt password generate --length 20
    ```
 
 3. **Force password change for new users:**
+
    ```bash
    sudo rsr usermgmt create -u newuser --generate --force-change
    ```
 
 4. **Regular audits:**
+
    ```bash
    sudo rsr usermgmt audit > /var/log/user-audit-$(date +%Y%m%d).log
    ```
@@ -277,7 +297,6 @@ All commands support:
 
 ## Support
 
-- GitHub: https://github.com/codefuturist/remote-script-runner
-- Issues: https://github.com/codefuturist/remote-script-runner/issues
-- Docs: https://codefuturist.github.io/remote-script-runner/
-
+- GitHub: <https://github.com/codefuturist/remote-script-runner>
+- Issues: <https://github.com/codefuturist/remote-script-runner/issues>
+- Docs: <https://codefuturist.github.io/remote-script-runner/>

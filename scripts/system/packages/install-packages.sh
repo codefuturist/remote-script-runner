@@ -142,12 +142,12 @@ show_profile_info() {
 
     # Show description
     local desc
-    desc=$(grep -m1 '^description:' "$profile_file" 2>/dev/null | sed 's/^description:[[:space:]]*//' | tr -d '"'"'")
+    desc=$(grep -m1 '^description:' "$profile_file" 2> /dev/null | sed 's/^description:[[:space:]]*//' | tr -d '"'"'")
     [[ -n "$desc" ]] && echo "Description: $desc"
 
     # Show category
     local category
-    category=$(grep -m1 '^category:' "$profile_file" 2>/dev/null | sed 's/^category:[[:space:]]*//' | tr -d '"'"'")
+    category=$(grep -m1 '^category:' "$profile_file" 2> /dev/null | sed 's/^category:[[:space:]]*//' | tr -d '"'"'")
     [[ -n "$category" ]] && echo "Category: $category"
 
     echo ""
@@ -199,7 +199,7 @@ install_profiles() {
 parse_args() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help)
+            -h | --help)
                 show_help
                 exit 0
                 ;;
@@ -207,11 +207,11 @@ parse_args() {
                 show_version
                 exit 0
                 ;;
-            -l|--list)
+            -l | --list)
                 SHOW_LIST=true
                 shift
                 ;;
-            -i|--info)
+            -i | --info)
                 SHOW_INFO=true
                 shift
                 if [[ $# -gt 0 && ! "$1" =~ ^- ]]; then
@@ -219,17 +219,17 @@ parse_args() {
                     shift
                 fi
                 ;;
-            -a|--auto)
+            -a | --auto)
                 AUTO_INSTALL=true
                 RSR_PKG_AUTO_INSTALL=1
                 RSR_PKG_CONFIRM=0
                 shift
                 ;;
-            -d|--dry-run)
+            -d | --dry-run)
                 DRY_RUN=true
                 shift
                 ;;
-            -v|--verbose)
+            -v | --verbose)
                 VERBOSE=true
                 RSR_DEBUG=1
                 shift
@@ -297,4 +297,3 @@ main() {
 # =============================================================================
 
 main "$@"
-

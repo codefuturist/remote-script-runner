@@ -21,7 +21,7 @@ set -eo pipefail
 
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -543,7 +543,7 @@ cmd_configure() {
     check_root
 
     # Check if interactive mode is available
-    if ! type prompt_select &>/dev/null; then
+    if ! type prompt_select &> /dev/null; then
         log_error "Interactive mode not available (lib/interactive.sh not loaded)"
         log_info "Use 'config set KEY VALUE' for manual configuration"
         exit $EXIT_ERROR
@@ -551,7 +551,7 @@ cmd_configure() {
 
     # Backup config first
     log_info "Creating configuration backup..."
-    ssh_backup_config >/dev/null 2>&1 || true
+    ssh_backup_config > /dev/null 2>&1 || true
 
     # Show current status first
     echo -e "${BOLD}Current Configuration:${NC}"
@@ -1038,7 +1038,7 @@ configure_quick_harden() {
     else
         log_error "Configuration validation failed"
         log_warn "Rolling back changes..."
-        ssh_restore_config "$(ls -t /etc/ssh/backups/sshd_config.* 2>/dev/null | head -1)"
+        ssh_restore_config "$(ls -t /etc/ssh/backups/sshd_config.* 2> /dev/null | head -1)"
         return 1
     fi
 }
@@ -1202,9 +1202,9 @@ cmd_connections() {
     echo -e "${BOLD}Total connections:${NC} $count"
     echo ""
 
-    if command -v ss >/dev/null 2>&1; then
+    if command -v ss > /dev/null 2>&1; then
         ss -tn | grep :22 || echo "No active connections"
-    elif command -v netstat >/dev/null 2>&1; then
+    elif command -v netstat > /dev/null 2>&1; then
         netstat -tn | grep :22 || echo "No active connections"
     else
         who | grep pts || echo "No active connections"
@@ -1244,18 +1244,18 @@ cmd_failed() {
 cmd_users() {
     local action="${1:-list}"
     shift || true
-    
+
     case "$action" in
-        list|ls|'')
+        list | ls | '')
             cmd_users_list "$@"
             ;;
         add)
             cmd_users_add "$@"
             ;;
-        remove|rm|delete)
+        remove | rm | delete)
             cmd_users_remove "$@"
             ;;
-        -h|--help)
+        -h | --help)
             cat << EOF
 ${BOLD}SSH User Management${NC}
 
@@ -1289,14 +1289,14 @@ EOF
 
 cmd_users_list() {
     print_header "SSH Allowed Users"
-    
+
     if [[ $EUID -ne 0 ]] && [[ "$DRY_RUN" != "true" ]]; then
         log_warn "Root privileges recommended for accurate results"
     fi
-    
+
     local allow_users
-    allow_users=$(grep "^AllowUsers" "$SSHD_CONFIG" 2>/dev/null || true)
-    
+    allow_users=$(grep "^AllowUsers" "$SSHD_CONFIG" 2> /dev/null || true)
+
     if [[ -z "$allow_users" ]]; then
         echo "${DIM}AllowUsers directive not configured${NC}"
         echo
@@ -1304,56 +1304,56 @@ cmd_users_list() {
         echo "Add specific users with: ${CYAN}sudo $0 users add USERNAME${NC}"
         return $EXIT_OK
     fi
-    
+
     local users
     users=$(echo "$allow_users" | sed 's/^AllowUsers //' | tr ' ' '\n' | sort)
     local count=$(echo "$users" | wc -l | tr -d ' ')
-    
+
     echo "${BOLD}Allowed users:${NC}"
     echo "$users" | while read -r user; do
         [[ -z "$user" ]] && continue
         echo "  ${GREEN}✓${NC} $user"
     done
-    
+
     echo
     echo "${DIM}$count user(s) can SSH to this server${NC}"
-    
+
     return $EXIT_OK
 }
 
 cmd_users_add() {
     local username="$1"
-    
+
     if [[ -z "$username" ]]; then
         log_error "Username is required"
         log_info "Usage: sudo $0 users add USERNAME"
         return $EXIT_INVALID_ARGS
     fi
-    
+
     rsr_require_root "Adding SSH users"
-    
+
     print_header "Add SSH User"
-    
+
     # Check if user exists on system
-    if ! id "$username" >/dev/null 2>&1; then
+    if ! id "$username" > /dev/null 2>&1; then
         log_warn "User '$username' does not exist on system"
         read -p "Continue anyway? [y/N]: " -n 1 -r
         echo
         [[ ! $REPLY =~ ^[Yy]$ ]] && return $EXIT_OK
     fi
-    
+
     # Check if already in AllowUsers
-    if grep "^AllowUsers" "$SSHD_CONFIG" 2>/dev/null | grep -qw "$username"; then
+    if grep "^AllowUsers" "$SSHD_CONFIG" 2> /dev/null | grep -qw "$username"; then
         log_warn "User '$username' already in AllowUsers"
         return $EXIT_OK
     fi
-    
+
     log_info "Adding '$username' to AllowUsers..."
-    
+
     if [[ "$DRY_RUN" != "true" ]]; then
         # Backup config
         cp "$SSHD_CONFIG" "${SSHD_CONFIG}.backup.$(date +%Y%m%d-%H%M%S)"
-        
+
         # Add or append to AllowUsers
         if grep -q "^AllowUsers" "$SSHD_CONFIG"; then
             sed -i.bak "s/^AllowUsers .*/& $username/" "$SSHD_CONFIG"
@@ -1362,51 +1362,51 @@ cmd_users_add() {
             echo "# Added by RSR ssh-server" >> "$SSHD_CONFIG"
             echo "AllowUsers $username" >> "$SSHD_CONFIG"
         fi
-        
+
         log_ok "User '$username' added to AllowUsers"
         echo
         log_warn "Restart SSH service to apply: ${CYAN}sudo $0 restart${NC}"
     else
         log_info "[DRY RUN] Would add user '$username'"
     fi
-    
+
     return $EXIT_OK
 }
 
 cmd_users_remove() {
     local username="$1"
-    
+
     if [[ -z "$username" ]]; then
         log_error "Username is required"
         log_info "Usage: sudo $0 users remove USERNAME"
         return $EXIT_INVALID_ARGS
     fi
-    
+
     rsr_require_root "Removing SSH users"
-    
+
     print_header "Remove SSH User"
-    
-    if ! grep "^AllowUsers" "$SSHD_CONFIG" 2>/dev/null | grep -qw "$username"; then
+
+    if ! grep "^AllowUsers" "$SSHD_CONFIG" 2> /dev/null | grep -qw "$username"; then
         log_error "User '$username' not found in AllowUsers"
         return $EXIT_ERROR
     fi
-    
+
     log_info "Removing '$username' from AllowUsers..."
-    
+
     if [[ "$DRY_RUN" != "true" ]]; then
         cp "$SSHD_CONFIG" "${SSHD_CONFIG}.backup.$(date +%Y%m%d-%H%M%S)"
-        
+
         sed -i.bak "s/\(AllowUsers.*\) $username\(.*\)/\1\2/" "$SSHD_CONFIG"
         sed -i.bak "s/\(AllowUsers\) $username \(.*\)/\1 \2/" "$SSHD_CONFIG"
         sed -i.bak "s/^AllowUsers $username$//" "$SSHD_CONFIG"
-        
+
         log_ok "User '$username' removed from AllowUsers"
         echo
         log_warn "Restart SSH service to apply: ${CYAN}sudo $0 restart${NC}"
     else
         log_info "[DRY RUN] Would remove user '$username'"
     fi
-    
+
     return $EXIT_OK
 }
 
@@ -1417,18 +1417,18 @@ cmd_users_remove() {
 cmd_keys() {
     local action="${1:-list}"
     shift || true
-    
+
     case "$action" in
-        list|ls|'')
+        list | ls | '')
             cmd_keys_list "$@"
             ;;
         add)
             cmd_keys_add "$@"
             ;;
-        remove|rm|delete)
+        remove | rm | delete)
             cmd_keys_remove "$@"
             ;;
-        -h|--help)
+        -h | --help)
             cat << EOF
 ${BOLD}SSH Authorized Keys Management${NC}
 
@@ -1462,88 +1462,88 @@ EOF
 
 cmd_keys_list() {
     local username="${1:-$USER}"
-    
+
     print_header "Authorized Keys for '$username'"
-    
+
     local user_home
     if [[ "$username" == "$USER" ]]; then
         user_home="$HOME"
     else
-        user_home=$(eval echo "~$username" 2>/dev/null)
+        user_home=$(eval echo "~$username" 2> /dev/null)
         if [[ -z "$user_home" ]] || [[ ! -d "$user_home" ]]; then
             log_error "User '$username' not found or no home directory"
             return $EXIT_ERROR
         fi
     fi
-    
+
     local auth_keys="${user_home}/.ssh/authorized_keys"
-    
+
     if [[ ! -f "$auth_keys" ]]; then
         echo "${DIM}No authorized keys file found${NC}"
         echo
         echo "Location: ${DIM}$auth_keys${NC}"
         return $EXIT_OK
     fi
-    
+
     local count=0
     while IFS= read -r line; do
         [[ -z "$line" ]] && continue
         [[ "$line" =~ ^# ]] && continue
-        
+
         count=$((count + 1))
-        
+
         local key_type=$(echo "$line" | awk '{print $1}')
         local key_data=$(echo "$line" | awk '{print $2}')
         local key_comment=$(echo "$line" | awk '{print $3}')
-        
+
         local fingerprint=""
-        if command -v ssh-keygen >/dev/null 2>&1; then
-            fingerprint=$(echo "$line" | ssh-keygen -lf - 2>/dev/null | awk '{print $2}')
+        if command -v ssh-keygen > /dev/null 2>&1; then
+            fingerprint=$(echo "$line" | ssh-keygen -lf - 2> /dev/null | awk '{print $2}')
         fi
-        
+
         echo "${BOLD}Key $count:${NC}"
         echo "  Type: ${GREEN}$key_type${NC}"
         [[ -n "$fingerprint" ]] && echo "  Fingerprint: ${DIM}$fingerprint${NC}"
         [[ -n "$key_comment" ]] && echo "  Comment: $key_comment"
         echo
     done < "$auth_keys"
-    
+
     if [[ $count -eq 0 ]]; then
         echo "${DIM}No keys found in authorized_keys${NC}"
     else
         echo "${DIM}$count key(s) authorized${NC}"
     fi
-    
+
     return $EXIT_OK
 }
 
 cmd_keys_add() {
     local username="$1"
     local key_source="$2"
-    
+
     if [[ -z "$username" ]] || [[ -z "$key_source" ]]; then
         log_error "Usage: sudo $0 keys add USER KEY_FILE"
         return $EXIT_INVALID_ARGS
     fi
-    
+
     if [[ "$username" != "$USER" ]]; then
         rsr_require_root "Managing keys for other users"
     fi
-    
+
     print_header "Add SSH Key"
-    
+
     # Get user's home directory
     local user_home
     if [[ "$username" == "$USER" ]]; then
         user_home="$HOME"
     else
-        user_home=$(eval echo "~$username" 2>/dev/null)
+        user_home=$(eval echo "~$username" 2> /dev/null)
         if [[ -z "$user_home" ]] || [[ ! -d "$user_home" ]]; then
             log_error "User '$username' not found"
             return $EXIT_ERROR
         fi
     fi
-    
+
     # Read key content
     local key_content=""
     if [[ -f "$key_source" ]]; then
@@ -1551,88 +1551,88 @@ cmd_keys_add() {
     else
         key_content="$key_source"
     fi
-    
+
     # Validate it's a public key
     if ! echo "$key_content" | grep -qE "^(ssh-rsa|ssh-ed25519|ecdsa-sha2-)"; then
         log_error "Invalid SSH public key format"
         return $EXIT_ERROR
     fi
-    
+
     local ssh_dir="${user_home}/.ssh"
     local auth_keys="${ssh_dir}/authorized_keys"
-    
+
     # Create .ssh directory if needed
     if [[ ! -d "$ssh_dir" ]]; then
         log_info "Creating $ssh_dir"
         mkdir -p "$ssh_dir"
-        chown "$username:$username" "$ssh_dir" 2>/dev/null || true
+        chown "$username:$username" "$ssh_dir" 2> /dev/null || true
         chmod 700 "$ssh_dir"
     fi
-    
+
     # Check if key already exists
     if [[ -f "$auth_keys" ]] && grep -qF "$key_content" "$auth_keys"; then
         log_warn "Key already exists in authorized_keys"
         return $EXIT_OK
     fi
-    
+
     if [[ "$DRY_RUN" != "true" ]]; then
         echo "$key_content" >> "$auth_keys"
-        chown "$username:$username" "$auth_keys" 2>/dev/null || true
+        chown "$username:$username" "$auth_keys" 2> /dev/null || true
         chmod 600 "$auth_keys"
-        
+
         log_ok "Key added to ${auth_keys}"
     else
         log_info "[DRY RUN] Would add key to $auth_keys"
     fi
-    
+
     return $EXIT_OK
 }
 
 cmd_keys_remove() {
     local username="$1"
     local key_pattern="$2"
-    
+
     if [[ -z "$username" ]] || [[ -z "$key_pattern" ]]; then
         log_error "Usage: sudo $0 keys remove USER KEY_PATTERN"
         return $EXIT_INVALID_ARGS
     fi
-    
+
     if [[ "$username" != "$USER" ]]; then
         rsr_require_root "Managing keys for other users"
     fi
-    
+
     print_header "Remove SSH Key"
-    
+
     local user_home
     if [[ "$username" == "$USER" ]]; then
         user_home="$HOME"
     else
-        user_home=$(eval echo "~$username" 2>/dev/null)
+        user_home=$(eval echo "~$username" 2> /dev/null)
     fi
-    
+
     local auth_keys="${user_home}/.ssh/authorized_keys"
-    
+
     if [[ ! -f "$auth_keys" ]]; then
         log_error "No authorized_keys file found"
         return $EXIT_ERROR
     fi
-    
+
     if ! grep -qF "$key_pattern" "$auth_keys"; then
         log_error "Key not found in authorized_keys"
         return $EXIT_ERROR
     fi
-    
+
     if [[ "$DRY_RUN" != "true" ]]; then
         cp "$auth_keys" "${auth_keys}.backup.$(date +%Y%m%d-%H%M%S)"
         grep -vF "$key_pattern" "$auth_keys" > "${auth_keys}.tmp"
         mv "${auth_keys}.tmp" "$auth_keys"
         chmod 600 "$auth_keys"
-        
+
         log_ok "Key removed from $auth_keys"
     else
         log_info "[DRY RUN] Would remove key from $auth_keys"
     fi
-    
+
     return $EXIT_OK
 }
 
@@ -1643,9 +1643,9 @@ cmd_keys_remove() {
 cmd_banner() {
     local action="${1:-show}"
     shift || true
-    
+
     case "$action" in
-        show|'')
+        show | '')
             cmd_banner_show "$@"
             ;;
         set)
@@ -1657,7 +1657,7 @@ cmd_banner() {
         disable)
             cmd_banner_disable "$@"
             ;;
-        -h|--help)
+        -h | --help)
             cat << EOF
 ${BOLD}SSH Banner Management${NC}
 
@@ -1693,20 +1693,20 @@ EOF
 
 cmd_banner_show() {
     print_header "SSH Banner"
-    
+
     local banner_file
-    banner_file=$(grep "^Banner" "$SSHD_CONFIG" 2>/dev/null | awk '{print $2}' || true)
-    
+    banner_file=$(grep "^Banner" "$SSHD_CONFIG" 2> /dev/null | awk '{print $2}' || true)
+
     if [[ -z "$banner_file" ]]; then
         echo "${DIM}No banner configured${NC}"
         echo
         echo "Generate one with: ${CYAN}sudo $0 banner generate${NC}"
         return $EXIT_OK
     fi
-    
+
     echo "${BOLD}Banner file:${NC} $banner_file"
     echo
-    
+
     if [[ -f "$banner_file" ]]; then
         echo "${BOLD}Content:${NC}"
         echo "${DIM}────────────────────────────────────────${NC}"
@@ -1715,37 +1715,37 @@ cmd_banner_show() {
     else
         log_warn "Banner file not found: $banner_file"
     fi
-    
+
     return $EXIT_OK
 }
 
 cmd_banner_set() {
     local banner_file="$1"
-    
+
     if [[ -z "$banner_file" ]]; then
         log_error "Banner file is required"
         log_info "Usage: sudo $0 banner set FILE"
         return $EXIT_INVALID_ARGS
     fi
-    
+
     rsr_require_root "Setting SSH banner"
-    
+
     if [[ ! -f "$banner_file" ]]; then
         log_error "Banner file not found: $banner_file"
         return $EXIT_ERROR
     fi
-    
+
     print_header "Set SSH Banner"
-    
+
     local target_banner="/etc/ssh/banner"
-    
+
     if [[ "$DRY_RUN" != "true" ]]; then
         cp "$banner_file" "$target_banner"
         chmod 644 "$target_banner"
-        
+
         # Update sshd_config
         cp "$SSHD_CONFIG" "${SSHD_CONFIG}.backup.$(date +%Y%m%d-%H%M%S)"
-        
+
         if grep -q "^Banner" "$SSHD_CONFIG"; then
             sed -i.bak "s|^Banner .*|Banner $target_banner|" "$SSHD_CONFIG"
         else
@@ -1753,25 +1753,25 @@ cmd_banner_set() {
             echo "# Banner configuration" >> "$SSHD_CONFIG"
             echo "Banner $target_banner" >> "$SSHD_CONFIG"
         fi
-        
+
         log_ok "Banner set to $target_banner"
         echo
         log_warn "Restart SSH to apply: ${CYAN}sudo $0 restart${NC}"
     else
         log_info "[DRY RUN] Would set banner from $banner_file"
     fi
-    
+
     return $EXIT_OK
 }
 
 cmd_banner_generate() {
     rsr_require_root "Generating SSH banner"
-    
+
     print_header "Generate SSH Banner"
-    
+
     local template="warning"
     local hostname=$(hostname)
-    
+
     echo "Select banner template:"
     echo "  ${BOLD}1${NC}) Warning (unauthorized access prohibited)"
     echo "  ${BOLD}2${NC}) Info (system information only)"
@@ -1779,9 +1779,9 @@ cmd_banner_generate() {
     echo
     read -p "Choice [1]: " choice
     choice=${choice:-1}
-    
+
     local banner_content=""
-    
+
     case "$choice" in
         1)
             banner_content="╔═══════════════════════════════════════════════════════════════╗
@@ -1801,10 +1801,10 @@ cmd_banner_generate() {
         2)
             banner_content="═════════════════════════════════════════════════════
   Welcome to ${hostname}
-  
+
   This system is monitored.
   All activity is logged.
-  
+
   For support, contact: admin@example.com
 ═════════════════════════════════════════════════════"
             ;;
@@ -1818,23 +1818,23 @@ cmd_banner_generate() {
             return $EXIT_INVALID_ARGS
             ;;
     esac
-    
+
     local banner_file="/etc/ssh/banner"
-    
+
     if [[ "$DRY_RUN" != "true" ]]; then
         echo "$banner_content" > "$banner_file"
         chmod 644 "$banner_file"
-        
+
         # Update sshd_config
         cp "$SSHD_CONFIG" "${SSHD_CONFIG}.backup.$(date +%Y%m%d-%H%M%S)"
-        
+
         if grep -q "^Banner" "$SSHD_CONFIG"; then
             sed -i.bak "s|^Banner .*|Banner $banner_file|" "$SSHD_CONFIG"
         else
             echo "" >> "$SSHD_CONFIG"
             echo "Banner $banner_file" >> "$SSHD_CONFIG"
         fi
-        
+
         log_ok "Banner generated: $banner_file"
         echo
         echo "${BOLD}Preview:${NC}"
@@ -1844,30 +1844,30 @@ cmd_banner_generate() {
     else
         log_info "[DRY RUN] Would generate banner"
     fi
-    
+
     return $EXIT_OK
 }
 
 cmd_banner_disable() {
     rsr_require_root "Disabling SSH banner"
-    
+
     print_header "Disable SSH Banner"
-    
+
     if ! grep -q "^Banner" "$SSHD_CONFIG"; then
         log_info "Banner already disabled"
         return $EXIT_OK
     fi
-    
+
     if [[ "$DRY_RUN" != "true" ]]; then
         cp "$SSHD_CONFIG" "${SSHD_CONFIG}.backup.$(date +%Y%m%d-%H%M%S)"
         sed -i.bak "s/^Banner /#Banner /" "$SSHD_CONFIG"
-        
+
         log_ok "Banner disabled"
         log_warn "Restart SSH to apply: ${CYAN}sudo $0 restart${NC}"
     else
         log_info "[DRY RUN] Would disable banner"
     fi
-    
+
     return $EXIT_OK
 }
 
@@ -1879,9 +1879,15 @@ main() {
     # Parse global options
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help) usage ;;
-            -v|--verbose) VERBOSE=true; shift ;;
-            -d|--dry-run) DRY_RUN=true; shift ;;
+            -h | --help) usage ;;
+            -v | --verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -d | --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
             -*)
                 log_error "Unknown option: $1"
                 exit $EXIT_INVALID_ARGS

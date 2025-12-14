@@ -33,7 +33,7 @@ set -eo pipefail
 # Script directory detection
 SCRIPT_SOURCE="${BASH_SOURCE[0]:-${0:-}}"
 if [ -n "${SCRIPT_SOURCE}" ] && [ "${SCRIPT_SOURCE}" != "bash" ] && [ "${SCRIPT_SOURCE}" != "sh" ] && [ "${SCRIPT_SOURCE}" != "-bash" ] && [ "${SCRIPT_SOURCE}" != "-sh" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_SOURCE}")" 2> /dev/null && pwd)" || SCRIPT_DIR=""
 else
     SCRIPT_DIR=""
 fi
@@ -83,7 +83,7 @@ ensure_sudo() {
             log_error "This operation requires root access and sudo is not available"
             exit 1
         fi
-        if ! sudo -n true 2>/dev/null; then
+        if ! sudo -n true 2> /dev/null; then
             log_info "This operation requires sudo access"
             sudo -v
         fi
@@ -120,7 +120,7 @@ install_docker_ubuntu_debian() {
     ensure_sudo
 
     # Remove old versions
-    sudo apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
+    sudo apt-get remove -y docker docker-engine docker.io containerd runc 2> /dev/null || true
 
     # Update package index
     sudo apt-get update
@@ -134,14 +134,14 @@ install_docker_ubuntu_debian() {
 
     # Add Docker's official GPG key
     sudo mkdir -p /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/$(detect_os)/gpg | \
-        sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    curl -fsSL https://download.docker.com/linux/$(detect_os)/gpg \
+        | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 
     # Set up repository
     echo \
-      "deb [arch=$(detect_arch) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$(detect_os) \
-      $(lsb_release -cs) stable" | \
-      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        "deb [arch=$(detect_arch) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$(detect_os) \
+      $(lsb_release -cs) stable" \
+        | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
     # Install Docker Engine
     sudo apt-get update
@@ -169,7 +169,7 @@ install_docker_rhel_fedora() {
 
     # Remove old versions
     sudo dnf remove -y docker docker-client docker-client-latest docker-common docker-latest \
-                       docker-latest-logrotate docker-logrotate docker-engine 2>/dev/null || true
+        docker-latest-logrotate docker-logrotate docker-engine 2> /dev/null || true
 
     # Install dnf-plugins-core
     sudo dnf install -y dnf-plugins-core
@@ -178,7 +178,7 @@ install_docker_rhel_fedora() {
     local os_id
     os_id=$(detect_os)
     case "$os_id" in
-        rhel|rocky|almalinux)
+        rhel | rocky | almalinux)
             sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
             ;;
         fedora)
@@ -234,10 +234,10 @@ install_docker_engine() {
     log_info "Detected OS: $os"
 
     case "$os" in
-        ubuntu|debian)
+        ubuntu | debian)
             install_docker_ubuntu_debian
             ;;
-        rhel|rocky|almalinux|fedora)
+        rhel | rocky | almalinux | fedora)
             install_docker_rhel_fedora
             ;;
         arch)
@@ -280,7 +280,7 @@ show_docker_status() {
 
     echo
     echo "System Information:"
-    docker info 2>/dev/null | grep -E "Server Version|Operating System|Architecture|CPUs|Total Memory|Docker Root Dir" || true
+    docker info 2> /dev/null | grep -E "Server Version|Operating System|Architecture|CPUs|Total Memory|Docker Root Dir" || true
 }
 
 # List Docker containers
@@ -413,7 +413,7 @@ stop_docker() {
 # ============================================================================
 
 show_help() {
-    cat <<EOF
+    cat << EOF
 Docker Management Script v${SCRIPT_VERSION}
 
 A comprehensive Docker management tool for installation and operations.
@@ -495,7 +495,7 @@ main() {
             show_docker_status
             ;;
 
-        ps|list)
+        ps | list)
             local show_all="${1:-}"
             list_containers "$show_all"
             ;;
@@ -504,7 +504,7 @@ main() {
             list_images
             ;;
 
-        df|disk)
+        df | disk)
             show_disk_usage
             ;;
 
@@ -530,7 +530,7 @@ main() {
             echo "Docker Version: $(get_docker_version)"
             ;;
 
-        help|--help|-h)
+        help | --help | -h)
             show_help
             ;;
 
