@@ -12,8 +12,7 @@
 
     # Exclude specific rules if needed
     ExcludeRules = @(
-        # Uncomment rules below to exclude them if too strict for your needs
-        # 'PSAvoidUsingWriteHost',  # We use Write-Host for colored console output
+        'PSAvoidUsingWriteHost'  # We use Write-Host for colored console output in interactive tools
     )
 
     # Custom rule configurations

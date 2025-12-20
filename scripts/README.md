@@ -46,10 +46,13 @@ scripts/
 ├── network/                # Network operations
 │   ├── diagnostics/        # Network troubleshooting
 │   │   └── network-diagnostics.sh
-│   └── dns/                # DNS management
-│       ├── dns-sync.sh
-│       ├── install-dns-gitops.sh
-│       └── check-dns-sync-health.sh
+│   ├── dns/                # DNS management
+│   │   ├── dns-sync.sh
+│   │   ├── install-dns-gitops.sh
+│   │   └── check-dns-sync-health.sh
+│   └── shares/             # Network share management
+│       ├── share-management.sh
+│       └── share-management.ps1
 │
 ├── containers/             # Container orchestration
 │   ├── docker/             # Docker management

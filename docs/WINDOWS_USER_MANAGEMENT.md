@@ -327,13 +327,30 @@ Remove-RSRUser -Username "testuser" -RemoveHome
 
 **Solution:**
 
+Use the RSR execution policy configuration tool (recommended):
+
+```powershell
+# Interactive wizard - guides you through configuration
+.\rsr.ps1 policy
+
+# Or set directly via CLI
+.\rsr.ps1 policy -Scope CurrentUser -Policy RemoteSigned
+
+# Check current status
+.\rsr.ps1 policy -Status
+```
+
+Alternative manual methods:
+
 ```powershell
 # Set execution policy for current user
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
-# Or run with bypass
+# Or run with bypass (temporary, for single command)
 powershell -ExecutionPolicy Bypass -File .\rsr.ps1 usermgmt list
 ```
+
+See `.\scripts\security\hardening\Set-RSRExecutionPolicy.ps1 -Help` for detailed options.
 
 ### Permission Denied
 

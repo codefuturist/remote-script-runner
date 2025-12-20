@@ -1,0 +1,196 @@
+# RSR Network Shares - Default Configuration
+# ============================================
+#
+# This file contains default settings for the share management tool.
+# Copy this to ~/.config/rsr/shares/config.yaml to customize.
+#
+# Documentation: https://github.com/codefuturist/remote-script-runner/docs/shares
+
+# General settings
+general:
+  # Default mount point base directory
+  mountBase: /mnt
+
+  # Auto-create mount points when mounting
+  createMountPoints: true
+
+  # Default file permissions for mounted shares (SMB/CIFS)
+  defaultFileMode: "0644"
+  defaultDirMode: "0755"
+
+  # Default timeout for mount operations (seconds)
+  mountTimeout: 30
+
+  # Enable colored output
+  colorOutput: true
+
+  # Verbose logging by default
+  verbose: false
+
+# SMB/CIFS defaults
+smb:
+  # Default SMB protocol version (auto, 1.0, 2.0, 2.1, 3.0, 3.1.1)
+  version: auto
+
+  # Character set for filenames
+  iocharset: utf8
+
+  # Enable Unix extensions if supported
+  unixExtensions: true
+
+  # Default mount options
+  defaultOptions: "iocharset=utf8,file_mode=0644,dir_mode=0755,nofail,_netdev"
+
+  # Additional options for macOS
+  macosOptions: ""
+
+  # Enable SMB signing (security)
+  signing: auto  # auto, required, disabled
+
+# NFS defaults
+nfs:
+  # Default NFS version (auto, 3, 4, 4.1, 4.2)
+  version: auto
+
+  # Read buffer size (bytes)
+  rsize: 1048576  # 1MB
+
+  # Write buffer size (bytes)
+  wsize: 1048576  # 1MB
+
+  # Use soft mount (returns errors instead of hanging)
+  soft: true
+
+  # Timeout in deciseconds (1/10 second)
+  timeo: 30
+
+  # Number of retransmissions before giving up
+  retrans: 3
+
+  # Default mount options
+  defaultOptions: "rw,soft,timeo=30,retrans=3,nofail,_netdev"
+
+# SSHFS defaults
+sshfs:
+  # SSH port
+  port: 22
+
+  # Reconnect on connection failure
+  reconnect: true
+
+  # Server alive interval (seconds)
+  serverAliveInterval: 15
+
+  # Max server alive attempts
+  serverAliveCountMax: 3
+
+  # Enable compression
+  compression: false
+
+  # Allow other users to access the mount
+  allowOther: false
+
+  # Default mount options
+  defaultOptions: "reconnect,ServerAliveInterval=15,ServerAliveCountMax=3"
+
+  # macOS-specific: volume name (use mount point basename)
+  macosVolname: true
+
+# WebDAV defaults
+webdav:
+  # Trust self-signed certificates
+  trustSelfSigned: false
+
+  # Connection timeout (seconds)
+  timeout: 30
+
+  # Default mount options
+  defaultOptions: ""
+
+# Automount settings
+automount:
+  # Preferred method: fstab, systemd, autofs
+  # Leave empty to auto-detect best method
+  preferredMethod: ""
+
+  # For fstab: include nofail and _netdev options
+  fstabSafeOptions: true
+
+  # For systemd: timeout for mount attempts
+  systemdTimeout: 30
+
+  # For autofs: base directory for auto-mounted shares
+  autofsBase: /mnt/auto
+
+  # Network dependency wait (seconds)
+  networkWait: 10
+
+# Credential storage
+credentials:
+  # Storage method: file, keyring
+  # file: Store in ~/.config/rsr/shares/creds/ (base64 encoded)
+  # keyring: Use system keyring (libsecret on Linux, Keychain on macOS)
+  storage: file
+
+  # Prompt for credentials if not found
+  promptIfMissing: true
+
+  # Remember credentials after successful mount
+  rememberOnSuccess: true
+
+# Discovery settings
+discovery:
+  # Enable mDNS/Bonjour discovery
+  mdns: true
+
+  # Network scan timeout (seconds)
+  scanTimeout: 5
+
+  # Default protocols to discover
+  defaultProtocols:
+    - smb
+    - nfs
+
+# Health check settings
+healthCheck:
+  # Interval between health checks (seconds, 0 to disable)
+  interval: 0
+
+  # Attempt to remount failed shares
+  autoRemount: false
+
+  # Maximum remount attempts
+  maxRemountAttempts: 3
+
+  # Delay between remount attempts (seconds)
+  remountDelay: 30
+
+# Logging
+logging:
+  # Log file location (empty for no file logging)
+  file: ""
+
+  # Log level: debug, info, warn, error
+  level: info
+
+  # Include timestamps in log
+  timestamps: true
+
+# Platform-specific overrides
+platforms:
+  linux:
+    smb:
+      defaultOptions: "iocharset=utf8,file_mode=0644,dir_mode=0755,nofail,_netdev"
+
+  darwin:
+    smb:
+      defaultOptions: "-o nobrowse"
+    sshfs:
+      defaultOptions: "reconnect,ServerAliveInterval=15,volname=%(basename)s"
+
+  windows:
+    # Windows uses drive letters
+    mountBase: ""
+    # Use persistent mapped drives
+    persistent: true
+

@@ -1,0 +1,218 @@
+# windows-essentials.yaml - Essential Windows development environment packages
+# Usage: rsr pkg install windows-essentials
+#        rsr pkg install windows-essentials.terminal
+#        rsr pkg install windows-essentials.dev
+#        rsr pkg install windows-essentials.wsl
+
+name: windows-essentials
+description: Essential packages for Windows development environment
+version: "1.0.0"
+category: windows
+platform: windows
+
+# Top-level packages (installed with base profile)
+packages:
+  - git
+  - vscode
+  - terminal
+
+groups:
+  # Terminal and shell improvements
+  terminal:
+    description: Modern terminal experience
+    packages:
+      - name: Windows Terminal
+        winget: Microsoft.WindowsTerminal
+        choco: microsoft-windows-terminal
+      - name: PowerShell 7
+        winget: Microsoft.PowerShell
+        choco: powershell-core
+        scoop: pwsh
+      - name: Oh My Posh
+        winget: JanDeDobbeleer.OhMyPosh
+        choco: oh-my-posh
+        scoop: oh-my-posh
+
+  # Core development tools
+  dev:
+    description: Core development tools
+    packages:
+      - name: Git
+        winget: Git.Git
+        choco: git
+        scoop: git
+      - name: Visual Studio Code
+        winget: Microsoft.VisualStudioCode
+        choco: vscode
+        scoop: vscode
+      - name: GitHub CLI
+        winget: GitHub.cli
+        choco: gh
+        scoop: gh
+
+  # WSL and Linux integration
+  wsl:
+    description: WSL and Linux tools
+    packages:
+      - name: Windows Subsystem for Linux
+        winget: Microsoft.WSL
+        note: "Also available via: wsl --install"
+      - name: Ubuntu
+        winget: Canonical.Ubuntu
+        note: "Install via WSL: wsl --install -d Ubuntu"
+
+  # Package managers
+  package-managers:
+    description: Additional package managers
+    packages:
+      - name: Chocolatey
+        note: "Install via PowerShell (Admin): Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
+      - name: Scoop
+        note: "Install via PowerShell: irm get.scoop.sh | iex"
+      - name: winget
+        note: "Pre-installed on Windows 11, or install 'App Installer' from Microsoft Store"
+
+  # Web development
+  webdev:
+    description: Web development stack
+    packages:
+      - name: Node.js LTS
+        winget: OpenJS.NodeJS.LTS
+        choco: nodejs-lts
+        scoop: nodejs-lts
+      - name: Python
+        winget: Python.Python.3.12
+        choco: python3
+        scoop: python
+      - name: pnpm
+        winget: pnpm.pnpm
+        choco: pnpm
+        scoop: pnpm
+
+  # DevOps tools
+  devops:
+    description: DevOps and cloud tools
+    packages:
+      - name: Docker Desktop
+        winget: Docker.DockerDesktop
+        choco: docker-desktop
+      - name: Azure CLI
+        winget: Microsoft.AzureCLI
+        choco: azure-cli
+      - name: Terraform
+        winget: Hashicorp.Terraform
+        choco: terraform
+        scoop: terraform
+      - name: kubectl
+        winget: Kubernetes.kubectl
+        choco: kubernetes-cli
+        scoop: kubectl
+
+  # Data science
+  datascience:
+    description: Data science and ML tools
+    packages:
+      - name: Python
+        winget: Python.Python.3.12
+        choco: python3
+        scoop: python
+      - name: Miniconda
+        winget: Anaconda.Miniconda3
+        choco: miniconda3
+      - name: R
+        winget: RProject.R
+        choco: r.project
+        scoop: r
+
+  # Productivity
+  productivity:
+    description: Productivity and utility tools
+    packages:
+      - name: 7-Zip
+        winget: 7zip.7zip
+        choco: 7zip
+        scoop: 7zip
+      - name: Everything Search
+        winget: voidtools.Everything
+        choco: everything
+        scoop: everything
+      - name: Notepad++
+        winget: Notepad++.Notepad++
+        choco: notepadplusplus
+        scoop: notepadplusplus
+      - name: WinSCP
+        winget: WinSCP.WinSCP
+        choco: winscp
+
+  # Security tools
+  security:
+    description: Security and networking tools
+    packages:
+      - name: OpenSSH
+        note: "Built into Windows 10+. Enable via: Add-WindowsCapability -Online -Name OpenSSH.Client"
+      - name: GPG4Win
+        winget: GnuPG.Gpg4win
+        choco: gpg4win
+      - name: KeePassXC
+        winget: KeePassXCTeam.KeePassXC
+        choco: keepassxc
+        scoop: keepassxc
+
+  # Fonts for development
+  fonts:
+    description: Developer fonts (Nerd Fonts for terminal icons)
+    packages:
+      - name: Cascadia Code
+        winget: Microsoft.CascadiaCode
+        choco: cascadiacode
+      - name: FiraCode Nerd Font
+        scoop: FiraCode-NF
+        choco: firacode
+      - name: JetBrains Mono
+        winget: JetBrains.Mono
+        choco: jetbrainsmono
+
+# Preset combinations (for quick setup)
+presets:
+  minimal:
+    description: "Minimal development setup"
+    groups:
+      - terminal
+      - dev
+
+  webdev:
+    description: "Full web development environment"
+    groups:
+      - terminal
+      - dev
+      - webdev
+      - fonts
+
+  devops:
+    description: "DevOps and infrastructure"
+    groups:
+      - terminal
+      - dev
+      - devops
+      - wsl
+
+  datascience:
+    description: "Data science and analytics"
+    groups:
+      - terminal
+      - dev
+      - datascience
+      - fonts
+
+  full:
+    description: "Complete development environment"
+    groups:
+      - terminal
+      - dev
+      - webdev
+      - devops
+      - productivity
+      - security
+      - fonts
+      - wsl
+

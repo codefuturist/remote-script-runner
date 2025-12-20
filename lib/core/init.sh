@@ -304,6 +304,71 @@ rsr_is_root() {
     [ "$(id -u)" -eq 0 ]
 }
 
+# Alias for backwards compatibility
+# Usage: rsr_command_exists "git"
+rsr_command_exists() {
+    rsr_has_command "$1"
+}
+
+# =============================================================================
+# Network Utilities
+# =============================================================================
+
+# Test if a port is open on a host
+# Usage: rsr_test_port "host" "port" [timeout_seconds]
+# Returns: 0 if port is open, 1 if closed/unreachable
+rsr_test_port() {
+    _host="$1"
+    _port="$2"
+    _timeout="${3:-5}"
+
+    # Try nc (netcat) first - most reliable
+    if rsr_has_command nc; then
+        nc -z -w "$_timeout" "$_host" "$_port" 2>/dev/null
+        return $?
+    fi
+
+    # Try bash /dev/tcp (bash-specific)
+    if [ -n "${BASH_VERSION:-}" ]; then
+        (echo >/dev/tcp/"$_host"/"$_port") 2>/dev/null
+        return $?
+    fi
+
+    # Try curl as fallback
+    if rsr_has_command curl; then
+        curl -s --connect-timeout "$_timeout" "telnet://$_host:$_port" 2>/dev/null
+        return $?
+    fi
+
+    # Try python as last resort
+    if rsr_has_command python3; then
+        python3 -c "import socket; s=socket.socket(); s.settimeout($_timeout); s.connect(('$_host',$_port)); s.close()" 2>/dev/null
+        return $?
+    fi
+
+    if rsr_has_command python; then
+        python -c "import socket; s=socket.socket(); s.settimeout($_timeout); s.connect(('$_host',$_port)); s.close()" 2>/dev/null
+        return $?
+    fi
+
+    # No suitable tool found
+    rsr_log_warn "No network testing tool available (nc, curl, or python required)"
+    return 1
+}
+
+# Test if a host is reachable (ping)
+# Usage: rsr_test_host "hostname" [count]
+rsr_test_host() {
+    _host="$1"
+    _count="${2:-1}"
+
+    if [ "$(rsr_detect_os)" = "darwin" ]; then
+        ping -c "$_count" -W 2000 "$_host" >/dev/null 2>&1
+    else
+        ping -c "$_count" -W 2 "$_host" >/dev/null 2>&1
+    fi
+}
+
 # =============================================================================
 # Download Helpers
 # =============================================================================

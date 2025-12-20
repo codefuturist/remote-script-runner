@@ -1,0 +1,247 @@
+# Declutter Default Configuration
+# Copy to ~/.config/declutter/config.yaml to customize
+
+version: "2.0"
+
+# Global settings
+global:
+  # Preview mode - show what would be done without making changes
+  dry_run: false
+
+  # Prompt for confirmation before actions
+  interactive: true
+
+  # Use system trash instead of permanent delete
+  trash_enabled: true
+
+  # Log all actions for undo capability
+  journal_enabled: true
+
+  # Log level: ERROR, WARN, INFO, DEBUG, TRACE
+  log_level: INFO
+
+  # Enable parallel scanning where possible
+  parallel: true
+
+# Scanner settings
+scanners:
+  duplicates:
+    enabled: true
+    # Hash algorithm: md5, sha256, xxhash
+    hash_algorithm: md5
+    # Minimum file size to scan (bytes)
+    min_size: 1
+    # Include hidden files
+    include_hidden: false
+
+  large_files:
+    enabled: true
+    # Size threshold for "large" files
+    threshold: 100MB
+    # Sort by: size, atime, mtime
+    sort_by: size
+
+  old_files:
+    enabled: true
+    # Days without access/modification
+    age_days: 90
+    # Use access time (true) or modification time (false)
+    use_atime: true
+
+  categorization:
+    enabled: true
+    categories:
+      documents:
+        - pdf
+        - doc
+        - docx
+        - txt
+        - md
+        - rtf
+        - odt
+        - pages
+        - tex
+        - epub
+      images:
+        - jpg
+        - jpeg
+        - png
+        - gif
+        - webp
+        - svg
+        - bmp
+        - tiff
+        - ico
+        - heic
+        - raw
+      videos:
+        - mp4
+        - mkv
+        - avi
+        - mov
+        - wmv
+        - flv
+        - webm
+        - m4v
+      audio:
+        - mp3
+        - flac
+        - wav
+        - aac
+        - ogg
+        - m4a
+        - wma
+      code:
+        - js
+        - ts
+        - py
+        - go
+        - rs
+        - java
+        - c
+        - cpp
+        - h
+        - rb
+        - php
+        - swift
+      archives:
+        - zip
+        - tar
+        - gz
+        - bz2
+        - xz
+        - "7z"
+        - rar
+      data:
+        - json
+        - yaml
+        - yml
+        - xml
+        - csv
+        - sql
+        - toml
+
+# Action settings
+actions:
+  delete:
+    # Use system trash for deletions
+    use_trash: true
+    # Confirm if deleting more than N files
+    confirm_threshold: 10
+
+  move:
+    # Create destination directories if they don't exist
+    create_dirs: true
+    # Overwrite existing files
+    overwrite: false
+
+  compress:
+    # Default format: gzip, zstd, xz, bzip2, zip
+    format: gzip
+    # Compression level (1-9)
+    level: 6
+
+# Cleanup presets
+presets:
+  dev:
+    description: "Developer cleanup - remove build artifacts"
+    patterns:
+      - node_modules
+      - __pycache__
+      - "*.pyc"
+      - .pytest_cache
+      - .mypy_cache
+      - .tox
+      - dist
+      - build
+      - target
+      - .next
+      - .nuxt
+      - .turbo
+      - .parcel-cache
+      - .eslintcache
+      - "*.egg-info"
+      - .coverage
+      - htmlcov
+      - .idea
+      - "*.iml"
+    exclude:
+      - .git
+      - .gitignore
+
+  system:
+    description: "System cleanup - remove caches and temp files"
+    patterns:
+      - "*.log"
+      - "*.tmp"
+      - "*.temp"
+      - "*.bak"
+      - "*~"
+      - .DS_Store
+      - Thumbs.db
+      - "*.swp"
+      - "*.swo"
+    cache_dirs:
+      - "~/.cache"
+      - "~/Library/Caches"
+
+  media:
+    description: "Media cleanup - find duplicates and organize"
+    extensions:
+      - jpg
+      - jpeg
+      - png
+      - gif
+      - mp4
+      - mov
+      - mp3
+
+# Organization rules
+organize:
+  enabled: false
+  rules:
+    - name: "Screenshots to folder"
+      match:
+        pattern: "Screenshot*.png"
+        location: "~/Desktop"
+      action:
+        type: move
+        destination: "~/Pictures/Screenshots"
+
+    - name: "PDFs to Documents"
+      match:
+        extensions:
+          - pdf
+        location: "~/Downloads"
+        age_days: 1
+      action:
+        type: move
+        destination: "~/Documents/PDFs"
+
+    - name: "Large videos to external"
+      match:
+        extensions:
+          - mp4
+          - mkv
+          - avi
+        min_size: 1GB
+      action:
+        type: move
+        destination: "/Volumes/External/Videos"
+
+# Ignore patterns
+ignore:
+  paths:
+    - .git
+    - .svn
+    - .hg
+    - node_modules  # Handled by dev preset
+    - __pycache__
+    - .venv
+    - venv
+  patterns:
+    - "*.swp"
+    - "*.swo"
+    - "*~"
+    - .DS_Store
+    - Thumbs.db

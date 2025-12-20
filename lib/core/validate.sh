@@ -306,6 +306,72 @@ rsr_validate_not_empty() {
 }
 
 # =============================================================================
+# Network Share Validation
+# =============================================================================
+
+# Validate SMB/CIFS share path
+# Usage: rsr_validate_smb_path "//server/share"
+rsr_validate_smb_path() {
+    _path="$1"
+    [ -z "$_path" ] && return 1
+    echo "$_path" | grep -qE '^(//|\\\\|smb://|cifs://)[^/\\:]+[/\\].+'
+}
+
+# Validate NFS export path
+# Usage: rsr_validate_nfs_path "server:/export"
+rsr_validate_nfs_path() {
+    _path="$1"
+    [ -z "$_path" ] && return 1
+    echo "$_path" | grep -qE '^[^:]+:/.+'
+}
+
+# Validate SSHFS path
+# Usage: rsr_validate_sshfs_path "user@server:/path"
+rsr_validate_sshfs_path() {
+    _path="$1"
+    [ -z "$_path" ] && return 1
+    echo "$_path" | grep -qE '^([^@]+@)?[^:]+:/.+|^s(ftp|sh)://'
+}
+
+# Validate WebDAV URL
+# Usage: rsr_validate_webdav_path "https://server/dav"
+rsr_validate_webdav_path() {
+    _path="$1"
+    [ -z "$_path" ] && return 1
+    echo "$_path" | grep -qE '^(https?|davs?)://.+'
+}
+
+# Validate mount point path
+# Usage: rsr_validate_mount_point "/mnt/share"
+rsr_validate_mount_point() {
+    _path="$1"
+    [ -z "$_path" ] && return 1
+
+    # Must be absolute path
+    echo "$_path" | grep -qE '^/' || return 1
+
+    # No double slashes or trailing slash (except root)
+    [ "$_path" = "/" ] && return 0
+    echo "$_path" | grep -qE '//|/$' && return 1
+
+    return 0
+}
+
+# Validate share name (for saved configurations)
+# Usage: rsr_validate_share_name "my-share"
+rsr_validate_share_name() {
+    _name="$1"
+    [ -z "$_name" ] && return 1
+
+    # Length check (1-64 chars)
+    _len=$(printf '%s' "$_name" | wc -c)
+    [ "$_len" -lt 1 ] || [ "$_len" -gt 64 ] && return 1
+
+    # Format: starts with letter, contains only [a-zA-Z0-9_-]
+    echo "$_name" | grep -qE '^[a-zA-Z][a-zA-Z0-9_-]*$'
+}
+
+# =============================================================================
 # Initialization Complete
 # =============================================================================
 

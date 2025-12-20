@@ -148,7 +148,27 @@ if [[ "$OS" == "windows" ]]; then
         PACKAGE_MANAGER="apt-cyg"
     elif command -v wsl.exe > /dev/null 2>&1; then
         WINDOWS_ENV="WSL"
-        echo -e "${GREEN}✓${NC} Environment: Windows Subsystem for Linux (WSL)"
+        # Detect WSL version
+        WSL_VERSION=""
+        if [[ -f /proc/version ]]; then
+            if grep -qi "microsoft" /proc/version 2>/dev/null; then
+                # Check for WSL 2 indicators (real Linux kernel)
+                if [[ -d /run/WSL ]] || grep -q "WSL2" /proc/version 2>/dev/null; then
+                    WSL_VERSION="2"
+                else
+                    WSL_VERSION="1"
+                fi
+            fi
+        fi
+        if [[ "$WSL_VERSION" == "2" ]]; then
+            echo -e "${GREEN}✓${NC} Environment: Windows Subsystem for Linux (WSL 2)"
+        elif [[ "$WSL_VERSION" == "1" ]]; then
+            echo -e "${YELLOW}⚠${NC} Environment: Windows Subsystem for Linux (WSL 1)"
+            echo -e "${YELLOW}  WARNING: WSL 1 is not fully supported. Upgrade with:${NC}"
+            echo -e "${YELLOW}    wsl --set-version <DistroName> 2${NC}"
+        else
+            echo -e "${GREEN}✓${NC} Environment: Windows Subsystem for Linux (WSL)"
+        fi
         PACKAGE_MANAGER="apt"
     else
         WINDOWS_ENV="Git Bash"

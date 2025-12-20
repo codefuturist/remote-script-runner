@@ -1,0 +1,51 @@
+# Custom cleanup rules
+# One pattern per line
+# Lines starting with # are comments
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*~
+
+# Editor swap files
+*.swp
+*.swo
+.*.swp
+
+# Log files (be careful!)
+# *.log
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# Windows
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN
+
+# Linux
+.Trash-*
+
+# IDE/Editor
+.idea
+.vscode
+*.sublime-workspace
+
+# Build artifacts (uncomment as needed)
+# dist
+# build
+# out
+# target
+
+# Dependencies (uncomment as needed)
+# node_modules
+# __pycache__
+# *.pyc
+# .venv

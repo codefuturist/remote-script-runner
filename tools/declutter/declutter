@@ -1,0 +1,968 @@
+#!/usr/bin/env bash
+#
+# declutter - A modern file organization and cleanup tool
+# Uses czkawka for duplicate detection and other scanning features
+#
+# Usage: declutter <command> [options] [path]
+#
+# Enhanced modular version with:
+# - Cross-platform support (macOS, Linux, Windows via adapters)
+# - Safe operations with undo capability
+# - Smart categorization and organization
+# - Cleanup presets for various use cases
+#
+
+set -euo pipefail
+
+# =============================================================================
+# Configuration
+# =============================================================================
+
+readonly VERSION="1.1.0"
+readonly SCRIPT_NAME="$(basename "$0")"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Colors and formatting (define before sourcing modules)
+[[ -z "${RED:-}" ]] && readonly RED='\033[0;31m'
+[[ -z "${GREEN:-}" ]] && readonly GREEN='\033[0;32m'
+[[ -z "${YELLOW:-}" ]] && readonly YELLOW='\033[0;33m'
+[[ -z "${BLUE:-}" ]] && readonly BLUE='\033[0;34m'
+[[ -z "${MAGENTA:-}" ]] && readonly MAGENTA='\033[0;35m'
+[[ -z "${CYAN:-}" ]] && readonly CYAN='\033[0;36m'
+[[ -z "${BOLD:-}" ]] && readonly BOLD='\033[1m'
+[[ -z "${DIM:-}" ]] && readonly DIM='\033[2m'
+[[ -z "${RESET:-}" ]] && readonly RESET='\033[0m'
+
+# Source modular components if available
+if [[ -f "$SCRIPT_DIR/core/platform.sh" ]]; then
+    source "$SCRIPT_DIR/core/platform.sh"
+    source "$SCRIPT_DIR/core/logger.sh"
+    source "$SCRIPT_DIR/core/config.sh"
+    source "$SCRIPT_DIR/core/safety.sh"
+    MODULAR_MODE=true
+else
+    MODULAR_MODE=false
+fi
+
+# Source feature modules if available
+if [[ "$MODULAR_MODE" == "true" ]]; then
+    [[ -f "$SCRIPT_DIR/modules/duplicates.sh" ]] && source "$SCRIPT_DIR/modules/duplicates.sh"
+    [[ -f "$SCRIPT_DIR/modules/large_files.sh" ]] && source "$SCRIPT_DIR/modules/large_files.sh"
+    [[ -f "$SCRIPT_DIR/modules/old_files.sh" ]] && source "$SCRIPT_DIR/modules/old_files.sh"
+    [[ -f "$SCRIPT_DIR/modules/categorize.sh" ]] && source "$SCRIPT_DIR/modules/categorize.sh"
+    [[ -f "$SCRIPT_DIR/modules/directory.sh" ]] && source "$SCRIPT_DIR/modules/directory.sh"
+    [[ -f "$SCRIPT_DIR/modules/presets.sh" ]] && source "$SCRIPT_DIR/modules/presets.sh"
+    [[ -f "$SCRIPT_DIR/modules/organize.sh" ]] && source "$SCRIPT_DIR/modules/organize.sh"
+fi
+
+# Default settings
+DEFAULT_PATH="${HOME}"
+RESULTS_DIR="${HOME}/.cache/declutter"
+UNDO_DIR="${HOME}/.declutter/undo"
+INTERACTIVE=true
+DRY_RUN=false
+VERBOSE=false
+
+# =============================================================================
+# Helper Functions
+# =============================================================================
+
+print_header() {
+    echo -e "\n${BOLD}${BLUE}╭─────────────────────────────────────────╮${RESET}"
+    echo -e "${BOLD}${BLUE}│${RESET}  ${BOLD}🧹 Declutter${RESET} - File Organization Tool  ${BOLD}${BLUE}│${RESET}"
+    echo -e "${BOLD}${BLUE}╰─────────────────────────────────────────╯${RESET}\n"
+}
+
+log_info() {
+    echo -e "${BLUE}ℹ${RESET}  $1"
+}
+
+log_success() {
+    echo -e "${GREEN}✓${RESET}  $1"
+}
+
+log_warning() {
+    echo -e "${YELLOW}⚠${RESET}  $1"
+}
+
+log_error() {
+    echo -e "${RED}✗${RESET}  $1" >&2
+}
+
+log_step() {
+    echo -e "${MAGENTA}▶${RESET}  ${BOLD}$1${RESET}"
+}
+
+print_divider() {
+    echo -e "${DIM}─────────────────────────────────────────────${RESET}"
+}
+
+# Format bytes to human readable
+format_bytes() {
+    local bytes=$1
+    if ((bytes >= 1073741824)); then
+        printf "%.2f GB" "$(echo "scale=2; $bytes / 1073741824" | bc)"
+    elif ((bytes >= 1048576)); then
+        printf "%.2f MB" "$(echo "scale=2; $bytes / 1048576" | bc)"
+    elif ((bytes >= 1024)); then
+        printf "%.2f KB" "$(echo "scale=2; $bytes / 1024" | bc)"
+    else
+        printf "%d B" "$bytes"
+    fi
+}
+
+# Check for required dependencies
+check_dependencies() {
+    local missing=()
+    local optional_missing=()
+    local dep
+
+    # Required
+    for dep in czkawka_cli jq; do
+        if ! command -v "$dep" &>/dev/null; then
+            missing+=("$dep")
+        fi
+    done
+
+    # Optional but recommended
+    for dep in fd fzf trash dust; do
+        if ! command -v "$dep" &>/dev/null; then
+            optional_missing+=("$dep")
+        fi
+    done
+
+    if ((${#missing[@]} > 0)); then
+        log_error "Missing required dependencies: ${missing[*]}"
+        echo -e "\n  Install with: ${CYAN}brew install ${missing[*]}${RESET}"
+        exit 1
+    fi
+
+    if ((${#optional_missing[@]} > 0)) && [[ "$VERBOSE" == "true" ]]; then
+        log_warning "Optional dependencies not found: ${optional_missing[*]}"
+        echo -e "  Install with: ${CYAN}brew install ${optional_missing[*]}${RESET}\n"
+    fi
+}
+
+# Ensure results directory exists
+ensure_results_dir() {
+    mkdir -p "$RESULTS_DIR"
+}
+
+# Safe delete using trash or rm with confirmation
+safe_delete() {
+    local file="$1"
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log_info "[DRY-RUN] Would delete: $file"
+        return 0
+    fi
+
+    if command -v trash &>/dev/null; then
+        trash "$file" && log_success "Moved to trash: $file"
+    else
+        rm -i "$file" && log_success "Deleted: $file"
+    fi
+}
+
+# Interactive file selection with fzf
+# Reads file paths from stdin, outputs selected files to stdout
+interactive_select() {
+    if ! command -v fzf &>/dev/null; then
+        log_warning "fzf not available, showing list instead"
+        cat
+        return
+    fi
+
+    fzf --multi \
+        --header="Select files to delete (TAB to multi-select, ENTER to confirm)" \
+        --preview="ls -lah {}" \
+        --preview-window=down:3:wrap \
+        --bind="ctrl-a:select-all" \
+        --bind="ctrl-d:deselect-all"
+}
+
+# =============================================================================
+# Scan Commands
+# =============================================================================
+
+# Find duplicate files
+cmd_duplicates() {
+    local target_path="${1:-$DEFAULT_PATH}"
+    local output_file="$RESULTS_DIR/duplicates_$(date +%Y%m%d_%H%M%S).json"
+
+    log_step "Scanning for duplicates in: $target_path"
+    print_divider
+
+    czkawka_cli dup -d "$target_path" -f "$output_file" --json 2>/dev/null || true
+
+    if [[ ! -f "$output_file" ]] || [[ ! -s "$output_file" ]]; then
+        log_success "No duplicates found!"
+        return 0
+    fi
+
+    # Parse and display results
+    local groups count total_size
+    groups=$(jq -r '.duplicates | length' "$output_file" 2>/dev/null || echo "0")
+    count=$(jq -r '[.duplicates[].files | length] | add // 0' "$output_file" 2>/dev/null || echo "0")
+    total_size=$(jq -r '[.duplicates[].files[].size] | add // 0' "$output_file" 2>/dev/null || echo "0")
+
+    echo -e "\n${BOLD}Results:${RESET}"
+    echo -e "  • Duplicate groups: ${CYAN}$groups${RESET}"
+    echo -e "  • Total files:      ${CYAN}$count${RESET}"
+    echo -e "  • Space used:       ${CYAN}$(format_bytes "$total_size")${RESET}"
+    echo -e "  • Results saved:    ${DIM}$output_file${RESET}"
+
+    if [[ "$INTERACTIVE" == "true" ]] && ((groups > 0)); then
+        echo ""
+        read -rp "Review duplicates interactively? [y/N] " response
+        if [[ "$response" =~ ^[Yy]$ ]]; then
+            review_duplicates "$output_file"
+        fi
+    fi
+}
+
+# Review and delete duplicates interactively
+review_duplicates() {
+    local json_file="$1"
+
+    jq -r '.duplicates[] | .files[] | .path' "$json_file" 2>/dev/null | while read -r file; do
+        if [[ -f "$file" ]]; then
+            echo "$file"
+        fi
+    done | interactive_select | while read -r selected; do
+        safe_delete "$selected"
+    done
+}
+
+# Find similar images
+cmd_similar_images() {
+    local target_path="${1:-$DEFAULT_PATH}"
+    local output_file="$RESULTS_DIR/similar_images_$(date +%Y%m%d_%H%M%S).json"
+
+    log_step "Scanning for similar images in: $target_path"
+    print_divider
+
+    czkawka_cli image -d "$target_path" -f "$output_file" --json 2>/dev/null || true
+
+    if [[ ! -f "$output_file" ]] || [[ ! -s "$output_file" ]]; then
+        log_success "No similar images found!"
+        return 0
+    fi
+
+    local groups
+    groups=$(jq -r '.similar_images | length' "$output_file" 2>/dev/null || echo "0")
+
+    echo -e "\n${BOLD}Results:${RESET}"
+    echo -e "  • Similar image groups: ${CYAN}$groups${RESET}"
+    echo -e "  • Results saved:        ${DIM}$output_file${RESET}"
+}
+
+# Find empty files and folders
+cmd_empty() {
+    local target_path="${1:-$DEFAULT_PATH}"
+    local files_output="$RESULTS_DIR/empty_files_$(date +%Y%m%d_%H%M%S).json"
+    local folders_output="$RESULTS_DIR/empty_folders_$(date +%Y%m%d_%H%M%S).json"
+
+    log_step "Scanning for empty files and folders in: $target_path"
+    print_divider
+
+    # Scan empty files
+    czkawka_cli empty-files -d "$target_path" -f "$files_output" --json 2>/dev/null || true
+
+    # Scan empty folders
+    czkawka_cli empty-folders -d "$target_path" -f "$folders_output" --json 2>/dev/null || true
+
+    local empty_files=0 empty_folders=0
+
+    if [[ -f "$files_output" ]] && [[ -s "$files_output" ]]; then
+        empty_files=$(jq -r '.empty_files | length' "$files_output" 2>/dev/null || echo "0")
+    fi
+
+    if [[ -f "$folders_output" ]] && [[ -s "$folders_output" ]]; then
+        empty_folders=$(jq -r '.empty_folders | length' "$folders_output" 2>/dev/null || echo "0")
+    fi
+
+    echo -e "\n${BOLD}Results:${RESET}"
+    echo -e "  • Empty files:   ${CYAN}$empty_files${RESET}"
+    echo -e "  • Empty folders: ${CYAN}$empty_folders${RESET}"
+
+    if [[ "$INTERACTIVE" == "true" ]] && ((empty_files + empty_folders > 0)); then
+        echo ""
+        read -rp "Delete empty files and folders? [y/N] " response
+        if [[ "$response" =~ ^[Yy]$ ]]; then
+            delete_empty_items "$files_output" "$folders_output"
+        fi
+    fi
+}
+
+delete_empty_items() {
+    local files_json="$1"
+    local folders_json="$2"
+
+    # Delete empty files
+    if [[ -f "$files_json" ]]; then
+        jq -r '.empty_files[]?.path // empty' "$files_json" 2>/dev/null | while read -r file; do
+            [[ -f "$file" ]] && safe_delete "$file"
+        done
+    fi
+
+    # Delete empty folders (in reverse order for nested)
+    if [[ -f "$folders_json" ]]; then
+        jq -r '.empty_folders[]?.path // empty' "$folders_json" 2>/dev/null | sort -r | while read -r folder; do
+            if [[ -d "$folder" ]] && [[ -z "$(ls -A "$folder" 2>/dev/null)" ]]; then
+                if [[ "$DRY_RUN" == "true" ]]; then
+                    log_info "[DRY-RUN] Would delete folder: $folder"
+                else
+                    rmdir "$folder" && log_success "Deleted folder: $folder"
+                fi
+            fi
+        done
+    fi
+}
+
+# Find temporary files
+cmd_temp() {
+    local target_path="${1:-$DEFAULT_PATH}"
+    local output_file="$RESULTS_DIR/temp_files_$(date +%Y%m%d_%H%M%S).json"
+
+    log_step "Scanning for temporary files in: $target_path"
+    print_divider
+
+    czkawka_cli temp -d "$target_path" -f "$output_file" --json 2>/dev/null || true
+
+    if [[ ! -f "$output_file" ]] || [[ ! -s "$output_file" ]]; then
+        log_success "No temporary files found!"
+        return 0
+    fi
+
+    local count
+    count=$(jq -r '.temporary_files | length' "$output_file" 2>/dev/null || echo "0")
+
+    echo -e "\n${BOLD}Results:${RESET}"
+    echo -e "  • Temporary files: ${CYAN}$count${RESET}"
+    echo -e "  • Results saved:   ${DIM}$output_file${RESET}"
+
+    if [[ "$INTERACTIVE" == "true" ]] && ((count > 0)); then
+        echo ""
+        read -rp "Review temporary files? [y/N] " response
+        if [[ "$response" =~ ^[Yy]$ ]]; then
+            jq -r '.temporary_files[]?.path // empty' "$output_file" 2>/dev/null | \
+                interactive_select | while read -r selected; do
+                    safe_delete "$selected"
+                done
+        fi
+    fi
+}
+
+# Find broken symlinks
+cmd_symlinks() {
+    local target_path="${1:-$DEFAULT_PATH}"
+    local output_file="$RESULTS_DIR/broken_symlinks_$(date +%Y%m%d_%H%M%S).json"
+
+    log_step "Scanning for broken symlinks in: $target_path"
+    print_divider
+
+    czkawka_cli symlinks -d "$target_path" -f "$output_file" --json 2>/dev/null || true
+
+    if [[ ! -f "$output_file" ]] || [[ ! -s "$output_file" ]]; then
+        log_success "No broken symlinks found!"
+        return 0
+    fi
+
+    local count
+    count=$(jq -r '.invalid_symlinks | length' "$output_file" 2>/dev/null || echo "0")
+
+    echo -e "\n${BOLD}Results:${RESET}"
+    echo -e "  • Broken symlinks: ${CYAN}$count${RESET}"
+    echo -e "  • Results saved:   ${DIM}$output_file${RESET}"
+}
+
+# Find large files
+cmd_big() {
+    local target_path="${1:-$DEFAULT_PATH}"
+    local count="${2:-50}"
+    local output_file="$RESULTS_DIR/big_files_$(date +%Y%m%d_%H%M%S).json"
+
+    log_step "Finding $count largest files in: $target_path"
+    print_divider
+
+    czkawka_cli big -d "$target_path" -n "$count" -f "$output_file" --json 2>/dev/null || true
+
+    if [[ ! -f "$output_file" ]] || [[ ! -s "$output_file" ]]; then
+        log_warning "No results generated"
+        return 0
+    fi
+
+    echo -e "\n${BOLD}Largest Files:${RESET}"
+    jq -r '.big_files[]? | "\(.size | tonumber | . / 1048576 | floor)MB  \(.path)"' "$output_file" 2>/dev/null | \
+        head -20 | while read -r line; do
+            echo -e "  ${CYAN}$line${RESET}"
+        done
+
+    echo -e "\n  ${DIM}Full results: $output_file${RESET}"
+}
+
+# Find old/unused files
+cmd_old() {
+    local target_path="${1:-$DEFAULT_PATH}"
+    local days="${2:-90}"
+
+    log_step "Finding files not accessed in $days days: $target_path"
+    print_divider
+
+    if command -v fd &>/dev/null; then
+        local count
+        count=$(fd . "$target_path" --type f --changed-before "${days}d" 2>/dev/null | wc -l | tr -d ' ')
+
+        echo -e "\n${BOLD}Results:${RESET}"
+        echo -e "  • Old files (>${days} days): ${CYAN}$count${RESET}"
+
+        if [[ "$INTERACTIVE" == "true" ]] && ((count > 0)); then
+            echo ""
+            read -rp "Review old files? [y/N] " response
+            if [[ "$response" =~ ^[Yy]$ ]]; then
+                fd . "$target_path" --type f --changed-before "${days}d" 2>/dev/null | \
+                    interactive_select | while read -r selected; do
+                        safe_delete "$selected"
+                    done
+            fi
+        fi
+    else
+        find "$target_path" -type f -atime +"$days" 2>/dev/null | head -50
+        log_warning "Install 'fd' for better performance: brew install fd"
+    fi
+}
+
+# =============================================================================
+# Preset Commands
+# =============================================================================
+
+# Quick clean - fast common cleanup
+cmd_quick() {
+    local target_path="${1:-$DEFAULT_PATH}"
+
+    print_header
+    log_step "Running quick cleanup on: $target_path"
+    print_divider
+
+    echo -e "\n${BOLD}1/3${RESET} Checking for empty files and folders..."
+    cmd_empty "$target_path"
+
+    echo -e "\n${BOLD}2/3${RESET} Checking for temporary files..."
+    cmd_temp "$target_path"
+
+    echo -e "\n${BOLD}3/3${RESET} Checking for broken symlinks..."
+    cmd_symlinks "$target_path"
+
+    print_divider
+    log_success "Quick cleanup complete!"
+}
+
+# Deep scan - comprehensive analysis
+cmd_deep() {
+    local target_path="${1:-$DEFAULT_PATH}"
+
+    print_header
+    log_step "Running deep scan on: $target_path"
+    log_warning "This may take a while for large directories..."
+    print_divider
+
+    echo -e "\n${BOLD}1/6${RESET} Scanning for duplicates..."
+    cmd_duplicates "$target_path"
+
+    echo -e "\n${BOLD}2/6${RESET} Scanning for similar images..."
+    cmd_similar_images "$target_path"
+
+    echo -e "\n${BOLD}3/6${RESET} Scanning for empty files and folders..."
+    cmd_empty "$target_path"
+
+    echo -e "\n${BOLD}4/6${RESET} Scanning for temporary files..."
+    cmd_temp "$target_path"
+
+    echo -e "\n${BOLD}5/6${RESET} Scanning for broken symlinks..."
+    cmd_symlinks "$target_path"
+
+    echo -e "\n${BOLD}6/6${RESET} Finding largest files..."
+    cmd_big "$target_path" 20
+
+    print_divider
+    log_success "Deep scan complete! Check $RESULTS_DIR for detailed reports."
+}
+
+# Developer cleanup - remove build artifacts
+cmd_dev() {
+    local target_path="${1:-$(pwd)}"
+
+    print_header
+    log_step "Developer cleanup in: $target_path"
+    print_divider
+
+    local patterns=(
+        "node_modules"
+        "__pycache__"
+        ".pytest_cache"
+        ".mypy_cache"
+        ".tox"
+        "*.pyc"
+        ".DS_Store"
+        "Thumbs.db"
+        "*.log"
+        ".coverage"
+        "coverage"
+        "dist"
+        "build"
+        ".next"
+        ".nuxt"
+        "target"  # Rust/Java
+    )
+
+    echo -e "${BOLD}Scanning for:${RESET}"
+    for pattern in "${patterns[@]}"; do
+        echo -e "  • $pattern"
+    done
+    echo ""
+
+    if command -v fd &>/dev/null; then
+        local total_size=0
+        local found_items=()
+
+        for pattern in "${patterns[@]}"; do
+            while IFS= read -r item; do
+                if [[ -n "$item" ]]; then
+                    found_items+=("$item")
+                    if [[ -d "$item" ]]; then
+                        size=$(du -sk "$item" 2>/dev/null | cut -f1 || echo "0")
+                        total_size=$((total_size + size * 1024))
+                    fi
+                fi
+            done < <(fd -HI --glob "$pattern" "$target_path" 2>/dev/null)
+        done
+
+        echo -e "${BOLD}Found:${RESET}"
+        echo -e "  • Items:        ${CYAN}${#found_items[@]}${RESET}"
+        echo -e "  • Total size:   ${CYAN}$(format_bytes $total_size)${RESET}"
+
+        if ((${#found_items[@]} > 0)); then
+            echo ""
+            read -rp "Delete these items? [y/N] " response
+            if [[ "$response" =~ ^[Yy]$ ]]; then
+                for item in "${found_items[@]}"; do
+                    if [[ -e "$item" ]]; then
+                        if [[ "$DRY_RUN" == "true" ]]; then
+                            log_info "[DRY-RUN] Would delete: $item"
+                        else
+                            rm -rf "$item" && log_success "Deleted: $item"
+                        fi
+                    fi
+                done
+            fi
+        fi
+    else
+        log_error "fd is required for dev cleanup. Install with: brew install fd"
+        exit 1
+    fi
+
+    print_divider
+    log_success "Developer cleanup complete!"
+}
+
+# =============================================================================
+# Utility Commands
+# =============================================================================
+
+# Show disk usage summary
+cmd_usage() {
+    local target_path="${1:-$DEFAULT_PATH}"
+
+    log_step "Disk usage for: $target_path"
+    print_divider
+
+    if command -v dust &>/dev/null; then
+        dust -d 2 "$target_path"
+    else
+        du -h -d 2 "$target_path" 2>/dev/null | sort -hr | head -20
+        echo ""
+        log_info "Install 'dust' for better visualization: brew install dust"
+    fi
+}
+
+# List recent scan results
+cmd_results() {
+    log_step "Recent scan results"
+    print_divider
+
+    if [[ -d "$RESULTS_DIR" ]]; then
+        ls -lht "$RESULTS_DIR" | head -20
+    else
+        log_info "No results found. Run a scan first."
+    fi
+}
+
+# Clean old results
+cmd_clean_cache() {
+    log_step "Cleaning results cache"
+
+    if [[ -d "$RESULTS_DIR" ]]; then
+        local count
+        count=$(find "$RESULTS_DIR" -type f | wc -l | tr -d ' ')
+        rm -rf "${RESULTS_DIR:?}"/*
+        log_success "Removed $count cached result files"
+    else
+        log_info "Cache directory is empty"
+    fi
+}
+
+# =============================================================================
+# Main
+# =============================================================================
+
+usage() {
+    echo -e "${BOLD}Usage:${RESET} $SCRIPT_NAME <command> [options] [path]"
+    echo ""
+    echo -e "${BOLD}Scan Commands:${RESET}"
+    echo "  duplicates [path]     Find duplicate files (uses czkawka)"
+    echo "  similar [path]        Find similar images"
+    echo "  empty [path]          Find empty files and folders"
+    echo "  temp [path]           Find temporary files"
+    echo "  symlinks [path]       Find broken symlinks"
+    echo "  big [path] [size_mb]  Find largest files (default: 50 files)"
+    echo "  old [path] [days]     Find files not accessed in N days (default: 90)"
+    echo ""
+    echo -e "${BOLD}Analysis Commands:${RESET}"
+    echo "  categories [path]     Analyze file categories"
+    echo "  tree [path] [depth]   Show directory tree with sizes"
+    echo "  analyze [path]        Analyze directory sizes"
+    echo "  bloated [path] [mb]   Find directories larger than threshold"
+    echo "  junk [path]           Find junk files (.DS_Store, Thumbs.db, etc.)"
+    echo "  projects [path]       Detect project folders"
+    echo ""
+    echo -e "${BOLD}Preset Commands:${RESET}"
+    echo "  quick [path]          Quick cleanup (empty, temp, symlinks)"
+    echo "  deep [path]           Deep scan (all checks)"
+    echo "  dev [path]            Developer cleanup (node_modules, __pycache__, etc.)"
+    echo "  cleanup <preset>      Run cleanup preset (dev, system, browser, all)"
+    echo ""
+    echo -e "${BOLD}Organization Commands:${RESET}"
+    echo "  organize [path]       Organize files by category"
+    echo "  sort [source] [dest]  Sort files by extension rules"
+    echo "  rename [path] <style> Batch rename (lowercase, snake_case, kebab-case)"
+    echo "  flatten [path]        Move nested files to single directory"
+    echo ""
+    echo -e "${BOLD}Safety & Undo:${RESET}"
+    echo "  undo [session_id]     Undo a previous operation"
+    echo "  undo-list             List available undo sessions"
+    echo "  history               Show action history"
+    echo ""
+    echo -e "${BOLD}Utility Commands:${RESET}"
+    echo "  usage [path]          Show disk usage summary"
+    echo "  results               List recent scan results"
+    echo "  clean-cache           Remove cached scan results"
+    echo "  interactive           Launch interactive mode"
+    echo ""
+    echo -e "${BOLD}Options:${RESET}"
+    echo "  -n, --dry-run         Preview changes without making them"
+    echo "  -y, --yes             Skip confirmation prompts"
+    echo "  -v, --verbose         Show detailed output"
+    echo "  -h, --help            Show this help message"
+    echo "  --version             Show version"
+    echo ""
+    echo -e "${BOLD}Examples:${RESET}"
+    echo "  $SCRIPT_NAME quick ~/Downloads"
+    echo "  $SCRIPT_NAME duplicates ~/Documents"
+    echo "  $SCRIPT_NAME dev --dry-run"
+    echo "  $SCRIPT_NAME cleanup dev ~/Projects"
+    echo "  $SCRIPT_NAME organize ~/Downloads"
+    echo "  $SCRIPT_NAME undo-list"
+    echo ""
+}
+
+main() {
+    local cmd=""
+    local args=()
+
+    # Parse all arguments - options can appear anywhere
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -n|--dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            -y|--yes)
+                INTERACTIVE=false
+                shift
+                ;;
+            -v|--verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -h|--help)
+                print_header
+                usage
+                exit 0
+                ;;
+            --version)
+                echo "$SCRIPT_NAME version $VERSION"
+                exit 0
+                ;;
+            -*)
+                log_error "Unknown option: $1"
+                usage
+                exit 1
+                ;;
+            *)
+                # First non-option is the command, rest are args
+                if [[ -z "$cmd" ]]; then
+                    cmd="$1"
+                else
+                    args+=("$1")
+                fi
+                shift
+                ;;
+        esac
+    done
+
+    if [[ -z "$cmd" ]]; then
+        print_header
+        usage
+        exit 0
+    fi
+
+    # Setup
+    ensure_results_dir
+    check_dependencies
+
+    # Show dry-run notice
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log_warning "Running in dry-run mode - no files will be modified"
+        echo ""
+    fi
+
+    # Execute command
+    case "$cmd" in
+        duplicates|dup|dups)
+            cmd_duplicates "${args[@]+"${args[@]}"}"
+            ;;
+        similar|images|img)
+            cmd_similar_images "${args[@]+"${args[@]}"}"
+            ;;
+        empty)
+            cmd_empty "${args[@]+"${args[@]}"}"
+            ;;
+        temp|tmp)
+            cmd_temp "${args[@]+"${args[@]}"}"
+            ;;
+        symlinks|sym)
+            cmd_symlinks "${args[@]+"${args[@]}"}"
+            ;;
+        big|large)
+            cmd_big "${args[@]+"${args[@]}"}"
+            ;;
+        old|unused)
+            cmd_old "${args[@]+"${args[@]}"}"
+            ;;
+        quick)
+            cmd_quick "${args[@]+"${args[@]}"}"
+            ;;
+        deep|full)
+            cmd_deep "${args[@]+"${args[@]}"}"
+            ;;
+        dev|developer)
+            cmd_dev "${args[@]+"${args[@]}"}"
+            ;;
+        usage|du)
+            cmd_usage "${args[@]+"${args[@]}"}"
+            ;;
+        results)
+            cmd_results
+            ;;
+        clean-cache|clean)
+            cmd_clean_cache
+            ;;
+
+        # Extended modular commands (if modules are loaded)
+        categories|cats)
+            if [[ "$MODULAR_MODE" == "true" ]] && declare -f analyze_categories &>/dev/null; then
+                analyze_categories "${args[0]:-.}"
+            else
+                log_error "Module not available. Ensure modules are installed."
+            fi
+            ;;
+        tree)
+            if [[ "$MODULAR_MODE" == "true" ]] && declare -f show_tree_with_sizes &>/dev/null; then
+                show_tree_with_sizes "${args[0]:-.}" "${args[1]:-3}"
+            else
+                log_error "Module not available."
+            fi
+            ;;
+        analyze|dir)
+            if [[ "$MODULAR_MODE" == "true" ]] && declare -f analyze_directory &>/dev/null; then
+                analyze_directory "${args[0]:-.}" "${args[1]:-2}"
+            else
+                cmd_usage "${args[@]+"${args[@]}"}"
+            fi
+            ;;
+        bloated)
+            if [[ "$MODULAR_MODE" == "true" ]] && declare -f find_bloated_dirs &>/dev/null; then
+                find_bloated_dirs "${args[0]:-.}" "${args[1]:-500}"
+            else
+                log_error "Module not available."
+            fi
+            ;;
+        junk)
+            if [[ "$MODULAR_MODE" == "true" ]] && declare -f find_junk_files &>/dev/null; then
+                find_junk_files "${args[0]:-.}"
+            else
+                log_error "Module not available."
+            fi
+            ;;
+        projects)
+            if [[ "$MODULAR_MODE" == "true" ]] && declare -f detect_project_folders &>/dev/null; then
+                detect_project_folders "${args[0]:-.}"
+            else
+                log_error "Module not available."
+            fi
+            ;;
+        organize)
+            if [[ "$MODULAR_MODE" == "true" ]] && declare -f organize_by_category &>/dev/null; then
+                organize_by_category "${args[0]:-.}" "${args[1]:-}"
+            else
+                log_error "Module not available."
+            fi
+            ;;
+        sort)
+            if [[ "$MODULAR_MODE" == "true" ]] && declare -f organize_files &>/dev/null; then
+                organize_files "${args[0]:-$HOME/Downloads}" "${args[1]:-$HOME}"
+            else
+                log_error "Module not available."
+            fi
+            ;;
+        rename)
+            if [[ "$MODULAR_MODE" == "true" ]] && declare -f rename_files &>/dev/null; then
+                if [[ ${#args[@]} -lt 2 ]]; then
+                    log_error "Usage: $SCRIPT_NAME rename <path> <style>"
+                    exit 1
+                fi
+                rename_files "${args[0]}" "*" "${args[1]}"
+            else
+                log_error "Module not available."
+            fi
+            ;;
+        flatten)
+            if [[ "$MODULAR_MODE" == "true" ]] && declare -f flatten_directory &>/dev/null; then
+                flatten_directory "${args[0]:-.}"
+            else
+                log_error "Module not available."
+            fi
+            ;;
+        cleanup)
+            if [[ "$MODULAR_MODE" == "true" ]] && declare -f run_cleanup &>/dev/null; then
+                if [[ ${#args[@]} -eq 0 ]]; then
+                    list_presets
+                else
+                    run_cleanup "${args[0]}" "${args[1]:-.}"
+                fi
+            else
+                cmd_dev "${args[@]+"${args[@]}"}"
+            fi
+            ;;
+        undo)
+            if [[ "$MODULAR_MODE" == "true" ]] && declare -f undo_session &>/dev/null; then
+                if [[ ${#args[@]} -eq 0 ]]; then
+                    list_undo_sessions
+                else
+                    undo_session "${args[0]}"
+                fi
+            else
+                log_error "Undo module not available."
+            fi
+            ;;
+        undo-list|sessions)
+            if [[ "$MODULAR_MODE" == "true" ]] && declare -f list_undo_sessions &>/dev/null; then
+                list_undo_sessions
+            else
+                log_error "Undo module not available."
+            fi
+            ;;
+        history)
+            local log_dir="${DECLUTTER_LOG_DIR:-$HOME/.declutter/logs}"
+            if [[ -d "$log_dir" ]]; then
+                local action_log="$log_dir/actions_$(date +%Y%m%d).log"
+                if [[ -f "$action_log" ]]; then
+                    cat "$action_log"
+                else
+                    log_info "No actions recorded today."
+                fi
+            else
+                log_info "No history available."
+            fi
+            ;;
+        interactive|i)
+            if [[ "$MODULAR_MODE" == "true" ]] && declare -f run_interactive_mode &>/dev/null; then
+                run_interactive_mode
+            else
+                log_error "Interactive mode requires modular components."
+            fi
+            ;;
+        *)
+            log_error "Unknown command: $cmd"
+            echo ""
+            usage
+            exit 1
+            ;;
+    esac
+}
+
+# Interactive mode (basic version if modules not loaded)
+run_interactive_mode() {
+    while true; do
+        print_header
+        echo "  1) Find Duplicates"
+        echo "  2) Find Large Files"
+        echo "  3) Quick Cleanup"
+        echo "  4) Developer Cleanup"
+        echo "  5) Show Disk Usage"
+        echo "  q) Quit"
+        echo ""
+
+        echo -n "Select option: "
+        read -r choice
+
+        case "$choice" in
+            1)
+                echo -n "Path to scan [.]: "
+                read -r path
+                cmd_duplicates "${path:-.}"
+                ;;
+            2)
+                echo -n "Path to scan [.]: "
+                read -r path
+                cmd_big "${path:-.}"
+                ;;
+            3)
+                echo -n "Path to scan [.]: "
+                read -r path
+                cmd_quick "${path:-.}"
+                ;;
+            4)
+                echo -n "Path to scan [.]: "
+                read -r path
+                cmd_dev "${path:-.}"
+                ;;
+            5)
+                echo -n "Path [.]: "
+                read -r path
+                cmd_usage "${path:-.}"
+                ;;
+            q|Q)
+                log_info "Goodbye!"
+                exit 0
+                ;;
+        esac
+
+        echo ""
+        echo -n "Press Enter to continue..."
+        read -r
+    done
+}
+
+main "$@"

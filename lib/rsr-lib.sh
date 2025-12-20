@@ -94,6 +94,10 @@ rsr_load_module() {
             # shellcheck source=modules/backup.sh
             . "${_RSR_LIB_ROOT}/modules/backup.sh"
             ;;
+        shares | share)
+            # shellcheck source=modules/shares.sh
+            . "${_RSR_LIB_ROOT}/modules/shares.sh"
+            ;;
     esac
 }
 
@@ -105,6 +109,7 @@ rsr_load_all() {
     rsr_load_module docker
     rsr_load_module ssh
     rsr_load_module packages
+    rsr_load_module shares
 
     # Interactive only if bash
     [ -n "${BASH_VERSION:-}" ] && rsr_load_module interactive

@@ -1,0 +1,543 @@
+#!/usr/bin/env bash
+# ============================================================================
+# declutter - Modern File Organization and Cleanup Tool
+# ============================================================================
+#
+# A comprehensive file management tool using czkawka for duplicate detection
+# and providing smart categorization, cleanup presets, and organization features.
+#
+# Usage: declutter <command> [options] [path]
+#
+# Version: 2.0.0
+# ============================================================================
+
+set -uo pipefail
+
+# =============================================================================
+# Default Color Definitions (before library load)
+# =============================================================================
+
+NC=${NC:-'\033[0m'}
+RED=${RED:-'\033[0;31m'}
+GREEN=${GREEN:-'\033[0;32m'}
+YELLOW=${YELLOW:-'\033[0;33m'}
+BLUE=${BLUE:-'\033[0;34m'}
+MAGENTA=${MAGENTA:-'\033[0;35m'}
+CYAN=${CYAN:-'\033[0;36m'}
+WHITE=${WHITE:-'\033[0;37m'}
+GRAY=${GRAY:-'\033[0;90m'}
+BOLD=${BOLD:-'\033[1m'}
+DIM=${DIM:-'\033[2m'}
+
+# =============================================================================
+# Script Setup
+# =============================================================================
+
+readonly SCRIPT_VERSION="2.0.0"
+readonly SCRIPT_NAME="$(basename "$0")"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Determine library location
+if [[ -d "$SCRIPT_DIR/../lib" ]]; then
+    readonly LIB_DIR="$SCRIPT_DIR/../lib"
+elif [[ -d "$SCRIPT_DIR/lib" ]]; then
+    readonly LIB_DIR="$SCRIPT_DIR/lib"
+else
+    echo "Error: Cannot find declutter library directory" >&2
+    exit 1
+fi
+
+# Source the main library
+if [[ -f "$LIB_DIR/declutter.sh" ]]; then
+    source "$LIB_DIR/declutter.sh"
+else
+    echo "Error: Cannot find declutter library: $LIB_DIR/declutter.sh" >&2
+    exit 1
+fi
+
+# =============================================================================
+# CLI Configuration
+# =============================================================================
+
+show_banner() {
+    echo -e "${BOLD}${BLUE}"
+    cat << 'EOF'
+    ╭─────────────────────────────────────────╮
+    │  🧹 Declutter - File Organization Tool  │
+    │     Modern • Cross-platform • Safe      │
+    ╰─────────────────────────────────────────╯
+EOF
+    echo -e "${NC}"
+}
+
+show_version() {
+    echo "$SCRIPT_NAME version $SCRIPT_VERSION"
+    echo "Library version: $(declutter_version)"
+    echo "Platform: $PLATFORM"
+}
+
+show_usage() {
+    echo -e "\033[1mUsage:\033[0m $SCRIPT_NAME <command> [options] [path]"
+    echo ""
+    echo -e "\033[1mScan Commands:\033[0m"
+    echo "  duplicates [path]       Find duplicate files using czkawka"
+    echo "  similar [path]          Find similar images"
+    echo "  empty [path]            Find empty files and folders"
+    echo "  temp [path]             Find temporary files"
+    echo "  symlinks [path]         Find broken symlinks"
+    echo "  big [path] [count]      Find N largest files (default: 50)"
+    echo "  old [path] [days]       Find files not accessed in N days (default: 90)"
+    echo ""
+    echo -e "\033[1mAnalysis Commands:\033[0m"
+    echo "  analyze [path] [depth]  Directory size analysis"
+    echo "  tree [path] [depth]     Show directory tree with sizes"
+    echo "  bloated [path] [mb]     Find directories larger than threshold"
+    echo "  categories [path]       Show file type distribution"
+    echo "  junk [path]             Find junk files (.DS_Store, Thumbs.db, etc.)"
+    echo "  projects [path]         Detect project folders"
+    echo ""
+    echo -e "\033[1mCleanup Presets:\033[0m"
+    echo "  cleanup <preset> [path] Run cleanup preset"
+    echo "    Presets: dev, system, browser, media, logs, xcode, android"
+    echo "  cleanup-list            List available presets"
+    echo "  cleanup-all [path]      Run all standard presets"
+    echo ""
+    echo -e "\033[1mOrganization Commands:\033[0m"
+    echo "  organize [path]         Organize files by category"
+    echo "  sort [source] [dest]    Sort files by extension rules"
+    echo "  by-date [path] [dest]   Organize files by date"
+    echo "  rename [path] <style>   Batch rename (lowercase, snake_case, kebab-case)"
+    echo "  flatten [path]          Flatten nested directory structure"
+    echo "  consolidate [path] <type>  Consolidate files (images, videos, documents, audio)"
+    echo ""
+    echo -e "\033[1mSafety & Undo:\033[0m"
+    echo "  undo [session_id]       Undo a previous operation"
+    echo "  undo-list               List available undo sessions"
+    echo "  undo-info <session_id>  Show session details"
+    echo "  history                 Show today's action history"
+    echo ""
+    echo -e "\033[1mUtility Commands:\033[0m"
+    echo "  quick [path]            Quick cleanup (empty, temp, symlinks)"
+    echo "  deep [path]             Deep scan (all checks)"
+    echo "  dev [path]              Developer cleanup preset"
+    echo "  usage [path]            Show disk usage summary"
+    echo "  results                 List recent scan results"
+    echo "  clean-cache             Remove cached results"
+    echo "  config                  Show current configuration"
+    echo "  interactive             Launch interactive mode"
+    echo ""
+    echo -e "\033[1mOptions:\033[0m"
+    echo "  -n, --dry-run           Preview changes without making them"
+    echo "  -y, --yes               Skip confirmation prompts"
+    echo "  -v, --verbose           Show detailed output"
+    echo "  -q, --quiet             Minimal output"
+    echo "  --no-trash              Permanently delete instead of using trash"
+    echo "  --no-color              Disable colored output"
+    echo "  -h, --help              Show this help message"
+    echo "  --version               Show version information"
+    echo ""
+    echo -e "\033[1mExamples:\033[0m"
+    echo "  $SCRIPT_NAME quick ~/Downloads           # Quick cleanup of Downloads"
+    echo "  $SCRIPT_NAME duplicates ~/Documents      # Find duplicate files"
+    echo "  $SCRIPT_NAME cleanup dev ~/Projects      # Developer cleanup"
+    echo "  $SCRIPT_NAME organize ~/Downloads        # Organize by file type"
+    echo "  $SCRIPT_NAME --dry-run cleanup system    # Preview system cleanup"
+    echo "  $SCRIPT_NAME undo-list                   # Show undo sessions"
+    echo ""
+}
+
+# =============================================================================
+# Command Implementations
+# =============================================================================
+
+cmd_quick() {
+    local target_path="${1:-.}"
+
+    show_banner
+    log_step "Running quick cleanup on: $target_path"
+    print_divider
+
+    echo -e "\n${BOLD}1/3${NC} Checking for empty files and folders..."
+    local empty_results
+    empty_results=$(scan_empty "$target_path")
+
+    echo -e "\n${BOLD}2/3${NC} Checking for temporary files..."
+    local temp_results
+    temp_results=$(scan_temp_files "$target_path")
+
+    echo -e "\n${BOLD}3/3${NC} Checking for broken symlinks..."
+    local symlink_results
+    symlink_results=$(scan_broken_symlinks "$target_path")
+
+    print_divider
+    log_success "Quick cleanup scan complete!"
+}
+
+cmd_deep() {
+    local target_path="${1:-.}"
+
+    show_banner
+    log_step "Running deep scan on: $target_path"
+    log_warn "This may take a while for large directories..."
+    print_divider
+
+    echo -e "\n${BOLD}1/6${NC} Scanning for duplicates..."
+    local dup_results
+    dup_results=$(find_duplicates "$target_path")
+    [[ -n "$dup_results" ]] && show_duplicates "$dup_results" 5
+
+    echo -e "\n${BOLD}2/6${NC} Scanning for similar images..."
+    local img_results
+    img_results=$(scan_similar_images "$target_path")
+
+    echo -e "\n${BOLD}3/6${NC} Scanning for empty items..."
+    scan_empty "$target_path"
+
+    echo -e "\n${BOLD}4/6${NC} Scanning for temporary files..."
+    scan_temp_files "$target_path"
+
+    echo -e "\n${BOLD}5/6${NC} Scanning for broken symlinks..."
+    scan_broken_symlinks "$target_path"
+
+    echo -e "\n${BOLD}6/6${NC} Finding largest files..."
+    local big_results
+    big_results=$(find_biggest_files "$target_path" 20)
+    [[ -n "$big_results" ]] && show_large_files "$big_results" 10
+
+    print_divider
+    log_success "Deep scan complete!"
+}
+
+cmd_interactive() {
+    while true; do
+        show_banner
+        echo "  1) Find Duplicates"
+        echo "  2) Find Large Files"
+        echo "  3) Quick Cleanup"
+        echo "  4) Developer Cleanup"
+        echo "  5) Organize Files"
+        echo "  6) Show Disk Usage"
+        echo "  7) Cleanup Presets"
+        echo "  8) Undo Operations"
+        echo "  q) Quit"
+        echo ""
+
+        echo -n "Select option: "
+        read -r choice
+
+        case "$choice" in
+            1)
+                echo -n "Path to scan [.]: "
+                read -r path
+                local results
+                results=$(find_duplicates "${path:-.}")
+                [[ -n "$results" ]] && cleanup_duplicates_interactive "$results"
+                ;;
+            2)
+                echo -n "Path to scan [.]: "
+                read -r path
+                local results
+                results=$(find_biggest_files "${path:-.}" 50)
+                [[ -n "$results" ]] && cleanup_large_files_interactive "$results"
+                ;;
+            3)
+                echo -n "Path to scan [.]: "
+                read -r path
+                cmd_quick "${path:-.}"
+                ;;
+            4)
+                echo -n "Path to scan [.]: "
+                read -r path
+                run_cleanup "dev" "${path:-.}"
+                ;;
+            5)
+                echo -n "Path to organize [.]: "
+                read -r path
+                organize_by_category "${path:-.}"
+                ;;
+            6)
+                echo -n "Path [.]: "
+                read -r path
+                analyze_directory "${path:-.}"
+                ;;
+            7)
+                list_presets
+                echo -n "Enter preset name: "
+                read -r preset
+                echo -n "Path [.]: "
+                read -r path
+                run_cleanup "$preset" "${path:-.}"
+                ;;
+            8)
+                undo_list_sessions
+                echo -n "Enter session ID to undo (or press Enter to skip): "
+                read -r session
+                [[ -n "$session" ]] && undo_session "$session"
+                ;;
+            q|Q)
+                log_info "Goodbye!"
+                exit 0
+                ;;
+        esac
+
+        echo ""
+        echo -n "Press Enter to continue..."
+        read -r
+    done
+}
+
+# =============================================================================
+# Main
+# =============================================================================
+
+main() {
+    local cmd=""
+    local args=()
+
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -n|--dry-run)
+                DECLUTTER_DRY_RUN=true
+                shift
+                ;;
+            -y|--yes)
+                DECLUTTER_INTERACTIVE=false
+                DECLUTTER_CONFIRM=false
+                shift
+                ;;
+            -v|--verbose)
+                DECLUTTER_VERBOSE=true
+                DECLUTTER_LOG_LEVEL="DEBUG"
+                shift
+                ;;
+            -q|--quiet)
+                DECLUTTER_VERBOSE=false
+                DECLUTTER_LOG_LEVEL="WARN"
+                shift
+                ;;
+            --no-trash)
+                DECLUTTER_USE_TRASH=false
+                shift
+                ;;
+            --no-color)
+                # Disable colors
+                NC="" RED="" GREEN="" YELLOW="" BLUE="" MAGENTA="" CYAN=""
+                WHITE="" GRAY="" BOLD="" DIM="" ITALIC="" UNDERLINE=""
+                shift
+                ;;
+            -h|--help)
+                show_banner
+                show_usage
+                exit 0
+                ;;
+            --version)
+                show_version
+                exit 0
+                ;;
+            -*)
+                log_error "Unknown option: $1"
+                show_usage
+                exit 1
+                ;;
+            *)
+                if [[ -z "$cmd" ]]; then
+                    cmd="$1"
+                else
+                    args+=("$1")
+                fi
+                shift
+                ;;
+        esac
+    done
+
+    # Default to help if no command
+    if [[ -z "$cmd" ]]; then
+        show_banner
+        show_usage
+        exit 0
+    fi
+
+    # Initialize library
+    declutter_init
+
+    # Show dry-run notice
+    if is_dry_run; then
+        log_warn "Running in dry-run mode - no files will be modified"
+        echo ""
+    fi
+
+    # Execute command
+    case "$cmd" in
+        # Scan commands
+        duplicates|dup|dups)
+            local results
+            results=$(find_duplicates "${args[0]:-.}")
+            if [[ -n "$results" ]]; then
+                show_duplicates "$results"
+                if is_interactive && prompt_confirm "Clean up duplicates interactively?"; then
+                    cleanup_duplicates_interactive "$results"
+                fi
+            fi
+            ;;
+        similar|images)
+            scan_similar_images "${args[0]:-.}"
+            ;;
+        empty)
+            scan_empty "${args[0]:-.}"
+            ;;
+        temp|tmp)
+            find_temp_files "${args[0]:-.}"
+            ;;
+        symlinks|sym)
+            scan_broken_symlinks "${args[0]:-.}"
+            ;;
+        big|large)
+            local results
+            results=$(find_biggest_files "${args[0]:-.}" "${args[1]:-50}")
+            [[ -n "$results" ]] && show_large_files "$results"
+            ;;
+        old|unused)
+            find_old_files "${args[0]:-.}" "${args[1]:-90}"
+            ;;
+
+        # Analysis commands
+        analyze|dir)
+            analyze_directory "${args[0]:-.}" "${args[1]:-2}"
+            ;;
+        tree)
+            show_tree_with_sizes "${args[0]:-.}" "${args[1]:-3}"
+            ;;
+        bloated)
+            find_bloated_dirs "${args[0]:-.}" "${args[1]:-500}"
+            ;;
+        categories|cats)
+            # Show file type distribution
+            analyze_by_size "${args[0]:-.}"
+            ;;
+        junk)
+            find_junk_files "${args[0]:-.}"
+            ;;
+        projects)
+            detect_project_folders "${args[0]:-.}"
+            ;;
+
+        # Cleanup presets
+        cleanup)
+            if [[ ${#args[@]} -eq 0 ]]; then
+                list_presets
+            else
+                run_cleanup "${args[0]}" "${args[1]:-.}"
+            fi
+            ;;
+        cleanup-list|presets)
+            list_presets
+            ;;
+        cleanup-all)
+            run_cleanup_all "${args[0]:-.}"
+            ;;
+
+        # Organization commands
+        organize)
+            organize_by_category "${args[0]:-.}" "${args[1]:-}"
+            ;;
+        sort)
+            sort_by_extension "${args[0]:-$HOME/Downloads}" "${args[1]:-$HOME}"
+            ;;
+        by-date)
+            organize_by_date "${args[0]:-.}" "${args[1]:-.}"
+            ;;
+        rename)
+            if [[ ${#args[@]} -lt 2 ]]; then
+                log_error "Usage: $SCRIPT_NAME rename <path> <style>"
+                log_info "Styles: lowercase, uppercase, snake_case, kebab-case, title_case"
+                exit 1
+            fi
+            batch_rename "${args[0]}" "*" "${args[1]}"
+            ;;
+        flatten)
+            flatten_directory "${args[0]:-.}"
+            ;;
+        consolidate)
+            if [[ ${#args[@]} -lt 2 ]]; then
+                log_error "Usage: $SCRIPT_NAME consolidate <path> <type>"
+                log_info "Types: images, videos, documents, audio"
+                exit 1
+            fi
+            consolidate_by_type "${args[0]}" "${args[0]}/Consolidated" "${args[1]}"
+            ;;
+
+        # Safety & Undo
+        undo)
+            if [[ ${#args[@]} -eq 0 ]]; then
+                undo_list_sessions
+            else
+                undo_session "${args[0]}"
+            fi
+            ;;
+        undo-list|sessions)
+            undo_list_sessions
+            ;;
+        undo-info)
+            if [[ ${#args[@]} -eq 0 ]]; then
+                log_error "Usage: $SCRIPT_NAME undo-info <session_id>"
+                exit 1
+            fi
+            undo_session_info "${args[0]}"
+            ;;
+        history)
+            local log_file="$DECLUTTER_LOG_DIR/actions_$(date +%Y%m%d).log"
+            if [[ -f "$log_file" ]]; then
+                cat "$log_file"
+            else
+                log_info "No actions recorded today."
+            fi
+            ;;
+
+        # Utility commands
+        quick)
+            cmd_quick "${args[0]:-.}"
+            ;;
+        deep|full)
+            cmd_deep "${args[0]:-.}"
+            ;;
+        dev|developer)
+            run_cleanup "dev" "${args[0]:-.}"
+            ;;
+        usage|du)
+            analyze_directory "${args[0]:-.}"
+            ;;
+        results)
+            if [[ -d "$DECLUTTER_CACHE_DIR" ]]; then
+                ls -lht "$DECLUTTER_CACHE_DIR" | head -20
+            else
+                log_info "No results found. Run a scan first."
+            fi
+            ;;
+        clean-cache)
+            if [[ -d "$DECLUTTER_CACHE_DIR" ]]; then
+                local count
+                count=$(find "$DECLUTTER_CACHE_DIR" -type f | wc -l | tr -d ' ')
+                rm -rf "${DECLUTTER_CACHE_DIR:?}"/*
+                log_success "Removed $count cached result files"
+            else
+                log_info "Cache directory is empty"
+            fi
+            ;;
+        config)
+            config_show
+            ;;
+        interactive|i)
+            cmd_interactive
+            ;;
+
+        *)
+            log_error "Unknown command: $cmd"
+            echo ""
+            show_usage
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

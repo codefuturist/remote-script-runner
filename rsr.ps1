@@ -41,6 +41,8 @@ $ScriptRoot = $PSScriptRoot
 $ScriptsPath = Join-Path $ScriptRoot "scripts"
 $ScriptsPwshPath = Join-Path $ScriptsPath "powershell"
 $ScriptsPkgPath = Join-Path $ScriptsPath "packages"
+$ScriptsSecurityPath = Join-Path $ScriptsPath "security"
+$ScriptsSystemPath = Join-Path $ScriptsPath "system"
 
 function Show-RSRHelp {
     Write-Host @"
@@ -52,6 +54,10 @@ Usage:
 Available scripts:
     usermgmt    User management (create, delete, password, group, ssh, session)
     pkg         Package management (install, list, info)
+    policy      Configure PowerShell execution policy (interactive wizard)
+    wsl         WSL2 setup wizard (install, configure, manage Linux)
+    setup       Windows development environment setup (WSL, tools, presets)
+    devenv      Development environment diagnostics (proxy, Defender, network)
     health      System health check (coming soon)
 
 Examples:
@@ -63,6 +69,18 @@ Examples:
     rsr pkg -Profile development.languages.python # Install group
     rsr pkg -Interactive                         # Launch wizard
     rsr pkg -Profile core -Force                 # No prompts
+    rsr policy                                   # Interactive policy wizard
+    rsr policy -Status                           # Show current policies
+    rsr policy -Scope CurrentUser -Policy RemoteSigned  # Set policy
+    rsr wsl                                      # WSL setup wizard
+    rsr wsl -ListDistros                         # List available Linux distros
+    rsr wsl -Distro Debian                       # Install specific distro
+    rsr setup                                    # Windows environment setup wizard
+    rsr setup -Component wsl                     # Install WSL only
+    rsr setup -Preset devops                     # DevOps tools preset
+    rsr devenv                                   # Run all diagnostics
+    rsr devenv -ConfigureDefender                # Add Defender exclusions
+    rsr devenv -EnableDevMode                    # Enable Developer Mode
 
 Documentation:
     https://github.com/codefuturist/remote-script-runner
@@ -81,6 +99,42 @@ switch ($Script) {
             & "$ScriptsPkgPath\Install-PackageProfile.ps1" -Interactive
         } else {
             & "$ScriptsPkgPath\Install-PackageProfile.ps1" @Arguments
+        }
+    }
+    'policy' {
+        # Execution policy configuration
+        $policyScript = Join-Path $ScriptsSecurityPath "hardening\Set-RSRExecutionPolicy.ps1"
+        if ($Arguments.Count -eq 0) {
+            & $policyScript -Interactive
+        } else {
+            & $policyScript @Arguments
+        }
+    }
+    'wsl' {
+        # WSL2 setup wizard
+        $wslScript = Join-Path $ScriptsSystemPath "Install-WSL.ps1"
+        if ($Arguments.Count -eq 0) {
+            & $wslScript
+        } else {
+            & $wslScript @Arguments
+        }
+    }
+    'setup' {
+        # Windows development environment setup
+        $setupScript = Join-Path $ScriptsSystemPath "Setup-WindowsEnvironment.ps1"
+        if ($Arguments.Count -eq 0) {
+            & $setupScript
+        } else {
+            & $setupScript @Arguments
+        }
+    }
+    'devenv' {
+        # Development environment diagnostics
+        $devenvScript = Join-Path $ScriptsSystemPath "Configure-DevEnvironment.ps1"
+        if ($Arguments.Count -eq 0) {
+            & $devenvScript -CheckAll
+        } else {
+            & $devenvScript @Arguments
         }
     }
     'health' {

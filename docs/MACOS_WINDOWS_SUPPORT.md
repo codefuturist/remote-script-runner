@@ -156,14 +156,16 @@ pip3 install pyyaml
 
 ### Requirements
 
-- Windows 10 or later / Windows Server 2016 or later
+- Windows 10 version 2004+ (Build 19041+) or Windows 11
 - One of the following environments:
   - **Git Bash** (recommended, comes with Git for Windows)
-  - **WSL2** (Windows Subsystem for Linux)
+  - **WSL 2** (Windows Subsystem for Linux 2) - **Note: WSL 1 is not supported**
   - **MSYS2**
   - **Cygwin**
 - Git for Windows
 - YAML parser (varies by environment)
+
+> **Note:** WSL 2 is required (not WSL 1) because it provides full Linux kernel compatibility and systemd support needed for service management.
 
 ### Installation on Windows
 
@@ -192,12 +194,17 @@ echo 'export PATH="/c/ProgramData/git-auto-sync:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-#### Option 2: WSL2 (Windows Subsystem for Linux)
+#### Option 2: WSL 2 (Windows Subsystem for Linux 2)
 
 ```bash
-# Install WSL2 and Ubuntu from Microsoft Store
+# Install WSL 2 using the recommended method (requires Windows 10 2004+ or Windows 11)
+# Open PowerShell as Administrator:
+wsl --install
 
-# In WSL2 terminal, follow Linux installation:
+# Or use the RSR installation wizard:
+.\scripts\system\Install-WSL.ps1
+
+# In WSL 2 terminal, follow Linux installation:
 sudo apt update
 sudo apt install git yq
 
@@ -475,16 +482,20 @@ bash /c/ProgramData/git-auto-sync/git-auto-sync.sh --config $LOCALAPPDATA/git-au
 python -c "import yaml; print(yaml.__version__)"
 ```
 
-### Windows (WSL2)
+### Windows (WSL 2)
 
 ```bash
 # Use standard Linux troubleshooting
 sudo systemctl status git-auto-sync
 sudo journalctl -u git-auto-sync -n 50
 
-# Check WSL status
+# Check WSL status and version
 wsl --status
 wsl --list --verbose
+
+# Ensure using WSL 2 (not WSL 1)
+# If distro shows Version 1, upgrade with:
+wsl --set-version <DistroName> 2
 ```
 
 ---
@@ -503,7 +514,8 @@ wsl --list --verbose
 - **Line Endings**: Git for Windows handles CRLF/LF conversion automatically
 - **Path Separators**: Use forward slashes (/) in Git Bash/WSL, even on Windows
 - **Permissions**: Windows permissions differ from Unix. Consider ACLs for shared repos
-- **WSL vs Git Bash**: WSL2 provides full Linux environment; Git Bash is lighter
+- **WSL 2 vs Git Bash**: WSL 2 provides full Linux environment with systemd; Git Bash is lighter
+- **WSL 1 Not Supported**: WSL 1 lacks full Linux kernel and systemd support
 
 ---
 
@@ -511,7 +523,9 @@ wsl --list --verbose
 
 ✅ **Linux**: Full support with SystemD/OpenRC
 ✅ **macOS**: Native launchd integration, Homebrew support
-✅ **Windows**: Git Bash, WSL2, MSYS2, Task Scheduler support
+✅ **Windows**: Git Bash, WSL 2, MSYS2, Task Scheduler support
+
+> **Note:** WSL 1 is not supported. Use `wsl --set-version <distro> 2` to upgrade if needed.
 
 🎯 **Universal Configuration**: Same YAML format across all platforms
 🎯 **Platform-Aware**: Automatically adapts to OS conventions

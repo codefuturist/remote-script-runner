@@ -3,7 +3,7 @@ name = "rsr-package-verifier"
 version = "1.0.0"
 description = "Package verification tool for remote-script-runner YAML profiles"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 dependencies = [
     "pyyaml>=6.0",
     "requests>=2.31.0",

@@ -1,0 +1,646 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Declutter CLI - Main Entry Point
+# Modern file organization and cleanup tool
+# =============================================================================
+
+set -euo pipefail
+
+# Resolve script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIB_DIR="$SCRIPT_DIR/../lib"
+
+# Verify library directory exists
+if [[ ! -d "$LIB_DIR" ]]; then
+    echo "Error: Library directory not found: $LIB_DIR" >&2
+    exit 1
+fi
+
+# Source all library modules
+source "$LIB_DIR/core.sh"
+source "$LIB_DIR/scanner.sh"
+source "$LIB_DIR/duplicates.sh"
+source "$LIB_DIR/presets.sh"
+source "$LIB_DIR/organizer.sh"
+source "$LIB_DIR/analyzer.sh"
+source "$LIB_DIR/undo.sh"
+
+# =============================================================================
+# CLI CONFIGURATION
+# =============================================================================
+
+readonly CLI_NAME="declutter"
+readonly CLI_VERSION="$DECLUTTER_VERSION"
+
+# Default options
+DRY_RUN="${DRY_RUN:-false}"
+VERBOSE="${VERBOSE:-false}"
+INTERACTIVE="${INTERACTIVE:-true}"
+
+# =============================================================================
+# HELP & USAGE
+# =============================================================================
+
+show_banner() {
+    echo ""
+    echo -e "${C_CYAN}╔═══════════════════════════════════════════════════════════════╗${C_RESET}"
+    echo -e "${C_CYAN}║${C_RESET}  ${C_BOLD}Declutter${C_RESET} - File Organization & Cleanup Tool v${CLI_VERSION}       ${C_CYAN}║${C_RESET}"
+    echo -e "${C_CYAN}╚═══════════════════════════════════════════════════════════════╝${C_RESET}"
+    echo ""
+}
+
+show_help() {
+    show_banner
+
+    cat <<EOF
+${C_BOLD}USAGE${C_RESET}
+    $CLI_NAME <command> [options] [arguments]
+
+${C_BOLD}COMMANDS${C_RESET}
+    ${C_GREEN}Duplicate Detection${C_RESET}
+        duplicates, dups        Find duplicate files
+        similar-images          Find visually similar images
+        similar-videos          Find similar videos
+
+    ${C_GREEN}Large File Finder${C_RESET}
+        large, big              Find large files
+        top                     Show top N largest files/directories
+
+    ${C_GREEN}Old/Unused Detection${C_RESET}
+        old                     Find old/unused files
+        empty                   Find empty files and directories
+        orphans                 Find orphan/system files
+
+    ${C_GREEN}Cleanup Presets${C_RESET}
+        cleanup <preset>        Run cleanup preset (dev, system, cache, all)
+        node-modules            Clean node_modules directories
+        git-cleanup             Optimize Git repositories
+
+    ${C_GREEN}Organization${C_RESET}
+        organize                Organize files by category
+        organize-date           Organize files by date
+        organize-ext            Organize files by extension
+        flatten                 Flatten directory structure
+        rename                  Batch rename files
+
+    ${C_GREEN}Analysis${C_RESET}
+        analyze, stats          Show disk usage analysis
+        tree                    Tree view with sizes
+        report                  Generate detailed report
+
+    ${C_GREEN}Undo/Restore${C_RESET}
+        undo                    Undo last operation
+        history                 Show operation history
+        restore                 Restore from transaction
+
+${C_BOLD}OPTIONS${C_RESET}
+    -d, --dry-run           Preview changes without executing
+    -v, --verbose           Enable verbose output
+    -y, --yes               Skip confirmation prompts
+    -h, --help              Show this help message
+    --version               Show version information
+
+${C_BOLD}EXAMPLES${C_RESET}
+    $CLI_NAME duplicates ~/Documents
+    $CLI_NAME large --min-size 100MB ~/Downloads
+    $CLI_NAME cleanup dev ~/Projects --dry-run
+    $CLI_NAME organize ~/Downloads
+    $CLI_NAME analyze ~/
+
+${C_BOLD}ENVIRONMENT VARIABLES${C_RESET}
+    DRY_RUN                 Set to 'true' for dry-run mode
+    LOG_LEVEL               Set log level (DEBUG, INFO, WARN, ERROR)
+    LOG_FILE                Path to log file
+
+For more information, visit: https://github.com/your-repo/declutter
+EOF
+}
+
+show_version() {
+    echo "$CLI_NAME version $CLI_VERSION"
+    echo "Platform: $PLATFORM"
+
+    local czkawka_cmd
+    czkawka_cmd=$(check_czkawka)
+    if [[ -n "$czkawka_cmd" ]]; then
+        echo "czkawka: $($czkawka_cmd --version 2>/dev/null || echo 'available')"
+    else
+        echo "czkawka: not installed"
+    fi
+}
+
+# =============================================================================
+# COMMAND IMPLEMENTATIONS
+# =============================================================================
+
+cmd_duplicates() {
+    local dir="${1:-.}"
+    local method="${METHOD:-auto}"
+    local min_size="${MIN_SIZE:-1}"
+    local output="${OUTPUT:-}"
+
+    show_banner
+    log_info "Scanning for duplicates in: $dir"
+
+    find_duplicates "$dir" "$method" "$output"
+}
+
+cmd_similar_images() {
+    local dir="${1:-.}"
+    local similarity="${SIMILARITY:-High}"
+
+    show_banner
+
+    if ! init_czkawka; then
+        log_error "czkawka is required for similar image detection"
+        log_info "Install: brew install czkawka (macOS) or see https://github.com/qarmin/czkawka"
+        return 1
+    fi
+
+    find_similar_images_czkawka "$dir" "" "$similarity"
+}
+
+cmd_similar_videos() {
+    local dir="${1:-.}"
+
+    show_banner
+
+    if ! init_czkawka; then
+        log_error "czkawka is required for similar video detection"
+        return 1
+    fi
+
+    find_similar_videos_czkawka "$dir"
+}
+
+cmd_large() {
+    local dir="${1:-.}"
+    local min_size="${MIN_SIZE:-100MB}"
+    local limit="${LIMIT:-50}"
+
+    show_banner
+    log_info "Finding files larger than $min_size..."
+
+    scan_large_files "$dir" "$min_size" "$limit"
+}
+
+cmd_top() {
+    local dir="${1:-.}"
+    local count="${COUNT:-20}"
+    local type="${TYPE:-both}"
+
+    show_banner
+
+    case "$type" in
+        files)
+            find_top_files "$dir" "$count"
+            ;;
+        dirs)
+            find_top_directories "$dir" "$count"
+            ;;
+        both)
+            find_top_files "$dir" "$count"
+            echo ""
+            find_top_directories "$dir" "$count"
+            ;;
+    esac
+}
+
+cmd_old() {
+    local dir="${1:-.}"
+    local days="${DAYS:-365}"
+    local by_access="${BY_ACCESS:-true}"
+
+    show_banner
+    log_info "Finding files older than $days days..."
+
+    scan_old_files "$dir" "$days" "$by_access"
+}
+
+cmd_empty() {
+    local dir="${1:-.}"
+
+    show_banner
+
+    log_info "Finding empty files..."
+    find "$dir" -type f -empty 2>/dev/null
+
+    echo ""
+
+    log_info "Finding empty directories..."
+    find "$dir" -type d -empty 2>/dev/null
+}
+
+cmd_orphans() {
+    local dir="${1:-.}"
+
+    show_banner
+    scan_orphan_files "$dir"
+}
+
+cmd_cleanup() {
+    local preset="${1:-}"
+    local dir="${2:-.}"
+
+    if [[ -z "$preset" ]]; then
+        show_banner
+        list_presets
+        return 0
+    fi
+
+    show_banner
+
+    init_undo_system
+    start_transaction "Cleanup preset: $preset"
+
+    if run_preset "$dir" "$preset" "$INTERACTIVE"; then
+        commit_transaction
+    else
+        rollback_transaction
+    fi
+}
+
+cmd_node_modules() {
+    local dir="${1:-.}"
+    local age="${AGE:-0}"
+
+    show_banner
+    cleanup_node_modules "$dir" "$age"
+}
+
+cmd_git_cleanup() {
+    local dir="${1:-.}"
+    local aggressive="${AGGRESSIVE:-false}"
+
+    show_banner
+    cleanup_git_repos "$dir" "$aggressive"
+}
+
+cmd_organize() {
+    local dir="${1:-.}"
+    local target="${TARGET:-$dir}"
+    local recursive="${RECURSIVE:-false}"
+
+    show_banner
+
+    init_undo_system
+    start_transaction "Organize files"
+
+    if organize_directory "$dir" "$target" "$recursive"; then
+        commit_transaction
+    else
+        rollback_transaction
+    fi
+}
+
+cmd_organize_date() {
+    local dir="${1:-.}"
+    local target="${TARGET:-$dir}"
+    local format="${FORMAT:-%Y/%m}"
+
+    show_banner
+
+    init_undo_system
+    start_transaction "Organize by date"
+
+    if organize_by_date "$dir" "$target" "$format"; then
+        commit_transaction
+    else
+        rollback_transaction
+    fi
+}
+
+cmd_organize_ext() {
+    local dir="${1:-.}"
+    local target="${TARGET:-$dir}"
+
+    show_banner
+
+    init_undo_system
+    start_transaction "Organize by extension"
+
+    if organize_by_extension "$dir" "$target"; then
+        commit_transaction
+    else
+        rollback_transaction
+    fi
+}
+
+cmd_flatten() {
+    local dir="${1:-.}"
+    local target="${TARGET:-$dir}"
+
+    show_banner
+
+    if [[ "$INTERACTIVE" == "true" ]] && ! confirm "Flatten $dir? This will move all nested files to the root."; then
+        return 0
+    fi
+
+    init_undo_system
+    start_transaction "Flatten directory"
+
+    if flatten_directory "$dir" "$target"; then
+        commit_transaction
+    else
+        rollback_transaction
+    fi
+}
+
+cmd_rename() {
+    local dir="${1:-.}"
+    local style="${STYLE:-kebab}"
+    local pattern="${PATTERN:-*}"
+
+    show_banner
+
+    init_undo_system
+    start_transaction "Batch rename"
+
+    if rename_files_batch "$dir" "$style" "$pattern"; then
+        commit_transaction
+    else
+        rollback_transaction
+    fi
+}
+
+cmd_analyze() {
+    local dir="${1:-.}"
+    local depth="${DEPTH:-1}"
+
+    show_banner
+
+    analyze_disk_usage "$dir" "$depth"
+    echo ""
+    analyze_by_category "$dir"
+    echo ""
+    analyze_by_age "$dir"
+}
+
+cmd_tree() {
+    local dir="${1:-.}"
+    local depth="${DEPTH:-3}"
+    local min_size="${MIN_SIZE:-0}"
+
+    show_banner
+    tree_with_size "$dir" "$depth" "$min_size"
+}
+
+cmd_report() {
+    local dir="${1:-.}"
+    local output="${OUTPUT:-}"
+
+    show_banner
+    generate_summary_report "$dir" "$output"
+}
+
+cmd_undo() {
+    show_banner
+    init_undo_system
+    undo_last
+}
+
+cmd_history() {
+    local limit="${LIMIT:-20}"
+
+    show_banner
+    init_undo_system
+    list_transactions "$limit"
+}
+
+cmd_restore() {
+    local transaction_id="${1:-}"
+
+    show_banner
+    init_undo_system
+
+    if [[ -z "$transaction_id" ]]; then
+        list_transactions 10
+        echo ""
+        read -rp "Enter transaction ID to restore: " transaction_id
+    fi
+
+    if [[ -n "$transaction_id" ]]; then
+        show_transaction "$transaction_id"
+        echo ""
+
+        if confirm "Undo this transaction?"; then
+            undo_transaction "$transaction_id"
+        fi
+    fi
+}
+
+# =============================================================================
+# ARGUMENT PARSING
+# =============================================================================
+
+parse_args() {
+    local positional=()
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -d|--dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            -v|--verbose)
+                VERBOSE=true
+                LOG_LEVEL=DEBUG
+                shift
+                ;;
+            -y|--yes)
+                INTERACTIVE=false
+                shift
+                ;;
+            -h|--help)
+                show_help
+                exit 0
+                ;;
+            --version)
+                show_version
+                exit 0
+                ;;
+            --min-size)
+                MIN_SIZE="$2"
+                shift 2
+                ;;
+            --min-size=*)
+                MIN_SIZE="${1#*=}"
+                shift
+                ;;
+            --limit)
+                LIMIT="$2"
+                shift 2
+                ;;
+            --limit=*)
+                LIMIT="${1#*=}"
+                shift
+                ;;
+            --days)
+                DAYS="$2"
+                shift 2
+                ;;
+            --days=*)
+                DAYS="${1#*=}"
+                shift
+                ;;
+            --depth)
+                DEPTH="$2"
+                shift 2
+                ;;
+            --depth=*)
+                DEPTH="${1#*=}"
+                shift
+                ;;
+            --target)
+                TARGET="$2"
+                shift 2
+                ;;
+            --target=*)
+                TARGET="${1#*=}"
+                shift
+                ;;
+            --style)
+                STYLE="$2"
+                shift 2
+                ;;
+            --style=*)
+                STYLE="${1#*=}"
+                shift
+                ;;
+            --output|-o)
+                OUTPUT="$2"
+                shift 2
+                ;;
+            --output=*)
+                OUTPUT="${1#*=}"
+                shift
+                ;;
+            --method)
+                METHOD="$2"
+                shift 2
+                ;;
+            --recursive|-r)
+                RECURSIVE=true
+                shift
+                ;;
+            --aggressive)
+                AGGRESSIVE=true
+                shift
+                ;;
+            -*)
+                log_error "Unknown option: $1"
+                echo "Use '$CLI_NAME --help' for usage information"
+                exit 1
+                ;;
+            *)
+                positional+=("$1")
+                shift
+                ;;
+        esac
+    done
+
+    # Restore positional parameters
+    set -- "${positional[@]}"
+
+    # Get command
+    local cmd="${1:-help}"
+    shift || true
+
+    # Execute command
+    case "$cmd" in
+        duplicates|dups)
+            cmd_duplicates "$@"
+            ;;
+        similar-images)
+            cmd_similar_images "$@"
+            ;;
+        similar-videos)
+            cmd_similar_videos "$@"
+            ;;
+        large|big)
+            cmd_large "$@"
+            ;;
+        top)
+            cmd_top "$@"
+            ;;
+        old|unused)
+            cmd_old "$@"
+            ;;
+        empty)
+            cmd_empty "$@"
+            ;;
+        orphans)
+            cmd_orphans "$@"
+            ;;
+        cleanup|clean)
+            cmd_cleanup "$@"
+            ;;
+        node-modules|nm)
+            cmd_node_modules "$@"
+            ;;
+        git-cleanup|gc)
+            cmd_git_cleanup "$@"
+            ;;
+        organize|org)
+            cmd_organize "$@"
+            ;;
+        organize-date)
+            cmd_organize_date "$@"
+            ;;
+        organize-ext)
+            cmd_organize_ext "$@"
+            ;;
+        flatten)
+            cmd_flatten "$@"
+            ;;
+        rename)
+            cmd_rename "$@"
+            ;;
+        analyze|stats)
+            cmd_analyze "$@"
+            ;;
+        tree)
+            cmd_tree "$@"
+            ;;
+        report)
+            cmd_report "$@"
+            ;;
+        undo)
+            cmd_undo "$@"
+            ;;
+        history)
+            cmd_history "$@"
+            ;;
+        restore)
+            cmd_restore "$@"
+            ;;
+        help|-h|--help)
+            show_help
+            ;;
+        version|--version)
+            show_version
+            ;;
+        *)
+            log_error "Unknown command: $cmd"
+            echo "Use '$CLI_NAME --help' for usage information"
+            exit 1
+            ;;
+    esac
+}
+
+# =============================================================================
+# MAIN ENTRY POINT
+# =============================================================================
+
+main() {
+    # Initialize
+    init_undo_system 2>/dev/null || true
+
+    # Parse and execute
+    parse_args "$@"
+}
+
+# Run if executed directly
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi
