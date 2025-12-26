@@ -42,3 +42,4 @@ venv/
 !logs/.gitkeep
 tmp/
 !tmp/.gitkeep
+sqlite_mcp_server.db
