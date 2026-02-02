@@ -11,7 +11,7 @@
     "system": {
       "name": "System",
       "description": "System health, updates, cleanup, packages, and information scripts",
-      "subcategories": ["health", "updates", "cleanup", "info", "packages", "tools", "wsl"]
+      "subcategories": ["health", "updates", "cleanup", "info", "packages", "tools", "wsl", "bootstrap"]
     },
     "users": {
       "name": "Users",
@@ -221,6 +221,25 @@
       "tags": ["update", "packages", "security", "maintenance"]
     },
     {
+      "id": "auto-update-manager",
+      "name": "Auto Update Manager",
+      "command": "auto-update",
+      "aliases": ["auto-update", "auto-update-manager", "scheduled-updates"],
+      "description": "Install, configure, and manage automated system updates",
+      "example": "rsr auto-update install --schedule daily --time 02:00",
+      "category": "system",
+      "subcategory": "updates",
+      "path": "scripts/system/updates/auto-update-manager.sh",
+      "pathWindows": "scripts/system/updates/Auto-Update-Manager.ps1",
+      "version": "1.0.0",
+      "platforms": ["linux", "macos", "windows"],
+      "requires": ["bash 4.0+"],
+      "requiresWindows": ["PowerShell 5.1+"],
+      "sudo": "required",
+      "sudoWindows": "required",
+      "tags": ["update", "automatic", "scheduled", "unattended", "cron", "systemd", "launchd"]
+    },
+    {
       "id": "disk-cleanup",
       "name": "Disk Cleanup",
       "command": "cleanup",
@@ -284,6 +303,23 @@
       "requires": ["bash 4.0+"],
       "sudo": "required",
       "tags": ["setup", "server", "initialization"]
+    },
+    {
+      "id": "host-bootstrap",
+      "name": "Host Bootstrap",
+      "command": "bootstrap",
+      "aliases": ["bootstrap", "host-bootstrap", "init-host"],
+      "description": "Interactive wizard to bootstrap a new host with essential tools, SSH, and security",
+      "example": "rsr bootstrap",
+      "category": "system",
+      "subcategory": "bootstrap",
+      "path": "scripts/system/bootstrap/host-bootstrap.sh",
+      "pathWindows": "scripts/system/bootstrap/Initialize-HostBootstrap.ps1",
+      "version": "2.0.0",
+      "platforms": ["linux", "macos", "windows"],
+      "requires": ["bash 4.0+", "powershell 5.1+"],
+      "sudo": "optional",
+      "tags": ["bootstrap", "setup", "host", "server", "workstation", "initialization", "wizard"]
     },
     {
       "id": "network-diagnostics",
@@ -735,6 +771,23 @@
       "requires": ["powershell 5.1+"],
       "sudo": "optional",
       "tags": ["windows", "setup", "development", "environment", "wsl", "tools"]
+    },
+    {
+      "id": "remote-desktop",
+      "name": "Remote Desktop Setup",
+      "command": "remote-desktop",
+      "aliases": ["remote-desktop", "rdp", "rdp-setup", "xrdp"],
+      "description": "Setup remote desktop server (xRDP on Linux, RDP on Windows) with security hardening",
+      "example": "rsr remote-desktop install",
+      "category": "system",
+      "subcategory": "tools",
+      "path": "scripts/system/remote-desktop/remote-desktop-setup.sh",
+      "powershell": "scripts/system/remote-desktop/Remote-Desktop-Setup.ps1",
+      "version": "1.0.0",
+      "platforms": ["linux", "windows"],
+      "requires": ["bash 4.0+|PowerShell 5.1+"],
+      "sudo": "required",
+      "tags": ["remote-desktop", "rdp", "xrdp", "remote-access", "gui", "desktop"]
     }
   ]
 }

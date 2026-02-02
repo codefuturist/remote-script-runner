@@ -74,6 +74,16 @@ rsr_load_module() {
                 return 1
             fi
             ;;
+        subscript | subscripts)
+            # Requires bash
+            if [ -n "${BASH_VERSION:-}" ]; then
+                # shellcheck source=core/subscript.sh
+                . "${_RSR_LIB_ROOT}/core/subscript.sh"
+            else
+                rsr_log_warn "Subscript module requires bash"
+                return 1
+            fi
+            ;;
         users | user)
             # shellcheck source=modules/users.sh
             . "${_RSR_LIB_ROOT}/modules/users.sh"
@@ -98,6 +108,16 @@ rsr_load_module() {
             # shellcheck source=modules/shares.sh
             . "${_RSR_LIB_ROOT}/modules/shares.sh"
             ;;
+        bootstrap)
+            # Requires bash for associative arrays
+            if [ -n "${BASH_VERSION:-}" ]; then
+                # shellcheck source=modules/bootstrap.sh
+                . "${_RSR_LIB_ROOT}/modules/bootstrap.sh"
+            else
+                rsr_log_warn "Bootstrap module requires bash"
+                return 1
+            fi
+            ;;
     esac
 }
 
@@ -113,6 +133,8 @@ rsr_load_all() {
 
     # Interactive only if bash
     [ -n "${BASH_VERSION:-}" ] && rsr_load_module interactive
+    [ -n "${BASH_VERSION:-}" ] && rsr_load_module subscript
+    [ -n "${BASH_VERSION:-}" ] && rsr_load_module bootstrap
 
     rsr_load_module backup
 }

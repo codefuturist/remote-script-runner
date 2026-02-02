@@ -165,6 +165,9 @@ get_script_path() {
         setup)
             echo "scripts/users/setup/server-setup.sh"
             ;;
+        bootstrap)
+            echo "scripts/system/bootstrap/host-bootstrap.sh"
+            ;;
         netdiag)
             echo "scripts/network/diagnostics/network-diagnostics.sh"
             ;;
@@ -608,6 +611,9 @@ show_menu() {
     printf "${BOLD}            Interactive Script Selector            ${NC}\n"
     printf "${BOLD}${CYAN}═══════════════════════════════════════════════════${NC}\n\n"
 
+    printf "${BOLD}Quick Start:${NC}\n"
+    printf "  ${GREEN}b)${NC} Bootstrap Host        ${DIM}- New host setup wizard${NC}\n\n"
+
     printf "${BOLD}Monitoring & Health:${NC}\n"
     printf "  ${GREEN}1)${NC} System Health Check    ${DIM}- CPU, memory, disk, network${NC}\n\n"
 
@@ -646,6 +652,12 @@ run_menu() {
         read -r choice
 
         case "$choice" in
+            b | B)
+                echo
+                log_info "Starting Host Bootstrap Wizard..."
+                echo
+                run_script "bootstrap"
+                ;;
             1)
                 echo
                 log_info "Running System Health Check..."
@@ -781,6 +793,7 @@ ${YELLOW}Usage:${NC}
 ${BOLD}Commands:${NC}
   ${GREEN}menu${NC}         Interactive script selector menu
   ${GREEN}self-update${NC}  Update rsr to latest version
+  ${GREEN}bootstrap${NC}    Bootstrap a new host (wizard)
   ${GREEN}health${NC}       Run system health checks
   ${GREEN}setup${NC}        Run server setup
   ${GREEN}cleanup${NC}      Disk cleanup and maintenance
@@ -815,6 +828,11 @@ ${BOLD}Examples:${NC}
   rsr self-update
   rsr self-update --check
   rsr self-update --force
+
+  ${DIM}# Bootstrap a new host${NC}
+  rsr bootstrap
+  rsr bootstrap --profile server --dry-run
+  rsr bootstrap --quick -y
 
   ${DIM}# Run all health checks${NC}
   rsr health -a
@@ -967,6 +985,9 @@ main() {
             ;;
         setup | server-setup)
             run_script "setup" "$@"
+            ;;
+        bootstrap | host-bootstrap | init-host)
+            run_script "bootstrap" "$@"
             ;;
         netdiag | network-diagnostics)
             run_script "netdiag" "$@"

@@ -1,22 +1,18 @@
-# EditorConfig - Consistent coding styles across editors
 # https://editorconfig.org
-
 root = true
 
-# Default settings for all files
 [*]
-charset = utf-8
-end_of_line = lf
-insert_final_newline = true
-trim_trailing_whitespace = true
 indent_style = space
-indent_size = 4
+indent_size = 2
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+end_of_line = lf
+max_line_length = off
 
-# Shell scripts
 [*.{sh,bash,zsh}]
 indent_style = space
 indent_size = 4
-# shfmt configuration
 shell_variant = bash
 binary_next_line = true
 switch_case_indent = true
@@ -24,48 +20,43 @@ space_redirects = false
 keep_padding = false
 function_next_line = false
 
-# PowerShell scripts
 [*.{ps1,psd1,psm1}]
 indent_style = space
 indent_size = 4
 charset = utf-8-bom
 
-# Fish shell scripts
 [*.fish]
 indent_style = space
 indent_size = 4
 
-# POSIX shell (rsr main script)
 [rsr]
 indent_style = space
 indent_size = 4
 shell_variant = posix
 
-# JavaScript files
 [*.{js,mjs,cjs}]
 indent_size = 2
 quote_type = single
 
-# JSON files
 [*.json]
 indent_size = 2
 
-# YAML files
 [*.{yml,yaml}]
 indent_size = 2
 
-# Markdown files
 [*.md]
 trim_trailing_whitespace = false
 indent_size = 2
 
-# Makefiles require tabs
 [Makefile]
 indent_style = tab
-indent_size = 4
 
-# BATS test files
 [*.bats]
 indent_style = space
 indent_size = 4
 
+[*.go]
+indent_style = tab
+
+[*.py]
+indent_size = 4

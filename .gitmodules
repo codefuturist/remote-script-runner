@@ -10,3 +10,6 @@
 [submodule "test/libs/bats-file"]
 	path = test/libs/bats-file
 	url = https://github.com/bats-core/bats-file.git
+[submodule ".just-modules"]
+	path = .just-modules
+	url = https://github.com/codefuturist/just-modules.git

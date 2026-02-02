@@ -1161,4 +1161,11 @@ main() {
     exit $EXIT_OK
 }
 
-main "$@"
+# =============================================================================
+# Library Mode Support
+# =============================================================================
+
+# Support being sourced as a library (RSR_AS_LIBRARY=1)
+if [[ "${RSR_AS_LIBRARY:-0}" != "1" ]]; then
+    main "$@"
+fi

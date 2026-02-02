@@ -163,15 +163,15 @@ A comprehensive system health monitoring script that can check:
 
 #### Options
 
-| Option | Description |
-|--------|-------------|
-| `-h, --help` | Display help message |
-| `-v, --verbose` | Enable verbose output |
-| `-t, --timeout SECONDS` | Set timeout for each check (default: 10) |
-| `-l, --log FILE` | Log output to file |
-| `-f, --format FORMAT` | Output format: text, json (default: text) |
-| `-s, --select CHECKS` | Select specific checks (can be used multiple times) |
-| `-a, --all` | Run all available checks |
+| Option                  | Description                                         |
+| ----------------------- | --------------------------------------------------- |
+| `-h, --help`            | Display help message                                |
+| `-v, --verbose`         | Enable verbose output                               |
+| `-t, --timeout SECONDS` | Set timeout for each check (default: 10)            |
+| `-l, --log FILE`        | Log output to file                                  |
+| `-f, --format FORMAT`   | Output format: text, json (default: text)           |
+| `-s, --select CHECKS`   | Select specific checks (can be used multiple times) |
+| `-a, --all`             | Run all available checks                            |
 
 #### Available Checks
 
@@ -206,14 +206,14 @@ A server configuration script that simulates setting up a server environment wit
 
 #### Options
 
-| Option | Description |
-|--------|-------------|
-| `-h, --help` | Display help message |
-| `-u, --username USERNAME` | Set username for configuration (required) |
-| `-p, --profile PROFILE` | Environment profile: development\|production (default: development) |
-| `-i, --install PACKAGES` | Packages to install (can be used multiple times) |
-| `-d, --dry-run` | Show what would be done without executing |
-| `-v, --verbose` | Enable verbose output |
+| Option                    | Description                                                         |
+| ------------------------- | ------------------------------------------------------------------- |
+| `-h, --help`              | Display help message                                                |
+| `-u, --username USERNAME` | Set username for configuration (required)                           |
+| `-p, --profile PROFILE`   | Environment profile: development\|production (default: development) |
+| `-i, --install PACKAGES`  | Packages to install (can be used multiple times)                    |
+| `-d, --dry-run`           | Show what would be done without executing                           |
+| `-v, --verbose`           | Enable verbose output                                               |
 
 #### Available Packages
 

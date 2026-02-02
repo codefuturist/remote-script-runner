@@ -479,6 +479,211 @@ $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At 3am
 Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "SystemUpdate" -Description "Weekly system updates"
 ```
 
+## Auto-Update Manager
+
+The RSR update system includes a comprehensive auto-update manager that installs, configures, and manages automated system updates across all platforms.
+
+### Features
+
+- **Interactive setup wizard**: User-friendly guided configuration
+- **Cross-platform support**: Linux (systemd/cron), macOS (launchd), Windows (Task Scheduler)
+- **Native tool integration**: Uses `unattended-upgrades` on Debian/Ubuntu, `dnf-automatic` on RHEL/Fedora
+- **Flexible scheduling**: Daily, weekly, or monthly updates
+- **Security-focused**: Security-only update option
+- **Reboot management**: Configure automatic reboot behavior
+- **Notifications**: Email alerts on update failures
+
+### Quick Start
+
+The easiest way to get started is to run the script without arguments for **interactive mode**:
+
+```bash
+# Interactive setup wizard (recommended)
+sudo ./scripts/system/updates/auto-update-manager.sh
+
+# Or explicitly with -i flag
+sudo ./scripts/system/updates/auto-update-manager.sh -i install
+```
+
+```powershell
+# Windows - Interactive setup wizard
+.\scripts\system\updates\Auto-Update-Manager.ps1
+
+# Or explicitly with -Interactive flag
+.\scripts\system\updates\Auto-Update-Manager.ps1 -Interactive install
+```
+
+The interactive wizard will guide you through:
+1. Choosing update schedule (daily/weekly/monthly)
+2. Setting the update time
+3. Selecting security-only or full updates
+4. Configuring language package managers
+5. Setting reboot behavior
+6. Enabling notifications
+
+#### Command-line Mode
+
+For scripting or automation, use command-line arguments:
+
+```bash
+# Linux - Install daily automatic updates
+sudo ./scripts/system/updates/auto-update-manager.sh install
+
+# Linux - Install weekly security-only updates
+sudo ./scripts/system/updates/auto-update-manager.sh install \
+    --schedule weekly --time 03:00 --day sun --security-only
+
+# macOS - Install for current user
+./scripts/system/updates/auto-update-manager.sh install --user
+
+# Check status
+./scripts/system/updates/auto-update-manager.sh status
+
+# View logs
+./scripts/system/updates/auto-update-manager.sh logs
+```
+
+```powershell
+# Windows - Install daily automatic updates
+.\scripts\system\updates\Auto-Update-Manager.ps1 install
+
+# Windows - Install weekly updates
+.\scripts\system\updates\Auto-Update-Manager.ps1 install -Schedule weekly -DayOfWeek Sunday -Time "03:00"
+
+# Check status
+.\scripts\system\updates\Auto-Update-Manager.ps1 status
+```
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `install` | Install and configure automatic updates |
+| `remove` | Remove automatic update configuration |
+| `status` | Show current configuration and status |
+| `enable` | Enable scheduled updates |
+| `disable` | Disable updates (keep configuration) |
+| `run-now` | Trigger an immediate update |
+| `logs` | Show update history and logs |
+| `config` | Show current configuration |
+
+### Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `-i, --interactive` | Run in interactive mode with guided setup | auto |
+| `--schedule` | Update frequency: daily, weekly, monthly | daily |
+| `--time` | Time to run (HH:MM) | 02:00 |
+| `--day` | Day for weekly (0-6 or sun-sat) | 0 (Sunday) |
+| `--security-only` | Only install security updates | false |
+| `--reboot` | Reboot mode: never, if-needed, always | never |
+| `--include-lang` | Include pip, npm, cargo, gem | false |
+| `--use-native` | Use unattended-upgrades/dnf-automatic | false |
+| `--notify` | Notification method: email, none | none |
+| `--email` | Email for notifications | - |
+| `--user` | User-level install (no root) | false |
+
+### Platform-Specific Behavior
+
+#### Debian/Ubuntu
+
+With `--use-native`:
+- Installs and configures `unattended-upgrades`
+- Modifies `/etc/apt/apt.conf.d/50unattended-upgrades`
+- Enables `apt-daily-upgrade.timer`
+
+Without `--use-native`:
+- Creates systemd timer with RSR's `system-update.sh`
+- More control over what gets updated
+
+#### RHEL/Fedora/CentOS
+
+With `--use-native`:
+- Installs and configures `dnf-automatic`
+- Modifies `/etc/dnf/automatic.conf`
+- Enables `dnf-automatic.timer`
+
+#### Arch Linux / openSUSE / Alpine
+
+- Uses systemd timer (or cron on Alpine) with RSR's update script
+- Full control over update behavior
+
+#### macOS
+
+- Creates launchd plist
+- Uses RSR's `system-update-macos.sh`
+- Supports user-level installation
+
+#### Windows
+
+- Creates Windows Task Scheduler task
+- Uses RSR's `System-Update.ps1`
+- Supports user-level installation
+
+### Configuration Files
+
+| Platform | System Config | User Config |
+|----------|--------------|-------------|
+| Linux | `/etc/rsr/auto-update.conf` | `~/.config/rsr/auto-update.conf` |
+| macOS | `/Library/LaunchDaemons/com.rsr.auto-update.plist` | `~/Library/LaunchAgents/com.rsr.auto-update.plist` |
+| Windows | `%PROGRAMDATA%\rsr\auto-update.json` | `%APPDATA%\rsr\auto-update.json` |
+
+### Log Files
+
+| Platform | Location |
+|----------|----------|
+| Linux | `/var/log/rsr/auto-update.log` |
+| macOS | `/var/log/rsr/auto-update.log` or `~/.local/state/rsr/logs/auto-update.log` |
+| Windows | `%PROGRAMDATA%\rsr\logs\auto-update.log` |
+
+### Examples
+
+#### Server: Security Updates Only
+
+```bash
+# Daily security updates at 2am, email on failure
+sudo ./auto-update-manager.sh install \
+    --schedule daily \
+    --time 02:00 \
+    --security-only \
+    --reboot if-needed \
+    --email admin@example.com \
+    --use-native
+```
+
+#### Workstation: Weekly Full Updates
+
+```bash
+# Weekly updates on Sunday at 3am including dev tools
+sudo ./auto-update-manager.sh install \
+    --schedule weekly \
+    --time 03:00 \
+    --day sun \
+    --include-lang
+```
+
+#### macOS: User-Level Updates
+
+```bash
+# Daily Homebrew updates for current user
+./auto-update-manager.sh install \
+    --user \
+    --schedule daily \
+    --time 09:00
+```
+
+#### Windows: Comprehensive Updates
+
+```powershell
+# Weekly updates including Windows Update
+.\Auto-Update-Manager.ps1 install `
+    -Schedule weekly `
+    -DayOfWeek Sunday `
+    -Time "03:00" `
+    -UseWindowsUpdate `
+    -IncludeLanguage
+```
+
 ## Contributing
 
 To extend the update scripts:

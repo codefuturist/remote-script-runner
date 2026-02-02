@@ -52,6 +52,7 @@ Usage:
     rsr <script> [arguments]
 
 Available scripts:
+    bootstrap   Host bootstrap wizard (essential tools, SSH, security)
     usermgmt    User management (create, delete, password, group, ssh, session)
     pkg         Package management (install, list, info)
     policy      Configure PowerShell execution policy (interactive wizard)
@@ -61,6 +62,9 @@ Available scripts:
     health      System health check (coming soon)
 
 Examples:
+    rsr bootstrap                                # Interactive bootstrap wizard
+    rsr bootstrap -Profile server                # Server setup profile
+    rsr bootstrap -Profile dev -DryRun           # Dev setup (dry run)
     rsr usermgmt create -u john -c "John Doe"
     rsr usermgmt list --admin
     rsr pkg                                      # Interactive wizard
@@ -90,6 +94,20 @@ Documentation:
 
 # Main routing
 switch ($Script) {
+    'bootstrap' {
+        # Host bootstrap wizard
+        $bootstrapScript = Join-Path $ScriptsSystemPath "bootstrap\Initialize-HostBootstrap.ps1"
+        if (Test-Path $bootstrapScript) {
+            if ($Arguments.Count -eq 0) {
+                & $bootstrapScript
+            } else {
+                & $bootstrapScript @Arguments
+            }
+        } else {
+            Write-Host "Bootstrap script not found at: $bootstrapScript" -ForegroundColor Red
+            exit 1
+        }
+    }
     'usermgmt' {
         & "$ScriptsPwshPath\UserManagement.ps1" @Arguments
     }
