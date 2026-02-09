@@ -3,10 +3,35 @@
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Configuration
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Imports
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Import core
+# Core (required)
 import '.just-modules/core/mod.just'
+
+# Automation & Project Management
+import '.just-modules/traits/automation-helpers.just'
+import '.just-modules/traits/env.just'
+
+# Features
+mod versioning '.just-modules/traits/versioning.just'
+mod gitflow '.just-modules/traits/gitflow.just'
+mod hooks '.just-modules/traits/hooks.just'
+mod docs '.just-modules/traits/docs.just'
+mod cog '.just-modules/traits/cocogitto.just'
+
+# Code Quality & Refactoring
+import '.just-modules/traits/ast-grep.just'
+import '.just-modules/traits/megalinter.just'
+import '.just-modules/traits/backup.just'
+
+# Security & Encryption
+import '.just-modules/traits/encryption.just'
+
+# AI Features
+import '.just-modules/traits/ai.just'
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Configuration
