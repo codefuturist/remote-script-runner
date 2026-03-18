@@ -40,7 +40,6 @@ CORE_ONLY=false
 UNINSTALL=false
 UPGRADE=false
 CHECK_ONLY=false # run conflict check only, then exit
-SKIP_CHECK=false # skip conflict detection before install (CI fast-path)
 FORCE=false
 QUIET=false
 DRY_RUN=false
@@ -396,6 +395,8 @@ check_path() {
 }
 
 # ============================================================================
+# Existing uv installation check
+# ============================================================================
 check_existing_uv_ansible() {
     # Check if ansible or ansible-core is already installed as a uv tool
     local existing=""
@@ -707,7 +708,6 @@ ${BOLD}OPTIONS${NC}
     --uninstall        Remove Ansible uv tools (keeps ~/.ansible/ data)
     --purge            With --uninstall: also remove ~/.ansible/ data directory
     --check            Run conflict detection only, then exit (0=clean, 1=warn, 2=blockers)
-    --skip-check       Skip conflict detection before install (CI fast-path)
     --yes              Skip confirmation prompts (for CI / non-interactive use)
     --force            Force install; override blockers and auto-remove apt ansible
     --dry-run          Show what would be done without executing
@@ -765,7 +765,6 @@ main() {
             --uninstall) UNINSTALL=true ;;
             --upgrade) UPGRADE=true ;;
             --check) CHECK_ONLY=true ;;
-            --skip-check) SKIP_CHECK=true ;;
             --purge) PURGE=true ;;
             --yes) YES=true ;;
             --force) FORCE=true ;;
@@ -814,10 +813,9 @@ main() {
         exit 0
     fi
 
-    # Install flow
-    if ! $SKIP_CHECK; then
-        check_conflicts || true # warnings are non-fatal; blockers exit inside the function
-    fi
+    # Conflict detection before install
+    check_conflicts
+
     check_existing_uv_ansible
     install_ansible
 
