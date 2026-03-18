@@ -11,6 +11,7 @@
 #   ./install-ansible-uv.sh --with-molecule    # Also install molecule
 #   ./install-ansible-uv.sh --with-dev         # Install lint + molecule
 #   ./install-ansible-uv.sh --core-only        # Install ansible-core without collections
+#   ./install-ansible-uv.sh --check            # Audit for conflicts, then exit
 #   ./install-ansible-uv.sh --uninstall        # Remove ansible uv tools (keeps ~/.ansible/)
 #   ./install-ansible-uv.sh --uninstall --purge  # Also remove ~/.ansible/ data directory
 #   ./install-ansible-uv.sh --uninstall --yes  # Non-interactive (no confirmation prompt)
@@ -29,7 +30,7 @@ set -euo pipefail
 # Configuration
 # ============================================================================
 
-VERSION="1.0.0"
+VERSION="1.1.0"
 UV_MIN_VERSION="0.8.5" # minimum for --with-executables-from support
 
 # Defaults
@@ -38,6 +39,8 @@ WITH_MOLECULE=false
 CORE_ONLY=false
 UNINSTALL=false
 UPGRADE=false
+CHECK_ONLY=false # run conflict check only, then exit
+SKIP_CHECK=false # skip conflict detection before install (CI fast-path)
 FORCE=false
 QUIET=false
 DRY_RUN=false
@@ -91,6 +94,273 @@ version_ge() {
 }
 
 # ============================================================================
+# Conflict Detection
+# ============================================================================
+#
+# Severity levels:
+#   BLOCKER  — will definitely cause silent failures or wrong ansible being run
+#   WARNING  — may cause confusion but won't necessarily break anything
+#   INFO     — noteworthy but expected (e.g. uv tool venv isolation)
+#
+# Exit codes from check_conflicts():
+#   0 — clean, no issues
+#   1 — warnings found (install can proceed)
+#   2 — blockers found (install aborts unless --force)
+# ============================================================================
+
+_BLOCKERS=0
+_WARNINGS=0
+
+_report_finding() {
+    local severity="$1"
+    local source="$2"
+    local message="$3"
+    local fix="${4:-}"
+
+    case "$severity" in
+        BLOCKER)
+            echo -e "  ${RED}[BLOCKER]${NC} ${BOLD}${source}${NC}: ${message}"
+            ((_BLOCKERS++)) || true
+            ;;
+        WARNING)
+            echo -e "  ${YELLOW}[WARNING]${NC} ${BOLD}${source}${NC}: ${message}"
+            ((_WARNINGS++)) || true
+            ;;
+        INFO)
+            echo -e "  ${GREEN}[ INFO  ]${NC} ${BOLD}${source}${NC}: ${message}"
+            ;;
+    esac
+    [[ -n "$fix" ]] && echo -e "           ${BLUE}→ fix:${NC} ${fix}"
+}
+
+# ── Individual checks ────────────────────────────────────────────────────────
+
+_check_apt() {
+    # Installed via apt/dpkg — will shadow uv-managed version
+    local pkg ver
+    for pkg in ansible ansible-core; do
+        if dpkg -l "$pkg" 2>/dev/null | grep -q '^ii'; then
+            ver=$(dpkg -l "$pkg" 2>/dev/null | awk '/^ii/{print $3}')
+            _report_finding BLOCKER "apt" \
+                "${pkg} ${ver} installed via apt — will shadow uv-managed version" \
+                "sudo apt remove --purge ${pkg}  OR  re-run with --force"
+        fi
+    done
+}
+
+_check_pip_user() {
+    # pip3 --user installs land in ~/.local/lib, executables in ~/.local/bin
+    # These would directly clash with uv tool symlinks
+    if command -v pip3 &>/dev/null; then
+        local found
+        found=$(pip3 list --user 2>/dev/null | grep -i '^ansible' | awk '{print $1"=="$2}' | tr '\n' ' ') || true
+        if [[ -n "$found" ]]; then
+            _report_finding BLOCKER "pip3 --user" \
+                "Ansible packages in user pip: ${found}" \
+                "pip3 uninstall --user ansible ansible-core  (then re-run)"
+        fi
+    fi
+}
+
+_check_pipx() {
+    if command -v pipx &>/dev/null; then
+        local found
+        found=$(pipx list 2>/dev/null | grep -i 'ansible' | awk '{print $2}' | tr '\n' ' ') || true
+        if [[ -n "$found" ]]; then
+            _report_finding BLOCKER "pipx" \
+                "Ansible installed via pipx: ${found}" \
+                "pipx uninstall ansible  (then re-run)"
+        fi
+    fi
+}
+
+_check_brew() {
+    if command -v brew &>/dev/null; then
+        local found
+        found=$(brew list 2>/dev/null | grep -i '^ansible' | tr '\n' ' ') || true
+        if [[ -n "$found" ]]; then
+            _report_finding BLOCKER "brew" \
+                "Ansible installed via Homebrew: ${found}" \
+                "brew uninstall ${found}"
+        fi
+    fi
+}
+
+_check_snap() {
+    if command -v snap &>/dev/null; then
+        local found
+        found=$(snap list 2>/dev/null | grep -i 'ansible' | awk '{print $1}' | tr '\n' ' ') || true
+        if [[ -n "$found" ]]; then
+            _report_finding BLOCKER "snap" \
+                "Ansible installed via snap: ${found}" \
+                "sudo snap remove ${found}"
+        fi
+    fi
+}
+
+_check_conda() {
+    if command -v conda &>/dev/null; then
+        local found
+        found=$(conda list 2>/dev/null | grep -i '^ansible' | awk '{print $1"="$2}' | tr '\n' ' ') || true
+        if [[ -n "$found" ]]; then
+            _report_finding BLOCKER "conda" \
+                "Ansible installed in active conda env: ${found}" \
+                "conda remove ansible ansible-core"
+        fi
+    fi
+}
+
+_check_system_paths() {
+    # ansible binaries in system-wide locations outside uv's control
+    local dir binary
+    for dir in /usr/bin /usr/local/bin /opt/local/bin /snap/bin; do
+        for binary in "${dir}"/ansible "${dir}"/ansible-playbook "${dir}"/ansible-galaxy; do
+            if [[ -x "$binary" ]]; then
+                _report_finding BLOCKER "system path" \
+                    "${binary} exists outside uv — may shadow ~/.local/bin/" \
+                    "Remove via the package manager that installed it"
+                break # one report per dir is enough
+            fi
+        done
+    done
+}
+
+_check_path_shadowing() {
+    # Detect if ANY ansible binary appears earlier in PATH than ~/.local/bin
+    local uv_bin="${HOME}/.local/bin"
+    local uv_pos=-1
+    local pos=0
+    local dir found_before=false
+    local shadow_dirs=()
+
+    # Find position of ~/.local/bin in PATH
+    while IFS= read -r dir; do
+        ((pos++)) || true
+        if [[ "$dir" == "$uv_bin" ]]; then
+            uv_pos=$pos
+            break
+        fi
+    done < <(echo "$PATH" | tr ':' '\n')
+
+    if [[ $uv_pos -eq -1 ]]; then
+        _report_finding WARNING "PATH" \
+            "${uv_bin} is not in PATH — ansible commands will not be found" \
+            "Add to shell config: export PATH=\"\${HOME}/.local/bin:\${PATH}\""
+        return
+    fi
+
+    # Check if any earlier PATH entry contains an ansible binary
+    pos=0
+    while IFS= read -r dir; do
+        ((pos++)) || true
+        [[ $pos -ge $uv_pos ]] && break
+        if [[ -x "${dir}/ansible" ]] || [[ -x "${dir}/ansible-playbook" ]]; then
+            shadow_dirs+=("$dir")
+            found_before=true
+        fi
+    done < <(echo "$PATH" | tr ':' '\n')
+
+    if $found_before; then
+        local shadow_list
+        shadow_list=$(printf '%s, ' "${shadow_dirs[@]}")
+        _report_finding BLOCKER "PATH shadow" \
+            "Ansible found in PATH before ${uv_bin}: ${shadow_list%, }" \
+            "Remove conflicting install OR move ~/.local/bin earlier in PATH"
+    fi
+}
+
+_check_env_vars() {
+    # ANSIBLE_* env vars can silently override config and cause unexpected behavior
+    local vars
+    vars=$(env 2>/dev/null | grep '^ANSIBLE_' | cut -d= -f1 | sort | tr '\n' ' ') || true
+    if [[ -n "$vars" ]]; then
+        _report_finding WARNING "env vars" \
+            "Active ANSIBLE_* variables may override config: ${vars}" \
+            "Unset in shell or check ~/.bashrc / ~/.zshrc for persistent exports"
+    fi
+}
+
+_check_wrong_uv_pattern() {
+    # `uv tool install ansible` (not ansible-core) only exposes ansible-community
+    if uv tool list 2>/dev/null | grep -q '^ansible v'; then
+        local ver
+        ver=$(uv tool list 2>/dev/null | grep '^ansible v' | awk '{print $2}')
+        _report_finding WARNING "uv tool" \
+            "ansible ${ver} installed as primary tool — only exposes 'ansible-community'" \
+            "uv tool uninstall ansible  then: uv tool install ansible-core --with ansible"
+    fi
+}
+
+_check_stale_tmp() {
+    # Stale ansible tmp dirs waste space (informational, not a conflict)
+    local count
+    count=$(find "${HOME}/.ansible/tmp" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | wc -l) || true
+    if [[ "$count" -gt 0 ]]; then
+        _report_finding INFO "stale tmp" \
+            "${count} stale tmp dir(s) in ${HOME}/.ansible/tmp/" \
+            "rm -rf ${HOME}/.ansible/tmp/*"
+    fi
+}
+
+# ── Main conflict check entry point ─────────────────────────────────────────
+
+check_conflicts() {
+    log_header "Conflict Detection"
+
+    _BLOCKERS=0
+    _WARNINGS=0
+
+    _check_apt
+    _check_pip_user
+    _check_pipx
+    _check_brew
+    _check_snap
+    _check_conda
+    _check_system_paths
+    _check_path_shadowing
+    _check_env_vars
+    _check_wrong_uv_pattern
+    _check_stale_tmp
+
+    echo
+    if [[ $_BLOCKERS -eq 0 && $_WARNINGS -eq 0 ]]; then
+        log_info "No conflicts detected — environment is clean ✓"
+        return 0
+    fi
+
+    if [[ $_BLOCKERS -gt 0 ]]; then
+        log_error "${_BLOCKERS} blocker(s) and ${_WARNINGS} warning(s) found"
+        echo
+        if $FORCE; then
+            log_warn "Continuing despite blockers (--force)"
+            return 1
+        fi
+        echo -e "  Blockers ${RED}must${NC} be resolved before installing, or use ${BOLD}--force${NC} to override."
+        echo
+        if ! $YES; then
+            read -rp "  Abort install? [Y/n] " response
+            echo
+            case "$response" in
+                [Nn]*)
+                    log_warn "Continuing with unresolved blockers"
+                    return 1
+                    ;;
+                *)
+                    log_warn "Aborting — fix blockers and re-run"
+                    exit 2
+                    ;;
+            esac
+        else
+            log_warn "Aborting due to blockers (--yes set, non-interactive)"
+            exit 2
+        fi
+    fi
+
+    log_warn "${_WARNINGS} warning(s) found — review above before proceeding"
+    return 1
+}
+
+# ============================================================================
 # Preflight checks
 # ============================================================================
 
@@ -125,35 +395,7 @@ check_path() {
     fi
 }
 
-check_existing_apt_ansible() {
-    if dpkg -l ansible 2>/dev/null | grep -q '^ii'; then
-        local apt_version
-        apt_version=$(dpkg -l ansible 2>/dev/null | awk '/^ii/{print $3}')
-        log_warn "Ansible $apt_version is installed via apt"
-        echo "  The apt version will shadow the uv-managed version if /usr/bin is"
-        echo "  earlier in PATH than ~/.local/bin."
-        echo
-        if $FORCE; then
-            log_step "Removing apt ansible (--force)"
-            sudo apt remove --purge -y ansible ansible-core >/dev/null 2>&1 || true
-            sudo apt autoremove -y >/dev/null 2>&1 || true
-            log_info "apt ansible removed"
-        else
-            echo "  Remove it with:  sudo apt remove --purge ansible ansible-core"
-            echo "  Or re-run with:  $0 --force"
-            echo
-            if $YES; then
-                log_warn "Continuing despite apt conflict (--yes)"
-            else
-                read -rp "Continue anyway? [y/N] " response
-                if [[ ! "$response" =~ ^[Yy] ]]; then
-                    exit 0
-                fi
-            fi
-        fi
-    fi
-}
-
+# ============================================================================
 check_existing_uv_ansible() {
     # Check if ansible or ansible-core is already installed as a uv tool
     local existing=""
@@ -464,8 +706,10 @@ ${BOLD}OPTIONS${NC}
     --upgrade          Upgrade all installed Ansible uv tools
     --uninstall        Remove Ansible uv tools (keeps ~/.ansible/ data)
     --purge            With --uninstall: also remove ~/.ansible/ data directory
+    --check            Run conflict detection only, then exit (0=clean, 1=warn, 2=blockers)
+    --skip-check       Skip conflict detection before install (CI fast-path)
     --yes              Skip confirmation prompts (for CI / non-interactive use)
-    --force            Force reinstall; auto-remove apt ansible if present
+    --force            Force install; override blockers and auto-remove apt ansible
     --dry-run          Show what would be done without executing
     --quiet            Suppress uv output
     -h, --help         Show this help message
@@ -473,7 +717,8 @@ ${BOLD}OPTIONS${NC}
 ${BOLD}EXAMPLES${NC}
     $(basename "$0")                         # Standard install (ansible-core + collections)
     $(basename "$0") --with-dev              # Full dev setup with lint + molecule
-    $(basename "$0") --force                 # Reinstall from scratch
+    $(basename "$0") --check                 # Audit environment for conflicts, then exit
+    $(basename "$0") --force                 # Reinstall, override/remove blockers
     $(basename "$0") --upgrade               # Upgrade all ansible tools
     $(basename "$0") --uninstall             # Remove tools, keep ~/.ansible/ data
     $(basename "$0") --uninstall --purge     # Remove tools + wipe ~/.ansible/
@@ -519,6 +764,8 @@ main() {
             --core-only) CORE_ONLY=true ;;
             --uninstall) UNINSTALL=true ;;
             --upgrade) UPGRADE=true ;;
+            --check) CHECK_ONLY=true ;;
+            --skip-check) SKIP_CHECK=true ;;
             --purge) PURGE=true ;;
             --yes) YES=true ;;
             --force) FORCE=true ;;
@@ -543,6 +790,12 @@ main() {
     check_uv
     check_path
 
+    # Standalone conflict check — exits with 0/1/2
+    if $CHECK_ONLY; then
+        check_conflicts
+        exit $?
+    fi
+
     # Handle uninstall/upgrade early
     if $PURGE && ! $UNINSTALL; then
         log_error "--purge only makes sense with --uninstall"
@@ -562,7 +815,9 @@ main() {
     fi
 
     # Install flow
-    check_existing_apt_ansible
+    if ! $SKIP_CHECK; then
+        check_conflicts || true # warnings are non-fatal; blockers exit inside the function
+    fi
     check_existing_uv_ansible
     install_ansible
 
