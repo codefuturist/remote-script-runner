@@ -135,6 +135,9 @@ get_script_path() {
         firewall)
             echo "scripts/security/hardening/firewall-setup.sh"
             ;;
+        policy)
+            echo "scripts/security/hardening/Set-RSRExecutionPolicy.ps1"
+            ;;
         ssl)
             echo "scripts/security/certificates/ssl-checker.sh"
             ;;
@@ -152,6 +155,9 @@ get_script_path() {
             ;;
         update)
             echo "scripts/system/updates/system-update.sh"
+            ;;
+        auto-update)
+            echo "scripts/system/updates/auto-update-manager.sh"
             ;;
         cleanup)
             echo "scripts/system/cleanup/disk-cleanup.sh"
@@ -173,6 +179,9 @@ get_script_path() {
             ;;
         dns-sync)
             echo "scripts/network/dns/dns-sync.sh"
+            ;;
+        shares)
+            echo "scripts/network/shares/share-management.sh"
             ;;
         docker)
             echo "scripts/containers/docker/docker-management.sh"
@@ -215,6 +224,45 @@ get_script_path() {
             ;;
         backup-wrapper)
             echo "scripts/backup/tools/backup-wrappers.sh"
+            ;;
+        cmdref)
+            echo "scripts/system/tools/cmdref.sh"
+            ;;
+        install-wsl)
+            echo "scripts/system/Install-WSL.ps1"
+            ;;
+        export-wsl)
+            echo "scripts/system/wsl/Export-WSLDistro.ps1"
+            ;;
+        import-wsl)
+            echo "scripts/system/wsl/Import-WSLDistro.ps1"
+            ;;
+        configure-wsl)
+            echo "scripts/system/wsl/Set-WSLDistroConfig.ps1"
+            ;;
+        update-wsl)
+            echo "scripts/system/wsl/Update-WSLDistro.ps1"
+            ;;
+        configure-terminal)
+            echo "scripts/system/terminal/Configure-WindowsTerminal.ps1"
+            ;;
+        configure-git-credentials)
+            echo "scripts/system/git/Configure-GitCredentials.ps1"
+            ;;
+        configure-docker-wsl)
+            echo "scripts/system/docker/Configure-DockerWSL.ps1"
+            ;;
+        configure-vscode-wsl)
+            echo "scripts/system/vscode/Configure-VSCodeWSL.ps1"
+            ;;
+        setup-windows)
+            echo "scripts/system/Setup-WindowsEnvironment.ps1"
+            ;;
+        remote-desktop)
+            echo "scripts/system/remote-desktop/remote-desktop-setup.sh"
+            ;;
+        ansible-uv)
+            echo "scripts/system/tools/ansible-uv-ctl.sh"
             ;;
         *)
             echo ""
@@ -318,6 +366,9 @@ list_scripts() {
     printf "  \${GREEN}firewall\${NC}      Firewall Setup\n"
     printf "              Configure firewall with ufw/iptables/firewalld presets\n"
     printf "              \${DIM}rsr firewall\${NC}\n\n"
+    printf "  \${GREEN}policy\${NC}      Execution Policy Configuration\n"
+    printf "              Configure PowerShell execution policy with interactive wizard\n"
+    printf "              \${DIM}rsr policy\${NC}\n\n"
     printf "  \${GREEN}ssl\${NC}      SSL Certificate Checker\n"
     printf "              Check SSL certificate expiry, chain validity, and ciphers\n"
     printf "              \${DIM}rsr ssl example.com\${NC}\n\n"
@@ -336,6 +387,9 @@ list_scripts() {
     printf "  \${GREEN}update\${NC}      System Update\n"
     printf "              Update system packages, security patches, and kernel\n"
     printf "              \${DIM}rsr update\${NC}\n\n"
+    printf "  \${GREEN}auto-update\${NC}      Auto Update Manager\n"
+    printf "              Install, configure, and manage automated system updates\n"
+    printf "              \${DIM}rsr auto-update install --schedule daily --time 02:00\${NC}\n\n"
     printf "  \${GREEN}cleanup\${NC}      Disk Cleanup\n"
     printf "              Clean temp files, old logs, package cache, and old kernels\n"
     printf "              \${DIM}rsr cleanup --dry-run\${NC}\n\n"
@@ -348,12 +402,18 @@ list_scripts() {
     printf "  \${GREEN}setup\${NC}      Server Setup\n"
     printf "              Initial server setup: users, SSH hardening, firewall, tools\n"
     printf "              \${DIM}rsr setup -d -u admin\${NC}\n\n"
+    printf "  \${GREEN}bootstrap\${NC}      Host Bootstrap\n"
+    printf "              Interactive wizard to bootstrap a new host with essential tools, SSH, and security\n"
+    printf "              \${DIM}rsr bootstrap\${NC}\n\n"
     printf "  \${GREEN}netdiag\${NC}      Network Diagnostics\n"
     printf "              Diagnose network: connectivity, DNS, latency, port checks\n"
     printf "              \${DIM}rsr netdiag\${NC}\n\n"
     printf "  \${GREEN}dns-sync\${NC}      DNS Zone Sync\n"
     printf "              Sync DNS zones from git repository\n"
     printf "              \${DIM}rsr dns-sync\${NC}\n\n"
+    printf "  \${GREEN}shares\${NC}      Network Share Management\n"
+    printf "              Manage network shares: mount/unmount, discover, configure (NFS, SMB, SSHFS, WebDAV)\n"
+    printf "              \${DIM}rsr shares mount //server/share /mnt/share\${NC}\n\n"
     printf "  \${GREEN}docker\${NC}      Docker Management\n"
     printf "              Docker installation, container management, and cleanup\n"
     printf "              \${DIM}rsr docker status\${NC}\n\n"
@@ -396,6 +456,45 @@ list_scripts() {
     printf "  \${GREEN}backup-wrapper\${NC}      Backup Wrappers\n"
     printf "              Manage config-driven backup wrappers (autorestic, borgmatic, resticprofile)\n"
     printf "              \${DIM}rsr backup-wrapper status\${NC}\n\n"
+    printf "  \${GREEN}cmdref\${NC}      Command Reference\n"
+    printf "              Interactive command reference for 20+ languages with search, favorites, clipboard, history, and custom commands\n"
+    printf "              \${DIM}rsr cmdref --search git\${NC}\n\n"
+    printf "  \${GREEN}install-wsl\${NC}      Install WSL\n"
+    printf "              Interactive WSL 2 installation wizard with best practices configuration\n"
+    printf "              \${DIM}rsr install-wsl\${NC}\n\n"
+    printf "  \${GREEN}export-wsl\${NC}      Export WSL Distro\n"
+    printf "              Export WSL distributions for backup or migration\n"
+    printf "              \${DIM}rsr export-wsl -Distro Ubuntu\${NC}\n\n"
+    printf "  \${GREEN}import-wsl\${NC}      Import WSL Distro\n"
+    printf "              Import WSL distributions from backup files\n"
+    printf "              \${DIM}rsr import-wsl -InputFile ./Ubuntu.tar\${NC}\n\n"
+    printf "  \${GREEN}configure-wsl\${NC}      Configure WSL Distro\n"
+    printf "              Configure WSL distribution settings (systemd, automount, interop)\n"
+    printf "              \${DIM}rsr configure-wsl -EnableSystemd\${NC}\n\n"
+    printf "  \${GREEN}update-wsl\${NC}      Update WSL Distro\n"
+    printf "              Update and maintain WSL distributions\n"
+    printf "              \${DIM}rsr update-wsl -Upgrade\${NC}\n\n"
+    printf "  \${GREEN}configure-terminal\${NC}      Configure Windows Terminal\n"
+    printf "              Configure Windows Terminal for optimal WSL/development experience\n"
+    printf "              \${DIM}rsr configure-terminal -ConfigureWSLProfiles\${NC}\n\n"
+    printf "  \${GREEN}configure-git-credentials\${NC}      Configure Git Credentials\n"
+    printf "              Configure Git Credential Manager for Windows and WSL integration\n"
+    printf "              \${DIM}rsr configure-git-credentials -ConfigureWindows -ConfigureWSL\${NC}\n\n"
+    printf "  \${GREEN}configure-docker-wsl\${NC}      Configure Docker WSL\n"
+    printf "              Configure Docker Desktop for WSL 2 integration\n"
+    printf "              \${DIM}rsr configure-docker-wsl -EnableWSLIntegration\${NC}\n\n"
+    printf "  \${GREEN}configure-vscode-wsl\${NC}      Configure VS Code WSL\n"
+    printf "              Configure VS Code for optimal WSL development experience\n"
+    printf "              \${DIM}rsr configure-vscode-wsl -InstallWSLExtension\${NC}\n\n"
+    printf "  \${GREEN}setup-windows\${NC}      Setup Windows Environment\n"
+    printf "              Interactive Windows development environment setup wizard\n"
+    printf "              \${DIM}rsr setup-windows\${NC}\n\n"
+    printf "  \${GREEN}remote-desktop\${NC}      Remote Desktop Setup\n"
+    printf "              Setup remote desktop server (xRDP on Linux, RDP on Windows) with security hardening\n"
+    printf "              \${DIM}rsr remote-desktop install\${NC}\n\n"
+    printf "  \${GREEN}ansible-uv\${NC}      Ansible via uv Controller\n"
+    printf "              Install, upgrade, uninstall, and conflict-check Ansible managed via uv (full lifecycle)\n"
+    printf "              \${DIM}rsr ansible-uv --with-dev\${NC}\n\n"
     # --- END AUTO-GENERATED: SCRIPT_LIST ---
     printf "              ${DIM}rsr self-update --force${NC}\n\n"
 
@@ -956,6 +1055,9 @@ main() {
         firewall | firewall-setup)
             run_script "firewall" "$@"
             ;;
+        policy | execution-policy | execpolicy)
+            run_script "policy" "$@"
+            ;;
         ssl | ssl-checker | ssl-check)
             run_script "ssl" "$@"
             ;;
@@ -973,6 +1075,9 @@ main() {
             ;;
         update | system-update)
             run_script "update" "$@"
+            ;;
+        auto-update | auto-update-manager | scheduled-updates)
+            run_script "auto-update" "$@"
             ;;
         cleanup | disk-cleanup)
             run_script "cleanup" "$@"
@@ -994,6 +1099,9 @@ main() {
             ;;
         dns-sync)
             run_script "dns-sync" "$@"
+            ;;
+        shares | share | share-management | mount-share)
+            run_script "shares" "$@"
             ;;
         docker | docker-management)
             run_script "docker" "$@"
@@ -1036,6 +1144,45 @@ main() {
             ;;
         backup-wrapper | backup-wrappers | autorestic | borgmatic | resticprofile)
             run_script "backup-wrapper" "$@"
+            ;;
+        cmdref | commands | cheatsheet | ref)
+            run_script "cmdref" "$@"
+            ;;
+        install-wsl | wsl-install | setup-wsl)
+            run_script "install-wsl" "$@"
+            ;;
+        export-wsl | wsl-export | wsl-backup)
+            run_script "export-wsl" "$@"
+            ;;
+        import-wsl | wsl-import | wsl-restore)
+            run_script "import-wsl" "$@"
+            ;;
+        configure-wsl | wsl-config)
+            run_script "configure-wsl" "$@"
+            ;;
+        update-wsl | wsl-update | wsl-upgrade)
+            run_script "update-wsl" "$@"
+            ;;
+        configure-terminal | terminal-config)
+            run_script "configure-terminal" "$@"
+            ;;
+        git-credentials | gcm-config)
+            run_script "configure-git-credentials" "$@"
+            ;;
+        docker-wsl | docker-config)
+            run_script "configure-docker-wsl" "$@"
+            ;;
+        vscode-wsl | code-wsl)
+            run_script "configure-vscode-wsl" "$@"
+            ;;
+        setup-windows | windows-setup | dev-setup)
+            run_script "setup-windows" "$@"
+            ;;
+        remote-desktop | rdp | rdp-setup | xrdp)
+            run_script "remote-desktop" "$@"
+            ;;
+        ansible-uv | ansible-uv-ctl | ansible-install)
+            run_script "ansible-uv" "$@"
             ;;
         # --- END AUTO-GENERATED: COMMAND_ROUTING ---
         *)

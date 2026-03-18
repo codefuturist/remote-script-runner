@@ -6,32 +6,61 @@
     "security": {
       "name": "Security",
       "description": "Security auditing, hardening, and compliance scripts",
-      "subcategories": ["audit", "hardening", "certificates", "ssh"]
+      "subcategories": [
+        "audit",
+        "hardening",
+        "certificates",
+        "ssh"
+      ]
     },
     "system": {
       "name": "System",
       "description": "System health, updates, cleanup, packages, and information scripts",
-      "subcategories": ["health", "updates", "cleanup", "info", "packages", "tools", "wsl", "bootstrap"]
+      "subcategories": [
+        "health",
+        "updates",
+        "cleanup",
+        "info",
+        "packages",
+        "tools",
+        "wsl",
+        "bootstrap"
+      ]
     },
     "users": {
       "name": "Users",
       "description": "User and account management scripts",
-      "subcategories": ["management", "setup"]
+      "subcategories": [
+        "management",
+        "setup"
+      ]
     },
     "network": {
       "name": "Network",
       "description": "Network diagnostics, DNS management, and file share scripts",
-      "subcategories": ["diagnostics", "dns", "shares"]
+      "subcategories": [
+        "diagnostics",
+        "dns",
+        "shares"
+      ]
     },
     "containers": {
       "name": "Containers",
       "description": "Container orchestration and management scripts",
-      "subcategories": ["docker", "compose"]
+      "subcategories": [
+        "docker",
+        "compose"
+      ]
     },
     "backup": {
       "name": "Backup",
       "description": "Database, configuration, git, and file backup scripts",
-      "subcategories": ["database", "config", "git", "tools"]
+      "subcategories": [
+        "database",
+        "config",
+        "git",
+        "tools"
+      ]
     }
   },
   "scripts": [
@@ -39,81 +68,146 @@
       "id": "security-audit",
       "name": "Security Audit",
       "command": "audit",
-      "aliases": ["audit", "security-audit"],
+      "aliases": [
+        "audit",
+        "security-audit"
+      ],
       "description": "Comprehensive security audit: ports, logins, SUID files, permissions",
       "example": "rsr audit",
       "category": "security",
       "subcategory": "audit",
       "path": "scripts/security/audit/security-audit.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+"
+      ],
       "sudo": "optional",
-      "tags": ["security", "audit", "compliance", "hardening"]
+      "tags": [
+        "security",
+        "audit",
+        "compliance",
+        "hardening"
+      ]
     },
     {
       "id": "user-audit",
       "name": "User Audit",
       "command": "users",
-      "aliases": ["users", "user-audit"],
+      "aliases": [
+        "users",
+        "user-audit"
+      ],
       "description": "Audit user accounts, sudo access, and login history",
       "example": "rsr users",
       "category": "security",
       "subcategory": "audit",
       "path": "scripts/security/audit/user-audit.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+"
+      ],
       "sudo": "optional",
-      "tags": ["users", "audit", "security", "accounts"]
+      "tags": [
+        "users",
+        "audit",
+        "security",
+        "accounts"
+      ]
     },
     {
       "id": "ssh-hardening",
       "name": "SSH Hardening",
       "command": "ssh-harden",
-      "aliases": ["ssh-harden", "ssh-hardening"],
+      "aliases": [
+        "ssh-harden",
+        "ssh-hardening"
+      ],
       "description": "Harden SSH: disable root, enforce keys, configure fail2ban",
       "example": "rsr ssh-harden",
       "category": "security",
       "subcategory": "hardening",
       "path": "scripts/security/hardening/ssh-hardening.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+", "sshd"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "sshd"
+      ],
       "sudo": "required",
-      "tags": ["ssh", "security", "hardening"]
+      "tags": [
+        "ssh",
+        "security",
+        "hardening"
+      ]
     },
     {
       "id": "firewall-setup",
       "name": "Firewall Setup",
       "command": "firewall",
-      "aliases": ["firewall", "firewall-setup"],
+      "aliases": [
+        "firewall",
+        "firewall-setup"
+      ],
       "description": "Configure firewall with ufw/iptables/firewalld presets",
       "example": "rsr firewall",
       "category": "security",
       "subcategory": "hardening",
       "path": "scripts/security/hardening/firewall-setup.sh",
       "version": "1.0.0",
-      "platforms": ["linux"],
-      "requires": ["bash 4.0+", "ufw|iptables|firewalld"],
+      "platforms": [
+        "linux"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "ufw|iptables|firewalld"
+      ],
       "sudo": "required",
-      "tags": ["firewall", "security", "network"]
+      "tags": [
+        "firewall",
+        "security",
+        "network"
+      ]
     },
     {
       "id": "execution-policy",
       "name": "Execution Policy Configuration",
       "command": "policy",
-      "aliases": ["policy", "execution-policy", "execpolicy"],
+      "aliases": [
+        "policy",
+        "execution-policy",
+        "execpolicy"
+      ],
       "description": "Configure PowerShell execution policy with interactive wizard",
       "example": "rsr policy",
       "category": "security",
       "subcategory": "hardening",
       "path": "scripts/security/hardening/Set-RSRExecutionPolicy.ps1",
       "version": "1.0.0",
-      "platforms": ["windows"],
-      "requires": ["PowerShell 5.1+"],
+      "platforms": [
+        "windows"
+      ],
+      "requires": [
+        "PowerShell 5.1+"
+      ],
       "sudo": "optional",
-      "tags": ["powershell", "security", "policy", "windows", "hardening"],
+      "tags": [
+        "powershell",
+        "security",
+        "policy",
+        "windows",
+        "hardening"
+      ],
       "features": [
         "Interactive wizard mode",
         "CLI mode for automation",
@@ -127,23 +221,40 @@
       "id": "ssl-checker",
       "name": "SSL Certificate Checker",
       "command": "ssl",
-      "aliases": ["ssl", "ssl-checker", "ssl-check"],
+      "aliases": [
+        "ssl",
+        "ssl-checker",
+        "ssl-check"
+      ],
       "description": "Check SSL certificate expiry, chain validity, and ciphers",
       "example": "rsr ssl example.com",
       "category": "security",
       "subcategory": "certificates",
       "path": "scripts/security/certificates/ssl-checker.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+", "openssl"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "openssl"
+      ],
       "sudo": "none",
-      "tags": ["ssl", "tls", "certificates", "security"]
+      "tags": [
+        "ssl",
+        "tls",
+        "certificates",
+        "security"
+      ]
     },
     {
       "id": "ssh-server",
       "name": "SSH Server Management",
       "command": "ssh-server",
-      "aliases": ["ssh-server"],
+      "aliases": [
+        "ssh-server"
+      ],
       "description": "Complete SSH server management: install, configure, monitor",
       "example": "rsr ssh-server status",
       "category": "security",
@@ -151,80 +262,154 @@
       "path": "scripts/security/ssh/ssh-server.sh",
       "powershell": "security/ssh/ssh-server.ps1",
       "version": "1.0.0",
-      "platforms": ["linux", "macos", "windows"],
-      "requires": ["bash 4.0+|PowerShell 5.1+"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "requires": [
+        "bash 4.0+|PowerShell 5.1+"
+      ],
       "sudo": "required",
-      "tags": ["ssh", "server", "management"]
+      "tags": [
+        "ssh",
+        "server",
+        "management"
+      ]
     },
     {
       "id": "ssh-keys",
       "name": "SSH Key Management",
       "command": "ssh-keys",
-      "aliases": ["ssh-keys"],
+      "aliases": [
+        "ssh-keys"
+      ],
       "description": "Generate, distribute, and manage SSH keys across hosts",
       "example": "rsr ssh-keys generate",
       "category": "security",
       "subcategory": "ssh",
       "path": "scripts/security/ssh/ssh-keys.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos", "freebsd"],
-      "requires": ["bash 4.0+", "ssh", "ssh-keygen"],
+      "platforms": [
+        "linux",
+        "macos",
+        "freebsd"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "ssh",
+        "ssh-keygen"
+      ],
       "sudo": "none",
-      "tags": ["ssh", "keys", "authentication", "distribution", "security"]
+      "tags": [
+        "ssh",
+        "keys",
+        "authentication",
+        "distribution",
+        "security"
+      ]
     },
     {
       "id": "ssh-config",
       "name": "SSH Client Configuration",
       "command": "ssh-config",
-      "aliases": ["ssh-config"],
+      "aliases": [
+        "ssh-config"
+      ],
       "description": "Manage SSH client configuration, hosts, tunnels, and best practices",
       "example": "rsr ssh-config init",
       "category": "security",
       "subcategory": "ssh",
       "path": "scripts/security/ssh/ssh-config.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos", "freebsd"],
-      "requires": ["bash 4.0+", "ssh", "ssh-keygen"],
+      "platforms": [
+        "linux",
+        "macos",
+        "freebsd"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "ssh",
+        "ssh-keygen"
+      ],
       "sudo": "none",
-      "tags": ["ssh", "client", "config", "tunnels", "hosts", "configuration"]
+      "tags": [
+        "ssh",
+        "client",
+        "config",
+        "tunnels",
+        "hosts",
+        "configuration"
+      ]
     },
     {
       "id": "system-health",
       "name": "System Health Check",
       "command": "health",
-      "aliases": ["health", "health-check", "system-health-check"],
+      "aliases": [
+        "health",
+        "health-check",
+        "system-health-check"
+      ],
       "description": "Check system health: CPU, memory, disk, network status",
       "example": "rsr health -a",
       "category": "system",
       "subcategory": "health",
       "path": "scripts/system/health/system-health-check.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+"
+      ],
       "sudo": "none",
-      "tags": ["health", "monitoring", "system", "diagnostics"]
+      "tags": [
+        "health",
+        "monitoring",
+        "system",
+        "diagnostics"
+      ]
     },
     {
       "id": "system-update",
       "name": "System Update",
       "command": "update",
-      "aliases": ["update", "system-update"],
+      "aliases": [
+        "update",
+        "system-update"
+      ],
       "description": "Update system packages, security patches, and kernel",
       "example": "rsr update",
       "category": "system",
       "subcategory": "updates",
       "path": "scripts/system/updates/system-update.sh",
       "version": "1.0.0",
-      "platforms": ["linux"],
-      "requires": ["bash 4.0+", "apt|yum|dnf|pacman"],
+      "platforms": [
+        "linux"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "apt|yum|dnf|pacman"
+      ],
       "sudo": "required",
-      "tags": ["update", "packages", "security", "maintenance"]
+      "tags": [
+        "update",
+        "packages",
+        "security",
+        "maintenance"
+      ]
     },
     {
       "id": "auto-update-manager",
       "name": "Auto Update Manager",
       "command": "auto-update",
-      "aliases": ["auto-update", "auto-update-manager", "scheduled-updates"],
+      "aliases": [
+        "auto-update",
+        "auto-update-manager",
+        "scheduled-updates"
+      ],
       "description": "Install, configure, and manage automated system updates",
       "example": "rsr auto-update install --schedule daily --time 02:00",
       "category": "system",
@@ -232,50 +417,94 @@
       "path": "scripts/system/updates/auto-update-manager.sh",
       "pathWindows": "scripts/system/updates/Auto-Update-Manager.ps1",
       "version": "1.0.0",
-      "platforms": ["linux", "macos", "windows"],
-      "requires": ["bash 4.0+"],
-      "requiresWindows": ["PowerShell 5.1+"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "requires": [
+        "bash 4.0+"
+      ],
+      "requiresWindows": [
+        "PowerShell 5.1+"
+      ],
       "sudo": "required",
       "sudoWindows": "required",
-      "tags": ["update", "automatic", "scheduled", "unattended", "cron", "systemd", "launchd"]
+      "tags": [
+        "update",
+        "automatic",
+        "scheduled",
+        "unattended",
+        "cron",
+        "systemd",
+        "launchd"
+      ]
     },
     {
       "id": "disk-cleanup",
       "name": "Disk Cleanup",
       "command": "cleanup",
-      "aliases": ["cleanup", "disk-cleanup"],
+      "aliases": [
+        "cleanup",
+        "disk-cleanup"
+      ],
       "description": "Clean temp files, old logs, package cache, and old kernels",
       "example": "rsr cleanup --dry-run",
       "category": "system",
       "subcategory": "cleanup",
       "path": "scripts/system/cleanup/disk-cleanup.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+"
+      ],
       "sudo": "optional",
-      "tags": ["cleanup", "disk", "maintenance", "storage"]
+      "tags": [
+        "cleanup",
+        "disk",
+        "maintenance",
+        "storage"
+      ]
     },
     {
       "id": "detect-distro",
       "name": "Detect Distribution",
       "command": "detect-distro",
-      "aliases": ["detect-distro"],
+      "aliases": [
+        "detect-distro"
+      ],
       "description": "Detect Linux distribution, package manager, and init system",
       "example": "rsr detect-distro",
       "category": "system",
       "subcategory": "info",
       "path": "scripts/system/info/detect-distro.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+"
+      ],
       "sudo": "none",
-      "tags": ["distro", "detection", "system", "info"]
+      "tags": [
+        "distro",
+        "detection",
+        "system",
+        "info"
+      ]
     },
     {
       "id": "user-management",
       "name": "User Management",
       "command": "user-mgmt",
-      "aliases": ["user-mgmt", "user-management"],
+      "aliases": [
+        "user-mgmt",
+        "user-management"
+      ],
       "description": "Comprehensive user management: create, delete, passwords, groups",
       "example": "rsr user-mgmt create john",
       "category": "users",
@@ -283,32 +512,58 @@
       "path": "scripts/users/management/user-management.sh",
       "powershell": "users/management/user-management.ps1",
       "version": "1.0.0",
-      "platforms": ["linux", "macos", "windows"],
-      "requires": ["bash 4.0+|PowerShell 5.1+"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "requires": [
+        "bash 4.0+|PowerShell 5.1+"
+      ],
       "sudo": "required",
-      "tags": ["users", "accounts", "passwords", "groups"]
+      "tags": [
+        "users",
+        "accounts",
+        "passwords",
+        "groups"
+      ]
     },
     {
       "id": "server-setup",
       "name": "Server Setup",
       "command": "setup",
-      "aliases": ["setup", "server-setup"],
+      "aliases": [
+        "setup",
+        "server-setup"
+      ],
       "description": "Initial server setup: users, SSH hardening, firewall, tools",
       "example": "rsr setup -d -u admin",
       "category": "users",
       "subcategory": "setup",
       "path": "scripts/users/setup/server-setup.sh",
       "version": "1.0.0",
-      "platforms": ["linux"],
-      "requires": ["bash 4.0+"],
+      "platforms": [
+        "linux"
+      ],
+      "requires": [
+        "bash 4.0+"
+      ],
       "sudo": "required",
-      "tags": ["setup", "server", "initialization"]
+      "tags": [
+        "setup",
+        "server",
+        "initialization"
+      ]
     },
     {
       "id": "host-bootstrap",
       "name": "Host Bootstrap",
       "command": "bootstrap",
-      "aliases": ["bootstrap", "host-bootstrap", "init-host"],
+      "aliases": [
+        "bootstrap",
+        "host-bootstrap",
+        "init-host"
+      ],
       "description": "Interactive wizard to bootstrap a new host with essential tools, SSH, and security",
       "example": "rsr bootstrap",
       "category": "system",
@@ -316,48 +571,92 @@
       "path": "scripts/system/bootstrap/host-bootstrap.sh",
       "pathWindows": "scripts/system/bootstrap/Initialize-HostBootstrap.ps1",
       "version": "2.0.0",
-      "platforms": ["linux", "macos", "windows"],
-      "requires": ["bash 4.0+", "powershell 5.1+"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "powershell 5.1+"
+      ],
       "sudo": "optional",
-      "tags": ["bootstrap", "setup", "host", "server", "workstation", "initialization", "wizard"]
+      "tags": [
+        "bootstrap",
+        "setup",
+        "host",
+        "server",
+        "workstation",
+        "initialization",
+        "wizard"
+      ]
     },
     {
       "id": "network-diagnostics",
       "name": "Network Diagnostics",
       "command": "netdiag",
-      "aliases": ["netdiag", "network-diagnostics"],
+      "aliases": [
+        "netdiag",
+        "network-diagnostics"
+      ],
       "description": "Diagnose network: connectivity, DNS, latency, port checks",
       "example": "rsr netdiag",
       "category": "network",
       "subcategory": "diagnostics",
       "path": "scripts/network/diagnostics/network-diagnostics.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+"
+      ],
       "sudo": "none",
-      "tags": ["network", "diagnostics", "dns", "connectivity"]
+      "tags": [
+        "network",
+        "diagnostics",
+        "dns",
+        "connectivity"
+      ]
     },
     {
       "id": "dns-sync",
       "name": "DNS Zone Sync",
       "command": "dns-sync",
-      "aliases": ["dns-sync"],
+      "aliases": [
+        "dns-sync"
+      ],
       "description": "Sync DNS zones from git repository",
       "example": "rsr dns-sync",
       "category": "network",
       "subcategory": "dns",
       "path": "scripts/network/dns/dns-sync.sh",
       "version": "1.0.0",
-      "platforms": ["linux"],
-      "requires": ["bash 4.0+", "git"],
+      "platforms": [
+        "linux"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "git"
+      ],
       "sudo": "optional",
-      "tags": ["dns", "sync", "gitops"]
+      "tags": [
+        "dns",
+        "sync",
+        "gitops"
+      ]
     },
     {
       "id": "share-management",
       "name": "Network Share Management",
       "command": "shares",
-      "aliases": ["shares", "share", "share-management", "mount-share"],
+      "aliases": [
+        "shares",
+        "share",
+        "share-management",
+        "mount-share"
+      ],
       "description": "Manage network shares: mount/unmount, discover, configure (NFS, SMB, SSHFS, WebDAV)",
       "example": "rsr shares mount //server/share /mnt/share",
       "category": "network",
@@ -365,96 +664,180 @@
       "path": "scripts/network/shares/share-management.sh",
       "powershell": "scripts/network/shares/share-management.ps1",
       "version": "1.0.0",
-      "platforms": ["linux", "macos", "windows"],
-      "requires": ["bash 4.0+|PowerShell 5.1+"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "requires": [
+        "bash 4.0+|PowerShell 5.1+"
+      ],
       "sudo": "optional",
-      "tags": ["network", "shares", "mount", "nfs", "smb", "cifs", "sshfs", "webdav", "storage"]
+      "tags": [
+        "network",
+        "shares",
+        "mount",
+        "nfs",
+        "smb",
+        "cifs",
+        "sshfs",
+        "webdav",
+        "storage"
+      ]
     },
     {
       "id": "docker-management",
       "name": "Docker Management",
       "command": "docker",
-      "aliases": ["docker", "docker-management"],
+      "aliases": [
+        "docker",
+        "docker-management"
+      ],
       "description": "Docker installation, container management, and cleanup",
       "example": "rsr docker status",
       "category": "containers",
       "subcategory": "docker",
       "path": "scripts/containers/docker/docker-management.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+"
+      ],
       "sudo": "optional",
-      "tags": ["docker", "containers", "management"]
+      "tags": [
+        "docker",
+        "containers",
+        "management"
+      ]
     },
     {
       "id": "database-backup",
       "name": "Database Backup",
       "command": "db-backup",
-      "aliases": ["db-backup", "database-backup"],
+      "aliases": [
+        "db-backup",
+        "database-backup"
+      ],
       "description": "Backup MySQL, PostgreSQL, MongoDB databases",
       "example": "rsr db-backup",
       "category": "backup",
       "subcategory": "database",
       "path": "scripts/backup/database/database-backup.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+"
+      ],
       "sudo": "optional",
-      "tags": ["backup", "database", "mysql", "postgresql"]
+      "tags": [
+        "backup",
+        "database",
+        "mysql",
+        "postgresql"
+      ]
     },
     {
       "id": "config-backup",
       "name": "Config Backup",
       "command": "config-backup",
-      "aliases": ["config-backup", "cfg-backup"],
+      "aliases": [
+        "config-backup",
+        "cfg-backup"
+      ],
       "description": "Backup system and application configuration files",
       "example": "rsr config-backup",
       "category": "backup",
       "subcategory": "config",
       "path": "scripts/backup/config/config-backup.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+"
+      ],
       "sudo": "optional",
-      "tags": ["backup", "config", "system"]
+      "tags": [
+        "backup",
+        "config",
+        "system"
+      ]
     },
     {
       "id": "git-auto-sync",
       "name": "Git Auto Sync",
       "command": "git-sync",
-      "aliases": ["git-sync", "git-auto-sync"],
+      "aliases": [
+        "git-sync",
+        "git-auto-sync"
+      ],
       "description": "Production-grade git repository auto-sync daemon",
       "example": "rsr git-sync start",
       "category": "backup",
       "subcategory": "git",
       "path": "scripts/backup/git/git-auto-sync.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+", "git"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "git"
+      ],
       "sudo": "optional",
-      "tags": ["git", "sync", "backup", "automation"]
+      "tags": [
+        "git",
+        "sync",
+        "backup",
+        "automation"
+      ]
     },
     {
       "id": "install-packages",
       "name": "Install Packages",
       "command": "install-pkgs",
-      "aliases": ["install-pkgs", "install-packages"],
+      "aliases": [
+        "install-pkgs",
+        "install-packages"
+      ],
       "description": "Install packages from predefined profiles with cross-platform support",
       "example": "rsr install-pkgs web-server",
       "category": "system",
       "subcategory": "packages",
       "path": "scripts/system/packages/install-packages.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+"
+      ],
       "sudo": "optional",
-      "tags": ["packages", "dependencies", "installation", "profiles"]
+      "tags": [
+        "packages",
+        "dependencies",
+        "installation",
+        "profiles"
+      ]
     },
     {
       "id": "backup-unified",
       "name": "Unified Backup",
       "command": "backup",
-      "aliases": ["backup", "backup-unified", "bkp"],
+      "aliases": [
+        "backup",
+        "backup-unified",
+        "bkp"
+      ],
       "description": "Unified backup system supporting rsync, rclone, restic, borg, kopia, Time Machine, Windows Backup",
       "example": "rsr backup run --source /home --dest /backup --tool restic",
       "category": "backup",
@@ -462,128 +845,259 @@
       "path": "scripts/backup/tools/backup-unified.sh",
       "powershell": "scripts/backup/tools/backup-unified.ps1",
       "version": "1.0.0",
-      "platforms": ["linux", "macos", "windows"],
-      "requires": ["bash 4.0+|PowerShell 5.1+"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "requires": [
+        "bash 4.0+|PowerShell 5.1+"
+      ],
       "sudo": "optional",
-      "tags": ["backup", "rsync", "rclone", "restic", "borg", "kopia", "deduplication", "encryption", "vss", "robocopy"]
+      "tags": [
+        "backup",
+        "rsync",
+        "rclone",
+        "restic",
+        "borg",
+        "kopia",
+        "deduplication",
+        "encryption",
+        "vss",
+        "robocopy"
+      ]
     },
     {
       "id": "rsync-backup",
       "name": "Rsync Backup",
       "command": "rsync-backup",
-      "aliases": ["rsync-backup", "rsync-bkp"],
+      "aliases": [
+        "rsync-backup",
+        "rsync-bkp"
+      ],
       "description": "Fast incremental backup using rsync with hard links support",
       "example": "rsr rsync-backup /home /backup/home",
       "category": "backup",
       "subcategory": "tools",
       "path": "scripts/backup/tools/rsync-backup.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+", "rsync"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "rsync"
+      ],
       "sudo": "optional",
-      "tags": ["backup", "rsync", "incremental", "sync"]
+      "tags": [
+        "backup",
+        "rsync",
+        "incremental",
+        "sync"
+      ]
     },
     {
       "id": "rclone-backup",
       "name": "Rclone Backup",
       "command": "rclone-backup",
-      "aliases": ["rclone-backup", "cloud-backup"],
+      "aliases": [
+        "rclone-backup",
+        "cloud-backup"
+      ],
       "description": "Cloud backup using rclone (40+ cloud providers)",
       "example": "rsr rclone-backup sync /home s3:mybucket/backup",
       "category": "backup",
       "subcategory": "tools",
       "path": "scripts/backup/tools/rclone-backup.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos", "windows"],
-      "requires": ["bash 4.0+", "rclone"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "rclone"
+      ],
       "sudo": "none",
-      "tags": ["backup", "rclone", "cloud", "s3", "gcs", "azure", "dropbox"]
+      "tags": [
+        "backup",
+        "rclone",
+        "cloud",
+        "s3",
+        "gcs",
+        "azure",
+        "dropbox"
+      ]
     },
     {
       "id": "restic-backup",
       "name": "Restic Backup",
       "command": "restic-backup",
-      "aliases": ["restic-backup", "restic-bkp"],
+      "aliases": [
+        "restic-backup",
+        "restic-bkp"
+      ],
       "description": "Fast, secure, deduplicated backup with restic",
       "example": "rsr restic-backup backup -r /backup/repo /home",
       "category": "backup",
       "subcategory": "tools",
       "path": "scripts/backup/tools/restic-backup.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos", "windows"],
-      "requires": ["bash 4.0+", "restic"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "restic"
+      ],
       "sudo": "optional",
-      "tags": ["backup", "restic", "deduplication", "encryption", "incremental"]
+      "tags": [
+        "backup",
+        "restic",
+        "deduplication",
+        "encryption",
+        "incremental"
+      ]
     },
     {
       "id": "borg-backup",
       "name": "Borg Backup",
       "command": "borg-backup",
-      "aliases": ["borg-backup", "borg-bkp"],
+      "aliases": [
+        "borg-backup",
+        "borg-bkp"
+      ],
       "description": "Deduplicating archiver with compression and encryption",
       "example": "rsr borg-backup create -r /backup/borg -a daily /home",
       "category": "backup",
       "subcategory": "tools",
       "path": "scripts/backup/tools/borg-backup.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+", "borg"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "borg"
+      ],
       "sudo": "optional",
-      "tags": ["backup", "borg", "borgbackup", "deduplication", "compression", "encryption"]
+      "tags": [
+        "backup",
+        "borg",
+        "borgbackup",
+        "deduplication",
+        "compression",
+        "encryption"
+      ]
     },
     {
       "id": "kopia-backup",
       "name": "Kopia Backup",
       "command": "kopia-backup",
-      "aliases": ["kopia-backup", "kopia-bkp"],
+      "aliases": [
+        "kopia-backup",
+        "kopia-bkp"
+      ],
       "description": "Fast, encrypted, deduplicated backup with Kopia",
       "example": "rsr kopia-backup snapshot /home",
       "category": "backup",
       "subcategory": "tools",
       "path": "scripts/backup/tools/kopia-backup.sh",
       "version": "1.0.0",
-      "platforms": ["linux", "macos", "windows"],
-      "requires": ["bash 4.0+", "kopia"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "kopia"
+      ],
       "sudo": "optional",
-      "tags": ["backup", "kopia", "deduplication", "encryption", "snapshot"]
+      "tags": [
+        "backup",
+        "kopia",
+        "deduplication",
+        "encryption",
+        "snapshot"
+      ]
     },
     {
       "id": "timemachine-backup",
       "name": "Time Machine Backup",
       "command": "timemachine",
-      "aliases": ["timemachine", "tm-backup"],
+      "aliases": [
+        "timemachine",
+        "tm-backup"
+      ],
       "description": "macOS Time Machine backup management",
       "example": "rsr timemachine status",
       "category": "backup",
       "subcategory": "tools",
       "path": "scripts/backup/tools/timemachine-backup.sh",
       "version": "1.0.0",
-      "platforms": ["macos"],
-      "requires": ["bash 4.0+", "tmutil"],
+      "platforms": [
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "tmutil"
+      ],
       "sudo": "optional",
-      "tags": ["backup", "timemachine", "macos", "apple"]
+      "tags": [
+        "backup",
+        "timemachine",
+        "macos",
+        "apple"
+      ]
     },
     {
       "id": "windows-backup",
       "name": "Windows Backup",
       "command": "win-backup",
-      "aliases": ["win-backup", "windows-backup", "wbadmin-backup"],
+      "aliases": [
+        "win-backup",
+        "windows-backup",
+        "wbadmin-backup"
+      ],
       "description": "Windows backup with VSS, File History, and robocopy",
       "example": "rsr win-backup status",
       "category": "backup",
       "subcategory": "tools",
       "path": "scripts/backup/tools/windows-backup.ps1",
       "version": "1.0.0",
-      "platforms": ["windows"],
-      "requires": ["PowerShell 5.1+"],
+      "platforms": [
+        "windows"
+      ],
+      "requires": [
+        "PowerShell 5.1+"
+      ],
       "sudo": "required",
-      "tags": ["backup", "windows", "vss", "robocopy", "file-history", "wbadmin"]
+      "tags": [
+        "backup",
+        "windows",
+        "vss",
+        "robocopy",
+        "file-history",
+        "wbadmin"
+      ]
     },
     {
       "id": "backup-wrappers",
       "name": "Backup Wrappers",
       "command": "backup-wrapper",
-      "aliases": ["backup-wrapper", "backup-wrappers", "autorestic", "borgmatic", "resticprofile"],
+      "aliases": [
+        "backup-wrapper",
+        "backup-wrappers",
+        "autorestic",
+        "borgmatic",
+        "resticprofile"
+      ],
       "description": "Manage config-driven backup wrappers (autorestic, borgmatic, resticprofile)",
       "example": "rsr backup-wrapper status",
       "category": "backup",
@@ -591,192 +1105,383 @@
       "path": "scripts/backup/tools/backup-wrappers.sh",
       "powershell": "scripts/backup/tools/backup-wrappers.ps1",
       "version": "1.0.0",
-      "platforms": ["linux", "macos", "windows"],
-      "requires": ["bash 4.0+|PowerShell 5.1+"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "requires": [
+        "bash 4.0+|PowerShell 5.1+"
+      ],
       "sudo": "none",
-      "tags": ["backup", "autorestic", "borgmatic", "resticprofile", "kopia", "yaml", "config"]
+      "tags": [
+        "backup",
+        "autorestic",
+        "borgmatic",
+        "resticprofile",
+        "kopia",
+        "yaml",
+        "config"
+      ]
     },
     {
       "id": "cmdref",
       "name": "Command Reference",
       "command": "cmdref",
-      "aliases": ["cmdref", "commands", "cheatsheet", "ref"],
+      "aliases": [
+        "cmdref",
+        "commands",
+        "cheatsheet",
+        "ref"
+      ],
       "description": "Interactive command reference for 20+ languages with search, favorites, clipboard, history, and custom commands",
       "example": "rsr cmdref --search git",
       "category": "system",
       "subcategory": "tools",
       "path": "scripts/system/tools/cmdref.sh",
       "version": "2.1.0",
-      "platforms": ["linux", "macos"],
-      "requires": ["bash 4.0+"],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+"
+      ],
       "sudo": "none",
-      "tags": ["commands", "reference", "cheatsheet", "git", "docker", "npm", "yarn", "pnpm", "python", "uv", "go", "rust", "cargo", "ruby", "php", "java", "maven", "gradle", "dotnet", "swift", "clipboard", "tools", "fzf"]
+      "tags": [
+        "commands",
+        "reference",
+        "cheatsheet",
+        "git",
+        "docker",
+        "npm",
+        "yarn",
+        "pnpm",
+        "python",
+        "uv",
+        "go",
+        "rust",
+        "cargo",
+        "ruby",
+        "php",
+        "java",
+        "maven",
+        "gradle",
+        "dotnet",
+        "swift",
+        "clipboard",
+        "tools",
+        "fzf"
+      ]
     },
     {
       "id": "install-wsl",
       "name": "Install WSL",
       "command": "install-wsl",
-      "aliases": ["install-wsl", "wsl-install", "setup-wsl"],
+      "aliases": [
+        "install-wsl",
+        "wsl-install",
+        "setup-wsl"
+      ],
       "description": "Interactive WSL 2 installation wizard with best practices configuration",
       "example": "rsr install-wsl",
       "category": "system",
       "subcategory": "tools",
       "path": "scripts/system/Install-WSL.ps1",
       "version": "2.0.0",
-      "platforms": ["windows"],
-      "requires": ["powershell 5.1+", "Windows 10 2004+"],
+      "platforms": [
+        "windows"
+      ],
+      "requires": [
+        "powershell 5.1+",
+        "Windows 10 2004+"
+      ],
       "sudo": "optional",
-      "tags": ["wsl", "windows", "linux", "ubuntu", "setup", "installation"]
+      "tags": [
+        "wsl",
+        "windows",
+        "linux",
+        "ubuntu",
+        "setup",
+        "installation"
+      ]
     },
     {
       "id": "export-wsl",
       "name": "Export WSL Distro",
       "command": "export-wsl",
-      "aliases": ["export-wsl", "wsl-export", "wsl-backup"],
+      "aliases": [
+        "export-wsl",
+        "wsl-export",
+        "wsl-backup"
+      ],
       "description": "Export WSL distributions for backup or migration",
       "example": "rsr export-wsl -Distro Ubuntu",
       "category": "backup",
       "subcategory": "tools",
       "path": "scripts/system/wsl/Export-WSLDistro.ps1",
       "version": "1.0.0",
-      "platforms": ["windows"],
-      "requires": ["powershell 5.1+", "wsl"],
+      "platforms": [
+        "windows"
+      ],
+      "requires": [
+        "powershell 5.1+",
+        "wsl"
+      ],
       "sudo": "none",
-      "tags": ["wsl", "backup", "export", "migration"]
+      "tags": [
+        "wsl",
+        "backup",
+        "export",
+        "migration"
+      ]
     },
     {
       "id": "import-wsl",
       "name": "Import WSL Distro",
       "command": "import-wsl",
-      "aliases": ["import-wsl", "wsl-import", "wsl-restore"],
+      "aliases": [
+        "import-wsl",
+        "wsl-import",
+        "wsl-restore"
+      ],
       "description": "Import WSL distributions from backup files",
       "example": "rsr import-wsl -InputFile ./Ubuntu.tar",
       "category": "backup",
       "subcategory": "tools",
       "path": "scripts/system/wsl/Import-WSLDistro.ps1",
       "version": "1.0.0",
-      "platforms": ["windows"],
-      "requires": ["powershell 5.1+", "wsl"],
+      "platforms": [
+        "windows"
+      ],
+      "requires": [
+        "powershell 5.1+",
+        "wsl"
+      ],
       "sudo": "none",
-      "tags": ["wsl", "restore", "import", "migration"]
+      "tags": [
+        "wsl",
+        "restore",
+        "import",
+        "migration"
+      ]
     },
     {
       "id": "configure-wsl",
       "name": "Configure WSL Distro",
       "command": "configure-wsl",
-      "aliases": ["configure-wsl", "wsl-config"],
+      "aliases": [
+        "configure-wsl",
+        "wsl-config"
+      ],
       "description": "Configure WSL distribution settings (systemd, automount, interop)",
       "example": "rsr configure-wsl -EnableSystemd",
       "category": "system",
       "subcategory": "tools",
       "path": "scripts/system/wsl/Set-WSLDistroConfig.ps1",
       "version": "1.0.0",
-      "platforms": ["windows"],
-      "requires": ["powershell 5.1+", "wsl"],
+      "platforms": [
+        "windows"
+      ],
+      "requires": [
+        "powershell 5.1+",
+        "wsl"
+      ],
       "sudo": "none",
-      "tags": ["wsl", "configuration", "systemd", "settings"]
+      "tags": [
+        "wsl",
+        "configuration",
+        "systemd",
+        "settings"
+      ]
     },
     {
       "id": "update-wsl",
       "name": "Update WSL Distro",
       "command": "update-wsl",
-      "aliases": ["update-wsl", "wsl-update", "wsl-upgrade"],
+      "aliases": [
+        "update-wsl",
+        "wsl-update",
+        "wsl-upgrade"
+      ],
       "description": "Update and maintain WSL distributions",
       "example": "rsr update-wsl -Upgrade",
       "category": "system",
       "subcategory": "updates",
       "path": "scripts/system/wsl/Update-WSLDistro.ps1",
       "version": "1.0.0",
-      "platforms": ["windows"],
-      "requires": ["powershell 5.1+", "wsl"],
+      "platforms": [
+        "windows"
+      ],
+      "requires": [
+        "powershell 5.1+",
+        "wsl"
+      ],
       "sudo": "none",
-      "tags": ["wsl", "update", "upgrade", "maintenance"]
+      "tags": [
+        "wsl",
+        "update",
+        "upgrade",
+        "maintenance"
+      ]
     },
     {
       "id": "configure-terminal",
       "name": "Configure Windows Terminal",
       "command": "configure-terminal",
-      "aliases": ["configure-terminal", "terminal-config"],
+      "aliases": [
+        "configure-terminal",
+        "terminal-config"
+      ],
       "description": "Configure Windows Terminal for optimal WSL/development experience",
       "example": "rsr configure-terminal -ConfigureWSLProfiles",
       "category": "system",
       "subcategory": "tools",
       "path": "scripts/system/terminal/Configure-WindowsTerminal.ps1",
       "version": "1.0.0",
-      "platforms": ["windows"],
-      "requires": ["powershell 5.1+", "Windows Terminal"],
+      "platforms": [
+        "windows"
+      ],
+      "requires": [
+        "powershell 5.1+",
+        "Windows Terminal"
+      ],
       "sudo": "none",
-      "tags": ["terminal", "windows", "configuration", "profiles"]
+      "tags": [
+        "terminal",
+        "windows",
+        "configuration",
+        "profiles"
+      ]
     },
     {
       "id": "configure-git-credentials",
       "name": "Configure Git Credentials",
       "command": "configure-git-credentials",
-      "aliases": ["git-credentials", "gcm-config"],
+      "aliases": [
+        "git-credentials",
+        "gcm-config"
+      ],
       "description": "Configure Git Credential Manager for Windows and WSL integration",
       "example": "rsr configure-git-credentials -ConfigureWindows -ConfigureWSL",
       "category": "system",
       "subcategory": "tools",
       "path": "scripts/system/git/Configure-GitCredentials.ps1",
       "version": "1.0.0",
-      "platforms": ["windows"],
-      "requires": ["powershell 5.1+", "git"],
+      "platforms": [
+        "windows"
+      ],
+      "requires": [
+        "powershell 5.1+",
+        "git"
+      ],
       "sudo": "none",
-      "tags": ["git", "credentials", "authentication", "wsl"]
+      "tags": [
+        "git",
+        "credentials",
+        "authentication",
+        "wsl"
+      ]
     },
     {
       "id": "configure-docker-wsl",
       "name": "Configure Docker WSL",
       "command": "configure-docker-wsl",
-      "aliases": ["docker-wsl", "docker-config"],
+      "aliases": [
+        "docker-wsl",
+        "docker-config"
+      ],
       "description": "Configure Docker Desktop for WSL 2 integration",
       "example": "rsr configure-docker-wsl -EnableWSLIntegration",
       "category": "containers",
       "subcategory": "docker",
       "path": "scripts/system/docker/Configure-DockerWSL.ps1",
       "version": "1.0.0",
-      "platforms": ["windows"],
-      "requires": ["powershell 5.1+", "Docker Desktop"],
+      "platforms": [
+        "windows"
+      ],
+      "requires": [
+        "powershell 5.1+",
+        "Docker Desktop"
+      ],
       "sudo": "none",
-      "tags": ["docker", "wsl", "containers", "configuration"]
+      "tags": [
+        "docker",
+        "wsl",
+        "containers",
+        "configuration"
+      ]
     },
     {
       "id": "configure-vscode-wsl",
       "name": "Configure VS Code WSL",
       "command": "configure-vscode-wsl",
-      "aliases": ["vscode-wsl", "code-wsl"],
+      "aliases": [
+        "vscode-wsl",
+        "code-wsl"
+      ],
       "description": "Configure VS Code for optimal WSL development experience",
       "example": "rsr configure-vscode-wsl -InstallWSLExtension",
       "category": "system",
       "subcategory": "tools",
       "path": "scripts/system/vscode/Configure-VSCodeWSL.ps1",
       "version": "1.0.0",
-      "platforms": ["windows"],
-      "requires": ["powershell 5.1+", "VS Code"],
+      "platforms": [
+        "windows"
+      ],
+      "requires": [
+        "powershell 5.1+",
+        "VS Code"
+      ],
       "sudo": "none",
-      "tags": ["vscode", "wsl", "extensions", "development"]
+      "tags": [
+        "vscode",
+        "wsl",
+        "extensions",
+        "development"
+      ]
     },
     {
       "id": "setup-windows",
       "name": "Setup Windows Environment",
       "command": "setup-windows",
-      "aliases": ["setup-windows", "windows-setup", "dev-setup"],
+      "aliases": [
+        "setup-windows",
+        "windows-setup",
+        "dev-setup"
+      ],
       "description": "Interactive Windows development environment setup wizard",
       "example": "rsr setup-windows",
       "category": "system",
       "subcategory": "tools",
       "path": "scripts/system/Setup-WindowsEnvironment.ps1",
       "version": "1.0.0",
-      "platforms": ["windows"],
-      "requires": ["powershell 5.1+"],
+      "platforms": [
+        "windows"
+      ],
+      "requires": [
+        "powershell 5.1+"
+      ],
       "sudo": "optional",
-      "tags": ["windows", "setup", "development", "environment", "wsl", "tools"]
+      "tags": [
+        "windows",
+        "setup",
+        "development",
+        "environment",
+        "wsl",
+        "tools"
+      ]
     },
     {
       "id": "remote-desktop",
       "name": "Remote Desktop Setup",
       "command": "remote-desktop",
-      "aliases": ["remote-desktop", "rdp", "rdp-setup", "xrdp"],
+      "aliases": [
+        "remote-desktop",
+        "rdp",
+        "rdp-setup",
+        "xrdp"
+      ],
       "description": "Setup remote desktop server (xRDP on Linux, RDP on Windows) with security hardening",
       "example": "rsr remote-desktop install",
       "category": "system",
@@ -784,11 +1489,55 @@
       "path": "scripts/system/remote-desktop/remote-desktop-setup.sh",
       "powershell": "scripts/system/remote-desktop/Remote-Desktop-Setup.ps1",
       "version": "1.0.0",
-      "platforms": ["linux", "windows"],
-      "requires": ["bash 4.0+|PowerShell 5.1+"],
+      "platforms": [
+        "linux",
+        "windows"
+      ],
+      "requires": [
+        "bash 4.0+|PowerShell 5.1+"
+      ],
       "sudo": "required",
-      "tags": ["remote-desktop", "rdp", "xrdp", "remote-access", "gui", "desktop"]
+      "tags": [
+        "remote-desktop",
+        "rdp",
+        "xrdp",
+        "remote-access",
+        "gui",
+        "desktop"
+      ]
+    },
+    {
+      "id": "ansible-uv-ctl",
+      "name": "Ansible via uv Controller",
+      "command": "ansible-uv",
+      "aliases": [
+        "ansible-uv",
+        "ansible-uv-ctl",
+        "ansible-install"
+      ],
+      "description": "Install, upgrade, uninstall, and conflict-check Ansible managed via uv (full lifecycle)",
+      "example": "rsr ansible-uv --with-dev",
+      "category": "system",
+      "subcategory": "tools",
+      "path": "scripts/system/tools/ansible-uv-ctl.sh",
+      "version": "1.2.0",
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "requires": [
+        "bash 4.0+",
+        "uv >= 0.8.5"
+      ],
+      "sudo": "optional",
+      "tags": [
+        "ansible",
+        "uv",
+        "python",
+        "tools",
+        "install",
+        "upgrade"
+      ]
     }
   ]
 }
-

@@ -33,8 +33,10 @@ scripts/
 │   │   └── system-update.sh
 │   ├── cleanup/            # Disk and cache cleanup
 │   │   └── disk-cleanup.sh
-│   └── info/               # System information
-│       └── detect-distro.sh
+│   ├── info/               # System information
+│   │   └── detect-distro.sh
+│   └── tools/              # Developer tool lifecycle management
+│       └── ansible-uv-ctl.sh  # Install/upgrade/uninstall Ansible via uv
 │
 ├── users/                  # User management
 │   ├── management/         # User CRUD operations

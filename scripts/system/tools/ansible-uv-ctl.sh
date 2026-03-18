@@ -1,22 +1,22 @@
 #!/bin/bash
-# install-ansible-uv.sh — Install Ansible fully via uv (Python package manager)
+# ansible-uv-ctl.sh — Ansible lifecycle manager via uv (install, upgrade, uninstall, check)
 #
 # Installs ansible-core as the primary uv tool with the full ansible package
 # (including 100+ bundled community collections). This is the community-recommended
 # approach that properly exposes all CLI executables to ~/.local/bin/.
 #
 # Usage:
-#   ./install-ansible-uv.sh                    # Install with defaults
-#   ./install-ansible-uv.sh --with-lint        # Also install ansible-lint
-#   ./install-ansible-uv.sh --with-molecule    # Also install molecule
-#   ./install-ansible-uv.sh --with-dev         # Install lint + molecule
-#   ./install-ansible-uv.sh --core-only        # Install ansible-core without collections
-#   ./install-ansible-uv.sh --check            # Audit for conflicts, then exit
-#   ./install-ansible-uv.sh --uninstall        # Remove ansible uv tools (keeps ~/.ansible/)
-#   ./install-ansible-uv.sh --uninstall --purge  # Also remove ~/.ansible/ data directory
-#   ./install-ansible-uv.sh --uninstall --yes  # Non-interactive (no confirmation prompt)
-#   ./install-ansible-uv.sh --upgrade          # Upgrade all ansible uv tools
-#   ./install-ansible-uv.sh --upgrade --with-dev  # Upgrade + add lint/molecule if missing
+#   ./ansible-uv-ctl.sh                    # Install with defaults
+#   ./ansible-uv-ctl.sh --with-lint        # Also install ansible-lint
+#   ./ansible-uv-ctl.sh --with-molecule    # Also install molecule
+#   ./ansible-uv-ctl.sh --with-dev         # Install lint + molecule
+#   ./ansible-uv-ctl.sh --core-only        # Install ansible-core without collections
+#   ./ansible-uv-ctl.sh --check            # Audit for conflicts, then exit
+#   ./ansible-uv-ctl.sh --uninstall        # Remove ansible uv tools (keeps ~/.ansible/)
+#   ./ansible-uv-ctl.sh --uninstall --purge  # Also remove ~/.ansible/ data directory
+#   ./ansible-uv-ctl.sh --uninstall --yes  # Non-interactive (no confirmation prompt)
+#   ./ansible-uv-ctl.sh --upgrade          # Upgrade all ansible uv tools
+#   ./ansible-uv-ctl.sh --upgrade --with-dev  # Upgrade + add lint/molecule if missing
 #
 # Requirements:
 #   - uv (https://docs.astral.sh/uv/)
@@ -743,7 +743,7 @@ verify_install() {
 
 usage() {
     cat <<EOF
-${BOLD}install-ansible-uv.sh${NC} v${VERSION} — Install Ansible fully via uv
+${BOLD}ansible-uv-ctl.sh${NC} v${VERSION} — Ansible lifecycle manager via uv
 
 ${BOLD}USAGE${NC}
     $(basename "$0") [OPTIONS]
