@@ -11,7 +11,9 @@
 #   ./install-ansible-uv.sh --with-molecule    # Also install molecule
 #   ./install-ansible-uv.sh --with-dev         # Install lint + molecule
 #   ./install-ansible-uv.sh --core-only        # Install ansible-core without collections
-#   ./install-ansible-uv.sh --uninstall        # Remove ansible tools installed by this script
+#   ./install-ansible-uv.sh --uninstall        # Remove ansible uv tools (keeps ~/.ansible/)
+#   ./install-ansible-uv.sh --uninstall --purge  # Also remove ~/.ansible/ data directory
+#   ./install-ansible-uv.sh --uninstall --yes  # Non-interactive (no confirmation prompt)
 #   ./install-ansible-uv.sh --upgrade          # Upgrade all ansible uv tools
 #
 # Requirements:
@@ -39,6 +41,8 @@ UPGRADE=false
 FORCE=false
 QUIET=false
 DRY_RUN=false
+YES=false   # skip confirmation prompts (for CI / non-interactive use)
+PURGE=false # also remove ~/.ansible/ data on uninstall
 
 # ============================================================================
 # Colors
@@ -138,9 +142,13 @@ check_existing_apt_ansible() {
             echo "  Remove it with:  sudo apt remove --purge ansible ansible-core"
             echo "  Or re-run with:  $0 --force"
             echo
-            read -rp "Continue anyway? [y/N] " response
-            if [[ ! "$response" =~ ^[Yy] ]]; then
-                exit 0
+            if $YES; then
+                log_warn "Continuing despite apt conflict (--yes)"
+            else
+                read -rp "Continue anyway? [y/N] " response
+                if [[ ! "$response" =~ ^[Yy] ]]; then
+                    exit 0
+                fi
             fi
         fi
     fi
@@ -261,20 +269,129 @@ do_upgrade() {
 # ============================================================================
 
 do_uninstall() {
-    log_header "Uninstalling Ansible uv tools"
+    log_header "Uninstalling Ansible"
 
-    local found=false
+    # ── Discover installed uv tools ──────────────────────────────────────────
+    local tools=()
+    local tool_versions=()
+    local tool
     for tool in ansible-core ansible ansible-lint molecule; do
         if uv tool list 2>/dev/null | grep -q "^${tool} "; then
-            log_step "Uninstalling $tool"
-            run_cmd uv tool uninstall "$tool"
-            log_info "$tool removed"
-            found=true
+            local ver
+            ver=$(uv tool list 2>/dev/null | grep "^${tool} " | awk '{print $2}')
+            tools+=("$tool")
+            tool_versions+=("${tool} ${ver}")
         fi
     done
 
-    if ! $found; then
-        log_warn "No Ansible uv tools found"
+    if [ ${#tools[@]} -eq 0 ]; then
+        log_warn "No Ansible uv tools are installed — nothing to remove"
+        return 0
+    fi
+
+    # ── Discover executables that will vanish ────────────────────────────────
+    local executables=()
+    local bin
+    for bin in "${HOME}/.local/bin"/ansible*; do
+        [[ -f "$bin" ]] && executables+=("$(basename "$bin")")
+    done
+
+    # ── Print preview ────────────────────────────────────────────────────────
+    echo
+    echo -e "${BOLD}The following will be removed:${NC}"
+    echo
+    echo "  uv tools:"
+    local info
+    for info in "${tool_versions[@]}"; do
+        echo -e "    ${BLUE}•${NC} ${info}"
+    done
+
+    if [ ${#executables[@]} -gt 0 ]; then
+        echo
+        echo "  executables from ~/.local/bin/:"
+        local exe_list
+        exe_list=$(printf '%s, ' "${executables[@]}")
+        echo "    ${exe_list%, }"
+    fi
+
+    if $PURGE; then
+        echo
+        echo "  data directories (--purge):"
+        [[ -d "${HOME}/.ansible" ]] \
+            && echo -e "    ${RED}•${NC} ~/.ansible/  (roles, collections cache, facts cache)"
+    else
+        if [[ -d "${HOME}/.ansible" ]]; then
+            echo
+            echo -e "  ${YELLOW}Note:${NC} ~/.ansible/ will NOT be removed (add --purge to also wipe user data)"
+        fi
+    fi
+
+    echo
+
+    # ── Confirm ──────────────────────────────────────────────────────────────
+    if $DRY_RUN; then
+        log_warn "Dry-run mode — no changes will be made"
+        echo
+    elif $YES; then
+        log_warn "Non-interactive mode (--yes) — skipping confirmation"
+        echo
+    else
+        read -rp "Proceed with uninstall? [y/N] " response
+        echo
+        case "$response" in
+            [Yy]*) ;;
+            *)
+                log_warn "Uninstall cancelled"
+                exit 0
+                ;;
+        esac
+    fi
+
+    # ── Remove tools ─────────────────────────────────────────────────────────
+    local removed=()
+    local failed=()
+    for tool in "${tools[@]}"; do
+        log_step "Removing $tool"
+        if run_cmd uv tool uninstall "$tool"; then
+            log_info "$tool removed"
+            removed+=("$tool")
+        else
+            log_error "Failed to remove $tool"
+            failed+=("$tool")
+        fi
+    done
+
+    # ── Purge data dirs ───────────────────────────────────────────────────────
+    if $PURGE; then
+        if [[ -d "${HOME}/.ansible" ]]; then
+            log_step "Removing ~/.ansible/"
+            run_cmd rm -rf "${HOME}/.ansible"
+            $DRY_RUN || log_info "${HOME}/.ansible/ removed"
+        else
+            log_warn "${HOME}/.ansible/ not found — nothing to purge"
+        fi
+    fi
+
+    # ── Summary ───────────────────────────────────────────────────────────────
+    log_header "Uninstall Summary"
+
+    if [ ${#removed[@]} -gt 0 ]; then
+        local removed_list
+        removed_list=$(printf '%s, ' "${removed[@]}")
+        log_info "Removed:   ${removed_list%, }"
+    fi
+    if [ ${#failed[@]} -gt 0 ]; then
+        local failed_list
+        failed_list=$(printf '%s, ' "${failed[@]}")
+        log_error "Failed:    ${failed_list%, }"
+    fi
+    if ! $DRY_RUN && [ ${#removed[@]} -gt 0 ]; then
+        echo
+        log_warn "Run 'hash -r' or open a new terminal to refresh your shell's command cache"
+    fi
+
+    if [ ${#failed[@]} -gt 0 ]; then
+        return 1
     fi
 }
 
@@ -345,18 +462,22 @@ ${BOLD}OPTIONS${NC}
     --with-dev         Install both ansible-lint and molecule
     --core-only        Install ansible-core only (no bundled collections)
     --upgrade          Upgrade all installed Ansible uv tools
-    --uninstall        Remove all Ansible uv tools
+    --uninstall        Remove Ansible uv tools (keeps ~/.ansible/ data)
+    --purge            With --uninstall: also remove ~/.ansible/ data directory
+    --yes              Skip confirmation prompts (for CI / non-interactive use)
     --force            Force reinstall; auto-remove apt ansible if present
     --dry-run          Show what would be done without executing
     --quiet            Suppress uv output
     -h, --help         Show this help message
 
 ${BOLD}EXAMPLES${NC}
-    $(basename "$0")                    # Standard install (ansible-core + collections)
-    $(basename "$0") --with-dev         # Full dev setup with lint + molecule
-    $(basename "$0") --force            # Reinstall from scratch
-    $(basename "$0") --upgrade          # Upgrade all ansible tools
-    $(basename "$0") --uninstall        # Clean removal of all ansible tools
+    $(basename "$0")                         # Standard install (ansible-core + collections)
+    $(basename "$0") --with-dev              # Full dev setup with lint + molecule
+    $(basename "$0") --force                 # Reinstall from scratch
+    $(basename "$0") --upgrade               # Upgrade all ansible tools
+    $(basename "$0") --uninstall             # Remove tools, keep ~/.ansible/ data
+    $(basename "$0") --uninstall --purge     # Remove tools + wipe ~/.ansible/
+    $(basename "$0") --uninstall --yes       # Non-interactive uninstall (CI-safe)
 
 ${BOLD}WHAT THIS INSTALLS${NC}
     The recommended pattern: ${BLUE}uv tool install ansible-core --with ansible${NC}
@@ -398,6 +519,8 @@ main() {
             --core-only) CORE_ONLY=true ;;
             --uninstall) UNINSTALL=true ;;
             --upgrade) UPGRADE=true ;;
+            --purge) PURGE=true ;;
+            --yes) YES=true ;;
             --force) FORCE=true ;;
             --dry-run) DRY_RUN=true ;;
             --quiet) QUIET=true ;;
@@ -421,6 +544,12 @@ main() {
     check_path
 
     # Handle uninstall/upgrade early
+    if $PURGE && ! $UNINSTALL; then
+        log_error "--purge only makes sense with --uninstall"
+        echo "  Example: $0 --uninstall --purge"
+        exit 1
+    fi
+
     if $UNINSTALL; then
         do_uninstall
         exit 0
