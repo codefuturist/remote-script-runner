@@ -28,7 +28,7 @@ set -euo pipefail
 # ============================================================================
 
 VERSION="1.0.0"
-UV_MIN_VERSION="0.8.5"  # minimum for --with-executables-from support
+UV_MIN_VERSION="0.8.5" # minimum for --with-executables-from support
 
 # Defaults
 WITH_LINT=false
@@ -59,10 +59,10 @@ fi
 # Helpers
 # ============================================================================
 
-log_info()  { echo -e "${GREEN}[✓]${NC} $*"; }
-log_warn()  { echo -e "${YELLOW}[!]${NC} $*"; }
+log_info() { echo -e "${GREEN}[✓]${NC} $*"; }
+log_warn() { echo -e "${YELLOW}[!]${NC} $*"; }
 log_error() { echo -e "${RED}[✗]${NC} $*" >&2; }
-log_step()  { echo -e "${BLUE}[→]${NC} $*"; }
+log_step() { echo -e "${BLUE}[→]${NC} $*"; }
 log_header() { echo -e "\n${BOLD}$*${NC}"; }
 
 run_cmd() {
@@ -389,16 +389,22 @@ main() {
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            --with-lint)     WITH_LINT=true ;;
+            --with-lint) WITH_LINT=true ;;
             --with-molecule) WITH_MOLECULE=true ;;
-            --with-dev)      WITH_LINT=true; WITH_MOLECULE=true ;;
-            --core-only)     CORE_ONLY=true ;;
-            --uninstall)     UNINSTALL=true ;;
-            --upgrade)       UPGRADE=true ;;
-            --force)         FORCE=true ;;
-            --dry-run)       DRY_RUN=true ;;
-            --quiet)         QUIET=true ;;
-            -h|--help)       usage; exit 0 ;;
+            --with-dev)
+                WITH_LINT=true
+                WITH_MOLECULE=true
+                ;;
+            --core-only) CORE_ONLY=true ;;
+            --uninstall) UNINSTALL=true ;;
+            --upgrade) UPGRADE=true ;;
+            --force) FORCE=true ;;
+            --dry-run) DRY_RUN=true ;;
+            --quiet) QUIET=true ;;
+            -h | --help)
+                usage
+                exit 0
+                ;;
             *)
                 log_error "Unknown option: $1"
                 echo "Run with --help for usage."
