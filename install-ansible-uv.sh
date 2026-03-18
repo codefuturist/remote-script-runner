@@ -16,6 +16,7 @@
 #   ./install-ansible-uv.sh --uninstall --purge  # Also remove ~/.ansible/ data directory
 #   ./install-ansible-uv.sh --uninstall --yes  # Non-interactive (no confirmation prompt)
 #   ./install-ansible-uv.sh --upgrade          # Upgrade all ansible uv tools
+#   ./install-ansible-uv.sh --upgrade --with-dev  # Upgrade + add lint/molecule if missing
 #
 # Requirements:
 #   - uv (https://docs.astral.sh/uv/)
@@ -30,7 +31,7 @@ set -euo pipefail
 # Configuration
 # ============================================================================
 
-VERSION="1.1.0"
+VERSION="1.2.0"
 UV_MIN_VERSION="0.8.5" # minimum for --with-executables-from support
 
 # Defaults
@@ -481,30 +482,78 @@ install_molecule() {
 do_upgrade() {
     log_header "Upgrading Ansible uv tools"
 
+    # Discover which ansible tools are currently installed via uv
     local tools=()
-    if uv tool list 2>/dev/null | grep -q '^ansible-core '; then
+    local tool_list
+    tool_list=$(uv tool list 2>/dev/null)
+
+    if echo "$tool_list" | grep -q '^ansible-core '; then
         tools+=("ansible-core")
-    elif uv tool list 2>/dev/null | grep -q '^ansible '; then
+    elif echo "$tool_list" | grep -q '^ansible '; then
         tools+=("ansible")
     fi
+    echo "$tool_list" | grep -q '^ansible-lint ' && tools+=("ansible-lint")
+    echo "$tool_list" | grep -q '^molecule '      && tools+=("molecule")
 
-    if uv tool list 2>/dev/null | grep -q '^ansible-lint '; then
-        tools+=("ansible-lint")
+    # --with-lint / --with-molecule: install if not yet present, upgrade if present
+    if $WITH_LINT && ! echo "$tool_list" | grep -q '^ansible-lint '; then
+        log_step "ansible-lint not installed — installing (--with-lint)"
+        run_cmd uv tool install ansible-lint
+        log_info "ansible-lint installed"
+        WITH_LINT=false # already handled, skip normal install_lint path
     fi
-    if uv tool list 2>/dev/null | grep -q '^molecule '; then
-        tools+=("molecule")
+    if $WITH_MOLECULE && ! echo "$tool_list" | grep -q '^molecule '; then
+        log_step "molecule not installed — installing (--with-molecule)"
+        run_cmd uv tool install molecule
+        log_info "molecule installed"
+        WITH_MOLECULE=false
     fi
 
     if [ ${#tools[@]} -eq 0 ]; then
         log_warn "No Ansible uv tools found to upgrade"
+        echo "  Install first:  $(basename "$0")"
         exit 0
     fi
 
+    local upgraded=0
+    local already_latest=0
+
     for tool in "${tools[@]}"; do
-        log_step "Upgrading $tool"
-        run_cmd uv tool upgrade "$tool"
-        log_info "$tool upgraded"
+        local before after
+        before=$(uv tool list 2>/dev/null | awk "/^${tool} /{print \$2}")
+        log_step "Upgrading $tool (current: ${before})"
+
+        local upgrade_output
+        upgrade_output=$(uv tool upgrade "$tool" 2>&1)
+        local rc=$?
+
+        if $QUIET; then
+            :
+        else
+            echo "$upgrade_output" | grep -v '^$' || true
+        fi
+
+        if [ $rc -ne 0 ]; then
+            log_error "Failed to upgrade $tool"
+            continue
+        fi
+
+        after=$(uv tool list 2>/dev/null | awk "/^${tool} /{print \$2}")
+
+        if [ "$before" = "$after" ]; then
+            log_info "$tool is already at the latest version (${after})"
+            ((already_latest++)) || true
+        else
+            log_info "$tool upgraded: ${before} → ${after}"
+            ((upgraded++)) || true
+        fi
+        echo
     done
+
+    # Summary
+    echo -e "${BOLD}Upgrade Summary${NC}"
+    [ $upgraded -gt 0 ]      && log_info "$upgraded tool(s) upgraded to newer versions"
+    [ $already_latest -gt 0 ] && log_info "$already_latest tool(s) already at latest version"
 }
 
 # ============================================================================
@@ -704,7 +753,10 @@ ${BOLD}OPTIONS${NC}
     --with-molecule    Also install molecule as a separate uv tool
     --with-dev         Install both ansible-lint and molecule
     --core-only        Install ansible-core only (no bundled collections)
-    --upgrade          Upgrade all installed Ansible uv tools
+    --upgrade          Upgrade all installed Ansible uv tools to latest
+    --upgrade --with-lint      Also add ansible-lint if not yet installed
+    --upgrade --with-molecule  Also add molecule if not yet installed
+    --upgrade --with-dev       Also add lint + molecule if not yet installed
     --uninstall        Remove Ansible uv tools (keeps ~/.ansible/ data)
     --purge            With --uninstall: also remove ~/.ansible/ data directory
     --check            Run conflict detection only, then exit (0=clean, 1=warn, 2=blockers)
@@ -715,14 +767,15 @@ ${BOLD}OPTIONS${NC}
     -h, --help         Show this help message
 
 ${BOLD}EXAMPLES${NC}
-    $(basename "$0")                         # Standard install (ansible-core + collections)
-    $(basename "$0") --with-dev              # Full dev setup with lint + molecule
-    $(basename "$0") --check                 # Audit environment for conflicts, then exit
-    $(basename "$0") --force                 # Reinstall, override/remove blockers
-    $(basename "$0") --upgrade               # Upgrade all ansible tools
-    $(basename "$0") --uninstall             # Remove tools, keep ~/.ansible/ data
-    $(basename "$0") --uninstall --purge     # Remove tools + wipe ~/.ansible/
-    $(basename "$0") --uninstall --yes       # Non-interactive uninstall (CI-safe)
+    $(basename "$0")                              # Standard install (ansible-core + collections)
+    $(basename "$0") --with-dev                   # Full dev setup with lint + molecule
+    $(basename "$0") --check                      # Audit environment for conflicts, then exit
+    $(basename "$0") --force                      # Reinstall, override/remove blockers
+    $(basename "$0") --upgrade                    # Upgrade all installed ansible tools
+    $(basename "$0") --upgrade --with-dev         # Upgrade + install lint/molecule if missing
+    $(basename "$0") --uninstall                  # Remove tools, keep ~/.ansible/ data
+    $(basename "$0") --uninstall --purge          # Remove tools + wipe ~/.ansible/
+    $(basename "$0") --uninstall --yes            # Non-interactive uninstall (CI-safe)
 
 ${BOLD}WHAT THIS INSTALLS${NC}
     The recommended pattern: ${BLUE}uv tool install ansible-core --with ansible${NC}
@@ -736,9 +789,13 @@ ${BOLD}WHAT THIS INSTALLS${NC}
     have independent dependency trees.
 
 ${BOLD}UPGRADING${NC}
-    uv tool upgrade ansible-core       # Upgrade ansible
-    uv tool upgrade ansible-lint       # Upgrade linter
-    uv tool upgrade molecule           # Upgrade molecule
+    $(basename "$0") --upgrade            # Upgrade all installed ansible uv tools
+    $(basename "$0") --upgrade --with-dev # Upgrade and add lint/molecule if missing
+
+    Or manually per tool:
+    uv tool upgrade ansible-core          # Upgrade ansible
+    uv tool upgrade ansible-lint          # Upgrade linter
+    uv tool upgrade molecule              # Upgrade molecule
 
 ${BOLD}REFERENCES${NC}
     https://samedwardes.com/blog/2025-12-29-how-to-install-ansible-with-uv/
@@ -807,7 +864,7 @@ main() {
         exit 0
     fi
 
-    if $UPGRADE && ! $FORCE; then
+    if $UPGRADE; then
         do_upgrade
         verify_install
         exit 0
